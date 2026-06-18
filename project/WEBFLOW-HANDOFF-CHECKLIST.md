@@ -56,18 +56,20 @@ have ready and the order of operations. The consolidated motion files live in
 
 ## C. The two lines to paste into Webflow custom code
 
-Head (Site Settings → Custom Code → Head, or Page → Custom Code → head):
+Head (Site Settings → Custom Code → Head):
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/<user>/<repo>@main/idea-factory.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/idea-factory-umd/webflow-assets@v1.0.0/idea-factory.css">
 ```
-Footer (… → Footer, before `</body>`):
+Footer (Site Settings → Custom Code → Footer, before `</body>`):
 ```html
-<script defer src="https://cdn.jsdelivr.net/gh/<user>/<repo>@main/idea-factory.js"></script>
+<script defer src="https://cdn.jsdelivr.net/gh/idea-factory-umd/webflow-assets@v1.0.0/idea-factory.js"></script>
 ```
 
 ---
 
 ## D. Class contract — assign these in the Designer
+
+### Scroll & reading effects (JS-driven)
 
 | Element in Webflow | Class to add |
 |---|---|
@@ -76,21 +78,58 @@ Footer (… → Footer, before `</body>`):
 | Manifesto heading | `if-manifesto` |
 | Each manifesto sentence span | `if-manifesto-line` |
 | Each "The proof" stat number | `if-countup` (final value as its text, e.g. `$94.8B`) |
-| "One place. Every stage." section | `if-stage-moment` |
+| "One place. Every stage." full-bleed section | `if-stage-moment` |
 | …its background photo | `if-stage-photo` |
 | …its headline wrapper | `if-stage-text` |
-| News card (featured + each row) | `if-news-card` |
-| …the image wrapper inside each (overflow hidden) | `if-news-photo` |
-| Featured event card | `if-event-feat` |
-| …its big day+month group | `if-event-date` |
-| Each agenda event row | `if-event-row` |
-| …its date number+month text wrapper | `if-event-datetext` |
 | Navbar | `if-navbar` |
 | Footer nav-link columns wrapper | `if-foot-cols` |
 
-Native hover effects (button/nav grow, logo lift, card shadow, dropdown hatch,
-sticky header, gold lines, Mondrian blocks) are rebuilt directly in the Designer
-— see WEBFLOW-HANDOFF-NOTES.md §3.
+### Hover zoom effects (CSS-only)
+
+| Element in Webflow | Class to add | Notes |
+|---|---|---|
+| News card `<a>` wrapper | `if-news-card` | Triggers photo zoom on hover |
+| …the image wrapper inside each | `if-news-photo` | Must have `overflow: hidden` |
+| Featured event card | `if-event-feat` | Triggers date zoom on hover |
+| …its big day+month group | `if-event-date` | Scales 1.11× |
+| Each agenda event row | `if-event-row` | Triggers datetext zoom on hover |
+| …its date number+month text wrapper | `if-event-datetext` | Scales 1.12× |
+
+### Glyph & audience spring (CSS-only, overshoot easing)
+
+| Element in Webflow | Class to add | Notes |
+|---|---|---|
+| Each four-stage cell `<a>` wrapper | `if-stage-cell` | Box never lifts; only glyph springs |
+| The glyph `<img>` or `<svg>` inside each cell | `if-stage-glyph` | Scales 1.32× on hover (fallback; structural `> img/svg` selector is primary) |
+| Each audience card `<a>` wrapper | `if-aud-cell` | The `<h3>` inside springs 1.12× left-anchored |
+
+### Logo lift & window effect (CSS-only)
+
+| Element in Webflow | Class to add | Notes |
+|---|---|---|
+| Each logo `<a>` or `<span>` wrapper | `if-logo-link` | Direct `img`/`svg` child lifts 1.05× on hover |
+| The logo `<img>` or `<svg>` (fallback) | `if-logo-mark` | Legacy selector; use `if-logo-link` wrapper instead |
+| The gold window polygon inside the inline SVG logo | `if-logo-window` | Twinkles with brightness + glow on hover |
+
+### Nav dropdown text grow (CSS-only)
+
+| Element in Webflow | Class to add |
+|---|---|
+| Each dropdown sub-link `<a>` | `if-nav-sublink` |
+| The label `<span>` inside each sub-link | `if-nav-sublink-text` |
+
+### Gold accent bars (CSS + JS measurement)
+
+| Element in Webflow | Class to add | Notes |
+|---|---|---|
+| The identity band wrapper (contains logo + tagline) | `if-id-band` | JS measures this to set bar top |
+| The 16px gold bar div inside the identity band | `if-header-gold-bar` | `position: absolute` inside `if-id-band` |
+| The Give button `<a>` in the footer | `if-give` | JS measures its baseline for bar height |
+| The 16px gold bar div inside the footer | `if-footer-gold-bar` | `position: absolute` inside `<footer>` |
+| The 16px gold bar div in the proof/impact section | `if-proof-gold-bar` | `position: absolute` inside the section; no JS needed |
+
+Native hover effects (button/nav grow, card shadow, sticky header, Mondrian blocks)
+are rebuilt directly in the Designer — see WEBFLOW-HANDOFF-NOTES.md §3.
 
 ---
 
@@ -100,5 +139,7 @@ sticky header, gold lines, Mondrian blocks) are rebuilt directly in the Designer
   hosted code. The class names above are the glue.
 - Custom JS does not preview inside the Webflow Designer — test on the published
   site or Webflow Preview.
-- jsDelivr caches hard: bump `@main` to `@v2` (a git tag) or purge the cache to
-  see edits to the motion files immediately.
+- jsDelivr caches hard: bump `@v1.0.0` to `@v2.0.0` (a new git tag in
+  `idea-factory-umd/webflow-assets`) or purge the cache at
+  `https://purge.jsdelivr.net/gh/idea-factory-umd/webflow-assets@v1.0.0/idea-factory.css`
+  to see edits to the motion files immediately.

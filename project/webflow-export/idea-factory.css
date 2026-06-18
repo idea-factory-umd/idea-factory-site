@@ -11,61 +11,214 @@
    ============================================================ */
 
 /* ---- shared easing tokens ---- */
-:root{
-  --if-ease-glide: cubic-bezier(0.16, 1, 0.3, 1);   /* smooth decelerate (news/date zoom) */
-  --if-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --if-dur-zoom: 720ms;
+:root {
+  --if-ease-glide:  cubic-bezier(0.16, 1, 0.3, 1);          /* smooth decelerate (news/date zoom) */
+  --if-ease-spring: cubic-bezier(0.34, 1.7, 0.5, 1);        /* overshoot spring (glyphs, audience) */
+  --if-ease-window: cubic-bezier(0.34, 1.56, 0.64, 1);      /* window twinkle overshoot */
+  --if-dur-zoom:    720ms;
 }
 
 /* ============================================================
    1. HERO reading highlight  (JS drives .if-hero-word opacity)
    ============================================================ */
-.if-hero-word{ transition: opacity 0.28s ease-out; }
-.if-hero-h1.is-settling .if-hero-word{ transition-duration: 0.95s; } /* gentle final fade-up */
-.if-hero-h1.font-pending{ visibility: hidden; }                       /* font-load gate */
+.if-hero-word { transition: opacity 0.28s ease-out; }
+.if-hero-h1.is-settling .if-hero-word { transition-duration: 0.95s; } /* gentle final fade-up */
+.if-hero-h1.font-pending { visibility: hidden; }                       /* font-load gate */
 
 /* ============================================================
    2. MANIFESTO sentence lift  (JS toggles classes)
    ============================================================ */
-.if-manifesto-line{
-  display:inline-block; transform-origin:left center;
+.if-manifesto-line {
+  display: inline-block; transform-origin: left center;
   transition: transform 0.55s var(--if-ease-glide), text-shadow 0.55s var(--if-ease-glide), opacity 0.55s var(--if-ease-glide);
   will-change: transform;
 }
-.if-manifesto-line.is-lift{ transform: translateY(-3px) scale(1.11); text-shadow: 0 9px 16px rgba(0,0,0,0.30); position:relative; z-index:2; }
-.if-manifesto.is-dimming .if-manifesto-line{ opacity:0.86; }          /* subtle dim-on-pull */
-.if-manifesto.is-dimming .if-manifesto-line.is-lift{ opacity:1; }
+.if-manifesto-line.is-lift { transform: translateY(-3px) scale(1.11); text-shadow: 0 9px 16px rgba(0,0,0,0.30); position: relative; z-index: 2; }
+.if-manifesto.is-dimming .if-manifesto-line { opacity: 0.86; }         /* subtle dim-on-pull */
+.if-manifesto.is-dimming .if-manifesto-line.is-lift { opacity: 1; }
 
 /* ============================================================
    3. STAGE photo + headline  (JS sets transform/opacity inline)
    ============================================================ */
-.if-stage-photo{ transform-origin:38% 36%; will-change:transform; backface-visibility:hidden; }
-.if-stage-text{ will-change: transform, opacity; }
+.if-stage-photo { transform-origin: 38% 36%; will-change: transform; backface-visibility: hidden; }
+.if-stage-text  { will-change: transform, opacity; }
 
 /* ============================================================
    4. NEWS photo hover-zoom  (CSS only — image-agnostic)
    In Webflow use normal Image elements: put overflow:hidden on the
    image's WRAPPER and class the wrapper `.if-news-photo`.
    ============================================================ */
-.if-news-photo{ overflow:hidden; }
-.if-news-photo img{ display:block; width:100%; height:100%; object-fit:cover;
-  transition: transform var(--if-dur-zoom) var(--if-ease-glide); will-change:transform; }
-.if-news-card:hover .if-news-photo img{ transform: scale(1.11); }
+.if-news-photo { overflow: hidden; }
+.if-news-photo img {
+  display: block; width: 100%; height: 100%; object-fit: cover;
+  transition: transform var(--if-dur-zoom) var(--if-ease-glide); will-change: transform;
+}
+.if-news-card:hover .if-news-photo img { transform: scale(1.11); }
 
 /* ============================================================
    5. EVENT date hover-zoom  (CSS only)
    ============================================================ */
-.if-event-date{ transition: transform var(--if-dur-zoom) var(--if-ease-glide); transform-origin:center center; }
-.if-event-feat:hover .if-event-date{ transform: scale(1.11); }   /* featured: big day+month */
-.if-event-datetext{ display:inline-flex; flex-direction:column; align-items:center;
-  transition: transform var(--if-dur-zoom) var(--if-ease-glide); transform-origin:center center; }
-.if-event-row:hover .if-event-datetext{ transform: scale(1.12); } /* agenda: text only, box still */
+.if-event-date {
+  transition: transform var(--if-dur-zoom) var(--if-ease-glide); transform-origin: center center;
+}
+.if-event-feat:hover .if-event-date { transform: scale(1.11); }   /* featured: big day+month */
+.if-event-datetext {
+  display: inline-flex; flex-direction: column; align-items: center;
+  transition: transform var(--if-dur-zoom) var(--if-ease-glide); transform-origin: center center;
+}
+.if-event-row:hover .if-event-datetext { transform: scale(1.12); } /* agenda: text only, box still */
 
 /* ============================================================
-   6. Reduced motion — show final state, never animate
+   6. GLYPH spring-up hover
+   The four colored stage boxes stay fixed; only the glyph inside
+   each springs up and scales with an overshoot curve.
+   Assign .if-stage-cell to the <a> wrapper and .if-stage-glyph
+   to the glyph <img> or <svg> inside it.
    ============================================================ */
-@media (prefers-reduced-motion: reduce){
-  .if-hero-word, .if-manifesto-line{ opacity:1 !important; transform:none !important; }
-  .if-stage-photo, .if-stage-text{ transform:none !important; opacity:1 !important; }
-  .if-hero-h1.font-pending{ visibility:visible !important; }
+.if-stage-cell { transform: none !important; }  /* box never lifts */
+.if-stage-glyph,
+.if-stage-cell > img,
+.if-stage-cell > svg {
+  transition: transform 520ms var(--if-ease-spring);
+  transform-origin: center;
+  will-change: transform;
+}
+.if-stage-cell:hover .if-stage-glyph,
+.if-stage-cell:hover > img,
+.if-stage-cell:hover > svg {
+  transform: scale(1.32);
+}
+
+/* ============================================================
+   7. AUDIENCE CELL label spring  (CSS only)
+   The title h3 inside each audience card springs out slightly on
+   hover, anchored left so it grows in place.
+   Assign .if-aud-cell to each audience card <a>.
+   ============================================================ */
+.if-aud-cell h3 {
+  transition: transform 520ms var(--if-ease-spring);
+  transform-origin: left center;
+  will-change: transform;
+}
+.if-aud-cell:hover h3 { transform: scale(1.12); }
+
+/* ============================================================
+   8. LOGO hover: scale lift  (CSS only)
+   Quick snap in (110ms, decisive easeOut), slow easeInOutQuint
+   release (420ms). Targets the logo by position — the direct
+   img/svg child of the .if-logo-link wrapper. The legacy
+   .if-logo-mark class selector is kept as a harmless fallback.
+   Assign .if-logo-link to each logo <a>/<span> wrapper.
+   ============================================================ */
+.if-logo-link > img,
+.if-logo-link > svg,
+.if-logo-mark {
+  transition: transform 420ms cubic-bezier(0.83, 0, 0.17, 1);
+  transform-origin: center;
+  will-change: transform;
+}
+.if-logo-link:hover > img,
+.if-logo-link:hover > svg,
+.if-logo-link:hover .if-logo-mark {
+  transition-duration: 110ms;
+  transition-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
+  transform: scale(1.05);
+}
+
+/* ============================================================
+   9. WINDOW EFFECT — logo gold pane lights up on hover
+   The Idea Factory mark has a large gold "window" polygon.
+   In Webflow, embed the logo as an inline SVG and add the class
+   .if-logo-window to that gold polygon element.
+   The animation flashes on hover-enter (overshoot twinkle) and
+   settles a touch brighter while the mouse stays over the logo.
+   ============================================================ */
+.if-logo-window {
+  transform-origin: center;
+  transition: filter 360ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes if-window-on {
+  from { filter: brightness(1) drop-shadow(0 0 0 rgba(255, 224, 77, 0)); }
+  to   { filter: brightness(1.35) drop-shadow(0 0 7px rgba(255, 226, 90, 0.85)); }
+}
+.if-logo-link:hover .if-logo-window {
+  animation: if-window-on 480ms var(--if-ease-window) forwards;
+}
+
+/* ============================================================
+   10. NAV DROPDOWN sublink text grow  (CSS only)
+   The visible label text within each dropdown item grows slightly
+   on hover, anchored left so surrounding layout doesn't shift.
+   Assign .if-nav-sublink to the dropdown <a> and
+   .if-nav-sublink-text to a <span> wrapping its label text.
+   ============================================================ */
+.if-nav-sublink-text {
+  display: inline-block;
+  transform-origin: left center;
+  transition: transform 200ms ease-out;
+}
+.if-nav-sublink:hover .if-nav-sublink-text { transform: scale(1.07); }
+
+/* ============================================================
+   11. GOLD ACCENT BARS
+   The 16px gold vertical bar that appears in the identity band
+   (header) and runs the full height of the footer and proof
+   section, aligned to the container's right edge.
+
+   Header bar: starts at mid-logo height, runs to band bottom;
+     top is set dynamically by JS (initHeaderGoldBar).
+   Footer bar: runs from top to the Give button's baseline;
+     height is set dynamically by JS (initFooterGoldBar).
+   Proof bar: runs from section top to ~52px above the bottom.
+
+   The bevelled angle (~10°, 2.8px over 16px) mirrors the angle
+   of the logo's gold "window" top edge.
+   ============================================================ */
+.if-header-gold-bar {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  /* top is set by initHeaderGoldBar() in idea-factory.js */
+  background: #ffd200;
+  clip-path: polygon(0 0, 100% 2.8px, 100% 100%, 0 100%); /* bevelled top */
+}
+
+.if-footer-gold-bar {
+  position: absolute;
+  top: 0; right: 0;
+  width: 16px;
+  /* height is set by initFooterGoldBar() in idea-factory.js */
+  height: 70%; /* fallback until JS measures */
+  background: #ffd200;
+  pointer-events: none;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 2.8px), 0 100%); /* bevelled bottom */
+  z-index: 3;
+}
+
+.if-proof-gold-bar {
+  position: absolute;
+  top: 0; right: 0;
+  width: 16px;
+  height: calc(100% - 52px); /* terminates above section bottom, within the padding */
+  background: #ffd200;
+  pointer-events: none;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 2.8px), 0 100%); /* bevelled bottom */
+  z-index: 3;
+}
+
+/* ============================================================
+   12. Reduced motion — show final state, never animate
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  /* Original effects */
+  .if-hero-word, .if-manifesto-line  { opacity: 1 !important; transform: none !important; }
+  .if-stage-photo, .if-stage-text    { transform: none !important; opacity: 1 !important; }
+  .if-hero-h1.font-pending           { visibility: visible !important; }
+  .if-news-photo img                 { transition: none !important; }
+  .if-event-date, .if-event-datetext { transition: none !important; }
+  /* New effects */
+  .if-stage-glyph, .if-stage-cell > img, .if-stage-cell > svg,
+  .if-aud-cell h3,
+  .if-logo-link > img, .if-logo-link > svg, .if-logo-mark,
+  .if-logo-window,
+  .if-nav-sublink-text { transition: none !important; animation: none !important; transform: none !important; }
 }

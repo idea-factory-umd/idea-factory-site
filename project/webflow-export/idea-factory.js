@@ -149,7 +149,63 @@
     }
   }
 
-  /* ---- 5. NAVBAR retract at footer --------------------------------------
+  /* ---- 5. HEADER GOLD BAR top measurement ------------------------------
+     Markup: <div class="if-id-band"> … <div class="if-header-gold-bar"></div> </div>
+     The bar's top edge aligns to mid-logo height; CSS handles left/right/bottom.
+     Assign .if-id-band to the identity-band wrapper and .if-header-gold-bar to
+     the absolute-positioned gold div inside it. The logo must be .if-logo-link
+     or contain a > img/svg that can be measured. */
+  function initHeaderGoldBar(){
+    var band = document.querySelector(".if-id-band");
+    var bar  = document.querySelector(".if-header-gold-bar");
+    if(!band || !bar) return;
+    function measure(){
+      var logo = band.querySelector(".if-logo-link");
+      if(!logo) return;
+      var top = Math.round(logo.getBoundingClientRect().top - band.getBoundingClientRect().top);
+      if(top > 0) bar.style.top = Math.round(top / 2) + "px";
+    }
+    measure();
+    requestAnimationFrame(measure);
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+    if(typeof ResizeObserver !== "undefined"){
+      var ro = new ResizeObserver(measure);
+      ro.observe(band);
+      var logo = band.querySelector(".if-logo-link");
+      if(logo) ro.observe(logo);
+    } else { window.addEventListener("resize", measure); }
+  }
+
+  /* ---- 6. FOOTER GOLD BAR height measurement ----------------------------
+     Markup: <footer> … <a class="if-give">…</a> … <div class="if-foot-cols">…</div>
+               <div class="if-footer-gold-bar"></div> </footer>
+     Bar runs from footer top to the lower of: Give-button baseline or foot-cols
+     bottom. Assign .if-give to the Give CTA <a> and .if-foot-cols to the nav
+     column grid. The bar element (.if-footer-gold-bar) must be inside <footer>. */
+  function initFooterGoldBar(){
+    var footer = document.querySelector("footer");
+    var bar    = document.querySelector(".if-footer-gold-bar");
+    var give   = document.querySelector(".if-give");
+    var cols   = document.querySelector(".if-foot-cols");
+    if(!footer || !bar || !give) return;
+    function measure(){
+      var fb   = footer.getBoundingClientRect();
+      var gb   = give.getBoundingClientRect();
+      var bottom = cols ? Math.max(gb.bottom, cols.getBoundingClientRect().bottom) : gb.bottom;
+      var h = Math.round(bottom - fb.top);
+      if(h > 0) bar.style.height = h + "px";
+    }
+    measure();
+    requestAnimationFrame(measure);
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+    if(typeof ResizeObserver !== "undefined"){
+      var ro = new ResizeObserver(measure);
+      ro.observe(footer); ro.observe(give);
+      if(cols) ro.observe(cols);
+    } else { window.addEventListener("resize", measure); }
+  }
+
+  /* ---- 7. NAVBAR retract at footer --------------------------------------
      Markup: <nav class="if-navbar"> … </nav> and a footer that contains
      <div class="if-foot-cols"> (the nav-link columns). Navbar slides up once
      those columns are in view; re-emerges on scroll up. */
@@ -166,7 +222,7 @@
     window.addEventListener("scroll", check, {passive:true}); window.addEventListener("resize", check); check();
   }
 
-  /* ---- 6. HERO font-load gate (no fallback-font flash) ------------------
+  /* ---- 8. HERO font-load gate (no fallback-font flash) ------------------
      Add class `font-pending` to .if-hero-h1 in the Designer; this removes it
      once the heading font is actually painted. */
   function initFontGate(){
@@ -184,6 +240,8 @@
     initManifesto();
     initCountUp();
     initStage();
+    initHeaderGoldBar();
+    initFooterGoldBar();
     initNavbarRetract();
   });
 })();
