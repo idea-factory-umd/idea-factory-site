@@ -1,0 +1,19 @@
+<!-- @dsCard group="Brand" viewport="700x180" name="Logo usage" subtitle="Color tone on light grounds · white tone on dark" -->
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../styles.css">
+<style>
+  body{margin:0;padding:0;background:var(--surface)}
+  .grid{display:grid;grid-template-columns:1.4fr 1fr 1.4fr;min-height:180px}
+  .cell{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:14px}
+  .light{background:#fff}
+  .gray{background:var(--gray-100)}
+  .dark{background:var(--md-black)}
+  img{height:46px;width:auto;display:block}
+  .rule{font-family:var(--font-heading),sans-serif;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-500)}
+  .dark .rule{color:rgba(255,255,255,0.6)}
+</style></head><body>
+<div class="grid">
+  <div class="cell light"><img src="../assets/logo/if-logo.svg" alt="Idea Factory lockup, color tone"><span class="rule">Light · color tone</span></div>
+  <div class="cell gray"><img src="../assets/logo/if-mark.svg" alt="Idea Factory mark" style="height:64px"><span class="rule">Mark · any ground</span></div>
+  <div class="cell dark"><img src="../assets/logo/if-logo-white.svg" alt="Idea Factory lockup, white tone, on dark"><span class="rule">Dark · white tone</span></div>
+</div>
+</body></html>

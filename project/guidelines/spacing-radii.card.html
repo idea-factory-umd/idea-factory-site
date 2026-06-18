@@ -1,0 +1,19 @@
+<!-- @dsCard group="Spacing" viewport="700x150" name="Radii & rules" subtitle="Squared blocks, 4px UI, pill chips, heavy rules" -->
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../styles.css">
+<style>
+  body{margin:0;padding:24px;background:var(--surface);display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+  .item{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .sq{width:60px;height:60px;background:var(--md-black)}
+  .lab{font-family:var(--font-heading);font-size:11px;color:var(--text-subtle)}
+  .rules{display:flex;flex-direction:column;gap:10px;width:200px}
+</style></head><body>
+  <div class="item"><div class="sq" style="border-radius:var(--radius-0)"></div><span class="lab">0 · blocks</span></div>
+  <div class="item"><div class="sq" style="border-radius:var(--radius-md)"></div><span class="lab">4 · UI</span></div>
+  <div class="item"><div class="sq" style="border-radius:var(--radius-lg)"></div><span class="lab">8 · lg</span></div>
+  <div class="item"><div class="sq" style="border-radius:var(--radius-pill);width:90px"></div><span class="lab">pill · chips</span></div>
+  <div class="item"><div class="rules">
+    <div style="border-top:4px solid var(--md-black)"></div>
+    <div style="border-top:4px solid var(--md-red)"></div>
+    <div style="border-top:1px solid var(--border)"></div>
+  </div><span class="lab">rules: 4px black / 4px red / hairline</span></div>
+</body></html>

@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 320" role="img" aria-label="Tiled stage glyphs shown on a dark background">
+  <title>Idea Factory — Tiled Glyphs on Dark</title>
+  
+
+  <rect width="1080" height="320" fill="#000000"></rect>
+  <text class="ttl" x="60" y="40">ON A DARK BACKGROUND</text>
+
+  
+  
+  <rect x="60" y="64" width="150" height="150" fill="#ffffff"></rect>
+  <g transform="translate(75,79)">
+    <rect x="18" y="18" width="38" height="38" fill="#e21833"></rect>
+    <rect x="64.5" y="18.5" width="37" height="37" fill="none" stroke="#e21833" stroke-width="7"></rect>
+    <rect x="18.5" y="64.5" width="37" height="37" fill="none" stroke="#e21833" stroke-width="7"></rect>
+    <rect x="64.5" y="64.5" width="37" height="37" fill="none" stroke="#e21833" stroke-width="7"></rect>
+  </g>
+  <text class="num" x="135" y="248" text-anchor="middle">01</text>
+  <text class="name" x="135" y="274" text-anchor="middle">BLUEPRINT</text>
+
+  
+  <rect x="330" y="64" width="150" height="150" fill="#ffffff"></rect>
+  <g transform="translate(345,79)">
+    <rect x="18" y="18" width="38" height="38" fill="#000000"></rect>
+    <rect x="18" y="64" width="38" height="38" fill="#000000"></rect>
+    <rect x="64.5" y="18.5" width="37" height="37" fill="none" stroke="#e21833" stroke-width="7"></rect>
+    <rect x="64.5" y="64.5" width="37" height="37" fill="none" stroke="#e21833" stroke-width="7"></rect>
+    <path d="M26 37 L33 45 L49 27" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="square" stroke-linejoin="miter"></path>
+    <path d="M26 83 L33 91 L49 73" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="square" stroke-linejoin="miter"></path>
+  </g>
+  <text class="num" x="405" y="248" text-anchor="middle">02</text>
+  <text class="name" x="405" y="274" text-anchor="middle">PROVING GROUND</text>
+
+  
+  <rect x="600" y="64" width="150" height="150" fill="#ffffff"></rect>
+  <g transform="translate(615,79)">
+    <rect x="12" y="44" width="28" height="28" fill="#e21833"></rect>
+    <rect x="46" y="44" width="28" height="28" fill="#000000"></rect>
+    <rect x="80" y="44" width="28" height="28" fill="#ffd200"></rect>
+    <rect x="6" y="76" width="108" height="8" fill="#7f7f7f"></rect>
+  </g>
+  <text class="num" x="675" y="248" text-anchor="middle">03</text>
+  <text class="name" x="675" y="274" text-anchor="middle">ASSEMBLY LINE</text>
+
+  
+  <rect x="870" y="64" width="150" height="150" fill="#ffffff"></rect>
+  <g transform="translate(885,79)">
+    <rect x="16" y="78" width="26" height="26" fill="#e21833"></rect>
+    <rect x="48" y="78" width="26" height="26" fill="#000000"></rect>
+    <rect x="48" y="46" width="26" height="26" fill="#000000"></rect>
+    <rect x="80" y="78" width="26" height="26" fill="#ffd200"></rect>
+    <rect x="80" y="46" width="26" height="26" fill="#ffd200"></rect>
+    <rect x="80" y="14" width="26" height="26" fill="#ffd200"></rect>
+  </g>
+  <text class="num" x="945" y="248" text-anchor="middle">04</text>
+  <text class="name" x="945" y="274" text-anchor="middle">SCALE-UP</text>
+
+  <text class="cap" x="60" y="304">The white tile keeps black, red, and gold all reading correctly on any background — no recoloring needed.</text>
+</svg>

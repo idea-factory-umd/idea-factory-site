@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Scale-Up stage glyph">
+  <title>Scale-Up stage glyph</title>
+  <rect x="83" y="7" width="30" height="30" fill="#ffd200"></rect>
+  <rect x="83" y="45" width="30" height="30" fill="#ffd200"></rect>
+  <rect x="45" y="45" width="30" height="30" fill="#231f20"></rect>
+  <rect x="83" y="83" width="30" height="30" fill="#ffd200"></rect>
+  <rect x="45" y="83" width="30" height="30" fill="#231f20"></rect>
+  <rect x="7" y="83" width="30" height="30" fill="#e21833"></rect>
+</svg>

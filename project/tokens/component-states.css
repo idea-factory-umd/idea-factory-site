@@ -1,0 +1,76 @@
+/* ============================================================
+   Idea Factory — Component interaction states
+   Hover / active / focus rules for the brand primitives.
+   Class hooks match the React components in /components.
+   Visuals come from tokens; this file only adds state behavior.
+   ============================================================ */
+
+/* ---- Button ---- */
+.if-btn { -webkit-tap-highlight-color: transparent; }
+.if-btn--primary:hover  { background: var(--action-hover) !important; border-color: var(--action-hover) !important; }
+.if-btn--primary:active  { background: var(--action-active) !important; border-color: var(--action-active) !important; transform: translateY(1px); }
+.if-btn--dark:hover    { background: #1f1f1f !important; border-color: #1f1f1f !important; }
+.if-btn--dark:active   { transform: translateY(1px); }
+.if-btn--outline:hover { background: var(--btn-hover-fill, var(--md-black)) !important; border-color: var(--btn-hover-fill, var(--md-black)) !important; color: var(--btn-hover-ink, var(--md-white)) !important; }
+.if-btn--outline:active{ transform: translateY(1px); }
+.if-btn--ghost:hover   { text-decoration: underline; text-underline-offset: 4px; }
+.if-btn[disabled] { pointer-events: none; }
+
+/* ---- Filter chip / Tag (interactive) ---- */
+.if-chip { transition: background var(--dur-fast) var(--ease-std), color var(--dur-fast) var(--ease-std), border-color var(--dur-fast) var(--ease-std); }
+.if-chip:hover { border-color: var(--md-black); }
+.if-chip[aria-pressed="true"] { background: var(--md-black); color: var(--md-white); border-color: var(--md-black); }
+
+/* ---- Program / Audience cards ---- */
+.if-card-link { transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
+.if-card-link:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+
+.if-audience { transition: background var(--dur-base) var(--ease-std), color var(--dur-base) var(--ease-std); }
+
+/* ---- Inputs ---- */
+.if-input:focus { outline: none; border-color: var(--md-black); box-shadow: inset 0 -2px 0 var(--md-red); }
+
+/* ---- Stage glyph in journey bar ---- */
+.if-journey-stage { transition: opacity var(--dur-base) var(--ease-std), filter var(--dur-base) var(--ease-std); }
+
+/* ---- Nav dropdown sublinks ---- */
+/* Hover: full gold fill with a fine white hatching at the same shallow angle as the
+   bottom bevel of the footer's vertical gold line (~10° rise to the right). */
+.if-nav-sublink:hover {
+  background-color: color-mix(in srgb, var(--md-gold) 70%, transparent);
+  background-image: repeating-linear-gradient(170deg, rgba(255,255,255,0.55) 0, rgba(255,255,255,0.55) 0.5px, transparent 0.5px, transparent 2.5px);
+  color: var(--md-red);
+}
+.if-nav-sublink:last-child { border-bottom: none; }
+
+/* ---- Footer ---- */
+.if-foot-link { transition: color var(--dur-fast) var(--ease-std); }
+.if-foot-link:hover { color: var(--md-gold) !important; }
+.if-social { transition: background var(--dur-fast) var(--ease-std), border-color var(--dur-fast) var(--ease-std), transform var(--dur-base) var(--ease-out); will-change: transform; }
+.if-social:hover { background: var(--md-gold); border-color: var(--md-gold) !important; color: var(--md-black) !important; transform: scale(1.12); }
+.if-give { transition: transform var(--dur-base) var(--ease-out); will-change: transform; }
+.if-give:hover { transform: scale(1.035); }
+/* Text inside grows again on top of the box scale → ≈ double the box's expansion (same as the news/event hovers). */
+.if-social .if-btn-text, .if-give .if-btn-text { display: inline-block; transition: transform var(--dur-base) var(--ease-out); transform-origin: center center; }
+.if-social:hover .if-btn-text { transform: scale(1.12); }
+.if-give:hover .if-btn-text { transform: scale(1.035); }
+/* "Get updates" button: same grow-on-hover as the Give button (box + inner text ≈ double). */
+.if-subscribe-row .if-btn { transition: background var(--dur-fast) var(--ease-std), color var(--dur-fast) var(--ease-std), border-color var(--dur-fast) var(--ease-std), transform var(--dur-base) var(--ease-out); will-change: transform; }
+.if-subscribe-row .if-btn:hover { transform: scale(1.035); }
+.if-subscribe-row .if-btn .if-btn-text { display: inline-block; transition: transform var(--dur-base) var(--ease-out); transform-origin: center center; }
+.if-subscribe-row .if-btn:hover .if-btn-text { transform: scale(1.035); }
+
+/* ---- Events & news cards ---- */
+/* Hover: the whole box grows slightly; its title text grows again on top of that,
+   so the TEXT scales ~double the box. z-index lifts the hovered card above neighbors. */
+.if-event-feat { transition: box-shadow var(--dur-hover) var(--ease-out), transform var(--dur-hover) var(--ease-spring); will-change: transform; }
+.if-event-feat:hover { transform: scale(1.035); box-shadow: var(--shadow-lg); position: relative; z-index: 2; }
+.if-event-row { transition: box-shadow var(--dur-hover) var(--ease-out), transform var(--dur-hover) var(--ease-spring); will-change: transform; }
+.if-event-row:hover { background: var(--md-white); transform: scale(1.035); box-shadow: var(--shadow-lg); position: relative; z-index: 2; }
+.if-event-row .if-event-chev { transition: transform var(--dur-base) var(--ease-out); }
+.if-event-row:hover .if-event-chev { transform: translateX(4px); }
+/* Every text block grows an extra ~3.5% on top of the box scale (≈7% total ≈ double), evenly from center. */
+.if-event-feat .if-cardtext, .if-event-row .if-cardtext { transition: transform var(--dur-hover) var(--ease-spring); transform-origin: center center; }
+.if-event-feat:hover .if-cardtext, .if-event-row:hover .if-cardtext { transform: scale(1.035); }
+.if-stage-cell { transition: transform var(--dur-base) var(--ease-out); will-change: transform; }
+.if-stage-cell:hover { transform: translateY(-6px); }

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 372" role="img" aria-label="The four Idea Factory stage glyphs as a system">
+  <title>Idea Factory — Stage Glyph System</title>
+  
+
+  
+  <g transform="translate(51,28) scale(1.4)">
+    <rect x="18" y="18" width="38" height="38" fill="#e21833"></rect>
+    <rect x="64.5" y="18.5" width="37" height="37" fill="none" stroke="#e21833" stroke-width="7"></rect>
+    <rect x="18.5" y="64.5" width="37" height="37" fill="none" stroke="#e21833" stroke-width="7"></rect>
+    <rect x="64.5" y="64.5" width="37" height="37" fill="none" stroke="#e21833" stroke-width="7"></rect>
+  </g>
+  <text class="num" x="135" y="232" text-anchor="middle">01</text>
+  <text class="name" x="135" y="262" text-anchor="middle">BLUEPRINT</text>
+  <text class="tag" x="135" y="288" text-anchor="middle">Learn to think like a builder.</text>
+
+  
+  <g transform="translate(321,28) scale(1.4)">
+    <rect x="18" y="18" width="38" height="38" fill="#000000"></rect>
+    <rect x="18" y="64" width="38" height="38" fill="#000000"></rect>
+    <rect x="64.5" y="18.5" width="37" height="37" fill="none" stroke="#e21833" stroke-width="7"></rect>
+    <rect x="64.5" y="64.5" width="37" height="37" fill="none" stroke="#e21833" stroke-width="7"></rect>
+    <path d="M26 37 L33 45 L49 27" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="square" stroke-linejoin="miter"></path>
+    <path d="M26 83 L33 91 L49 73" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="square" stroke-linejoin="miter"></path>
+  </g>
+  <text class="num" x="405" y="232" text-anchor="middle">02</text>
+  <text class="name" x="405" y="262" text-anchor="middle">PROVING GROUND</text>
+  <text class="tag" x="405" y="288" text-anchor="middle">Where your idea meets the real world.</text>
+
+  
+  <g transform="translate(591,28) scale(1.4)">
+    <rect x="12" y="44" width="28" height="28" fill="#e21833"></rect>
+    <rect x="46" y="44" width="28" height="28" fill="#000000"></rect>
+    <rect x="80" y="44" width="28" height="28" fill="#ffd200"></rect>
+    <rect x="6" y="76" width="108" height="8" fill="#7f7f7f"></rect>
+  </g>
+  <text class="num" x="675" y="232" text-anchor="middle">03</text>
+  <text class="name" x="675" y="262" text-anchor="middle">ASSEMBLY LINE</text>
+  <text class="tag" x="675" y="288" text-anchor="middle">This is where companies get built.</text>
+
+  
+  <g transform="translate(861,28) scale(1.4)">
+    <rect x="16" y="78" width="26" height="26" fill="#e21833"></rect>
+    <rect x="48" y="78" width="26" height="26" fill="#000000"></rect>
+    <rect x="48" y="46" width="26" height="26" fill="#000000"></rect>
+    <rect x="80" y="78" width="26" height="26" fill="#ffd200"></rect>
+    <rect x="80" y="46" width="26" height="26" fill="#ffd200"></rect>
+    <rect x="80" y="14" width="26" height="26" fill="#ffd200"></rect>
+  </g>
+  <text class="num" x="945" y="232" text-anchor="middle">04</text>
+  <text class="name" x="945" y="262" text-anchor="middle">SCALE-UP</text>
+  <text class="tag" x="945" y="288" text-anchor="middle">Where it takes off.</text>
+
+  
+  <line x1="60" y1="320" x2="1020" y2="320" stroke="#e6e6e6" stroke-width="1"></line>
+  <rect x="356" y="338" width="16" height="16" fill="#e21833"></rect>
+  <text class="leg" x="378" y="351">In the red</text>
+  <text class="arr" x="452" y="351">→</text>
+  <rect x="480" y="338" width="16" height="16" fill="#000000"></rect>
+  <text class="leg" x="502" y="351">In the black</text>
+  <text class="arr" x="588" y="351">→</text>
+  <rect x="616" y="338" width="16" height="16" fill="#ffd200" stroke="#cccccc" stroke-width="1"></rect>
+  <text class="leg" x="638" y="351">Struck gold</text>
+</svg>

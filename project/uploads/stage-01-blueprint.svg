@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Blueprint stage glyph">
+  <title>Blueprint</title>
+  
+  <rect x="18" y="18" width="38" height="38" fill="#e21833"></rect>
+  <rect x="64.5" y="18.5" width="37" height="37" fill="none" stroke="#e21833" stroke-width="7"></rect>
+  <rect x="18.5" y="64.5" width="37" height="37" fill="none" stroke="#e21833" stroke-width="7"></rect>
+  <rect x="64.5" y="64.5" width="37" height="37" fill="none" stroke="#e21833" stroke-width="7"></rect>
+</svg>

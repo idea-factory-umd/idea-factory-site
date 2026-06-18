@@ -1,0 +1,60 @@
+/* ============================================================
+   Idea Factory — Base element defaults
+   Applies the type system and brand defaults to bare HTML.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--text-body);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-reading);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: var(--weight-black);
+  color: var(--text-strong);
+  margin: 0 0 0.4em;
+  letter-spacing: var(--tracking-tight);
+  text-wrap: balance;
+}
+
+h1 { font-size: var(--fs-h1); line-height: var(--lh-h1); letter-spacing: var(--tracking-display); }
+h2 { font-size: var(--fs-h2); line-height: var(--lh-h2); }
+h3 { font-size: var(--fs-h3); line-height: var(--lh-h3); font-weight: var(--weight-bold); }
+
+p { margin: 0 0 1em; text-wrap: pretty; }
+
+a { color: var(--text-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+strong, b { font-weight: var(--weight-bold); }
+
+hr {
+  border: 0;
+  border-top: var(--border-width-rule) solid var(--rule);
+  margin: var(--space-6) 0;
+}
+
+::selection { background: var(--md-gold); color: var(--md-black); }
+
+:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Eyebrow / kicker label — small-caps Interstate lead-in */
+.if-eyebrow {
+  font-family: var(--font-heading);
+  font-weight: var(--weight-bold);
+  font-size: var(--fs-small);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--md-red);
+}

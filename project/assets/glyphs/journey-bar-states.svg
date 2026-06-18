@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 690" role="img" aria-label="Journey bar wayfinding states with stage names">
+  <title>Idea Factory — Journey Bar (page wayfinding)</title>
+  
+  <rect width="760" height="690" fill="#ffffff"></rect>
+  <text class="ttl" x="40" y="42">JOURNEY BAR — PAGE WAYFINDING</text>
+  <text class="sub" x="40" y="66">Each row is the bar as it appears on a different program page: the current stage in full colour, the rest greyed.</text>
+  <g transform="translate(95,104) scale(0.5)">
+<rect x="26" y="26" width="30" height="30" fill="#e21833"></rect>
+<rect x="67" y="29" width="24" height="24" fill="none" stroke="#e21833" stroke-width="6"></rect>
+<rect x="29" y="67" width="24" height="24" fill="none" stroke="#e21833" stroke-width="6"></rect>
+<rect x="67" y="67" width="24" height="24" fill="none" stroke="#e21833" stroke-width="6"></rect>
+  </g>
+  <text x="125" y="184" text-anchor="middle" font-family="Interstate, Overpass, Arial, sans-serif" font-size="11" font-weight="800" fill="#111111" letter-spacing="0.5">BLUEPRINT</text>
+  <g transform="translate(265,104) scale(0.5)">
+<rect x="26" y="26" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="26" y="64" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="67" y="29" width="24" height="24" fill="none" stroke="#c8c8c8" stroke-width="6"></rect>
+<rect x="67" y="67" width="24" height="24" fill="none" stroke="#c8c8c8" stroke-width="6"></rect>
+<path d="M32 41.6 L38 47.6 L49.4 34.4" fill="none" stroke="#eeeeee" stroke-width="4.8" stroke-linecap="square" stroke-linejoin="miter"></path>
+<path d="M32 79.6 L38 85.6 L49.4 72.4" fill="none" stroke="#eeeeee" stroke-width="4.8" stroke-linecap="square" stroke-linejoin="miter"></path>
+  </g>
+  <text x="295" y="184" text-anchor="middle" font-family="Interstate, Overpass, Arial, sans-serif" font-size="11" font-weight="600" fill="#bdbdbd" letter-spacing="0.5">PROVING GROUND</text>
+  <g transform="translate(435,104) scale(0.5)">
+<rect x="7" y="37.5" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="45" y="37.5" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="83" y="37.5" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="7" y="75.5" width="106" height="7" fill="#dcdcdc"></rect>
+  </g>
+  <text x="465" y="184" text-anchor="middle" font-family="Interstate, Overpass, Arial, sans-serif" font-size="11" font-weight="600" fill="#bdbdbd" letter-spacing="0.5">ASSEMBLY LINE</text>
+  <g transform="translate(605,104) scale(0.5)">
+<rect x="83" y="7" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="83" y="45" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="45" y="45" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="83" y="83" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="45" y="83" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="7" y="83" width="30" height="30" fill="#c8c8c8"></rect>
+  </g>
+  <text x="635" y="184" text-anchor="middle" font-family="Interstate, Overpass, Arial, sans-serif" font-size="11" font-weight="600" fill="#bdbdbd" letter-spacing="0.5">SCALE-UP</text>
+  <g transform="translate(95,250) scale(0.5)">
+<rect x="26" y="26" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="67" y="29" width="24" height="24" fill="none" stroke="#c8c8c8" stroke-width="6"></rect>
+<rect x="29" y="67" width="24" height="24" fill="none" stroke="#c8c8c8" stroke-width="6"></rect>
+<rect x="67" y="67" width="24" height="24" fill="none" stroke="#c8c8c8" stroke-width="6"></rect>
+  </g>
+  <text x="125" y="330" text-anchor="middle" font-family="Interstate, Overpass, Arial, sans-serif" font-size="11" font-weight="600" fill="#bdbdbd" letter-spacing="0.5">BLUEPRINT</text>
+  <g transform="translate(265,250) scale(0.5)">
+<rect x="26" y="26" width="30" height="30" fill="#000000"></rect>
+<rect x="26" y="64" width="30" height="30" fill="#000000"></rect>
+<rect x="67" y="29" width="24" height="24" fill="none" stroke="#e21833" stroke-width="6"></rect>
+<rect x="67" y="67" width="24" height="24" fill="none" stroke="#e21833" stroke-width="6"></rect>
+<path d="M32 41.6 L38 47.6 L49.4 34.4" fill="none" stroke="#ffffff" stroke-width="4.8" stroke-linecap="square" stroke-linejoin="miter"></path>
+<path d="M32 79.6 L38 85.6 L49.4 72.4" fill="none" stroke="#ffffff" stroke-width="4.8" stroke-linecap="square" stroke-linejoin="miter"></path>
+  </g>
+  <text x="295" y="330" text-anchor="middle" font-family="Interstate, Overpass, Arial, sans-serif" font-size="11" font-weight="800" fill="#111111" letter-spacing="0.5">PROVING GROUND</text>
+  <g transform="translate(435,250) scale(0.5)">
+<rect x="7" y="37.5" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="45" y="37.5" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="83" y="37.5" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="7" y="75.5" width="106" height="7" fill="#dcdcdc"></rect>
+  </g>
+  <text x="465" y="330" text-anchor="middle" font-family="Interstate, Overpass, Arial, sans-serif" font-size="11" font-weight="600" fill="#bdbdbd" letter-spacing="0.5">ASSEMBLY LINE</text>
+  <g transform="translate(605,250) scale(0.5)">
+<rect x="83" y="7" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="83" y="45" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="45" y="45" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="83" y="83" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="45" y="83" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="7" y="83" width="30" height="30" fill="#c8c8c8"></rect>
+  </g>
+  <text x="635" y="330" text-anchor="middle" font-family="Interstate, Overpass, Arial, sans-serif" font-size="11" font-weight="600" fill="#bdbdbd" letter-spacing="0.5">SCALE-UP</text>
+  <g transform="translate(95,396) scale(0.5)">
+<rect x="26" y="26" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="67" y="29" width="24" height="24" fill="none" stroke="#c8c8c8" stroke-width="6"></rect>
+<rect x="29" y="67" width="24" height="24" fill="none" stroke="#c8c8c8" stroke-width="6"></rect>
+<rect x="67" y="67" width="24" height="24" fill="none" stroke="#c8c8c8" stroke-width="6"></rect>
+  </g>
+  <text x="125" y="476" text-anchor="middle" font-family="Interstate, Overpass, Arial, sans-serif" font-size="11" font-weight="600" fill="#bdbdbd" letter-spacing="0.5">BLUEPRINT</text>
+  <g transform="translate(265,396) scale(0.5)">
+<rect x="26" y="26" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="26" y="64" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="67" y="29" width="24" height="24" fill="none" stroke="#c8c8c8" stroke-width="6"></rect>
+<rect x="67" y="67" width="24" height="24" fill="none" stroke="#c8c8c8" stroke-width="6"></rect>
+<path d="M32 41.6 L38 47.6 L49.4 34.4" fill="none" stroke="#eeeeee" stroke-width="4.8" stroke-linecap="square" stroke-linejoin="miter"></path>
+<path d="M32 79.6 L38 85.6 L49.4 72.4" fill="none" stroke="#eeeeee" stroke-width="4.8" stroke-linecap="square" stroke-linejoin="miter"></path>
+  </g>
+  <text x="295" y="476" text-anchor="middle" font-family="Interstate, Overpass, Arial, sans-serif" font-size="11" font-weight="600" fill="#bdbdbd" letter-spacing="0.5">PROVING GROUND</text>
+  <g transform="translate(435,396) scale(0.5)">
+<rect x="7" y="37.5" width="30" height="30" fill="#e21833"></rect>
+<rect x="45" y="37.5" width="30" height="30" fill="#000000"></rect>
+<rect x="83" y="37.5" width="30" height="30" fill="#ffd200"></rect>
+<rect x="7" y="75.5" width="106" height="7" fill="#7f7f7f"></rect>
+  </g>
+  <text x="465" y="476" text-anchor="middle" font-family="Interstate, Overpass, Arial, sans-serif" font-size="11" font-weight="800" fill="#111111" letter-spacing="0.5">ASSEMBLY LINE</text>
+  <g transform="translate(605,396) scale(0.5)">
+<rect x="83" y="7" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="83" y="45" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="45" y="45" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="83" y="83" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="45" y="83" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="7" y="83" width="30" height="30" fill="#c8c8c8"></rect>
+  </g>
+  <text x="635" y="476" text-anchor="middle" font-family="Interstate, Overpass, Arial, sans-serif" font-size="11" font-weight="600" fill="#bdbdbd" letter-spacing="0.5">SCALE-UP</text>
+  <g transform="translate(95,542) scale(0.5)">
+<rect x="26" y="26" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="67" y="29" width="24" height="24" fill="none" stroke="#c8c8c8" stroke-width="6"></rect>
+<rect x="29" y="67" width="24" height="24" fill="none" stroke="#c8c8c8" stroke-width="6"></rect>
+<rect x="67" y="67" width="24" height="24" fill="none" stroke="#c8c8c8" stroke-width="6"></rect>
+  </g>
+  <text x="125" y="622" text-anchor="middle" font-family="Interstate, Overpass, Arial, sans-serif" font-size="11" font-weight="600" fill="#bdbdbd" letter-spacing="0.5">BLUEPRINT</text>
+  <g transform="translate(265,542) scale(0.5)">
+<rect x="26" y="26" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="26" y="64" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="67" y="29" width="24" height="24" fill="none" stroke="#c8c8c8" stroke-width="6"></rect>
+<rect x="67" y="67" width="24" height="24" fill="none" stroke="#c8c8c8" stroke-width="6"></rect>
+<path d="M32 41.6 L38 47.6 L49.4 34.4" fill="none" stroke="#eeeeee" stroke-width="4.8" stroke-linecap="square" stroke-linejoin="miter"></path>
+<path d="M32 79.6 L38 85.6 L49.4 72.4" fill="none" stroke="#eeeeee" stroke-width="4.8" stroke-linecap="square" stroke-linejoin="miter"></path>
+  </g>
+  <text x="295" y="622" text-anchor="middle" font-family="Interstate, Overpass, Arial, sans-serif" font-size="11" font-weight="600" fill="#bdbdbd" letter-spacing="0.5">PROVING GROUND</text>
+  <g transform="translate(435,542) scale(0.5)">
+<rect x="7" y="37.5" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="45" y="37.5" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="83" y="37.5" width="30" height="30" fill="#c8c8c8"></rect>
+<rect x="7" y="75.5" width="106" height="7" fill="#dcdcdc"></rect>
+  </g>
+  <text x="465" y="622" text-anchor="middle" font-family="Interstate, Overpass, Arial, sans-serif" font-size="11" font-weight="600" fill="#bdbdbd" letter-spacing="0.5">ASSEMBLY LINE</text>
+  <g transform="translate(605,542) scale(0.5)">
+<rect x="83" y="7" width="30" height="30" fill="#ffd200"></rect>
+<rect x="83" y="45" width="30" height="30" fill="#ffd200"></rect>
+<rect x="45" y="45" width="30" height="30" fill="#000000"></rect>
+<rect x="83" y="83" width="30" height="30" fill="#ffd200"></rect>
+<rect x="45" y="83" width="30" height="30" fill="#000000"></rect>
+<rect x="7" y="83" width="30" height="30" fill="#e21833"></rect>
+  </g>
+  <text x="635" y="622" text-anchor="middle" font-family="Interstate, Overpass, Arial, sans-serif" font-size="11" font-weight="800" fill="#111111" letter-spacing="0.5">SCALE-UP</text>
+  <text class="foot" x="40" y="668">Build as ONE component; the active stage is set per page. On narrow screens, keep the active stage&#39;s name and let the others collapse to glyphs.</text>
+</svg>

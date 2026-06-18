@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Idea Factory — Where Ideas Go to Work</title>
+
+<!-- Code-referenced resources (built as JS strings in JSX + the design-system
+     bundle, so the bundler can't auto-discover them). content paths are
+     relative to THIS html file and match the exact getAttribute('src') the
+     app renders, so the rewriter below can swap them to inlined blob URLs. -->
+<meta name="ext-resource-dependency" content="img/building-flare.png" data-resource-id="imgFlare" />
+<meta name="ext-resource-dependency" content="img/building-entrance.png" data-resource-id="imgEntrance" />
+<meta name="ext-resource-dependency" content="../../assets/logo/if-logo.svg" data-resource-id="logoFull" />
+<meta name="ext-resource-dependency" content="../../assets/logo/if-mark.svg" data-resource-id="logoMark" />
+<meta name="ext-resource-dependency" content="../../assets/logo/umd-primary-white.svg" data-resource-id="umdWhite" />
+<meta name="ext-resource-dependency" content="../../assets/glyphs/stage-01-blueprint-tile.svg" data-resource-id="glyph1" />
+<meta name="ext-resource-dependency" content="../../assets/glyphs/stage-02-proving-ground-tile.svg" data-resource-id="glyph2" />
+<meta name="ext-resource-dependency" content="../../assets/glyphs/stage-03-assembly-line-tile.svg" data-resource-id="glyph3" />
+<meta name="ext-resource-dependency" content="../../assets/glyphs/stage-04-scale-up-tile.svg" data-resource-id="glyph4" />
+
+<link rel="icon" href="../../assets/logo/if-mark.svg" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; background: var(--surface); }
+  /* Responsive collapse: stack hero blocks & grids on narrow viewports */
+  @media (max-width: 920px) {
+    main section > div > div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+    nav a { padding: 12px 12px !important; font-size: 13px !important; }
+    .if-utility { display: none !important; }
+    .if-id-tagline { display: none !important; }
+  }
+</style>
+
+<!-- Splash / no-JS fallback shown while assets unpack -->
+<template id="__bundler_thumbnail" data-bg-color="#1a1a1a">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#1a1a1a"/>
+    <g transform="translate(450 250)">
+      <rect x="0"   y="0"   width="145" height="145" fill="#e21833"/>
+      <rect x="155" y="0"   width="145" height="145" fill="#ffd200"/>
+      <rect x="0"   y="155" width="145" height="145" fill="#ffd200"/>
+      <rect x="155" y="155" width="145" height="145" fill="#e21833"/>
+      <rect x="-14" y="-14" width="328" height="328" fill="none" stroke="#ffffff" stroke-width="8"/>
+    </g>
+    <text x="600" y="660" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-weight="800" font-size="58" letter-spacing="-1">THE IDEA FACTORY</text>
+  </svg>
+</template>
+
+<!-- Resource rewriter: maps the app's raw asset paths to inlined blob URLs.
+     Runs continuously so React-rendered <img> and shadow-DOM <image-slot>
+     elements get swapped as they mount. -->
+<script>
+(function () {
+  var MAP = {
+    "img/building-flare.png": "imgFlare",
+    "img/building-entrance.png": "imgEntrance",
+    "../../assets/logo/if-logo.svg": "logoFull",
+    "../../assets/logo/if-mark.svg": "logoMark",
+    "../../assets/logo/umd-primary-white.svg": "umdWhite",
+    "../../assets/glyphs/stage-01-blueprint-tile.svg": "glyph1",
+    "../../assets/glyphs/stage-02-proving-ground-tile.svg": "glyph2",
+    "../../assets/glyphs/stage-03-assembly-line-tile.svg": "glyph3",
+    "../../assets/glyphs/stage-04-scale-up-tile.svg": "glyph4"
+  };
+  function resolve(raw) {
+    if (!raw) return null;
+    var R = window.__resources || {};
+    if (MAP[raw] && R[MAP[raw]]) return R[MAP[raw]];
+    return null;
+  }
+  function fix(el) {
+    if (!el || el.nodeType !== 1) return;
+    var tag = el.tagName;
+    if (tag === "IMG") {
+      var blob = resolve(el.getAttribute("src"));
+      if (blob && el.src !== blob) el.src = blob;
+    } else if (tag === "IMAGE-SLOT") {
+      var b2 = resolve(el.getAttribute("src"));
+      if (b2 && el.getAttribute("src") !== b2) el.setAttribute("src", b2);
+    }
+  }
+  function sweep(root) {
+    if (!root) return;
+    fix(root);
+    if (root.querySelectorAll) {
+      root.querySelectorAll("img, image-slot").forEach(fix);
+    }
+  }
+  var obs = new MutationObserver(function (muts) {
+    for (var i = 0; i < muts.length; i++) {
+      var m = muts[i];
+      if (m.type === "attributes") { fix(m.target); continue; }
+      for (var j = 0; j < m.addedNodes.length; j++) sweep(m.addedNodes[j]);
+    }
+  });
+  function start() {
+    sweep(document.body);
+    obs.observe(document.documentElement, {
+      childList: true, subtree: true,
+      attributes: true, attributeFilter: ["src"]
+    });
+  }
+  if (document.body) start();
+  else document.addEventListener("DOMContentLoaded", start);
+})();
+</script>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<script src="image-slot.js"></script>
+<script src="data.js"></script>
+<script type="text/babel" src="Header.jsx"></script>
+<script type="text/babel" src="Footer.jsx"></script>
+<script type="text/babel" src="Homepage.jsx"></script>
+<script type="text/babel" src="StudentsPage.jsx"></script>
+<script type="text/babel">
+  function App() {
+    const [page, setPage] = React.useState("home");
+    const nav = (p) => { setPage(p); window.scrollTo({ top: 0 }); };
+    return (
+      <React.Fragment>
+        <window.IFHeader active={page} onNav={nav} />
+        {page === "students"
+          ? <window.IFStudentsPage onNav={nav} />
+          : <window.IFHomepage onNav={nav} />}
+        <window.IFFooter onNav={nav} />
+      </React.Fragment>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

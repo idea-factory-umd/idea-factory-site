@@ -1,0 +1,44 @@
+/* ============================================================
+   Idea Factory — Typography tokens
+   Headings: Interstate → Overpass (open substitute) → system.
+   Body:     Georgia (web-safe system serif).
+   Display/H1 uses tight tracking to echo the logo wordmark.
+   Body is NEVER below 16px, except footer/legal.
+   ============================================================ */
+
+:root {
+  /* Families */
+  --font-display: "Interstate", "Helvetica Neue", Arial, sans-serif;
+  --font-heading: "Interstate", "Helvetica Neue", Arial, sans-serif;
+  --font-body:    Georgia, "Times New Roman", serif;
+
+  /* Weights (Interstate Black = 800 echoes the wordmark) */
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-bold:     700;
+  --weight-black:    800;
+
+  /* Type scale — size / line-height (px). Modular ~1.3–1.5x. */
+  --fs-display:   48px;  --lh-display: 52px;   /* H1 hero, one per page */
+  --fs-h1:        48px;  --lh-h1:      52px;
+  --fs-h2:        32px;  --lh-h2:      40px;   /* major section headers */
+  --fs-h3:        24px;  --lh-h3:      32px;   /* subsection headers */
+  --fs-body-lg:   18px;  --lh-body-lg: 30px;   /* intros, leads */
+  --fs-body:      16px;  --lh-body:    27px;   /* default paragraph (minimum) */
+  --fs-small:     14px;  --lh-small:   20px;   /* footer / fine print only */
+  --fs-fine:      13px;  --lh-fine:    20px;
+
+  /* Oversized display for hero color-block moments */
+  --fs-mega:      88px;  --lh-mega:    0.92;  /* @kind other */
+  --fs-jumbo:     120px; --lh-jumbo:   0.9;   /* @kind other */
+
+  /* Tracking */
+  --tracking-display: -0.02em;   /* tight, echoes logo */
+  --tracking-tight:   -0.01em;
+  --tracking-normal:  0;
+  --tracking-label:   0.04em;    /* small-caps eyebrows & tags */
+  --tracking-stat:    -0.03em;   /* big stat numerals */
+
+  /* Comfortable serif body leading */
+  --lh-reading: 1.7;  /* @kind other */
+}

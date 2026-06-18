@@ -1,0 +1,73 @@
+/* ============================================================
+   Idea Factory — Color tokens
+   Source: University of Maryland core palette (red / gold /
+   black / white), inspired by the Maryland state flag. The
+   full range is used as a SYSTEM: bright blocks for impact,
+   soft tints for calm/dense areas, neutrals for supporting UI.
+   ============================================================ */
+
+:root {
+  /* --- Core brand (bright / saturated) --- */
+  --md-red:        #e21833;  /* Maryland Red — primary action & accent */
+  --md-gold:       #ffd200;  /* Maryland Gold — emphasis only, never text on white */
+  --md-black:      #000000;  /* high-contrast type & blocks */
+  --md-white:      #ffffff;  /* default background */
+
+  /* Logo-artwork variants (use only for 1:1 logo reproduction) */
+  --logo-red:      #e11e34;
+  --logo-gold:     #fdd10c;
+  --logo-black:    #231f20;  /* rich black in the lockup */
+
+  /* --- Soft / tinted brand (calm & content-dense areas) --- */
+  --red-tint:      #fdeaec;  /* ~8% red over white */
+  --red-tint-2:    #f9d1d6;  /* ~18% red over white */
+  --gold-tint:     #fff7cc;  /* ~20% gold over white */
+  --gold-tint-2:   #fbe7a8;
+
+  /* --- Neutrals (UMD supporting UI) --- */
+  --gray-900:      #1a1a1a;
+  --gray-700:      #454545;  /* Dark Gray — secondary text, dark surfaces */
+  --gray-500:      #7f7f7f;  /* Medium Gray — muted text, dividers */
+  --gray-300:      #cfcfcf;
+  --gray-200:      #e6e6e6;  /* Light Gray — borders, card backgrounds */
+  --gray-100:      #f4f4f4;
+  --bronze:        #ad7231;  /* Bronze Testudo — occasional warm accent */
+
+  /* ============================================================
+     Semantic aliases — reference THESE in components, not the
+     raw values above.
+     ============================================================ */
+
+  /* Surfaces */
+  --surface:            var(--md-white);
+  --surface-muted:      var(--gray-100);
+  --surface-card:       var(--md-white);
+  --surface-tint-red:   var(--red-tint);
+  --surface-tint-gold:  var(--gold-tint);
+  --surface-inverse:    var(--md-black);
+
+  /* Text */
+  --text-strong:        var(--md-black);
+  --text-body:          #222222;
+  --text-muted:         var(--gray-700);
+  --text-subtle:        var(--gray-500);
+  --text-on-dark:       var(--md-white);
+  --text-on-red:        var(--md-white);
+  --text-link:          var(--md-red);
+
+  /* Lines & borders */
+  --border:             var(--gray-200);
+  --border-strong:      var(--md-black);
+  --rule:               var(--md-black);   /* strong horizontal rules */
+
+  /* Action */
+  --action:             var(--md-red);
+  --action-hover:       #c2142b;   /* darker red for hover */
+  --action-active:      #a40f23;   /* darker still for press */
+  --focus-ring:         var(--md-gold);
+
+  /* Stage color story: red (in the red) → black (in the black) → gold (struck gold) */
+  --stage-unproven:     var(--md-red);
+  --stage-solid:        var(--md-black);
+  --stage-success:      var(--md-gold);
+}

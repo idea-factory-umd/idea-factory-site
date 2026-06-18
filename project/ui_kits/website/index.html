@@ -1,0 +1,338 @@
+<!-- @dsCard group="Website" viewport="1440x900" name="Idea Factory — Flagship site" subtitle="Homepage + Students audience page (interactive)" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Idea Factory — Where Ideas Go to Work</title>
+<link rel="icon" href="../../assets/logo/if-mark.svg" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; background: var(--surface); }
+  .if-burger { display: none; }
+  .if-mobile-menu { display: none; }
+
+  /* Featured news card: same gold-tint hover as the agenda rows beside it
+     (base + hover both in CSS so :hover isn't blocked by an inline bg). */
+  .if-news-feat { background: var(--md-white); overflow: hidden; transition: box-shadow var(--dur-hover) var(--ease-out), transform var(--dur-hover) var(--ease-spring); will-change: transform; }
+  .if-news-feat:hover { transform: scale(1.035); box-shadow: var(--shadow-lg); position: relative; z-index: 2; }
+  .if-news-feat .if-cardtext { transition: transform var(--dur-hover) var(--ease-spring); transform-origin: center center; }
+  .if-news-feat:hover .if-cardtext { transform: scale(1.035); }
+
+  /* News photos: subtle zoom on hover. Targets the image-slot's shadow <img> via
+     ::part(image). NOTE: image-slot centers that <img> with translate(-50%,-50%),
+     so the zoom transform MUST keep that translate or the image flies out of frame.
+     The slot's .frame is overflow:hidden so the zoom is clipped. CSS-only +
+     image-agnostic. Scoped to the news grid so the shared .if-event-row class
+     elsewhere isn't affected. */
+  .if-news-feat image-slot::part(image),
+  .if-news-grid .if-event-row image-slot::part(image) {
+    transition: transform 720ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .if-news-feat:hover image-slot::part(image),
+  .if-news-grid .if-event-row:hover image-slot::part(image) {
+    transform: translate(-50%, -50%) scale(1.11);
+  }
+
+  /* Upcoming Events date (big day+month, and the agenda date chips): same
+     smooth decelerating zoom as the news photos, so the date "pops" on hover. */
+  .if-event-feat .if-event-date,
+  .if-event-row .if-event-date {
+    transition: transform 720ms cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: center center;
+  }
+  .if-event-feat:hover .if-event-date {
+    transform: scale(1.11);
+  }
+  /* Agenda rows: zoom the TEXT (day + month), not the colored box. */
+  .if-event-row .if-event-datetext {
+    transition: transform 720ms cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: center center;
+  }
+  .if-event-row:hover .if-event-datetext {
+    transform: scale(1.12);
+  }
+
+  /* ============================================================
+     HOVER ANIMATIONS — anchored to STABLE DOM STRUCTURE, not to
+     class names threaded through React components.
+
+     WHY: .if-stage-glyph / .if-logo-mark are passed as a `className`
+     prop INTO the StageGlyph / Logo / IFLogoInline components. If that
+     prop passthrough ever breaks (a component-signature edit, a
+     visual-editor round-trip, a stale duplicate file), the class
+     silently disappears and the animation dies even though this CSS is
+     fine. That was the recurring "I lost my animations" bug.
+
+     FIX: target the glyph/logo by its position in the DOM — the only
+     <img>/<svg> that is a DIRECT CHILD of the wrapper <a>/<span>. Those
+     wrapper classes (.if-stage-cell, .if-logo-link) are written inline
+     on plain elements and are NOT threaded through any component, so
+     they cannot be dropped by a prop edit. The legacy class selectors
+     are kept as a harmless fallback.
+     DO NOT revert these to className-only selectors.
+     ============================================================ */
+
+  /* Four-stage band hover: box stays put; only the glyph springs up. */
+  .if-stage-cell { transform: none !important; }
+  .if-stage-cell > img, .if-stage-cell > svg, .if-stage-glyph {
+    transition: transform 520ms cubic-bezier(0.34, 1.7, 0.5, 1); transform-origin: center; will-change: transform;
+  }
+  .if-stage-cell:hover > img, .if-stage-cell:hover > svg, .if-stage-cell:hover .if-stage-glyph {
+    transform: scale(1.32);
+  }
+
+  /* "Find your way in" audience boxes: the LABEL springs up on hover — same
+     motion as the stage glyphs. Structural selector (the cell's <h3>), anchored
+     left so the left-aligned label grows in place without spilling left. */
+  .if-aud-cell h3 {
+    transition: transform 520ms cubic-bezier(0.34, 1.7, 0.5, 1);
+    transform-origin: left center; will-change: transform;
+  }
+  .if-aud-cell:hover h3 { transform: scale(1.12); }
+
+  /* Header & footer logo: gentle lift, no overshoot. Release eases differently (easeInOutQuint) from the hover-in (easeOutQuint). */
+  .if-logo-link > img, .if-logo-link > svg, .if-logo-mark {
+    transition: transform 420ms cubic-bezier(0.83, 0, 0.17, 1); transform-origin: center; will-change: transform;
+  }
+  .if-logo-link:hover > img, .if-logo-link:hover > svg, .if-logo-link:hover .if-logo-mark {
+    transition-duration: 110ms; transition-timing-function: cubic-bezier(0.3, 0, 0.2, 1); transform: scale(1.05);
+  }
+
+  /* "Window effect": the large gold pane in the mark lights up on hover with an
+     overshoot twinkle, then settles a touch brighter while hovered. The pane is
+     hardcoded as .if-logo-window INSIDE the IFLogoInline SVG, so it is stable. */
+  .if-logo-window { transform-origin: center; transition: filter 360ms cubic-bezier(0.4, 0, 0.2, 1); }
+  @keyframes if-window-on {
+    from { filter: brightness(1) drop-shadow(0 0 0 rgba(255,224,77,0)); }
+    to   { filter: brightness(1.35) drop-shadow(0 0 7px rgba(255,226,90,0.85)); }
+  }
+  .if-logo-link:hover .if-logo-window { animation: if-window-on 480ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+  /* "Give" navbar button: gold outline + white text; fills gold with black text on hover. */
+  .if-give-nav {
+    color: var(--md-black);
+    background: var(--md-gold);
+    border: 2px solid var(--md-gold);
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+  .if-give-nav:hover {
+    transform: scale(1.07);
+  }
+
+  /* Navbar links (Home … About): white → gold on hover, with a slight grow. !important overrides the inline white. */
+  .if-nav-link { transition: color var(--dur-fast) var(--ease-std), transform var(--dur-base) var(--ease-out); transform-origin: center; }
+  .if-nav-link:hover { color: var(--md-gold) !important; transform: scale(1.07); }
+
+  /* Mobile (hamburger) menu — grow-on-hover on links + sublinks, anchored left. */
+  .if-mnav-text { display: inline-block; transform-origin: left center; transition: transform var(--dur-base) var(--ease-out); }
+  .if-mnav-link:hover .if-mnav-text, .if-msub-link:hover .if-mnav-text { transform: scale(1.07); }
+  /* Mobile "Give" button: red outline / transparent fill / red text; on hover fills
+     red with white text and grows (box + inner text), like the navbar Give button. */
+  .if-give-mobile {
+    color: var(--md-red);
+    background: transparent;
+    border: 2px solid var(--md-red);
+    transition: background var(--dur-base) var(--ease-std), color var(--dur-base) var(--ease-std), border-color var(--dur-base) var(--ease-std), transform var(--dur-base) var(--ease-out);
+    will-change: transform;
+  }
+  .if-give-mobile .if-btn-text { display: inline-block; transition: transform var(--dur-base) var(--ease-out); transform-origin: center center; }
+  .if-give-mobile:hover { background: var(--md-red); color: var(--md-white); border-color: var(--md-red); transform: scale(1.035); }
+  .if-give-mobile:hover .if-btn-text { transform: scale(1.035); }
+
+  /* Hero headline "reading" spotlight: opacity is driven by JS (one word lit at a
+     time, then all rise together); this just animates each opacity change smoothly. */
+  .if-hero-word { transition: opacity 0.28s var(--ease-out); }
+  /* The final "all rise to full together" step fades in more gradually/gently. */
+  .if-hero-h1.hero-settling .if-hero-word { transition-duration: 0.95s; }
+
+  /* Manifesto "Who we are" reading highlight: text stays at normal weight; the
+     active sentence is "pulled up and out" — scaled larger with a soft drop shadow
+     under the letterforms, as if lifting off the surface. Plays one line at a time. */
+  .if-manifesto-line { display: inline-block; transform-origin: left center; transition: transform 0.55s var(--ease-out), text-shadow 0.55s var(--ease-out), opacity 0.55s var(--ease-out); will-change: transform; }
+  .if-manifesto-line.mani-lift { transform: translateY(-3px) scale(1.11); text-shadow: 0 9px 16px rgba(0,0,0,0.30); position: relative; z-index: 2; }
+  /* dim-on-pull: while a sentence is pulled out, gently dim the other two. The lifted line stays full. */
+  .if-manifesto.mani-dimming .if-manifesto-line { opacity: 0.86; }
+  .if-manifesto.mani-dimming .if-manifesto-line.mani-lift { opacity: 1; }
+
+  /* Dropdown sublinks: grow only the TEXT on hover (anchored left), so the cell does not expand. */
+  .if-nav-sublink-text { display: inline-block; transform-origin: left center; transition: transform var(--dur-base) var(--ease-out); }
+  .if-nav-sublink:hover .if-nav-sublink-text { transform: scale(1.07); }
+
+  /* ---- Tablet (≤920px): stack the simple two/three-col content grids ---- */
+  @media (max-width: 920px) {
+    main section > div > div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+    .if-news-grid { grid-template-columns: 1fr !important; }
+    /* Featured event blurb: once the box goes full-width, let the copy fill it instead of staying capped. */
+    .if-event-feat-blurb { max-width: none !important; }
+    /* Footer stacks here too (same point Upcoming events stacks), so the brand
+       block sits above the nav instead of colliding with it. Nav stays 3-up. */
+    .if-foot-grid { grid-template-columns: 1fr !important; }
+    .if-foot-cols { grid-template-columns: repeat(3, 1fr) !important; gap: clamp(16px, 3vw, 40px) !important; margin-top: clamp(28px, 5vw, 48px) !important; }
+    /* Once stacked, don't let the email field run to the far edge. */
+    .if-subscribe-row { max-width: 420px !important; }
+    /* Stacked: the brand block fills the column so its children measure against full width… */
+    .if-foot-brand { width: 100% !important; max-width: none !important; }
+    /* …then headline, logo row, and social+Give row all match the email+button row's width. */
+    .if-foot-minw { width: min(100%, 420px) !important; max-width: none !important; }
+    /* Stacked: enlarge the two brand logos so the pair fills the row width to the Give button's right edge. */
+    .if-foot-logos > span:first-child .if-logo-mark { height: 56px !important; }
+    .if-foot-logos > span:last-child .if-logo-mark { height: 38px !important; }
+    /* Stacked: enlarge the CTA headline so its longest line reaches the Give button's right edge (~420),
+       scaling down on small phones so the nowrap lines never overflow. */
+    .if-foot-cta-head { font-size: min(65px, calc(15.2vw - 13px)) !important; }
+  }
+
+  /* ---- Nav too wide to fit one line (≤940px): swap to the hamburger ----
+     The red navbar needs ~927px to lay its items on one line; below that we
+     show the hamburger menu instead of letting the bar wrap. */
+  @media (max-width: 940px) {
+    .if-navbar { display: none !important; }
+    .if-id-search { display: none !important; }
+    .if-burger { display: flex !important; }
+    .if-mobile-menu { display: block !important; }
+    .if-id-band { flex-wrap: wrap !important; }
+    /* Four-stage band: break to 2-up at the same point the hamburger appears, so the boxes don't squash. */
+    .if-stage-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .if-stage-grid > a { min-height: 230px !important; }
+  }
+
+  /* ---- Phone (≤620px): stack everything, simplify chrome ---- */
+  @media (max-width: 620px) {
+    /* Hero: headline over photo */
+    .if-hero-grid { grid-template-columns: 1fr !important; }
+    .if-hero-grid > div:last-child { min-height: 240px !important; }
+    /* Audience: every cell full width */
+    .if-aud-grid { grid-template-columns: 1fr !important; }
+    .if-aud-grid > a { grid-column: auto !important; min-height: 150px !important; }
+    /* Footer: single column */
+    /* Footer: brand over nav already stacked at ≤920; keep the three nav columns
+       three-up (never collapse to 2) at every size. */
+    .if-foot-cols { grid-template-columns: repeat(3, 1fr) !important; gap: clamp(12px, 2.6vw, 28px) !important; }
+    /* Nav: tighten + allow horizontal scroll rather than ragged wrap */
+    nav a { padding: 12px 12px !important; font-size: 13px !important; }
+    /* On small phones there isn't room for the tagline beside the logo + burger. */
+    .if-id-tagline > p { display: none !important; }
+  }
+
+  /* ---- Small phone (≤400px): stages single column ---- */
+  @media (max-width: 400px) {
+    .if-stage-grid { grid-template-columns: 1fr !important; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<script src="image-slot.js"></script>
+<script src="data.js"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="StageGlyphInline.jsx"></script>
+<script type="text/babel" src="LogoInline.jsx"></script>
+<script type="text/babel" src="Header.jsx"></script>
+<script type="text/babel" src="Footer.jsx"></script>
+<script type="text/babel" src="Homepage.jsx"></script>
+<script type="text/babel" src="StudentsPage.jsx"></script>
+<script type="text/babel">
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "energy": "signature",
+    "voice": "editorial",
+    "edges": "signature",
+    "stageGlyphs": "on color",
+    "scaleUpText": "dark",
+    "audienceFrame": "shadow",
+    "headerLineToNav": true,
+    "navUnstick": true,
+    "footerBg": "black",
+    "footerAccent": "red",
+    "footerCta": true
+  }/*EDITMODE-END*/;
+
+  // Expressive controls reshape the whole site by remapping the semantic
+  // design tokens every component already reads — not per-element pixels.
+  function feelVars(t) {
+    let v = {};
+    // ENERGY — palette temperature & saturation
+    if (t.energy === "restrained") {
+      v["--md-red"] = "#9b2d33"; v["--md-gold"] = "#c2a03f";
+      v["--action"] = "#9b2d33"; v["--action-hover"] = "#7f242a"; v["--action-active"] = "#661c21";
+      v["--text-link"] = "#9b2d33";
+    } else if (t.energy === "electric") {
+      v["--md-red"] = "#ff1430"; v["--md-gold"] = "#ffdd00";
+      v["--action"] = "#ff1430"; v["--action-hover"] = "#e00b25"; v["--action-active"] = "#c20920";
+      v["--text-link"] = "#ff1430";
+    }
+    // VOICE — running-text personality
+    if (t.voice === "industrial") {
+      v["--font-body"] = 'var(--font-heading)';
+    }
+    // EDGES — geometry personality
+    if (t.edges === "blueprint") {
+      v["--radius-sm"] = "0"; v["--radius-md"] = "0"; v["--radius-lg"] = "0";
+    } else if (t.edges === "soft") {
+      v["--radius-sm"] = "8px"; v["--radius-md"] = "12px"; v["--radius-lg"] = "20px";
+    }
+    return v;
+  }
+
+  function App() {
+    const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+    window.IF_TWEAKS = t;
+    const [page, setPage] = React.useState("home");
+    const nav = (p) => { setPage(p); window.scrollTo({ top: 0 }); };
+    return (
+      <React.Fragment>
+        <div style={feelVars(t)}>
+          <window.IFHeader active={page} onNav={nav} />
+          {page === "students"
+            ? <window.IFStudentsPage onNav={nav} />
+            : <window.IFHomepage onNav={nav} />}
+          <window.IFFooter onNav={nav} tweaks={t} />
+        </div>
+        <TweaksPanel>
+          <TweakSection label="Feel" />
+          <TweakRadio label="Energy" value={t.energy}
+                      options={["restrained", "signature", "electric"]}
+                      onChange={(v) => setTweak("energy", v)} />
+          <TweakRadio label="Voice" value={t.voice}
+                      options={["editorial", "industrial"]}
+                      onChange={(v) => setTweak("voice", v)} />
+          <TweakRadio label="Edges" value={t.edges}
+                      options={["blueprint", "signature", "soft"]}
+                      onChange={(v) => setTweak("edges", v)} />
+          <TweakSection label="Four-stage band" />
+          <TweakRadio label="Stage glyphs" value={t.stageGlyphs}
+                      options={["tiled", "on color"]}
+                      onChange={(v) => setTweak("stageGlyphs", v)} />
+          <TweakRadio label="Scale-Up text" value={t.scaleUpText}
+                      options={["dark", "white"]}
+                      onChange={(v) => setTweak("scaleUpText", v)} />
+          <TweakSection label="Find your way in" />
+          <TweakSelect label="Grid frame" value={t.audienceFrame}
+                      options={["shadow", "hairline", "accent", "line", "none"]}
+                      onChange={(v) => setTweak("audienceFrame", v)} />
+          <TweakSection label="Header" />
+          <TweakToggle label={'Gold line into navbar'} value={t.headerLineToNav}
+                      onChange={(v) => setTweak("headerLineToNav", v)} />
+          <TweakToggle label={'Navbar retracts at footer'} value={t.navUnstick}
+                      onChange={(v) => setTweak("navUnstick", v)} />
+          <TweakSection label="Footer" />
+          <TweakRadio label="Background" value={t.footerBg}
+                      options={["black", "red"]}
+                      onChange={(v) => setTweak("footerBg", v)} />
+          <TweakSelect label="Accent strip" value={String(t.footerAccent)}
+                      options={["gold", "red", "false"]}
+                      onChange={(v) => setTweak("footerAccent", v === "false" ? false : v)} />
+          <TweakToggle label={'"Have an idea?" band'} value={t.footerCta}
+                      onChange={(v) => setTweak("footerCta", v)} />
+        </TweaksPanel>
+      </React.Fragment>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+/* ============================================================
+   Idea Factory — Spacing, radii, borders, shadows, layout
+   The system is modular and grid-based (the "assembly" theme).
+   Mondrian color blocks butt edge-to-edge — radii are minimal.
+   ============================================================ */
+
+:root {
+  /* Spacing scale (4px base) */
+  --space-0:   0;
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   24px;
+  --space-6:   32px;
+  --space-7:   48px;
+  --space-8:   64px;
+  --space-9:   96px;
+  --space-10: 128px;
+
+  /* Section rhythm */
+  --section-y:        96px;   /* vertical padding between page sections */
+  --section-y-tight:  64px;
+
+  /* Radii — the brand is blocky; corners stay sharp or barely soft */
+  --radius-0:    0;        /* color blocks, glyph tiles — squared */
+  --radius-sm:   2px;
+  --radius-md:   4px;      /* default for buttons, inputs, cards */
+  --radius-lg:   8px;
+  --radius-pill: 999px;    /* tags / filter chips */
+
+  /* Borders */
+  --border-width:        1px;
+  --border-width-strong: 2px;   /* outlined boxes w/ colored edges */
+  --border-width-rule:   4px;   /* heavy horizontal rules */
+
+  /* Shadows — used sparingly; the brand leans on blocks & rules,
+     not floating cards. Reserve elevation for overlays. */
+  --shadow-sm:  0 1px 2px rgba(0,0,0,0.08);
+  --shadow-md:  0 4px 12px rgba(0,0,0,0.10);
+  --shadow-lg:  0 12px 32px rgba(0,0,0,0.16);
+
+  /* Layout */
+  --container:        1240px;  /* max content width */
+  --container-wide:   1440px;  /* desktop reference breakpoint */
+  --gutter:           24px;    /* page side padding (desktop) */
+  --gutter-mobile:    20px;
+  --grid-gap:         24px;
+  --grid-gap-tight:   16px;
+
+  /* Reference breakpoints */
+  --bp-mobile:  390px;
+  --bp-desktop: 1440px;
+
+  /* Motion — restrained, purposeful; tasteful block motion */
+  --ease-out:   cubic-bezier(0.22, 1, 0.36, 1);   /* @kind other */
+  --ease-std:   cubic-bezier(0.4, 0, 0.2, 1);     /* @kind other */
+  --ease-spring: cubic-bezier(0.34, 1.55, 0.42, 1); /* @kind other */
+  --dur-fast:   140ms;  /* @kind other */
+  --dur-base:   240ms;  /* @kind other */
+  --dur-hover:  320ms;  /* @kind other */
+  --dur-slow:   420ms;  /* @kind other */
+}

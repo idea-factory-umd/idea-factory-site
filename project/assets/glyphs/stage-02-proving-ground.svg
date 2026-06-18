@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Proving Ground stage glyph">
+  <title>Proving Ground</title>
+  <rect x="26" y="26" width="30" height="30" fill="#000000"></rect>
+  <rect x="26" y="64" width="30" height="30" fill="#000000"></rect>
+  <rect x="67" y="29" width="24" height="24" fill="none" stroke="#e21833" stroke-width="6"></rect>
+  <rect x="67" y="67" width="24" height="24" fill="none" stroke="#e21833" stroke-width="6"></rect>
+  <path d="M32 41.6 L38 47.6 L49.4 34.4" fill="none" stroke="#ffffff" stroke-width="4.8" stroke-linecap="square" stroke-linejoin="miter"></path>
+  <path d="M32 79.6 L38 85.6 L49.4 72.4" fill="none" stroke="#ffffff" stroke-width="4.8" stroke-linecap="square" stroke-linejoin="miter"></path>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Assembly Line stage glyph">
+  <title>Assembly Line</title>
+  
+  <rect x="12" y="44" width="28" height="28" fill="#e21833"></rect>
+  <rect x="46" y="44" width="28" height="28" fill="#000000"></rect>
+  <rect x="80" y="44" width="28" height="28" fill="#ffd200"></rect>
+  <rect x="6" y="76" width="108" height="8" fill="#7f7f7f"></rect>
+</svg>
