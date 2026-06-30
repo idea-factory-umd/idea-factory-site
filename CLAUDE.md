@@ -29,7 +29,16 @@
   - `<script>` 13.7 KB — the global behavior JS (hero anim, footer CTA, nav‑hide, smooth‑scroll, CSE, `__ifhero`), element `0f5b57ba…`.
   - `<script>` 0.7 KB nav‑hide; 4.3 KB; 0.9 KB smooth/IO — additional behavior.
 
-**➡️ BLOCKER / decision needed before consolidating:** the shared file lives in `webflow-assets`, which is **out of this session's GitHub scope**, so it can't be updated here. Resolve by EITHER (a) granting this session access to `webflow-assets`, OR (b) relocating the shared assets into `idea-factory-site` (this repo — already in scope; requires it to be public for jsDelivr + repointing the refs). Either way, the version‑ref repoint in Project Settings is a **user UI step**.
+**➡️ IMPLEMENTATION STATUS (consolidation — in progress):**
+- **DECISION (user‑confirmed): host the shared file in THIS repo `idea-factory-site`** (public → jsDelivr works; and in scope). `webflow-assets` is abandoned (its `@v1.0.0` was a stale snapshot).
+- **DONE:** shared files built at repo root — `idea-factory.css` (12.6 KB) + `idea-factory.js` (21 KB, 4 `try/catch` modules). Verified as an exact drop‑in via the offline headless harness (all features fire, 0 JS errors). Committed to `main`.
+- **PINNED VERSION = commit `c0fd5ed`.** (Local tag `v1.1.0` exists, but the git proxy here refuses tag pushes, so live sites pin by **commit SHA**, which is equally immutable.) Confirmed served at `https://cdn.jsdelivr.net/gh/idea-factory-umd/idea-factory-site@c0fd5ed/idea-factory.css` (and `.js`).
+- **SPLIT:** in‑site KEPT = `st0` (hamburger + hero‑grid/id‑band responsive overrides = LAYOUT‑CRITICAL) + Webflow's own scripts. MOVED to shared file = `st1`+`st2`+`st3` (CSS) and `sc1`+`sc2`+`sc3`+`sc4` (JS).
+- **NEXT (awaiting user UI step):** user repoints the 2 refs in **Project Settings → Custom Code** from `webflow-assets@v1.0.0` → `idea-factory-site@c0fd5ed` (annotated lines provided) + publish. THEN I verify live and **remove the now‑duplicate inline embeds** (content‑grow `9f126333…`; global embed `0f5b57ba…`) and re‑verify. Double‑load during the gap is safe (idempotent guards: `__ifhero`, `t.__ifb`, `__ifBTT`, etc.).
+
+**CONVENTIONS (user‑set this session):**
+1. **Bracket‑define jargon inline** the first time it appears, e.g. *repo [a project folder on GitHub]*, ≤~10 words.
+2. **Every piece of in‑Webflow custom code carries a `DO NOT DELETE` banner + a concise "what it does."** The shared files already have DO‑NOT‑EDIT headers; the in‑site `st0` embed still needs its banner added (do during embed cleanup).
 
 ---
 
