@@ -105,3 +105,9 @@ stop," not "site breaks."
   Keep the shared JS loaded via `<script src>`, never inlined.
 - **`set_settings` on big/non‑ASCII embeds** can throw `InputValidationError` — small ASCII
   embeds set fine; big ones need the file + unicode‑escape workaround (see `CLAUDE.md` §3).
+- **Do NOT run Webflow's "Remove unused styles" (Style Manager → Clean up) blindly.** It deletes
+  any class not on a *static* element, which would purge **runtime‑applied state classes** whose
+  styling is Designer‑defined — notably **`is-visible`** (the back‑to‑top reveal). That would break
+  the feature. Same‑name duplicate classes are harmless (Webflow merges them to one rule at publish);
+  leave them, or remove copies one‑by‑one in the Designer checking the per‑class element‑count badge.
+  Full analysis: `CLAUDE.md` §11.
