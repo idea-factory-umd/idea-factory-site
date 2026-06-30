@@ -19,7 +19,17 @@
 - **Chosen model: "B" — one shared, centrally‑linked behavior file** maintained here, referenced by every site. (The user only edits code here; spin‑offs only get content edits via the Webflow UI and are **never** connected to MCP.)
 - Recent shipped work (all live on staging): responsive hero headline, min‑gap above the hero button, flagship marker reshape + bigger arrows, content‑grow hover on buttons. See §8.
 
-**➡️ Next action when resuming:** confirm GO, then do the read‑only audit (§7/§10), structured around the stability rules in §5.
+**AUDIT (done) — true current state of the code:**
+- Site loads (from `webflow-assets@v1.0.0`, jsDelivr): `idea-factory.css` (10 KB, **stale**) in `<head>`; `idea-factory.js` (12.7 KB, **stale**) before `</body>`. Plus Typekit `fdu6zpb.css` in `<head>`.
+- Current behavior is **inline body embeds**, ~19 KB CSS + ~20 KB JS, in four `<style>` + four `<script>` blocks:
+  - `<style>` 7.1 KB — hero‑grid breakpoint overrides + nav (LAYOUT‑CRITICAL → keep in‑site).
+  - `<style>` 0.1 KB — content‑grow hover (`.if-grow-inner`), element `9f126333…`.
+  - `<style>` 7.8 KB — hover/animation CSS (`if-hero-word`, footer, nav).
+  - `<style>` 3.9 KB — footer CSS.
+  - `<script>` 13.7 KB — the global behavior JS (hero anim, footer CTA, nav‑hide, smooth‑scroll, CSE, `__ifhero`), element `0f5b57ba…`.
+  - `<script>` 0.7 KB nav‑hide; 4.3 KB; 0.9 KB smooth/IO — additional behavior.
+
+**➡️ BLOCKER / decision needed before consolidating:** the shared file lives in `webflow-assets`, which is **out of this session's GitHub scope**, so it can't be updated here. Resolve by EITHER (a) granting this session access to `webflow-assets`, OR (b) relocating the shared assets into `idea-factory-site` (this repo — already in scope; requires it to be public for jsDelivr + repointing the refs). Either way, the version‑ref repoint in Project Settings is a **user UI step**.
 
 ---
 
@@ -39,7 +49,9 @@
 | Webflow **Page ID** (homepage; also the `component` field in every element ID) | `6a316b1d0f02a4cda75a51fb` |
 | **Staging URL** | `https://claude-accessed-migration-interface-sit.webflow.io` |
 | **Adobe Fonts / Typekit kit** (Interstate; weights 400/700/800 used) | `https://use.typekit.net/fdu6zpb.css` |
-| **Shared CSS already on CDN** | `idea-factory.css` via jsDelivr from GitHub repo `idea-factory-umd/idea-factory-site` (currently `@v1.0.0`) |
+| **Shared code on CDN** | `idea-factory.css` **and** `idea-factory.js` via jsDelivr from repo **`idea-factory-umd/webflow-assets`** at `@v1.0.0`. ⚠️ **This `@v1.0.0` is a stale early snapshot** — the *current* behavior runs from **inline body embeds**, NOT this file (see §0 AUDIT). Consolidation = bring this file current, re‑version, repoint, remove embeds. |
+| **GitHub scope this session** | Only `idea-factory-site`. **`webflow-assets` is OUT of scope** (can't write it via MCP/GitHub here; `add_repo` unavailable). |
+| **MCP cannot edit** | Project Settings / Page custom code (site‑wide head/footer). Only **embed elements**, Designer styles, and pages are MCP‑editable. Repointing the jsDelivr version is therefore a **user UI step**. |
 | **GitHub repo (this one)** | `idea-factory-umd/idea-factory-site`, dev branch `claude/keen-johnson-f9w833` |
 
 **Webflow MCP notes:**
