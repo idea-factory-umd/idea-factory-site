@@ -40,7 +40,8 @@
 - **SPLIT:** in‑site KEPT = `st0` (hamburger + hero‑grid/id‑band responsive overrides = LAYOUT‑CRITICAL) + Webflow's own scripts. MOVED to shared file = `st1`+`st2`+`st3` (CSS) and `sc1`+`sc2`+`sc3`+`sc4` (JS).
 - **DONE — cut‑over complete, verified live:** user repointed the 2 refs (Project Settings → Custom Code, head CSS + footer JS, each with a `DO NOT DELETE` banner) to `idea-factory-site@c0fd5ed` + published. The 4 redundant inline embeds were removed via MCP (`9f126333` content‑grow, `0f5b57ba` global, `30d80649` CSE, `69c29595` back‑to‑top). Only the in‑site `st0` embed (`afd96462…`, renamed in the Navigator to "DO NOT DELETE — in‑site layout/nav CSS") + Webflow's own scripts remain inline. (`st0` left untouched on purpose — it holds functional non‑ASCII like the `✕` glyph; its sidecar `sc1` also lives in the shared file but is idempotent via `el.__ifm`, so the harmless dup was not worth risking an edit to layout‑critical CSS.) Live page dropped **74.7 KB → 43.8 KB**; offline harness re‑confirmed every feature fires with 0 JS errors.
 - **THE MULTI‑SITE SHARED‑CODE ARCHITECTURE IS NOW LIVE.** Duplicating the site carries the refs, so pasted Sections work in spin‑offs. The shared file is the single source of truth (edit in repo → re‑pin → all sites).
-- **REMAINING (refinements, not blocking):** (5) clean class system (remove duplicate/orphan classes, e.g. the noted `.if-sub-field` duplicate); (6) Library/holding page (unlinked) for staging reusable Sections; (7) promote/rollback runbook in‑repo.
+- **REMAINING (refinements, not blocking):** (5) clean class system (remove duplicate/orphan classes, e.g. the noted `.if-sub-field` duplicate) — IN PROGRESS.
+- **DONE (refinements):** (6) **Library/holding page** created — unlinked staging page for reusable Sections, page id `6a444ec15e773093da8f579e`, slug `/library`, set to **draft** (not published/crawlable). (7) **Promote/rollback runbook** written → `RUNBOOK.md` at repo root (promote, rollback, new‑spin‑off checklist, element‑reuse steps, gotchas). Read it alongside this file.
 
 **CONVENTIONS (user‑set this session):**
 1. **Bracket‑define jargon inline** the first time it appears, e.g. *repo [a project folder on GitHub]*, ≤~10 words.
@@ -198,9 +199,9 @@ The shared file is a single point of failure, so its safety is engineered:
 
 ## 10. Pending / next steps (in order)
 
-1. **[awaiting GO]** Read‑only **audit**: exact current location + size of every code/style piece (the global embed contents split CSS vs JS, the small content‑grow embed, the hero‑grid breakpoint `<style>`, the jsDelivr `<link>`, the Typekit `<link>`).
-2. **Consolidate** behavior code into the shared file in this repo; publish it to jsDelivr as a **pinned version**.
-3. **Wire the pinned reference** into this site's head/footer custom code (so it duplicates).
-4. **Clean the class system** (remove known duplicates/orphans — e.g. a duplicated `.if-sub-field` was noted).
-5. **Library/holding page** + **promote/rollback runbook** in‑repo.
-6. **Verify** the live site is byte‑for‑byte equivalent in behavior before/after the cut‑over.
+1. ✅ **DONE** — Read‑only **audit** of every code/style piece (see §0 AUDIT).
+2. ✅ **DONE** — **Consolidated** behavior into the shared file; published to jsDelivr pinned by SHA.
+3. ✅ **DONE** — **Wired the pinned reference** into site head/footer custom code (duplicates with the site).
+4. **Clean the class system** (remove known duplicates/orphans — e.g. a duplicated `.if-sub-field` was noted) — **IN PROGRESS** (see §11).
+5. ✅ **DONE** — **Library/holding page** (`/library`, draft, id `6a444ec15e773093da8f579e`) **+ promote/rollback runbook** (`RUNBOOK.md`).
+6. **Verify** the live site is behavior‑equivalent before/after each future change (ongoing, via the offline harness).
