@@ -288,3 +288,15 @@ The current‑page indicator now rides **Webflow's native `.w--current`** (auto�
 - **Neutralized** Webflow's default blue (`#0082f3`) on the current dropdown link: `.if-nav-sublink.w--current{color:#1a1a1a}` (mobile re‑colors it red via the more‑specific rule).
 - **Verified offline** (headless + CDP): `/students` Students=red bar+red text, Faculty hover=gold hatch, 0 JS errors; `/about` desktop toggle underline gold, dropdown top transparent, sublink dark (not blue).
 - **CSS‑only** → the live sites need the **CSS `<link>` re‑pinned** to the new SHA (JS unchanged). This is the same file as the §12/Task‑1 change, so one re‑pin covers everything since `c1baf6f`.
+
+---
+
+## 14. Hero headline "read‑to‑red" (done 2026‑07‑01) — SHARED JS + CSS, needs re‑pin
+
+The hero "Where ideas get built." stays **white**, and **"get" + "built." turn brand red (#e21833) as the reading animation reaches each word, then stay red** (per‑load). "Where ideas" stays white; the "." is part of the "built." span.
+
+- **Marker:** the "get" (`…dcb`) and "built." (`…dce`) spans carry class **`if-hero-word-red`**, whose Designer color was **removed** (via `update_style`) so it's now an inert marker.
+- **JS (hero reader, main‑bundle module):** when a word with `if-hero-word-red` is the active read step (or at settle 999), it adds **`if-lit-red`** (never removed → persists). Reduced‑motion: red words get `if-lit-red` immediately (no animation).
+- **CSS (shared):** `.if-hero-word{transition:…,color .45s ease}` (fade) + `.if-hero-word-red.if-lit-red{color:#e21833}`.
+- **Verified offline:** before hover all white; after reading get/built = rgb(226,24,51), 0 JS errors.
+- **Both `idea-factory.js` AND `idea-factory.css` changed → re‑pin BOTH refs** (CSS `<link>` + JS `<script>`) to the new SHA.
