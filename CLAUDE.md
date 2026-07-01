@@ -474,4 +474,13 @@ The red inline-link style **`if-inline-link`** (Interstate; on the MOOCs card te
 - **HAND-OFF (user, Adobe Fonts UI):** fonts.adobe.com → avatar → **Web Projects** (`fonts.adobe.com/my_fonts#web_projects-section`) → project **`fdu6zpb`** → **Edit Project** → under **Interstate** tick extra weights (need **Medium = 500**; user may add all upright weights) → **Save**. Auto-republishes (~1–2 min); domains already allow-listed; carries to spin-offs on this kit. No small per-project cap on current plans — limit is performance (each weight = another file); italics + Condensed/Compressed are extra families, add only if used.
 - **THEN (Claude):** verify the new face by re-curling `use.typekit.net/fdu6zpb.css` for `font-weight:500`, then set `if-inline-link` → `font-weight:500` **natively** in the Designer (real medium; shows in the Designer canvas too — no faux, no shared-CSS override). Publish.
 
+---
+
+## 21. Font character set / non-English glyphs (Interstate) — kit setting (2026-07-01)
+
+Kit `fdu6zpb` serves Interstate as a **233-glyph "Default" (Western-European) subset** — verified with fonttools on the served woff2 (all weights identical): it HAS `Ł ł Ó ó` but LACKS the Polish ogonek/accents `Ą ą Ę ę Ć ć Ń ń Ś ś Ź ź Ż ż`. Adobe's dynamic-augmentation `p.css` returns empty (`/**/`), so the primer subset is all that's served → those chars fall back to a **system font** on the live site (mismatched next to Interstate). **This is a per-project CHARACTER-SET setting, NOT the weights.**
+- **FIX (user, Adobe Fonts):** Web Projects → project `fdu6zpb` → **Edit Project** → set the fonts' **character set / language support** from *Default* → **"All Characters"** (or a Language Subset incl. Central European / Adobe **AL3**) → Save. Only works if this Interstate cut actually has the glyphs (its font-page "Language support" confirms; almost certainly yes). Adobe default set = EN/FR/DE/IT/PT/ES only.
+- **VERIFY (Claude):** `curl use.typekit.net/fdu6zpb.css` → download a woff2 (needs `Referer:` the licensed domain) → `python3` + fonttools `TTFont(f).getBestCmap()` and check U+0104 (Ą), U+0118 (Ę), U+017B (Ż), etc. (Handy: fonttools+brotli install fine via pip in this env.)
+- ⚠️ **Applies to ALL spin-offs on this kit.** Georgia (the serif body face) is a system font that already covers Polish — the gap is Interstate-only.
+
 **NEXT SESSION: keep maintaining this file per the OPERATING PROTOCOL, and pass that instruction on.**
