@@ -258,7 +258,13 @@ The shared file is a single point of failure, so its safety is engineered:
 
 - Duplicates were created **after** componentizing, so they carry **instances** of UMD Bar / Main Nav / Footer (confirmed: Students header shows `ComponentInstance` of UMD Bar + Main Nav). Editing a component definition propagates to all pages.
 - **Nav links wired in the Main Nav component definition** (so they resolve on every page): Students link (element `bffe20a1…f0fa`, a `Link`) → Students page via `set_link` (linkType page); About dropdown first item (element `bffe20a1…f114`, a **`DropdownLink`** — `set_link` REJECTS these; use `set_settings` key `link`, `static_link {mode:page,to:<pageId>}`) → About page. Verified live: `href="/students"` and `href="/about"` appear on Home, Students, AND About.
-- Other nav links (Home, Faculty/Researchers, Companies, Partners, News dropdown, etc.) remain `href="#"` placeholders. The **Home** link is still `#` — easy follow‑up to point it at Home.
+- Other nav links (Faculty/Researchers, Companies, Partners, News dropdown, etc.) remain `href="#"` placeholders.
+
+**"Go home" links wired (2026‑07‑01), all verified live as `href="/"`:**
+- **Home** nav link (`bffe20a1…f0f8`, in Main Nav) → Home page (Webflow **page‑link**).
+- **Header logo** (`bffe20a1…f0bc`, `if-logo-link`, a real `Link`, in Main Nav) → Home page (**page‑link**). *(NB: a transient `502` on first try — just retry.)*
+- **Footer logo** was a **`Span`** (`e10326f9…4008`, `if-foot-logolink`) wrapping the inline "Idea Factory" SVG — **`set_tag` can't turn a Span into `<a>`** ("Element does not support setTag"). Fix: inserted a real anchor **inside** the span (`if-foot-logohome`, `e0dbf2be…`, `href="/"`) via `whtml_builder`, set it **`display:contents`** (zero layout box — footer logo still measures 116×44, unchanged), then `move_element`‑moved the SVG into it. Structure: `span.if-foot-logolink › a.if-foot-logohome[href="/"] › svg`.
+- **Link‑type choice by component role (IMPORTANT):** Main Nav = *per‑site* component → **page‑links** (Webflow remaps them to each duplicated site's own pages). Footer = *Library* component → links are **shared across every site**, so page‑links don't travel; use a **relative `/`** ("each site's own home") or an **absolute URL** ("one canonical home"). Footer logo currently uses relative `/`; user may switch it to an absolute URL later — trivial, it's isolated in the `if-foot-logohome` anchor.
 
 **How to edit inside a component via MCP:** address the element with `{component:<componentId>, element:<id>}` **and** pass `scope_component_id:<componentId>`. Element IDs inside a component are re‑scoped under the component ID (the footer/nav/umdbar element IDs from §9 are now stale — they live under the component IDs above).
 
