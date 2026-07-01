@@ -235,26 +235,61 @@
 /* ===== content-grow hover ===== */
 .if-flag-btn:hover .if-grow-inner{transform:scale(1.07)}.if-btn-primary:hover .if-grow-inner{transform:scale(1.06)}
 
-/* ===== current-page marker (native Webflow .w--current) =====
-   Webflow auto-adds .w--current to the nav link matching the current page, but it
-   will NOT compile a hand-made .w--current combo (unused-in-Designer), so the rule
-   lives here. Top-level nav links only; dropdown sublink marker TBD (see §12). */
-.if-nav-link.w--current{background-color:#a40f23;border-bottom-color:#ffd200;}
-/* current dropdown sub-item: red left bar marks THE current page inside the dropdown
-   (in addition to the toggle's gold underline); hover still operates over it.
-   Also neutralizes Webflow's default blue. Mobile re-colors the label red below. */
-.if-nav-sublink.w--current{color:#1a1a1a;box-shadow:inset 4px 0 0 0 #e21833;}
-/* DESKTOP: when a dropdown's child page is current, underline that toggle (gold) in the
-   red bar, and drop that dropdown's gold top-edge so the two golds don't collide. */
+/* ===== NAV CURRENT-PAGE MARKERS + ROLLOVERS — CLASS-DRIVEN & PORTABLE =====
+   These rules key ONLY off: (a) the site nav container (.if-navmenu / .if-navroot),
+   (b) Webflow's native .w--current (auto-applied to the link whose href matches the page
+   being viewed), and (c) the nav class contract below — NEVER off a specific href, page id,
+   element id, text, or item position. So when you reorder items, retarget links, or build
+   whole new menus in a spin-off, the markers follow automatically. (Webflow will NOT compile
+   a hand-made .w--current combo — unused-in-Designer — so these live here, not in Designer.)
+   `.if-dd-wrap:has(.w--current)` fires for ANY dropdown holding the current page, not one
+   named dropdown.
+
+   NAV CLASS CONTRACT — put these classes on a nav item and it "just works":
+     top-level link ...... .if-nav-link      dropdown wrapper .... .if-dd-wrap
+     dropdown toggle ..... .if-ddtoggle       dropdown list ....... .if-dd-list
+     dropdown sub-item ... .if-nav-sublink
+   Easiest way to stay in contract: DUPLICATE an existing classed item instead of dragging
+   in a raw element. SAFETY NET: each rule below also matches by position + Webflow's own
+   nav classes (w-nav / w-dropdown*), scoped inside .if-navmenu, so even a raw un-if-classed
+   item still gets the correct marker. */
+
+/* TOP-LEVEL current link — dark-red fill + gold underline.
+   Hook: .if-nav-link.w--current. Net: any current <a> in the menu that is NOT a dropdown
+   sub-item (i.e. not inside a dropdown list). */
+.if-nav-link.w--current,
+.if-navmenu a.w--current:not(.if-nav-sublink):not(.if-dd-list a):not(.w-dropdown-list a){
+  background-color:#a40f23;border-bottom-color:#ffd200;
+}
+/* DROPDOWN sub-item current — red left bar marks the current page inside the dropdown
+   (the item's hover still operates over it). Also neutralizes Webflow's default blue link
+   color. Mobile re-colors the label red below.
+   Hook: .if-nav-sublink.w--current. Net: any current <a> inside a dropdown list. */
+.if-nav-sublink.w--current,
+.if-navmenu .if-dd-list a.w--current,
+.if-navmenu .w-dropdown-list a.w--current{
+  color:#1a1a1a;box-shadow:inset 4px 0 0 0 #e21833;
+}
+/* DESKTOP: when a dropdown holds the current page, gold-underline its toggle in the red
+   bar and drop that dropdown's gold top-edge so the two golds don't collide. */
 @media screen and (min-width:992px){
-  .if-dd-wrap:has(.w--current) .if-ddtoggle{border-bottom-color:#ffd200;}
-  .if-dd-wrap:has(.w--current) .if-dd-list{border-top-width:0;padding-top:6px;}
+  .if-dd-wrap:has(.w--current) .if-ddtoggle,
+  .if-navmenu .w-dropdown:has(.w--current) .w-dropdown-toggle{border-bottom-color:#ffd200;}
+  /* either/or: once THIS dropdown opens (hover or .if-open), drop the toggle underline —
+     the red bar on the current sub-item is the indicator instead. */
+  .if-dd-wrap:has(.w--current):hover .if-ddtoggle,
+  .if-dd-wrap:has(.w--current).if-open .if-ddtoggle,
+  .if-navmenu .w-dropdown:has(.w--current):hover .w-dropdown-toggle,
+  .if-navmenu .w-dropdown:has(.w--current).w--open .w-dropdown-toggle{border-bottom-color:transparent;}
+  .if-dd-wrap:has(.w--current) .if-dd-list,
+  .if-navmenu .w-dropdown:has(.w--current) .w-dropdown-list{border-top-width:0;padding-top:6px;}
 }
 /* MOBILE (hamburger, white menu): HOVER = gold hatch (was a red left bar);
    CURRENT page = red left bar (the old hover cue, repurposed) + red label.
    NOTE: the in-site st0 embed has a !important red-left-bar hover rule at
    `.if-navmenu ...:hover` (0,3,0). We double `.if-navmenu` here → (0,4,0)/(0,5,0)
-   so these win without touching st0. */
+   so these win without touching st0. (Mobile visual treatment is still pending a
+   revisit per the desktop-first plan; these selectors are class-generic already.) */
 @media screen and (max-width:991px){
   .if-navmenu.if-navmenu .if-nav-link:hover,
   .if-navmenu.if-navmenu .w-dropdown-toggle:hover,
@@ -266,7 +301,8 @@
     transform:none !important;
   }
   .if-navmenu.if-navmenu .if-nav-link.w--current,
-  .if-navmenu.if-navmenu .if-nav-sublink.w--current{
+  .if-navmenu.if-navmenu .if-nav-sublink.w--current,
+  .if-navmenu.if-navmenu a.w--current{
     background-color:transparent !important;
     background-image:none !important;
     border-bottom-color:#e6e6e6 !important;

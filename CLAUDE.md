@@ -324,7 +324,36 @@ The current‑page indicator now rides **Webflow's native `.w--current`** (auto�
   - **GOTCHA (important):** the old red‑left‑bar‑on‑hover lived in the **in‑site st0 embed** as `.if-navmenu …:hover{box-shadow:inset 4px 0 0 #e21833!important;background-image:none!important}` — specificity (0,3,0) and, being in `<body>`, it won source‑order ties, so plain shared‑CSS rules lost to it. Fix without touching the non‑ASCII st0 embed: the shared CSS **doubles the class** — `.if-navmenu.if-navmenu …` (specificity (0,4,0) hover / (0,5,0) current) — so it beats st0. Found it via Chrome DevTools `CSS.getMatchedStylesForNode` (grep/`getComputedStyle` couldn't locate it; it's box‑shadow, not border, and the file:// stylesheet wasn't rule‑readable). If st0 is ever cleaned, that old hover rule can go.
 - **Neutralized** Webflow's default blue (`#0082f3`) on the current dropdown link: `.if-nav-sublink.w--current{color:#1a1a1a}` (mobile re‑colors it red via the more‑specific rule).
 - **Verified offline** (headless + CDP): `/students` Students=red bar+red text, Faculty hover=gold hatch, 0 JS errors; `/about` desktop toggle underline gold, dropdown top transparent, sublink dark (not blue).
-- **CSS‑only** → the live sites need the **CSS `<link>` re‑pinned** to the new SHA (JS unchanged). This is the same file as the §12/Task‑1 change, so one re‑pin covers everything since `c1baf6f`.
+- **CSS‑only** → (historical) the live sites once needed the CSS `<link>` re‑pinned; now moot — live rides `@main` (§0/Protocol), so a push + purge ships it.
+
+### 13a. Desktop dropdown current‑marker — FINALIZED (2026‑07‑01, user‑approved iterations)
+
+The desktop dropdown current‑page cue is now an **"either/or"** between the toggle underline and the sub‑item bar (user's words: "when the dropdown is CLOSED you have that YELLOW BAR under the dropdown label; once you hover and it OPENS, you ONLY see the indicator on the actual sub‑item"). Live behavior (desktop ≥992):
+- **Dropdown CLOSED**, a child page current → the **toggle** shows the **gold underline** (`.if-dd-wrap:has(.w--current) .if-ddtoggle{border-bottom-color:#ffd200}`); the dropdown's own gold top‑edge is dropped (`border-top-width:0;padding-top:6px`) so the two golds never collide.
+- **Dropdown OPEN** (hover **or** JS `.if-open`) → the toggle underline goes **transparent**; the only cue is the **red left bar** on the current sub‑item (`.if-nav-sublink.w--current{box-shadow:inset 4px 0 0 0 #e21833}`). The bar is an **inset box‑shadow → paints IN FRONT of the hover fill**, so hovering the current sub‑item still works *behind/over* the marker (user‑confirmed requirement) and the marker is never obscured.
+- **Sub‑item hover = text‑grow only** now (`.if-nav-sublink:hover{transform:scale(1.07)}`). The old **yellow hatch was removed on desktop** — user found it "too fussy." A small white top gap (`padding-top:6px`) is intentionally kept.
+- Webflow's default blue on the current sublink stays neutralized (`.if-nav-sublink.w--current{color:#1a1a1a}`).
+- Verified offline (`eo.js`/`eo2.js`/`eo3.js` in scratchpad): closed toggle `rgb(255,210,0)`; open toggle `rgba(0,0,0,0)`; current sub‑item `rgb(226,24,51) 4px inset` in both states; 0 JS `pageerror`.
+
+### 13b. ⭐ NAV BEHAVIORS ARE CLASS‑DRIVEN & PORTABLE (2026‑07‑01, user requirement — KEEP THIS TRUE)
+
+User requirement (verbatim intent): *"write it so these behaviors get tied to WEBFLOW CLASSES, so they apply properly whenever I move things around and edit them to create new menus going forward"* (needed because each spin‑off gets its own nav items). **Both the nav CSS and the nav JS already key ONLY off classes + Webflow's native state classes — never off any href, page id, element id, text, or item position.** Audit confirmed: JS uses `querySelectorAll('.if-dd-wrap')`, `.if-nav-link, .if-nav-sublink, .w-dropdown-toggle`, etc.; CSS uses the classes below + `.w--current`. `.if-dd-wrap:has(.w--current)` fires for **any** dropdown holding the current page, not one named dropdown. So reorder / retarget / build‑new‑menu all keep working automatically.
+
+**NAV CLASS CONTRACT (put these classes on a nav item and it "just works" — documented in `idea-factory.css` too):**
+
+| Nav item | Required class |
+|---|---|
+| top‑level link | `if-nav-link` |
+| dropdown wrapper | `if-dd-wrap` |
+| dropdown toggle | `if-ddtoggle` (keep `if-nav-link` too) |
+| dropdown list | `if-dd-list` |
+| dropdown sub‑item | `if-nav-sublink` |
+
+- **Easiest way to stay in contract:** **DUPLICATE an existing classed item** instead of dragging in a raw element (raw elements only get Webflow's `w-…` classes).
+- **SAFETY NET (added 2026‑07‑01):** the current‑page marker rules **also** match by **position + Webflow's own nav classes** (`.if-navmenu a.w--current…`, `.w-dropdown:has(.w--current) .w-dropdown-toggle`, `.w-dropdown-list a.w--current`), all **scoped inside `.if-navmenu`** so nothing leaks. Result: **even a raw, un‑`if‑`classed new nav item still gets the correct marker.** Verified in `eo3.js` — injected raw `w-nav-link.w--current` → dark‑red fill `rgb(164,15,35)` + gold underline; raw `w-dropdown-link.w--current` → red inset bar + blue neutralized; raw `w-dropdown-toggle` in a `w-dropdown:has(.w--current)` → gold underline. (Caveat: the self‑sufficient cues — dark‑red **background** on top links, **box‑shadow** red bar on sub‑items — are always visible on raw items; the gold **underlines** need a border‑width, which comes from `.if-nav-link`/`.if-ddtoggle`, so keep those per the contract for full fidelity.)
+- **DO for future nav work:** keep every new selector class‑based + scoped to `.if-navmenu`/`.if-navroot`; never hardcode an href/id/position; when adding a marker, provide both the `if-` hook and the `w-` safety‑net form.
+
+**Status:** desktop dropdown set (13a) + portability hardening (13b) are **staged on dev branch `claude/keen-johnson-f9w833`**, verified offline, **awaiting user approval before promote to `@main` + purge + advance `stable`.** **STILL PENDING:** the hamburger/responsive (mobile) form — mobile hover currently still uses the gold hatch, which the user now dislikes "in general," so revisit mobile hover in that next phase (selectors are already class‑generic).
 
 ---
 
