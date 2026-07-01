@@ -444,4 +444,25 @@ Two behavior tweaks this session. **Both are shared-file behavior → they only 
 - The card photo-zoom relies on the **native `overflow:hidden`** (unpublished); pushing the CSS before publishing would let the 1.07 zoom bleed past the frame on the live site.
 - **Correct promote = push `idea-factory.{css,js}` to `main` (GitHub Pages) AND publish the Webflow site together.** That publish also ships this session's other Designer work (3 card photos, MOOCs cards rebuilt as Blocks with inner text links, letter-spacing −0.4px, hero break + `min-width:0` on `if-hero-left`, `if-tag-p` Georgia, search-input bg-position, etc.).
 
+---
+
+## 19. Footer / card / filter / manifesto animation polish (2026-07-01) — SHARED JS+CSS, LIVE
+
+All promoted (pushed to `main` + Webflow published; `stable` advanced to `4bcb588`). Each is class-driven/portable and shared-file behavior (shows on published/preview only, NOT the Designer canvas).
+
+**A. Footer CTA "Have an idea? Let's build it." — gold stays lit + footer-wide trigger.**
+- Gold phrase ("Let's build it.", `.if-foot-cta-gold`) now mirrors the hero red: starts white, turns gold word-by-word on the read, HOLDS full gold (no dim-back). `initCta` propagates `if-foot-cta-gold` onto the split `.if-foot-cta-word`s and adds `if-lit-gold` once a gold word is read; `setStep` keeps lit words at opacity 1. Reduced-motion lights them immediately. Shared CSS: `.if-foot-cta-word{color:#fff;transition:opacity …,color .45s}` + `.if-foot-cta-gold.if-lit-gold{color:#ffd200}`. Native gold on `if-foot-cta-gold` removed → inert marker. ⚠️ §11 DUP: by-name update cleared only the canonical `f9df5d3a`; orphan `64849047` still gold — harmless, the shared `.if-foot-cta-word{color:#fff}` (loaded after compiled) wins at rest.
+- **Trigger widened:** the reading animation now fires on mouseenter of the whole footer (`head.closest('.if-footer')||closest('footer')||head`), not just the heading — far more reliable to trigger.
+
+**B. Students card hover — ONE uniform center-pinned zoom + text-grow wrapper** (iterated per user: "no directional movement, everything zooms, center-pin all grows").
+- Card zooms as a single unit: `.if-prog-card:hover{transform:scale(1.03)}` — removed the old `translateY(-4px)` lift AND the separate body scale (that layering made the text appear to grow up into the photo). Photo image keeps a contained extra zoom `scale(1.04)` inside its `overflow:hidden` frame.
+- Text grows WITHIN the body via a JS wrapper: module `program-card-inner` wraps `.if-prog-body`'s content in `.if-prog-bodyinner`; `.if-prog-card:hover .if-prog-bodyinner{transform:scale(1.03)}` (center-pinned, default origin) grows the content inside the body without moving the body's perimeter. Content stays natively editable (the wrapper only groups it — same pattern as `if-grow-inner`/CTA word-spans). An earlier `if-prog-body` `flex-grow:0` experiment was reverted to `1` — the wrapper is the correct mechanism.
+- Net: card + photo + text all grow center-pinned in all directions; gaps preserved; nothing creeps directionally.
+
+**C. Filter-switch entrance.** Matching cards fade + rise 10px, staggered 35ms/card (cap 260ms), .45s ease-out, ONLY on a pill click (never initial load). `@keyframes if-prog-in` + `.if-prog-card.if-prog-appear` with `animation-fill-mode:backwards` (from-state shows during the stagger delay = no flash; doesn't retain after = card hover-lift still works). `program-filter` collects shown cards and re-triggers the class with a per-card `animation-delay`; reduced-motion skips.
+
+**D. Home manifesto red.** "We are not a think tank. / We are not a lecture hall. / We are **where ideas get built.**" — the phrase "where ideas get built." (`.if-mani-red`, nested in line-3 span `…d857`) starts BLACK and turns red only when its line is highlighted by the grow, then HOLDS red. `initManifesto` adds `if-lit-red` to the lifted line's `.if-mani-red` child (never removed; reduced-motion lights immediately). Native red on `if-mani-red` removed → inert; shared CSS `.if-mani-red{color:inherit;transition:color .45s}` + `.if-mani-red.if-lit-red{color:#e21833}`. Verified end-to-end on the live Home DOM (black→red→stays, 0 JS errors).
+
+**⚠️ PROPAGATION LESSON (bit us this session):** after pushing shared JS+CSS to `main`, GitHub Pages has a ~1–2 min window where a browser can load the NEW css with the OLD cached js (or vice-versa) → a transient mismatch (e.g., manifesto shows black with no red-on-highlight because new CSS + stale JS). It self-resolves; hard-refresh after ~2 min to confirm. Always verify with the offline harness against the freshly-served files before assuming a real bug.
+
 **NEXT SESSION: keep maintaining this file per the OPERATING PROTOCOL, and pass that instruction on.**
