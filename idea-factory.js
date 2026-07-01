@@ -314,7 +314,15 @@ try {
     if(!grid||!pillWrap||grid.__ifprog)return;grid.__ifprog=1;
     var pills=pillWrap.querySelectorAll('.if-filter-pill');
     var cards=grid.querySelectorAll('.if-prog-card');
-    function apply(filter){
+    var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    function animateIn(list){
+      if(reduce||!list.length)return;
+      for(var a=0;a<list.length;a++)list[a].classList.remove('if-prog-appear');
+      void grid.offsetWidth; // restart the animation cleanly
+      for(var a=0;a<list.length;a++){list[a].style.animationDelay=Math.min(a*35,260)+'ms';list[a].classList.add('if-prog-appear');}
+    }
+    function apply(filter,animate){
+      var shown=[];
       for(var i=0;i<cards.length;i++){
         var raw=cards[i].getAttribute('data-tags')||'';
         var tags=raw.split(',');
@@ -323,13 +331,15 @@ try {
           if(tags[k].replace(/^\s+|\s+$/g,'')===filter)show=true;
         }
         cards[i].classList.toggle('if-prog-hidden',!show);
+        if(show)shown.push(cards[i]);
       }
+      if(animate)animateIn(shown);
     }
     for(var i=0;i<pills.length;i++){(function(p){
       p.addEventListener('click',function(){
         for(var j=0;j<pills.length;j++)pills[j].classList.remove('is-active');
         p.classList.add('is-active');
-        apply(p.getAttribute('data-filter')||'All');
+        apply(p.getAttribute('data-filter')||'All',true);
       });
     })(pills[i]);}
   }
