@@ -376,15 +376,13 @@ body { font-family: Interstate, "Helvetica Neue", Arial, sans-serif; }
 .if-prog-photo{background-image:repeating-linear-gradient(135deg,#e9e9e9 0,#e9e9e9 10px,#f4f4f4 10px,#f4f4f4 20px);}
 .if-prog-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform 320ms cubic-bezier(0.22,1,0.36,1);}
 .if-prog-card{transition:transform 240ms cubic-bezier(0.22,1,0.36,1),box-shadow 240ms cubic-bezier(0.22,1,0.36,1),opacity .2s ease;will-change:transform;}
-.if-prog-card:hover{transform:translateY(-4px) scale(1.01);box-shadow:0 14px 34px rgba(0,0,0,0.14);position:relative;z-index:2;}
-.if-prog-card:hover .if-prog-photo img{transform:scale(1.07);}
-/* Card hover also grows the whole if-prog-body text group as ONE unit (parent-hover-child —
-   Webflow can't store "parent hover scales a child" as a native style, same reason the news
-   photo-zoom above is CSS). Scales from center so every line stays aligned with its neighbors;
-   kept subtle (1.03) so text stays clear of the 24px body padding. The photo frame clips its
-   own zoom via native overflow:hidden on .if-prog-photo. */
-.if-prog-body{transition:transform 240ms cubic-bezier(0.22,1,0.36,1);will-change:transform;transform-origin:50% 0;}
-.if-prog-card:hover .if-prog-body{transform:scale(1.03);}
+/* Card hover = ONE center-pinned ZOOM of the whole card (no translate/lift, no separate per-child
+   scales) so the photo, text and card all grow together in every direction with NO directional
+   movement — the photo/text gap is preserved because they scale as a single unit. */
+.if-prog-card:hover{transform:scale(1.03);box-shadow:0 14px 34px rgba(0,0,0,0.14);position:relative;z-index:2;}
+/* The photo image gets a little extra center-pinned zoom, clipped to its frame (overflow:hidden),
+   for a news-card feel — contained, so it adds no directional movement. */
+.if-prog-card:hover .if-prog-photo img{transform:scale(1.04);}
 .if-prog-hidden{display:none !important;}
 /* Filter switch: matching cards fade + rise in, staggered by the filter JS. `backwards` fill
    shows the from-state during each card's stagger delay (no flash) and does NOT retain after the
