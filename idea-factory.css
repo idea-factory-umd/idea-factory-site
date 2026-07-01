@@ -325,16 +325,22 @@
   .if-navmenu.if-navmenu a.w--current::before{
     content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#e21833;pointer-events:none;
   }
-  /* HOVER = GROW ONLY (no red, no hatch, no background). Text keeps its resting color — the
-     per-type color rules below override st0's hover color change so nothing shifts but size. */
+  /* HOVER = GROW ONLY (no red, no hatch, no background). The grow is on the INNER text
+     (.if-mtext) — the ORIGINAL smooth mobile grow — NOT the whole row. Scaling the full-width
+     anchor fought st0's own .if-mtext scale (double transform) and snapped back wildly; the
+     anchor is left un-scaled (st0's resting `transform:none`) so only the text grows, smoothly.
+     Per-type colors cancel st0's hover darkening so nothing shifts but the text size. */
   .if-navmenu.if-navmenu .if-nav-link:hover,
   .if-navmenu.if-navmenu .w-dropdown-toggle:hover,
   .if-navmenu.if-navmenu .if-nav-sublink:hover{
     box-shadow:none !important;
     background-color:transparent !important;
     background-image:none !important;
-    transform:scale(1.07) !important;
-    transform-origin:left center !important;
+  }
+  .if-navmenu.if-navmenu .if-nav-link:hover .if-mtext,
+  .if-navmenu.if-navmenu .w-dropdown-toggle:hover .if-mtext,
+  .if-navmenu.if-navmenu .if-nav-sublink:hover .if-mtext{
+    transform:scale(1.07) !important;transform-origin:left center !important;
   }
   .if-navmenu.if-navmenu .if-nav-link:hover,
   .if-navmenu.if-navmenu .w-dropdown-toggle:hover{color:#000 !important;}     /* top-level/toggle stay black */
