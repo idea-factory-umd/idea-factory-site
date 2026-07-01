@@ -264,11 +264,27 @@
 /* DROPDOWN sub-item current — red left bar marks the current page inside the dropdown
    (the item's hover still operates over it). Also neutralizes Webflow's default blue link
    color. Mobile re-colors the label red below.
-   Hook: .if-nav-sublink.w--current. Net: any current <a> inside a dropdown list. */
+   Hook: .if-nav-sublink.w--current. Net: any current <a> inside a dropdown list.
+   The bar is drawn as a SOLID ::before, NOT an inset box-shadow: a box-shadow on the row
+   renders a faint red fringe around the WHOLE row when the row scales on hover (a GPU
+   compositing artifact, visible on Retina/real hardware). A solid pseudo-element can't. */
 .if-nav-sublink.w--current,
 .if-navmenu .if-dd-list a.w--current,
 .if-navmenu .w-dropdown-list a.w--current{
-  color:#1a1a1a;box-shadow:inset 4px 0 0 0 #e21833;
+  color:#1a1a1a;position:relative;
+}
+.if-nav-sublink.w--current::before,
+.if-navmenu .if-dd-list a.w--current::before,
+.if-navmenu .w-dropdown-list a.w--current::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#e21833;pointer-events:none;
+}
+/* Suppress any box-shadow on the current sub-item on hover (e.g. the in-site st0
+   !important red-bar-on-hover) so the scaling row can't fringe; the ::before bar stays.
+   Doubled .if-navmenu out-specifies st0's (0,3,0)!important rule. */
+.if-navmenu.if-navmenu .if-nav-sublink.w--current:hover,
+.if-navmenu.if-navmenu .if-dd-list a.w--current:hover,
+.if-navmenu.if-navmenu .w-dropdown-list a.w--current:hover{
+  box-shadow:none !important;
 }
 /* DESKTOP: when a dropdown holds the current page, gold-underline its toggle in the red
    bar and drop that dropdown's gold top-edge so the two golds don't collide. */
