@@ -9,6 +9,41 @@
 > feature ships, **update this file and commit it.** Treat it as the single source of truth for
 > "how this project works and why." The user has explicitly said they cannot afford to re‑establish
 > any of this from scratch.
+>
+> **THIS RULE IS SELF‑PERPETUATING — carry it forward.** Every session must (a) keep this file
+> current as it works, and (b) **explicitly instruct the next session, here, to do the same.**
+> Consistent documentation across sessions is what keeps this multi‑site product stable — treat it
+> as part of the deliverable, not optional. If you (a future session) change how the project works,
+> update the OPERATING PROTOCOL below **and** leave this instruction intact for whoever comes next.
+
+---
+
+## OPERATING PROTOCOL — how this project runs (EVERY session must follow + maintain this)
+
+> The standing, user‑approved way this project operates. Follow it, keep it accurate, and pass it on.
+
+**1. Shared‑code delivery — the "one file, set once" model.**
+- Every site loads `idea-factory.css` + `idea-factory.js` from **this repo** via **jsDelivr**, referenced by a **mutable branch** so the reference is set **ONCE per site** and **duplicates into every spin‑off** (never re‑pinned again):
+  - Head: `<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/idea-factory-umd/idea-factory-site@main/idea-factory.css">`
+  - Footer: `<script src="https://cdn.jsdelivr.net/gh/idea-factory-umd/idea-factory-site@main/idea-factory.js"></script>`
+- **Live branch = `main`.** (This SUPERSEDED the old immutable‑SHA pin, which forced re‑pinning every site on every change — see §0.)
+
+**2. Shipping a change (promote).**
+- Develop on a working branch; **verify with the offline headless harness** (every feature fires, **0 JS errors**) — see §3.
+- Push the verified change to **`main`**, then **purge jsDelivr** so it goes live fast:
+  `curl "https://purge.jsdelivr.net/gh/idea-factory-umd/idea-factory-site@main/idea-factory.css"` (and the `.js`).
+- Confirm on the live staging site, then **advance the `stable` branch to match** (`git push -f origin main:stable`).
+- **Caching to remember:** new visitors get the purged file immediately; a returning visitor's browser may hold the old file up to ~7 days (hard‑refresh to see it instantly during dev).
+- **What still needs the USER:** nothing per‑change anymore. (MCP cannot edit site‑wide Custom Code, but since the ref is `@main`, it's already set.) A brand‑new spin‑off just needs the Typekit domain allow‑list (§6).
+
+**3. Backup & rollback (never lose a version).**
+- **git IS the backup** — every commit is permanent/immutable; jsDelivr serves **any** commit by `@<SHA>` forever. No literal duplicate files needed.
+- **`stable` branch = named last‑known‑good restore point** (advance it only after a change is verified live).
+- **Roll back two ways:** (a) **no‑touch** — `git revert <bad commit>` on `main` + purge → all sites revert; (b) **instant emergency** — repoint a site's ref to `@stable` (or a known‑good `@<SHA>`).
+
+**4. Documentation discipline (mandatory, self‑perpetuating).**
+- Record **every** structural decision, convention, element ID, and shipped feature in **this file** and commit it to `main`. The scratchpad is ephemeral — do not rely on it.
+- **Each session must also tell the next session (here) to keep doing this.** That continuity is the product's stability.
 
 ---
 
