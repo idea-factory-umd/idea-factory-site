@@ -299,3 +299,40 @@ try {
   if(document.readyState!=='loading') inj(); else document.addEventListener('DOMContentLoaded', inj);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] cse-late-css error:', _e); } catch (_) {} }
+
+/* ===== module: program-filter (Students directory) =====
+   Class-driven + portable: keys only off .if-filter-pills/.if-filter-pill[data-filter] and
+   .if-prog-grid/.if-prog-card[data-tags] — never off ids, order, or text. On load NO pill is
+   'current' (per requirement); after the first click exactly one .if-filter-pill.is-active
+   remains (including "All"). "All" shows every card; any other filter shows cards whose
+   data-tags contains that value. */
+try {
+(function(){
+  function init(){
+    var grid=document.querySelector('.if-prog-grid');
+    var pillWrap=document.querySelector('.if-filter-pills');
+    if(!grid||!pillWrap||grid.__ifprog)return;grid.__ifprog=1;
+    var pills=pillWrap.querySelectorAll('.if-filter-pill');
+    var cards=grid.querySelectorAll('.if-prog-card');
+    function apply(filter){
+      for(var i=0;i<cards.length;i++){
+        var raw=cards[i].getAttribute('data-tags')||'';
+        var tags=raw.split(',');
+        var show=(filter==='All');
+        for(var k=0;k<tags.length && !show;k++){
+          if(tags[k].replace(/^\s+|\s+$/g,'')===filter)show=true;
+        }
+        cards[i].classList.toggle('if-prog-hidden',!show);
+      }
+    }
+    for(var i=0;i<pills.length;i++){(function(p){
+      p.addEventListener('click',function(){
+        for(var j=0;j<pills.length;j++)pills[j].classList.remove('is-active');
+        p.classList.add('is-active');
+        apply(p.getAttribute('data-filter')||'All');
+      });
+    })(pills[i]);}
+  }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] program-filter error:', _e); } catch (_) {} }
