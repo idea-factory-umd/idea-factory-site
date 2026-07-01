@@ -1,25 +1,90 @@
-# CODING AGENTS: READ THIS FIRST
+# Idea Factory — shared front-end code
 
-This is a **handoff bundle** from Claude Design (claude.ai/design).
+This repository is the **single home and source of truth** for the shared front-end
+code used by the University of Maryland **Idea Factory** website and its spin-off sites
+(all built in Webflow).
 
-A user mocked up designs in HTML/CSS/JS using an AI design tool, then exported this bundle so a coding agent can implement the designs for real.
+There are exactly **two files that get served to the live sites**, and they live at the
+repository root:
 
-## What you should do — IMPORTANT
+| File | What it is |
+|---|---|
+| **`idea-factory.css`** | All shared styling: nav markers, hovers, animations, the search modal, footer, hero, etc. |
+| **`idea-factory.js`** | All shared behavior, as small independent modules (hero reader, dropdowns, count-up, back-to-top, search, …). |
 
-**Read the chat transcripts first.** There are 1 chat transcript(s) in `chats/`. The transcripts show the full back-and-forth between the user and the design assistant — they tell you **what the user actually wants** and **where they landed** after iterating. Don't skip them. The final HTML files are the output, but the chat is where the intent lives.
+Every Webflow site loads these two files. Content and page layout live in Webflow;
+**shared look + behavior live here.** Edit here once → every site updates.
 
-**Read `project/ui_kits/website/index.html` in full.** The user had this file open when they triggered the handoff, so it's almost certainly the primary design they want built. Read it top to bottom — don't skim. Then **follow its imports**: open every file it pulls in (shared components, CSS, scripts) so you understand how the pieces fit together before you start implementing.
+---
 
-**If anything is ambiguous, ask the user to confirm before you start implementing.** It's much cheaper to clarify scope up front than to build the wrong thing.
+## How the files reach the live sites (hosting)
 
-## About the design files
+The two files are served over **GitHub Pages** — GitHub's own free static hosting,
+straight from this repository. Each Webflow site references them with two lines in
+*Project Settings → Custom Code* (a `<link>` in Head, a `<script>` in Footer):
 
-The design medium is **HTML/CSS/JS** — these are prototypes, not production code. Your job is to **recreate them pixel-perfectly** in whatever technology makes sense for the target codebase (React, Vue, native, whatever fits). Match the visual output; don't copy the prototype's internal structure unless it happens to fit.
+```html
+<!-- Head -->
+<link rel="stylesheet" href="https://idea-factory-umd.github.io/idea-factory-site/idea-factory.css">
+<!-- Footer -->
+<script src="https://idea-factory-umd.github.io/idea-factory-site/idea-factory.js"></script>
+```
 
-**Don't render these files in a browser or take screenshots unless the user asks you to.** Everything you need — dimensions, colors, layout rules — is spelled out in the source. Read the HTML and CSS directly; a screenshot won't tell you anything they don't.
+- **Set once per site.** Those two lines copy automatically when you *Duplicate Site* in
+  Webflow, so every spin-off is wired with zero extra work.
+- **Updates are automatic.** Push a change to the `main` branch → GitHub Pages rebuilds
+  and serves it in ~1–2 minutes. **No manual "refresh" step, no rate limits.**
+- **Browser hold time is short (~10 min),** so returning visitors pick up changes quickly.
 
-## Bundle contents
+> **Why GitHub Pages and not a third-party CDN:** an earlier setup served these files
+> through jsDelivr pinned to the `@main` branch. That relied on a *manual, rate-limited*
+> cache purge and proved unreliable (it kept serving stale copies). GitHub Pages refreshes
+> itself on every push with no such step, so that failure mode is gone. Full history is in
+> `RUNBOOK.md` and `CLAUDE.md`.
 
-- `README.md` — this file
-- `chats/` — conversation transcripts (read these!)
-- `project/` — the `JK-Copy: ES Idea Factory Design System` project files (HTML prototypes, assets, components)
+---
+
+## The two-layer model (why this works across many sites)
+
+- **Look** = Webflow Designer classes (all prefixed `if-`). These travel automatically when
+  you copy/paste an element or duplicate a site (Webflow matches classes by name).
+- **Behavior** = this shared file (animations, rollovers, JS, non-native CSS). One source,
+  linked by every site, so pasted elements just work.
+
+Build a feature once here + in the Webflow Designer → paste the element into a spin-off →
+it looks and behaves correctly with no extra code.
+
+---
+
+## Repository map
+
+| Path | Purpose |
+|---|---|
+| `idea-factory.css`, `idea-factory.js` | **The served files.** Keep them at the root. Add new work as new labeled sections/modules *inside* them — don't multiply files (each new file would be another line to wire into every site). |
+| `CLAUDE.md` | **Working memory / operating protocol.** The durable record of every decision, ID, convention, and shipped feature. Read it first. |
+| `RUNBOOK.md` | Practical procedures: shipping a change, rolling back, adding a new spin-off. |
+| `.nojekyll` | Tells GitHub Pages to serve every file as-is (no build processing). Leave it. |
+| `project/` | The **original design handoff** from Claude Design (HTML/CSS/JS prototypes, brand tokens, fonts, component reference). Kept for reference — see `project/readme.md`. |
+| `chats/` | The original design-conversation transcripts (design intent). |
+
+---
+
+## Ground rules (keep it stable, tidy, free)
+
+1. **Code and text only in this repo. Media/assets stay in Webflow.** Large binary assets
+   (images, video, fonts) are the one thing that can eventually cost money on GitHub — keep
+   them out of here. Pure code/docs are tiny and free with room to spare.
+2. **Never commit secrets** (API tokens, passwords, keys). This repo is public so GitHub
+   Pages can serve it for free — treat everything in it as world-readable.
+3. **Grow the two served files; don't add new served files** unless we deliberately decide to.
+4. **Keep the docs current.** Every structural decision goes into `CLAUDE.md` (and this
+   README / `RUNBOOK.md` when relevant), so any future session can pick up with full context.
+
+---
+
+## Original design handoff (reference)
+
+The `project/` folder and `chats/` transcripts are the original handoff bundle from
+Claude Design — the canonical look/behavior the Webflow build was created to match. The
+primary design file is `project/ui_kits/website/index.html`. This material is reference
+only; the live product is the two shared files above plus the Webflow sites.

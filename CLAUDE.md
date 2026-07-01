@@ -22,19 +22,20 @@
 
 > The standing, user‑approved way this project operates. Follow it, keep it accurate, and pass it on.
 
-**1. Shared‑code delivery — the "one file, set once" model.**
-- Every site loads `idea-factory.css` + `idea-factory.js` from **this repo** via **jsDelivr**, referenced by a **mutable branch** so the reference is set **ONCE per site** and **duplicates into every spin‑off** (never re‑pinned again):
-  - Head: `<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/idea-factory-umd/idea-factory-site@main/idea-factory.css">`
-  - Footer: `<script src="https://cdn.jsdelivr.net/gh/idea-factory-umd/idea-factory-site@main/idea-factory.js"></script>`
-- **Live branch = `main`.** (This SUPERSEDED the old immutable‑SHA pin, which forced re‑pinning every site on every change — see §0.)
+**1. Shared‑code delivery — served from GitHub Pages ("set once per site").**
+- Every site loads `idea-factory.css` + `idea-factory.js` from **this repo** via **GitHub Pages** (GitHub's own free static hosting, served from `main`), referenced ONCE per site and **duplicated into every spin‑off**:
+  - Head: `<link rel="stylesheet" href="https://idea-factory-umd.github.io/idea-factory-site/idea-factory.css">`
+  - Footer: `<script src="https://idea-factory-umd.github.io/idea-factory-site/idea-factory.js"></script>`
+- **Served branch = `main`, files at repo root.** Keep `.nojekyll` at root (serve files as‑is).
+- **⚠️ SUPERSEDES the old jsDelivr `@main` delivery (see §0).** jsDelivr `@main` proved unreliable: it needed a **manual, rate‑limited purge** and independently cached the branch→commit mapping, so it kept serving **stale/older copies** across POPs (cost a full dev session). GitHub Pages refreshes itself on every push — no purge, no rate limit — so that failure mode is gone. (jsDelivr **immutable** `@<SHA>` URLs are still 100% reliable as an emergency pin, e.g. `…/idea-factory-site@<sha>/idea-factory.css` — never stale — but require re‑pinning per change, so they're a fallback, not the model.)
 
 **2. Shipping a change (promote).**
 - Develop on a working branch; **verify with the offline headless harness** (every feature fires, **0 JS errors**) — see §3.
-- Push the verified change to **`main`**, then **purge jsDelivr** so it goes live fast:
-  `curl "https://purge.jsdelivr.net/gh/idea-factory-umd/idea-factory-site@main/idea-factory.css"` (and the `.js`).
+- Push the verified change to **`main`** → **GitHub Pages auto‑rebuilds and serves it in ~1–2 min. No purge step, no rate limit.**
 - Confirm on the live staging site, then **advance the `stable` branch to match** (`git push -f origin main:stable`).
-- **Caching to remember:** new visitors get the purged file immediately; a returning visitor's browser may hold the old file up to ~7 days (hard‑refresh to see it instantly during dev).
-- **What still needs the USER:** nothing per‑change anymore. (MCP cannot edit site‑wide Custom Code, but since the ref is `@main`, it's already set.) A brand‑new spin‑off just needs the Typekit domain allow‑list (§6).
+- **Caching to remember:** GitHub Pages sets a short (~10 min) browser hold, and clears its own edge on each deploy — so new content propagates in minutes with no manual action (hard‑refresh only if you want it instantly during dev).
+- **What needs the USER:** nothing per‑change. (MCP cannot edit site‑wide Custom Code, but the github.io ref is already set and copies with the site.) A brand‑new spin‑off just needs the Typekit domain allow‑list (§6).
+- **ONE‑TIME setup (done once for the repo):** GitHub Pages must be **enabled** (repo **Settings → Pages → Deploy from branch → `main` / root**), and each existing site's two refs repointed from the old jsDelivr URL to the github.io URL above. New spin‑offs inherit the github.io ref automatically.
 
 **3. Backup & rollback (never lose a version).**
 - **git IS the backup** — every commit is permanent/immutable; jsDelivr serves **any** commit by `@<SHA>` forever. No literal duplicate files needed.
@@ -49,6 +50,7 @@
 
 ## 0. STATUS — where things stand right now
 
+- **⚠️ HOSTING MIGRATION (2026‑07‑01): serving moved from jsDelivr `@main` → GitHub Pages.** Reason: jsDelivr `@main` was **unreliable** — it needs a **manual, rate‑limited cache purge**, and independently caches the branch→commit mapping, so it repeatedly served **stale/older copies** from different edge nodes (this burned an entire dev session: a shipped, verified fix would not appear on the live site). **GitHub Pages** serves the two files straight from this repo, **auto‑refreshes on every push (~1–2 min), with no purge and no rate limit** → that failure mode is eliminated. New refs (set once per site, copy to spin‑offs): `https://idea-factory-umd.github.io/idea-factory-site/idea-factory.{css,js}`. **One‑time steps:** enable Pages (Settings → Pages → Deploy from branch → `main` /root) + repoint each existing site's two Custom‑Code refs to the github.io URL. Added `.nojekyll` at root so Pages serves files as‑is. Emergency fallback = immutable jsDelivr `@<SHA>` (never stale, but re‑pin per change). See OPERATING PROTOCOL §1–2 and `README.md`/`RUNBOOK.md`. **This SUPERSEDES all prior `@main`/jsDelivr delivery notes below in this section.**
 - **Flagship site** (the homepage) is built and being refined directly in **Webflow via the Webflow MCP** (`data_*` tools), then published to the **staging subdomain**. This is the "master / worksheet" site.
 - **Multi‑site architecture is IMPLEMENTED (core consolidation LIVE + verified).** See §4–§7 for the design; see the IMPLEMENTATION STATUS block below for what shipped. Remaining = refinements only (class cleanup, Library page, runbook).
 - **Chosen model: "B" — one shared, centrally‑linked behavior file** maintained here, referenced by every site. (The user only edits code here; spin‑offs only get content edits via the Webflow UI and are **never** connected to MCP.)
