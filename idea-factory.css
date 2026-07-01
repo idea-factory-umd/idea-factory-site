@@ -59,6 +59,11 @@ body { font-family: Interstate, "Helvetica Neue", Arial, sans-serif; }
 .if-manifesto-line.is-lift { transform: translateY(-3px) scale(1.11); text-shadow: 0 9px 16px rgba(0,0,0,0.30); position: relative; z-index: 2; }
 .if-manifesto.is-dimming .if-manifesto-line { opacity: 0.86; }         /* subtle dim-on-pull */
 .if-manifesto.is-dimming .if-manifesto-line.is-lift { opacity: 1; }
+/* Manifesto: "where ideas get built." starts black and turns red only when its line is
+   highlighted by the grow, then HOLDS red (if-lit-red added by the JS on lift, never removed).
+   color:inherit keeps it black at rest even before the native red is republished. */
+.if-mani-red{color:inherit;transition:color .45s ease;}
+.if-mani-red.if-lit-red{color:#e21833;}
 
 /* ============================================================
    3. STAGE photo + headline  (JS sets transform/opacity inline)
@@ -383,6 +388,11 @@ body { font-family: Interstate, "Helvetica Neue", Arial, sans-serif; }
 /* The photo image gets a little extra center-pinned zoom, clipped to its frame (overflow:hidden),
    for a news-card feel — contained, so it adds no directional movement. */
 .if-prog-card:hover .if-prog-photo img{transform:scale(1.04);}
+/* Body text grows WITHIN if-prog-body via the JS-inserted .if-prog-bodyinner wrapper: scaling the
+   wrapper (center-pinned, default origin) grows the content inside the body without moving the body's
+   own perimeter. The wrapper re-hosts the body's flex column + gap so rest layout is unchanged. */
+.if-prog-bodyinner{display:flex;flex-direction:column;gap:12px;transition:transform 240ms cubic-bezier(0.22,1,0.36,1);will-change:transform;}
+.if-prog-card:hover .if-prog-bodyinner{transform:scale(1.03);}
 .if-prog-hidden{display:none !important;}
 /* Filter switch: matching cards fade + rise in, staggered by the filter JS. `backwards` fill
    shows the from-state during each card's stagger delay (no flash) and does NOT retain after the
