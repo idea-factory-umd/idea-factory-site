@@ -377,7 +377,14 @@ body { font-family: Interstate, "Helvetica Neue", Arial, sans-serif; }
 .if-prog-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform 320ms cubic-bezier(0.22,1,0.36,1);}
 .if-prog-card{transition:transform 240ms cubic-bezier(0.22,1,0.36,1),box-shadow 240ms cubic-bezier(0.22,1,0.36,1),opacity .2s ease;will-change:transform;}
 .if-prog-card:hover{transform:translateY(-4px) scale(1.01);box-shadow:0 14px 34px rgba(0,0,0,0.14);position:relative;z-index:2;}
-.if-prog-card:hover .if-prog-photo img{transform:scale(1.04);}
+.if-prog-card:hover .if-prog-photo img{transform:scale(1.07);}
+/* Card hover also grows the whole if-prog-body text group as ONE unit (parent-hover-child —
+   Webflow can't store "parent hover scales a child" as a native style, same reason the news
+   photo-zoom above is CSS). Scales from center so every line stays aligned with its neighbors;
+   kept subtle (1.03) so text stays clear of the 24px body padding. The photo frame clips its
+   own zoom via native overflow:hidden on .if-prog-photo. */
+.if-prog-body{transition:transform 240ms cubic-bezier(0.22,1,0.36,1);will-change:transform;}
+.if-prog-card:hover .if-prog-body{transform:scale(1.03);}
 .if-prog-hidden{display:none !important;}
 .if-prog-em{color:#e21833;font-style:normal;}
 /* Filter pills — no "current" shown until the JS adds .is-active on first interaction; current
