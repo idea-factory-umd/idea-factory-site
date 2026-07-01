@@ -325,18 +325,20 @@
   .if-navmenu.if-navmenu a.w--current::before{
     content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#e21833;pointer-events:none;
   }
-  /* HOVER (any item): red text + grow, no hatch/background/box-shadow. Placed AFTER the current
-     rules so hovering the current item wins the same-specificity tie → it reddens on hover too. */
+  /* HOVER = GROW ONLY (no red, no hatch, no background). Text keeps its resting color — the
+     per-type color rules below override st0's hover color change so nothing shifts but size. */
   .if-navmenu.if-navmenu .if-nav-link:hover,
   .if-navmenu.if-navmenu .w-dropdown-toggle:hover,
   .if-navmenu.if-navmenu .if-nav-sublink:hover{
     box-shadow:none !important;
     background-color:transparent !important;
     background-image:none !important;
-    color:#e21833 !important;
     transform:scale(1.07) !important;
     transform-origin:left center !important;
   }
+  .if-navmenu.if-navmenu .if-nav-link:hover,
+  .if-navmenu.if-navmenu .w-dropdown-toggle:hover{color:#000 !important;}     /* top-level/toggle stay black */
+  .if-navmenu.if-navmenu .if-nav-sublink:hover{color:#7f7f7f !important;}     /* sub-item stays gray */
 }
 
 /* ===== nav / dropdowns / hero-word / footer hovers ===== */
