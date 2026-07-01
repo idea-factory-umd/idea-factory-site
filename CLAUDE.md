@@ -22,6 +22,13 @@
 
 > The standing, user‑approved way this project operates. Follow it, keep it accurate, and pass it on.
 
+**0. ⭐ NATIVE WEBFLOW FIRST — the PRIMARY, NON‑NEGOTIABLE build rule (user's #1 requirement, restated forcefully 2026‑07‑01).**
+- **Build EVERYTHING as native Webflow elements + Designer styles, inside the Webflow UI, so the user can SEE, EDIT, ADD, and DELETE it visually in the Designer.** Native editability is the ENTIRE POINT of Webflow — it is not optional, and it applies to *everything* going forward.
+- **DO NOT construct markup externally and "shove it in," and DO NOT put base look/structure/typography in the shared code files.** The shared `idea-factory.css`/`.js` are ONLY for what Webflow genuinely cannot do natively (parent‑hover‑child, keyframes, JS behaviors like the program filter) — added ON TOP of a working native build, never as the primary means. Build visually first; add code only if absolutely necessary.
+- **Fonts, colors, spacing, layout, grids, cards, pills, element‑self hovers, responsive breakpoints = ALL native Designer styles.** e.g. set the header tagline font in the Designer (`update_style` on `.if-tag-p`), NOT via a CSS rule in the shared file.
+- **⚠️ LESSON — `data_whtml_builder` (HTML‑fragment import) is BANNED for building UI.** On the Students directory it produced native‑looking elements but left their classes as raw class *names* that were NOT linked as applied Designer styles → the Designer canvas showed an unstyled "wall of text," while published looked fine only because the shared CSS matched the class names (the exact "disconnected/shoved‑in" anti‑pattern the user forbids). **FIX applied:** `data_element_tool set_style` on every element (all 110) to APPLY each class as a real Webflow style; `data_style_tool update_style` to populate the Designer style properties. Designer changes need a **Designer reload** to repaint the open canvas. **Going forward:** build with native element creation + `set_style`/Designer styling; never HTML import.
+- **Verify in the DESIGNER, not just published.** `element_snapshot_tool` is a RAW render that ignores Designer styles — it CANNOT confirm Designer styling. Only the user's Designer canvas (after reload) or `set_style` success confirms native application.
+
 **1. Shared‑code delivery — served from GitHub Pages ("set once per site").**
 - Every site loads `idea-factory.css` + `idea-factory.js` from **this repo** via **GitHub Pages** (GitHub's own free static hosting, served from `main`), referenced ONCE per site and **duplicated into every spin‑off**:
   - Head: `<link rel="stylesheet" href="https://idea-factory-umd.github.io/idea-factory-site/idea-factory.css">`
