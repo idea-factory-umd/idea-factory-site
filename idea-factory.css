@@ -300,30 +300,42 @@
   .if-dd-wrap:has(.w--current) .if-dd-list,
   .if-navmenu .w-dropdown:has(.w--current) .w-dropdown-list{border-top-width:0;padding-top:6px;}
 }
-/* MOBILE (hamburger, white menu): HOVER = gold hatch (was a red left bar);
-   CURRENT page = red left bar (the old hover cue, repurposed) + red label.
-   NOTE: the in-site st0 embed has a !important red-left-bar hover rule at
-   `.if-navmenu ...:hover` (0,3,0). We double `.if-navmenu` here → (0,4,0)/(0,5,0)
-   so these win without touching st0. (Mobile visual treatment is still pending a
-   revisit per the desktop-first plan; these selectors are class-generic already.) */
+/* MOBILE (hamburger, white menu) — user-approved 2026-07-01:
+   • HOVER (any item) = brand-red text + grow (scale), NO gold hatch, NO background.
+   • CURRENT page = red left bar (::before) with NORMAL (non-red) text — red is a HOVER-ONLY
+     color here. The bar is the "you are here" cue; hovering the current item also reddens it.
+   NOTE: the in-site st0 embed has a !important hover rule at `.if-navmenu …:hover` (0,3,0) that
+   sets a red left-bar + `transform:none`. Doubling `.if-navmenu` here → (0,4,0) out-specifies it,
+   so ours win (grow + no bar on hover) without touching st0. Marker uses ::before (not box-shadow)
+   so it survives the hover `box-shadow:none` and can't fringe when the row scales. */
 @media screen and (max-width:991px){
-  .if-navmenu.if-navmenu .if-nav-link:hover,
-  .if-navmenu.if-navmenu .w-dropdown-toggle:hover,
-  .if-navmenu.if-navmenu .if-nav-sublink:hover{
-    box-shadow:none !important;
-    background-color:rgba(255,210,0,0.7) !important;
-    background-image:repeating-linear-gradient(170deg,rgba(255,255,255,.55) 0,rgba(255,255,255,.55) .5px,transparent .5px,transparent 2.5px) !important;
-    color:#1a1a1a !important;
-    transform:none !important;
-  }
+  /* CURRENT marker: red left bar via ::before; text matches its normal siblings (not red). */
   .if-navmenu.if-navmenu .if-nav-link.w--current,
   .if-navmenu.if-navmenu .if-nav-sublink.w--current,
   .if-navmenu.if-navmenu a.w--current{
     background-color:transparent !important;
     background-image:none !important;
     border-bottom-color:#e6e6e6 !important;
-    box-shadow:inset 4px 0 0 0 #e21833 !important;
+    box-shadow:none !important;
+    position:relative;
+  }
+  .if-navmenu.if-navmenu .if-nav-link.w--current{color:#000 !important;}          /* top-level: black */
+  .if-navmenu.if-navmenu .if-nav-sublink.w--current{color:#7f7f7f !important;}    /* sub-item: gray */
+  /* (kept at specificity (0,4,0) so the :hover rule below wins the tie and reddens on hover) */
+  .if-navmenu.if-navmenu a.w--current::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#e21833;pointer-events:none;
+  }
+  /* HOVER (any item): red text + grow, no hatch/background/box-shadow. Placed AFTER the current
+     rules so hovering the current item wins the same-specificity tie → it reddens on hover too. */
+  .if-navmenu.if-navmenu .if-nav-link:hover,
+  .if-navmenu.if-navmenu .w-dropdown-toggle:hover,
+  .if-navmenu.if-navmenu .if-nav-sublink:hover{
+    box-shadow:none !important;
+    background-color:transparent !important;
+    background-image:none !important;
     color:#e21833 !important;
+    transform:scale(1.07) !important;
+    transform-origin:left center !important;
   }
 }
 
