@@ -274,3 +274,17 @@ The shared file is a single point of failure, so its safety is engineered:
 3. In each site (this master + every spin‑off): **install** the Library and swap the local Footer/UMD Bar instances for the Library components (or build spin‑offs from a duplicate that already uses them).
 4. Result: edit the Footer/UMD Bar **once in the Library → updates across the whole suite**. (Main Nav stays a regular per‑site component — do NOT add it to the Library.)
 - If the plan doesn't include Libraries: fallback is edit‑here‑then‑re‑paste to each spin‑off (manual propagation), which is weaker but works.
+
+---
+
+## 13. Nav current‑page marker + mobile hover (done 2026‑07‑01) — SHARED CSS, needs re‑pin
+
+The current‑page indicator now rides **Webflow's native `.w--current`** (auto‑applied per page to the nav link whose href matches — verified: `/students`→Students link, `/about`→About sublink both get it). It replaced a **hardcoded `if-nav-active`** on the Home link that made Home look current on every page (that class was removed via `set_style`). All styling is in **`idea-factory.css`** because Webflow will **not** compile a hand‑made `.w--current` combo (unused‑in‑Designer).
+
+- **Top‑level (all widths base):** `.if-nav-link.w--current{background:#a40f23;border-bottom-color:#ffd200}` — dark‑red + gold underline (the old active look). Follows the page automatically.
+- **Dropdown section pages (desktop ≥992):** the dropdown **toggle** gets a gold underline when one of its pages is current via `.if-dd-wrap:has(.w--current) .if-ddtoggle{border-bottom-color:#ffd200}`, and that dropdown's gold top‑edge is dropped (`.if-dd-wrap:has(.w--current) .if-dd-list{border-top-color:transparent}`) so the two golds don't collide. No separate sublink marker on desktop — the toggle is the cue. (`:has()` is fine for 2026 browsers.)
+- **Hamburger (mobile ≤991):** HOVER = **gold hatch** (same look as desktop dropdown sublinks); CURRENT page = **red left bar** (`box-shadow:inset 4px 0 0 #e21833`) + red label — repurposing the old mobile hover cue.
+  - **GOTCHA (important):** the old red‑left‑bar‑on‑hover lived in the **in‑site st0 embed** as `.if-navmenu …:hover{box-shadow:inset 4px 0 0 #e21833!important;background-image:none!important}` — specificity (0,3,0) and, being in `<body>`, it won source‑order ties, so plain shared‑CSS rules lost to it. Fix without touching the non‑ASCII st0 embed: the shared CSS **doubles the class** — `.if-navmenu.if-navmenu …` (specificity (0,4,0) hover / (0,5,0) current) — so it beats st0. Found it via Chrome DevTools `CSS.getMatchedStylesForNode` (grep/`getComputedStyle` couldn't locate it; it's box‑shadow, not border, and the file:// stylesheet wasn't rule‑readable). If st0 is ever cleaned, that old hover rule can go.
+- **Neutralized** Webflow's default blue (`#0082f3`) on the current dropdown link: `.if-nav-sublink.w--current{color:#1a1a1a}` (mobile re‑colors it red via the more‑specific rule).
+- **Verified offline** (headless + CDP): `/students` Students=red bar+red text, Faculty hover=gold hatch, 0 JS errors; `/about` desktop toggle underline gold, dropdown top transparent, sublink dark (not blue).
+- **CSS‑only** → the live sites need the **CSS `<link>` re‑pinned** to the new SHA (JS unchanged). This is the same file as the §12/Task‑1 change, so one re‑pin covers everything since `c1baf6f`.
