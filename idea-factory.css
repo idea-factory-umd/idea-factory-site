@@ -383,7 +383,7 @@ body { font-family: Interstate, "Helvetica Neue", Arial, sans-serif; }
    photo-zoom above is CSS). Scales from center so every line stays aligned with its neighbors;
    kept subtle (1.03) so text stays clear of the 24px body padding. The photo frame clips its
    own zoom via native overflow:hidden on .if-prog-photo. */
-.if-prog-body{transition:transform 240ms cubic-bezier(0.22,1,0.36,1);will-change:transform;}
+.if-prog-body{transition:transform 240ms cubic-bezier(0.22,1,0.36,1);will-change:transform;transform-origin:50% 0;}
 .if-prog-card:hover .if-prog-body{transform:scale(1.03);}
 .if-prog-hidden{display:none !important;}
 .if-prog-em{color:#e21833;font-style:normal;}
