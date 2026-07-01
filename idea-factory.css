@@ -28,6 +28,27 @@
 }
 
 /* ============================================================
+   0. TYPOGRAPHY — global font guarantee (2026-07-01)
+   The design system uses EXACTLY two faces: Interstate (every
+   sans-serif) and Georgia (every serif). Arial must never render.
+   Webflow ships body{font-family:Arial}; force the sans DEFAULT to
+   Interstate so any element without an explicit face inherits
+   Interstate — never Arial. This file loads AFTER Webflow's compiled
+   CSS, so these win on equal specificity: one edit covers the whole
+   multi-site suite (and overrides any stale compiled font).
+   ============================================================ */
+body { font-family: Interstate, "Helvetica Neue", Arial, sans-serif; }
+/* Header tagline beside the logo: the non-red lead is body copy, so
+   it reads in Georgia (serif). The red ".if-tag-strong" already pins
+   Interstate, so "One place, every stage." stays Interstate. */
+.if-tag-p { font-family: Georgia, "Times New Roman", serif; }
+/* Hero lead sits on BLACK — force the WHOLE line to Interstate
+   (Georgia's thin strokes are hard to read white-on-black). The gold
+   ".if-hero-lead-strong" inherits this, so "11 ways in." stays
+   Interstate too. Also defeats any stale compiled Georgia rule. */
+.if-hero-lead { font-family: Interstate, "Helvetica Neue", Arial, sans-serif; }
+
+/* ============================================================
    1. HERO reading highlight  (JS drives .if-hero-word opacity)
    ============================================================ */
 .if-hero-word { transition: opacity 0.28s ease-out; }
