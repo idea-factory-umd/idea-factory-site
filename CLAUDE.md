@@ -418,3 +418,30 @@ Second real content page (a Home duplicate; page id `6a4459c7c5e5473127fdb14f`, 
 - **Fix:** added `background-position` to the **Designer style** `.if-search-input` (style id `dea6a492‑531d‑4fca‑5a7c‑9a6c7bd76d13` = the ACTIVE copy that carries the magnifier `background-image`; a same‑name duplicate `b6a33b02‑…` has no image — the documented dup family, §11).
 - **Webflow only stores NATIVE 2‑value background‑position.** `right 14px center` (4‑value offset) and `calc(100% - 14px) 50%` were **silently dropped on commit** (update echoed them back but a re‑query showed them gone). `**100% 50%**` (right, centered) **persisted**. So the Designer now shows the glass **flush‑right + vertically centered** vs **14px‑inset** live (Webflow can't store a fixed px‑from‑right offset — acceptable; it fixes the top‑left complaint).
 - **PUBLISHED IS UNCHANGED and safe:** the shared `right 14px center !important` still wins on the live site (Designer canvas doesn't load it). **No publish was done and none is needed** — the Designer canvas reflects the saved Designer style on refresh. Even if the site is later published, the shared `!important` keeps live at 14px inset. To SEE the fix: reload the Webflow Designer.
+
+---
+
+## 18. Hero-animation refinements + Students card hover (2026-07-01) — SHARED JS+CSS, ON DEV, awaiting coordinated publish
+
+Two behavior tweaks this session. **Both are shared-file behavior → they only appear on the PUBLISHED/PREVIEW site, never the Designer canvas** (the canvas doesn't load the shared file — same lesson as §17). Committed to **dev `claude/keen-johnson-f9w833`** (JS `631cb3e`, CSS `94fd53e`); **NOT yet on `main`** — see the coordination note at the end before promoting.
+
+**A. Hero reader — pause is now CLASS-DRIVEN + red words stay lit (`idea-factory.js`, main-bundle hero module).**
+- **Mid-read pause marker = `if-hero-word-delay`** (empty Designer style id `7ee9ee04-1751-7407-f594-dfafee90aa5b`, inert hook). The reader adds the extra hold + pause to whichever word carries this class, instead of the old hardcoded word-index 1. Portable: apply the class to any word in any headline/spin-off.
+  - Applied natively (Designer `set_style`) to: **Home "ideas"** span (`aabcb7bd-…-dc8`) — preserves Home's existing beat; **Students "Become"** span (`01cbe865-…-5b34`) — user moved the beat here (was wrongly landing on "a").
+  - JS shape: `hold = D + (x.classList.contains('if-hero-word-delay')?ideasExtra:0) + (last?lastExtra:0)`; the gap after a delayed word gets `+ideasPause`. The last-word settle beat (`lastExtra`) is unchanged (always the final word).
+- **Red words hold full opacity after being read.** `setStep` opacity is now `step===idx?1:(w.classList.contains('if-lit-red')?1:0.62)` — once a red (`if-hero-word-red`) word is lit it never dims back with the white words (user: the dim/re-brighten looked wrong on red, fine on white). White words still dim to 0.62 and rise at settle.
+- Verified offline (0 JS errors): Students "Become" holds ~625ms (beat), "a" never held (glides past), "builder." ~875ms (end settle) and stays red at full opacity.
+
+**B. Students card hover — news-style (`idea-factory.css` + one native prop).**
+- **Photo zoom 1.04 → 1.07** on card hover (closer to the news-card feel, still subtle). Now clipped to the frame by **native `overflow:hidden` on `.if-prog-photo`** (added via Designer `update_style` — base structural containment, matches `.if-news-photo`).
+- **Whole `.if-prog-body` text group scales 1.03 as ONE unit** on card hover (`.if-prog-body{transition:transform 240ms …}` + `.if-prog-card:hover .if-prog-body{transform:scale(1.03)}`), so every line stays aligned; kept subtle to clear the 24px body padding.
+- Both photo-zoom and body-grow are **parent-hover-child → shared CSS** (Webflow can't store "parent hover scales child" natively — same reason the news hover is CSS). The cards + contents themselves remain fully native/editable. **This supersedes the "photo image `scale(1.04)`" detail in §15.**
+- Verified offline (0 JS errors + screenshot): on hover card→1.01, photo→1.07 (contained, no bleed), body→1.03 (text stays clear of edges, alignment preserved).
+- **Dials the user can nudge:** photo `scale(1.07)` and body `scale(1.03)` in `idea-factory.css`.
+
+**⚠️ COORDINATION — these two commits must promote together with a Webflow PUBLISH (do NOT push to `main` alone):**
+- The hero JS keys off `if-hero-word-delay`, applied in the **Designer** (unpublished). Pushing the JS to `main` before publishing would drop Home's "ideas" pause on the live site (the live DOM lacks the class).
+- The card photo-zoom relies on the **native `overflow:hidden`** (unpublished); pushing the CSS before publishing would let the 1.07 zoom bleed past the frame on the live site.
+- **Correct promote = push `idea-factory.{css,js}` to `main` (GitHub Pages) AND publish the Webflow site together.** That publish also ships this session's other Designer work (3 card photos, MOOCs cards rebuilt as Blocks with inner text links, letter-spacing −0.4px, hero break + `min-width:0` on `if-hero-left`, `if-tag-p` Georgia, search-input bg-position, etc.).
+
+**NEXT SESSION: keep maintaining this file per the OPERATING PROTOCOL, and pass that instruction on.**
