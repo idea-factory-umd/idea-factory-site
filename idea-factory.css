@@ -240,9 +240,10 @@
    will NOT compile a hand-made .w--current combo (unused-in-Designer), so the rule
    lives here. Top-level nav links only; dropdown sublink marker TBD (see §12). */
 .if-nav-link.w--current{background-color:#a40f23;border-bottom-color:#ffd200;}
-/* neutralize Webflow's default blue on the current dropdown link (the desktop cue is the
-   toggle underline, not the sublink; mobile re-colors it red below) */
-.if-nav-sublink.w--current{color:#1a1a1a;}
+/* current dropdown sub-item: red left bar marks THE current page inside the dropdown
+   (in addition to the toggle's gold underline); hover still operates over it.
+   Also neutralizes Webflow's default blue. Mobile re-colors the label red below. */
+.if-nav-sublink.w--current{color:#1a1a1a;box-shadow:inset 4px 0 0 0 #e21833;}
 /* DESKTOP: when a dropdown's child page is current, underline that toggle (gold) in the
    red bar, and drop that dropdown's gold top-edge so the two golds don't collide. */
 @media screen and (min-width:992px){
