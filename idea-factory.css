@@ -248,7 +248,7 @@
    red bar, and drop that dropdown's gold top-edge so the two golds don't collide. */
 @media screen and (min-width:992px){
   .if-dd-wrap:has(.w--current) .if-ddtoggle{border-bottom-color:#ffd200;}
-  .if-dd-wrap:has(.w--current) .if-dd-list{border-top-color:transparent;}
+  .if-dd-wrap:has(.w--current) .if-dd-list{border-top-width:0;}
 }
 /* MOBILE (hamburger, white menu): HOVER = gold hatch (was a red left bar);
    CURRENT page = red left bar (the old hover cue, repurposed) + red label.
