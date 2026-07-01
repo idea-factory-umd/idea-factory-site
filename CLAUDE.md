@@ -17,6 +17,7 @@
 - **Flagship site** (the homepage) is built and being refined directly in **Webflow via the Webflow MCP** (`data_*` tools), then published to the **staging subdomain**. This is the "master / worksheet" site.
 - **Multi‑site architecture is IMPLEMENTED (core consolidation LIVE + verified).** See §4–§7 for the design; see the IMPLEMENTATION STATUS block below for what shipped. Remaining = refinements only (class cleanup, Library page, runbook).
 - **Chosen model: "B" — one shared, centrally‑linked behavior file** maintained here, referenced by every site. (The user only edits code here; spin‑offs only get content edits via the Webflow UI and are **never** connected to MCP.)
+- **NEW (2026‑07‑01): chrome componentized + multi‑page started.** Footer / UMD Bar / Main Nav are now **Components**; **Students** + **About** pages created as Home duplicates with wired nav links. Full detail, IDs, and the **Library promotion hand‑off** are in **§12**.
 - Recent shipped work (all live on staging): responsive hero headline, min‑gap above the hero button, flagship marker reshape + bigger arrows, content‑grow hover on buttons. See §8.
 
 **AUDIT (done) — true current state of the code:**
@@ -229,3 +230,41 @@ The shared file is a single point of failure, so its safety is engineered:
 - **Decision:** keep the harmless duplicates. The cosmetic tidiness is **not worth** the breakage risk on a business‑critical, recently‑regressed site. If we ever want them gone, the only safe route is a **careful, manual, per‑class pass in the Designer** (the Style Manager shows a live element‑count badge per class — delete only copies showing "0 elements", and **never** delete `is-visible` or other JS‑applied state classes), one at a time, publishing + verifying between deletions.
 
 **Spin‑off note:** duplicates **travel with Duplicate Site**, but they're equally harmless there. They do **not** affect copy/paste of Sections (Webflow name‑matches on paste).
+
+---
+
+## 12. Components + multi‑page (done 2026‑07‑01)
+
+**Terminology (user‑facing):** "Symbol" = old name for **Component** (reusable within ONE site; edit main → all instances update). To share a component **across sites** you publish it to a **Library** ("Library component" / linked component). Plain components do **NOT** stay linked on *Duplicate Site* (each copy is independent) — only **Library** components stay centrally editable across the suite.
+
+**MCP capability boundary (important):** `transform_element_to_component` + `create_page(duplicateOf)` + link‑wiring are all doable via MCP. **Creating/publishing a Library is NOT** — it's a Webflow **Designer + Workspace** action and is **plan‑gated**. So Library promotion is always a user UI step.
+
+**Chrome converted to Components (group "Chrome"), verified live:**
+| Component | Component ID | Intended role |
+|---|---|---|
+| **UMD Bar** (top black bar, 2 links `if-umdbar-a1/-a2`) | `012e2a6d-7570-de6c-acbf-1f75f492d6cb` | **Library** (cross‑suite) — *promote in Designer* |
+| **Footer** (`if-footer`; **contains the back‑to‑top button** now) | `e10326f9-f27d-d10d-956e-0401f8153fe9` | **Library** (cross‑suite) — *promote in Designer* |
+| **Main Nav** (`if-navroot` NavbarWrapper: id‑band/logo/search + `if-navmenu` + dropdowns) | `bffe20a1-a591-82e2-1c75-4864d9f1f0b9` | **Regular / per‑site** (menu differs per site) |
+
+- Conversion preserved **all inner classes + DOM** (published Home diff = only href changes, recompiled‑CSS hash, timestamp, and footer grid `#w-node-…` IDs re‑scoped to the component; **no wrapper elements added**, line count identical 1044/1044). Footer CSS‑grid placement rules were regenerated under the new component IDs (old `#w-node-_64849047…` → new `#w-node-e10326f9…`, verified in compiled CSS).
+- The **st0 layout embed** (`afd96462…`) was **left at header level** (sibling of the two component instances) — it duplicates per page, which is correct (it's in‑site layout/hamburger CSS).
+- **Offline harness re‑verified 0 JS errors + every feature fires** (hero anim, content‑grow, dropdown open, count‑up, back‑to‑top) after componentization.
+
+**New pages (direct duplicates of Home; user will strip/rebuild content):**
+| Page | Page ID | Slug |
+|---|---|---|
+| **Students** (next top‑level menu item) | `6a4459c7c5e5473127fdb14f` | `/students` |
+| **About** (first item in the About dropdown) | `6a4459c75b0e32811729bb1b` | `/about` |
+
+- Duplicates were created **after** componentizing, so they carry **instances** of UMD Bar / Main Nav / Footer (confirmed: Students header shows `ComponentInstance` of UMD Bar + Main Nav). Editing a component definition propagates to all pages.
+- **Nav links wired in the Main Nav component definition** (so they resolve on every page): Students link (element `bffe20a1…f0fa`, a `Link`) → Students page via `set_link` (linkType page); About dropdown first item (element `bffe20a1…f114`, a **`DropdownLink`** — `set_link` REJECTS these; use `set_settings` key `link`, `static_link {mode:page,to:<pageId>}`) → About page. Verified live: `href="/students"` and `href="/about"` appear on Home, Students, AND About.
+- Other nav links (Home, Faculty/Researchers, Companies, Partners, News dropdown, etc.) remain `href="#"` placeholders. The **Home** link is still `#` — easy follow‑up to point it at Home.
+
+**How to edit inside a component via MCP:** address the element with `{component:<componentId>, element:<id>}` **and** pass `scope_component_id:<componentId>`. Element IDs inside a component are re‑scoped under the component ID (the footer/nav/umdbar element IDs from §9 are now stale — they live under the component IDs above).
+
+**➡️ HAND‑OFF — promote Footer + UMD Bar to a Library (user, in Designer; needs a Workspace plan with Libraries):**
+1. Webflow Designer → **Libraries** panel → create/choose a Workspace Library.
+2. Add the **Footer** and **UMD Bar** components to that Library; **publish the Library**.
+3. In each site (this master + every spin‑off): **install** the Library and swap the local Footer/UMD Bar instances for the Library components (or build spin‑offs from a duplicate that already uses them).
+4. Result: edit the Footer/UMD Bar **once in the Library → updates across the whole suite**. (Main Nav stays a regular per‑site component — do NOT add it to the Library.)
+- If the plan doesn't include Libraries: fallback is edit‑here‑then‑re‑paste to each spin‑off (manual propagation), which is weaker but works.
