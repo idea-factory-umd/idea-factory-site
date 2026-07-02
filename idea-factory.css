@@ -49,8 +49,9 @@
      OverpassFB 400 -> Overpass wght 330  (= Interstate 400, ratio 1.00)
      OverpassFB 500 -> Overpass wght 520  (= Interstate 500 Medium, ratio 1.00)
      OverpassFB 700 -> Overpass wght 780  (= Interstate 700, ratio 1.00)
-     OverpassFB 800 -> Overpass wght 900  (Overpass's max; Interstate 800 is blacker, ~0.89 — the
-                                           closest possible without a different, blacker face)
+     OverpassFB 800 -> Overpass wght 900, then outline-emboldened (dilated ~20u/2000em) to reach
+                       Interstate 800 (ratio 1.00). Overpass's native max (900) only got 0.89; the
+                       overpass-pl-800.woff2 file has genuinely thickened outlines to close the gap.
    The Adobe kit now ships 400/500/700/800 (500 = the Medium added for the Georgia-adjacent link text).
    A 300 request has no Interstate face -> renders Interstate 400; OverpassFB likewise has no 300, so
    its 300 falls to the 400 face too — matched behaviour at every weight.
