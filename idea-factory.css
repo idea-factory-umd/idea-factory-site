@@ -39,7 +39,21 @@
    set the Body (All Pages) tag font to Interstate in the Designer, then
    delete this line.
    ============================================================ */
-body { font-family: Interstate, "Helvetica Neue", Arial, sans-serif; }
+/* ---- FONT SWITCH (2026-07-01): Interstate + self-hosted Overpass (Polish/CE support) ----
+   Adobe's Interstate cut lacks the Polish nasal/accented glyphs (Ą Ę Ż Ć Ń Ś Ź); Overpass
+   (open-source, same Highway-Gothic DNA, self-hosted here) fills them, weight-matched.
+   GLOBAL SWITCH (test tool): add class `if-font-overpass` to the BODY element in the Webflow
+   Designer to flip the whole suite from default "Interstate + Overpass fallback" to
+   "all Overpass". Remove it to flip back. Not a visible control; strip when done. */
+@font-face{font-family:'Overpass';src:url('overpass.woff2') format('woff2');font-weight:100 900;font-style:normal;font-display:swap;size-adjust:102.7%;}
+@font-face{font-family:'Overpass';src:url('overpass-italic.woff2') format('woff2');font-weight:100 900;font-style:italic;font-display:swap;size-adjust:102.7%;}
+@font-face{font-family:'OverpassFB';src:url('overpass-pl-400.woff2') format('woff2');font-weight:400;font-display:swap;size-adjust:102.7%;}
+@font-face{font-family:'OverpassFB';src:url('overpass-pl-500.woff2') format('woff2');font-weight:500;font-display:swap;size-adjust:102.7%;}
+@font-face{font-family:'OverpassFB';src:url('overpass-pl-700.woff2') format('woff2');font-weight:700;font-display:swap;size-adjust:102.7%;}
+@font-face{font-family:'OverpassFB';src:url('overpass-pl-800.woff2') format('woff2');font-weight:800;font-display:swap;size-adjust:102.7%;}
+:root{--if-sans:Interstate,'OverpassFB',"Helvetica Neue",Arial,sans-serif;}
+body.if-font-overpass{--if-sans:'Overpass',"Helvetica Neue",Arial,sans-serif;}
+body,.if-aud-chev,.if-aud-desc,.if-aud-h2,.if-aud-title,.if-btn-outline-light,.if-btn-outline-red,.if-btn-primary,.if-countup,.if-eagenda-day,.if-eagenda-mon,.if-efeat-day,.if-efeat-mon,.if-event-chev,.if-event-chip,.if-event-feat-blurb,.if-event-feat-meta,.if-event-feat-title,.if-event-row-title,.if-event-type,.if-eyebrow,.if-eyebrow-meta,.if-filter-label,.if-filter-pill,.if-flag-arrow,.if-flag-name,.if-flagship-label,.if-foot-addr,.if-foot-bottom,.if-foot-colhead,.if-foot-cta-head,.if-foot-cta-p,.if-foot-link,.if-foot-umd,.if-give,.if-give-btn,.if-give-btn-solid,.if-give-mobile,.if-give-nav,.if-hero-eyebrow,.if-hero-h1,.if-hero-lead,.if-inline-link,.if-manifesto,.if-mob-give,.if-mob-link,.if-mob-search,.if-mob-sublink,.if-nav-link,.if-nav-sublink,.if-news-chev,.if-news-feat-title,.if-news-kicker,.if-news-row-title,.if-prog-photo-label,.if-prog-sub,.if-prog-tag,.if-prog-title,.if-proof-h2,.if-search-input,.if-sec-h2,.if-social,.if-social-box,.if-stage-h2,.if-stage-moment-h2,.if-stage-name,.if-stage-num,.if-stage-tag,.if-stat-label,.if-sub-btn,.if-sub-field,.if-tag-strong,.if-umdbar-in{font-family:var(--if-sans)!important;}
 
 /* ============================================================
    1. HERO reading highlight  (JS drives .if-hero-word opacity)
