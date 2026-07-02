@@ -327,7 +327,7 @@ try {
        on screen fade out together; the grid re-lays-out while everything is invisible (so the reflow
        is never seen as cards sliding); then the matching set fades back in with just a whisper of
        scale to settle in. A token cancels in-flight runs so rapid pill clicks stay clean;
-       reduced-motion = instant show/hide. Dials: fade-out 200ms / fade-in 360ms / scale 0.98. */
+       reduced-motion = instant show/hide. Dials: fade-out 260ms / fade-in 440ms / scale 0.985. */
     function apply(filter,animate){
       var target=[],i;
       for(i=0;i<cards.length;i++)target[i]=_matches(cards[i],filter);
@@ -339,17 +339,17 @@ try {
       for(i=0;i<cards.length;i++)_clearFx(cards[i]);
       var visible=[];
       for(i=0;i<cards.length;i++){if(!cards[i].classList.contains('if-prog-hidden'))visible.push(cards[i]);}
-      for(i=0;i<visible.length;i++){var vc=visible[i];vc.style.transition='opacity 200ms ease';vc.style.opacity='0';}
+      for(i=0;i<visible.length;i++){var vc=visible[i];vc.style.transition='opacity 260ms ease';vc.style.opacity='0';}
       var swap=function(){
         if(tok!==_fxtok)return;
         var j,shown=[];
         for(j=0;j<cards.length;j++){cards[j].classList.toggle('if-prog-hidden',!target[j]);if(target[j])shown.push(cards[j]);else _clearFx(cards[j]);}
-        for(j=0;j<shown.length;j++){var sc=shown[j];sc.style.transition='none';sc.style.opacity='0';sc.style.transform='scale(0.98)';}
+        for(j=0;j<shown.length;j++){var sc=shown[j];sc.style.transition='none';sc.style.opacity='0';sc.style.transform='scale(0.985)';}
         void grid.offsetWidth;
-        for(j=0;j<shown.length;j++){var sp=shown[j];sp.style.transition='opacity 360ms ease,transform 360ms cubic-bezier(0.22,1,0.36,1)';sp.style.opacity='';sp.style.transform='';}
-        setTimeout(function(){if(tok!==_fxtok)return;var m;for(m=0;m<shown.length;m++)_clearFx(shown[m]);},560);
+        for(j=0;j<shown.length;j++){var sp=shown[j];sp.style.transition='opacity 440ms ease,transform 440ms cubic-bezier(0.22,1,0.36,1)';sp.style.opacity='';sp.style.transform='';}
+        setTimeout(function(){if(tok!==_fxtok)return;var m;for(m=0;m<shown.length;m++)_clearFx(shown[m]);},680);
       };
-      if(visible.length)setTimeout(swap,210);else swap();
+      if(visible.length)setTimeout(swap,270);else swap();
     }
     for(var i=0;i<pills.length;i++){(function(p){
       p.addEventListener('click',function(){
