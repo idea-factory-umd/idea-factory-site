@@ -339,8 +339,11 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 .if-navmenu.if-navmenu .w-dropdown-list a.w--current:hover{
   box-shadow:none !important;
 }
-/* DESKTOP: when a dropdown holds the current page, gold-underline its toggle in the red
-   bar and drop that dropdown's gold top-edge so the two golds don't collide. */
+/* DESKTOP: when a dropdown holds the current page, gold-underline its TOGGLE in the red
+   bar (closed-state cue — this is the underline UNDER THE TERM in the red menu, a separate
+   thing from the dropdown box's top edge). The white dropdown box (.if-dd-list) has NO gold
+   top line anymore — removed 2026-07-02 per user (it read inconsistently: shown on
+   non-current dropdowns, hidden on the current one). */
 @media screen and (min-width:992px){
   .if-dd-wrap:has(.w--current) .if-ddtoggle,
   .if-navmenu .w-dropdown:has(.w--current) .w-dropdown-toggle{border-bottom-color:#ffd200;}
@@ -350,8 +353,6 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
   .if-dd-wrap:has(.w--current).if-open .if-ddtoggle,
   .if-navmenu .w-dropdown:has(.w--current):hover .w-dropdown-toggle,
   .if-navmenu .w-dropdown:has(.w--current).w--open .w-dropdown-toggle{border-bottom-color:transparent;}
-  .if-dd-wrap:has(.w--current) .if-dd-list,
-  .if-navmenu .w-dropdown:has(.w--current) .w-dropdown-list{border-top-width:0;padding-top:6px;}
 }
 /* MOBILE (hamburger, white menu) — user-approved 2026-07-01:
    • HOVER (any item) = brand-red text + grow (scale), NO gold hatch, NO background.
