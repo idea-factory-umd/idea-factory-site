@@ -424,11 +424,11 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 .if-prog-bodyinner{display:flex;flex-direction:column;gap:12px;transition:transform 240ms cubic-bezier(0.22,1,0.36,1);will-change:transform;}
 .if-prog-card:hover .if-prog-bodyinner{transform:scale(1.03);}
 .if-prog-hidden{display:none !important;}
-/* Filter switch: matching cards fade + rise in, staggered by the filter JS. `backwards` fill
-   shows the from-state during each card's stagger delay (no flash) and does NOT retain after the
-   run, so the finished animation never overrides the card hover-lift. Reduced-motion skips it. */
-@keyframes if-prog-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.if-prog-card.if-prog-appear{animation:if-prog-in .45s cubic-bezier(0.22,1,0.36,1) backwards;}
+/* Filter switch is a JS-driven FLIP cross-fade (program-filter module): leaving cards fade+scale
+   out in place, then the staying cards GLIDE to their new grid positions (measured First/Last,
+   inverted, played) while entering cards fade+scale in with a gentle stagger. The JS sets inline
+   transitions and clears them on cleanup, so nothing here overrides the card hover-lift.
+   Reduced-motion falls back to instant show/hide (no motion). */
 .if-prog-em{color:#e21833;font-style:normal;}
 /* Filter pills — no "current" shown until the JS adds .is-active on first interaction; current
    HOVER = red text + red border (outline). CURRENT/is-active = solid red fill + white text

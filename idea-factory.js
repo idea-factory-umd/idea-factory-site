@@ -315,25 +315,49 @@ try {
     var pills=pillWrap.querySelectorAll('.if-filter-pill');
     var cards=grid.querySelectorAll('.if-prog-card');
     var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-    function animateIn(list){
-      if(reduce||!list.length)return;
-      for(var a=0;a<list.length;a++)list[a].classList.remove('if-prog-appear');
-      void grid.offsetWidth; // restart the animation cleanly
-      for(var a=0;a<list.length;a++){list[a].style.animationDelay=Math.min(a*35,260)+'ms';list[a].classList.add('if-prog-appear');}
+    var _fxtok=0;
+    function _clearFx(c){c.style.transition='';c.style.transitionDelay='';c.style.transform='';c.style.opacity='';}
+    function _matches(card,filter){
+      if(filter==='All')return true;
+      var tags=(card.getAttribute('data-tags')||'').split(',');
+      for(var k=0;k<tags.length;k++){if(tags[k].replace(/^\s+|\s+$/g,'')===filter)return true;}
+      return false;
     }
+    /* FLIP cross-fade: leaving cards fade+scale out in place; then staying cards GLIDE from their
+       old grid positions to their new ones (measure First -> hide leaving/show entering -> measure
+       Last -> invert -> play), while entering cards fade+scale in with a gentle stagger. A token
+       cancels in-flight runs so rapid pill clicks stay clean; reduced-motion = instant show/hide. */
     function apply(filter,animate){
-      var shown=[];
-      for(var i=0;i<cards.length;i++){
-        var raw=cards[i].getAttribute('data-tags')||'';
-        var tags=raw.split(',');
-        var show=(filter==='All');
-        for(var k=0;k<tags.length && !show;k++){
-          if(tags[k].replace(/^\s+|\s+$/g,'')===filter)show=true;
-        }
-        cards[i].classList.toggle('if-prog-hidden',!show);
-        if(show)shown.push(cards[i]);
+      var target=[],i;
+      for(i=0;i<cards.length;i++)target[i]=_matches(cards[i],filter);
+      if(reduce||!animate){
+        for(i=0;i<cards.length;i++)cards[i].classList.toggle('if-prog-hidden',!target[i]);
+        return;
       }
-      if(animate)animateIn(shown);
+      var tok=++_fxtok;
+      for(i=0;i<cards.length;i++)_clearFx(cards[i]);
+      var leaving=[],staying=[],entering=[];
+      for(i=0;i<cards.length;i++){
+        var was=!cards[i].classList.contains('if-prog-hidden');
+        if(was&&!target[i])leaving.push(cards[i]);
+        else if(was&&target[i])staying.push(cards[i]);
+        else if(!was&&target[i])entering.push(cards[i]);
+      }
+      for(i=0;i<leaving.length;i++){var lc=leaving[i];lc.style.transition='opacity 180ms ease,transform 180ms ease';lc.style.opacity='0';lc.style.transform='scale(0.96)';}
+      var reflow=function(){
+        if(tok!==_fxtok)return;
+        var j,first=[];
+        for(j=0;j<staying.length;j++)first[j]=staying[j].getBoundingClientRect();
+        for(j=0;j<leaving.length;j++){_clearFx(leaving[j]);leaving[j].classList.add('if-prog-hidden');}
+        for(j=0;j<entering.length;j++){var ec=entering[j];ec.classList.remove('if-prog-hidden');ec.style.transition='none';ec.style.opacity='0';ec.style.transform='scale(0.96)';}
+        var last=[];for(j=0;j<staying.length;j++)last[j]=staying[j].getBoundingClientRect();
+        for(j=0;j<staying.length;j++){var sc=staying[j];sc.style.transition='none';sc.style.transform='translate('+(first[j].left-last[j].left)+'px,'+(first[j].top-last[j].top)+'px)';}
+        void grid.offsetWidth;
+        for(j=0;j<staying.length;j++){var sp=staying[j];sp.style.transition='transform 400ms cubic-bezier(0.22,1,0.36,1)';sp.style.transform='';}
+        for(j=0;j<entering.length;j++){(function(e,idx){e.style.transition='opacity 340ms ease,transform 400ms cubic-bezier(0.22,1,0.36,1)';e.style.transitionDelay=Math.min(idx*45,260)+'ms';requestAnimationFrame(function(){if(tok!==_fxtok)return;e.style.opacity='';e.style.transform='';});})(entering[j],j);}
+        setTimeout(function(){if(tok!==_fxtok)return;var m;for(m=0;m<staying.length;m++)_clearFx(staying[m]);for(m=0;m<entering.length;m++)_clearFx(entering[m]);},780);
+      };
+      if(leaving.length)setTimeout(reflow,190);else reflow();
     }
     for(var i=0;i<pills.length;i++){(function(p){
       p.addEventListener('click',function(){
