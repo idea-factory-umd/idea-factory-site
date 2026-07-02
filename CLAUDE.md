@@ -482,5 +482,51 @@ The red inline-link style **`if-inline-link`** (Interstate; on the MOOCs card te
 - **NOT a settings problem.** User set the kit character set to **"All Characters"** — that IS applied; it serves everything the font *has* (AL-1). The real cause: **Adobe only ships the "standard" cut of Interstate (~AL-1)**, even though Interstate-the-typeface has an extended CE/EE + Cyrillic/Greek version, and Adobe's description misleadingly implies that coverage (known issue — Adobe UserVoice *"Misleading information on Interstate language support"*). The Polish glyphs are simply not in the file at any setting.
 - **CONSEQUENCE:** Ą Ę Ż etc. fall back to a system sans (mismatched) anywhere in Interstate text. **Georgia** (serif body, a system font) covers Polish fine — the gap is Interstate-only. Applies to ALL spin-offs on this kit.
 - **OPTIONS if Polish is needed:** (a) accept the fallback for those letters; (b) swap the sans role to an Adobe font with real AL-3 coverage (Interstate-alike grotesque) — change `Interstate` in the font stacks (shared CSS `body`, plus Designer `.if-tag-strong/.if-hero-lead/.if-inline-link/...`), everything else stays; (c) hybrid: Interstate for English, alt for Polish. Re-verify any candidate the same way: curl kit CSS → download woff2 (needs `Referer:` licensed domain) → fonttools `TTFont(f).getBestCmap()`, check U+0104/0118/017B. (fonttools+brotli pip-install fine in this env.)
+- **➡️ IMPLEMENTED in §22** — chose a hybrid of (a/c) as the default + a switch to (b): **self-hosted Overpass** fills Polish as a weight-matched fallback, and a **global class switch** flips the whole suite to all-Overpass on command.
+
+---
+
+## 22. FONT SWITCH — self-hosted Overpass + Interstate⇄Overpass toggle (2026-07-01) — SHARED CSS + 6 woff2, LIVE on `main`
+
+**What/why:** Adobe's Interstate cut lacks Polish/CE glyphs (§21). Fix = **self-host Overpass** (OFL, open-source, same Highway-Gothic DNA as Interstate; full Polish 18/18) directly in this repo and wire a **global switch** so the user can run the site as **"Interstate + Overpass fallback"** (default) OR **"all Overpass"** (flip a class), to dry-run replacing Interstate. Purely a shared-CSS change — **no Adobe kit change and NO new custom-code line needed** (the site already loads `idea-factory.css`, which now carries the `@font-face`s; the woff2 sit beside it on GitHub Pages).
+
+**Files added (repo root, served by GitHub Pages):**
+| File | What | Bytes |
+|---|---|---|
+| `overpass.woff2` | Overpass **variable** upright, `wght 100 900` | 129,476 |
+| `overpass-italic.woff2` | Overpass **variable** italic, `wght 100 900` | 128,272 |
+| `overpass-pl-400.woff2` | static instance @ **wght 340** → face `OverpassFB` weight 400 | 63,364 |
+| `overpass-pl-500.woff2` | static instance @ **wght 480** → `OverpassFB` weight 500 | 64,100 |
+| `overpass-pl-700.woff2` | static instance @ **wght 740** → `OverpassFB` weight 700 | 64,368 |
+| `overpass-pl-800.woff2` | static instance @ **wght 900** → `OverpassFB` weight 800 | 62,780 |
+- The `-pl-*` files are **full-glyph** Overpass (not subset) instanced to a fixed weight; named "pl" because their JOB is the Polish fallback. Weights are **deliberately lighter than the nominal** (340 for 400, etc.) because untuned Overpass is heavier than Interstate at the same number and the fallback "stuck out" (user's words). Tuned by stem/width match. ⚠️ **Interstate 800 is heavier than Overpass can reach (max wght 900), so 800→Overpass 900 is best-effort and renders slightly light** — acceptable; an 800-weight sans in Polish would be rare.
+- Made with fonttools `instantiateVariableFont` from the upstream Overpass variable TTF → woff2 (brotli). `size-adjust:102.7%` on every face matches Overpass's x-height to Interstate.
+
+**The CSS (idea-factory.css, top "FONT SWITCH" block, replaced the old single `body{font-family:Interstate…}` line):**
+```
+@font-face Overpass (upright+italic, wght 100 900, size-adjust:102.7%)
+@font-face OverpassFB (4 static weights 400/500/700/800, size-adjust:102.7%)
+:root{ --if-sans: Interstate,'OverpassFB',"Helvetica Neue",Arial,sans-serif; }   /* DEFAULT */
+body.if-font-overpass{ --if-sans:'Overpass',"Helvetica Neue",Arial,sans-serif; } /* FLIPPED */
+body, <71 sans classes>{ font-family: var(--if-sans) !important; }
+```
+- **DEFAULT (no class):** English/Latin renders in **Interstate** (unchanged — it's first in the stack); only glyphs Interstate lacks (Ą Ę Ż Ć Ń Ś Ź …) fall through **per-character** to weight-matched **OverpassFB** instead of Arial. Georgia (serif body copy) is untouched — those classes are **not** in the list.
+- **FLIPPED (`body.if-font-overpass`):** `--if-sans` becomes all-**Overpass** → every sans instance (all 72) switches to Overpass, English included.
+
+**⭐ HOW THE USER FLIPS IT (Webflow Designer, ~10 s, no code):**
+1. Designer → select the **Body (All Pages)** element (top of the Navigator, or click empty page bg then press ↑ to the Body).
+2. In the **Style panel** selector/class field, **add the class `if-font-overpass`** to the Body (add as an extra/combo class; do NOT rename the base Body tag).
+3. **Publish.** Whole suite → all-Overpass. **To revert: remove the class + publish.** It's an internal, non-visible hook (just a class name); strip it entirely when done experimenting.
+- Because it's ONE class on the Body, it flips **every page** at once. (Applied per-page instead, only that page flips — not the intent.)
+- ⚠️ The switch/fallback are **shared-file** styling → they show on the **published/preview** site, **NOT the Designer canvas** (the canvas doesn't load `idea-factory.css` — same lesson as §17/§18). Verify by publishing/previewing, not in the canvas.
+
+**Why no new custom-code line:** the fonts are **self-hosted** and declared **inside `idea-factory.css`** (already loaded site-wide). The woff2 resolve via **relative** `url('overpass*.woff2')` → same GitHub Pages dir as the CSS. Cross-origin OK: GitHub Pages sends **`access-control-allow-origin: *`** on every response (verified this session — `@font-face` needs CORS; `<link>` CSS does not). Lazy-loaded: an all-English page fetches **none** of the Overpass files; a Polish page fetches only the OverpassFB weight(s) it uses; flip mode fetches the variable `overpass.woff2`.
+
+**Scope / limitation (documented on purpose):** the **72-selector list** was verified against the live compiled Webflow CSS to be **sans-only** (every one resolves `Interstate,Helvetica Neue,Arial,sans-serif` — zero Georgia), so the `!important` never clobbers serif body copy. The **Google-CSE results modal** (`.if-cse-*`, `.gs-title` etc. in the CSE CSS block) still hardcodes Interstate and is **NOT** part of the switch — left alone to protect that previously-fragile surface; its result text stays Interstate (Polish there would still fall to Arial). Acceptable for a temporary tool; revisit only if search results need Polish/flip.
+
+**This also gives §20 a real answer:** in flip mode the inline link is Overpass (has a true medium 500); even in default mode a heavier weight can be dialed on `OverpassFB`. (The Adobe-kit route in §20 is now optional.)
+
+**Verified offline (headless Chromium, `fontswitch*.js` in scratchpad):** DEFAULT → English pixel-identical to Interstate + Polish width-exact to OverpassFB (146.59px, vs Arial 146.75), no tofu; FLIPPED → English & Polish both width-exact to Overpass, `--if-sans` computed = `Overpass,…`; **0 JS errors**; screenshots `fontswitch_default.png` / `fontswitch_overpass.png`. **Promoted:** commit **`09ac98a`** on `main` (+ dev `claude/keen-johnson-f9w833`); GitHub Pages serving. `stable` NOT advanced yet — do so after the user confirms live.
+- **To fully strip later:** remove the `if-font-overpass` class from Body, delete the 6 woff2 + the FONT SWITCH block from the CSS, and (if desired) restore the plain `body{font-family:Interstate,…}` line. Or keep default mode permanently for the Polish support and just drop the flip line.
 
 **NEXT SESSION: keep maintaining this file per the OPERATING PROTOCOL, and pass that instruction on.**
