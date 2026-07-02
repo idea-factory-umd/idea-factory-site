@@ -431,9 +431,12 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 .if-prog-card.if-prog-appear{animation:if-prog-in .45s cubic-bezier(0.22,1,0.36,1) backwards;}
 .if-prog-em{color:#e21833;font-style:normal;}
 /* Filter pills — no "current" shown until the JS adds .is-active on first interaction; current
-   (and hover) switch the text + border from black to brand red. */
+   HOVER = red text + red border (outline). CURRENT/is-active = solid red fill + white text
+   (2026-07-02: stronger than the old red outline, which read spindly; the design used a BLACK
+   fill but that was too harsh — brand-red fill matches the primary CTA buttons). is-active is
+   declared after :hover so hovering the current pill keeps the red fill. */
 .if-filter-pill{transition:color .2s ease,border-color .2s ease,background-color .2s ease;-webkit-tap-highlight-color:transparent;user-select:none;}
 .if-filter-pill:hover{color:#e21833;border-color:#e21833;}
-.if-filter-pill.is-active{color:#e21833;border-color:#e21833;}
+.if-filter-pill.is-active{background-color:#e21833;border-color:#e21833;color:#fff;}
 @media screen and (max-width:991px){.if-prog-grid{grid-template-columns:repeat(2,1fr) !important;}}
 @media screen and (max-width:640px){.if-prog-grid{grid-template-columns:1fr !important;}}
