@@ -44,8 +44,16 @@
    (open-source, same Highway-Gothic DNA, self-hosted here) fills them, weight-matched.
    GLOBAL SWITCH (test tool): add class `if-font-overpass` to the BODY element in the Webflow
    Designer to flip the whole suite from default "Interstate + Overpass fallback" to
-   "all Overpass". Remove it to flip back. Not a visible control; strip when done. */
-@font-face{font-family:'Overpass';src:url('overpass.woff2') format('woff2');font-weight:100 900;font-style:normal;font-display:swap;size-adjust:102.7%;}
+   "all Overpass". Remove it to flip back. Not a visible control; strip when done.
+   FLIP-MODE WEIGHT TUNING: Interstate's character lives in its heavy weights, and raw
+   Overpass renders lighter there (Interstate 800 is heavier than Overpass's max 900).
+   So flip mode remaps the heavy slots to heavier instances: 700 -> wght 780 (matches
+   Interstate 700), 800 -> wght 900 (Overpass max, as close to Interstate 800 as it gets).
+   400/500 stay true Overpass (already >= Interstate, so no lightening). Default mode is
+   unaffected (it never uses the 'Overpass' family). Dial: swap the -hv- files' weights. */
+@font-face{font-family:'Overpass';src:url('overpass.woff2') format('woff2');font-weight:100 600;font-style:normal;font-display:swap;size-adjust:102.7%;}
+@font-face{font-family:'Overpass';src:url('overpass-hv-700.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap;size-adjust:102.7%;}
+@font-face{font-family:'Overpass';src:url('overpass-hv-800.woff2') format('woff2');font-weight:800;font-style:normal;font-display:swap;size-adjust:102.7%;}
 @font-face{font-family:'Overpass';src:url('overpass-italic.woff2') format('woff2');font-weight:100 900;font-style:italic;font-display:swap;size-adjust:102.7%;}
 @font-face{font-family:'OverpassFB';src:url('overpass-pl-400.woff2') format('woff2');font-weight:400;font-display:swap;size-adjust:102.7%;}
 @font-face{font-family:'OverpassFB';src:url('overpass-pl-500.woff2') format('woff2');font-weight:500;font-display:swap;size-adjust:102.7%;}
