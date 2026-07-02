@@ -64,12 +64,12 @@
 /* ⭐ FUTURE-PROOF (2026-07-02): every custom class is `if-`-prefixed (project convention, §3), so we
    apply the sans + Overpass-fallback stack to ALL if- classes — present AND any newly created one —
    plus body. A brand-new class therefore CANNOT miss the Polish fallback (it no longer depends on a
-   hand-maintained list). The 6 Georgia (serif) body-copy classes are the only exceptions; they are
+   hand-maintained list). The 7 Georgia (serif) classes are the only exceptions; they are
    restored on the next line (declared AFTER, same specificity, so serif wins). Non-if selectors are
    untouched: webflow-icons (`.w-icon-` classes), the Google-CSE `.gs-` and `.gsc-` result text, forms.
    To ADD a serif class in future, append it to the exception line; sans needs no maintenance. */
 body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
-.if-aud-intro,.if-event-row-meta,.if-input,.if-mani-p,.if-prog-desc,.if-tag-p{font-family:var(--if-serif)!important;}
+.if-aud-intro,.if-event-row-meta,.if-input,.if-mani-p,.if-premise-lead,.if-prog-desc,.if-tag-p{font-family:var(--if-serif)!important;}
 
 /* ============================================================
    1. HERO reading highlight  (JS drives .if-hero-word opacity)
