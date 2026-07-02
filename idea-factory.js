@@ -323,10 +323,11 @@ try {
       for(var k=0;k<tags.length;k++){if(tags[k].replace(/^\s+|\s+$/g,'')===filter)return true;}
       return false;
     }
-    /* FLIP cross-fade: leaving cards fade+scale out in place; then staying cards GLIDE from their
-       old grid positions to their new ones (measure First -> hide leaving/show entering -> measure
-       Last -> invert -> play), while entering cards fade+scale in with a gentle stagger. A token
-       cancels in-flight runs so rapid pill clicks stay clean; reduced-motion = instant show/hide. */
+    /* Filter switch = a soft cross-dissolve, NO positional motion (nothing slides around). The cards
+       on screen fade out together; the grid re-lays-out while everything is invisible (so the reflow
+       is never seen as cards sliding); then the matching set fades back in with just a whisper of
+       scale to settle in. A token cancels in-flight runs so rapid pill clicks stay clean;
+       reduced-motion = instant show/hide. Dials: fade-out 200ms / fade-in 360ms / scale 0.98. */
     function apply(filter,animate){
       var target=[],i;
       for(i=0;i<cards.length;i++)target[i]=_matches(cards[i],filter);
@@ -336,28 +337,19 @@ try {
       }
       var tok=++_fxtok;
       for(i=0;i<cards.length;i++)_clearFx(cards[i]);
-      var leaving=[],staying=[],entering=[];
-      for(i=0;i<cards.length;i++){
-        var was=!cards[i].classList.contains('if-prog-hidden');
-        if(was&&!target[i])leaving.push(cards[i]);
-        else if(was&&target[i])staying.push(cards[i]);
-        else if(!was&&target[i])entering.push(cards[i]);
-      }
-      for(i=0;i<leaving.length;i++){var lc=leaving[i];lc.style.transition='opacity 180ms ease,transform 180ms ease';lc.style.opacity='0';lc.style.transform='scale(0.96)';}
-      var reflow=function(){
+      var visible=[];
+      for(i=0;i<cards.length;i++){if(!cards[i].classList.contains('if-prog-hidden'))visible.push(cards[i]);}
+      for(i=0;i<visible.length;i++){var vc=visible[i];vc.style.transition='opacity 200ms ease';vc.style.opacity='0';}
+      var swap=function(){
         if(tok!==_fxtok)return;
-        var j,first=[];
-        for(j=0;j<staying.length;j++)first[j]=staying[j].getBoundingClientRect();
-        for(j=0;j<leaving.length;j++){_clearFx(leaving[j]);leaving[j].classList.add('if-prog-hidden');}
-        for(j=0;j<entering.length;j++){var ec=entering[j];ec.classList.remove('if-prog-hidden');ec.style.transition='none';ec.style.opacity='0';ec.style.transform='scale(0.96)';}
-        var last=[];for(j=0;j<staying.length;j++)last[j]=staying[j].getBoundingClientRect();
-        for(j=0;j<staying.length;j++){var sc=staying[j];sc.style.transition='none';sc.style.transform='translate('+(first[j].left-last[j].left)+'px,'+(first[j].top-last[j].top)+'px)';}
+        var j,shown=[];
+        for(j=0;j<cards.length;j++){cards[j].classList.toggle('if-prog-hidden',!target[j]);if(target[j])shown.push(cards[j]);else _clearFx(cards[j]);}
+        for(j=0;j<shown.length;j++){var sc=shown[j];sc.style.transition='none';sc.style.opacity='0';sc.style.transform='scale(0.98)';}
         void grid.offsetWidth;
-        for(j=0;j<staying.length;j++){var sp=staying[j];sp.style.transition='transform 400ms cubic-bezier(0.22,1,0.36,1)';sp.style.transform='';}
-        for(j=0;j<entering.length;j++){(function(e,idx){e.style.transition='opacity 340ms ease,transform 400ms cubic-bezier(0.22,1,0.36,1)';e.style.transitionDelay=Math.min(idx*45,260)+'ms';requestAnimationFrame(function(){if(tok!==_fxtok)return;e.style.opacity='';e.style.transform='';});})(entering[j],j);}
-        setTimeout(function(){if(tok!==_fxtok)return;var m;for(m=0;m<staying.length;m++)_clearFx(staying[m]);for(m=0;m<entering.length;m++)_clearFx(entering[m]);},780);
+        for(j=0;j<shown.length;j++){var sp=shown[j];sp.style.transition='opacity 360ms ease,transform 360ms cubic-bezier(0.22,1,0.36,1)';sp.style.opacity='';sp.style.transform='';}
+        setTimeout(function(){if(tok!==_fxtok)return;var m;for(m=0;m<shown.length;m++)_clearFx(shown[m]);},560);
       };
-      if(leaving.length)setTimeout(reflow,190);else reflow();
+      if(visible.length)setTimeout(swap,210);else swap();
     }
     for(var i=0;i<pills.length;i++){(function(p){
       p.addEventListener('click',function(){

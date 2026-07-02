@@ -424,10 +424,10 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 .if-prog-bodyinner{display:flex;flex-direction:column;gap:12px;transition:transform 240ms cubic-bezier(0.22,1,0.36,1);will-change:transform;}
 .if-prog-card:hover .if-prog-bodyinner{transform:scale(1.03);}
 .if-prog-hidden{display:none !important;}
-/* Filter switch is a JS-driven FLIP cross-fade (program-filter module): leaving cards fade+scale
-   out in place, then the staying cards GLIDE to their new grid positions (measured First/Last,
-   inverted, played) while entering cards fade+scale in with a gentle stagger. The JS sets inline
-   transitions and clears them on cleanup, so nothing here overrides the card hover-lift.
+/* Filter switch is a JS-driven soft cross-dissolve (program-filter module): the visible cards fade
+   out together, the grid re-lays-out while everything is invisible (so nothing is ever seen sliding
+   between positions), then the matching set fades back in with a whisper of scale. The JS sets
+   inline transitions and clears them on cleanup, so nothing here overrides the card hover-lift.
    Reduced-motion falls back to instant show/hide (no motion). */
 .if-prog-em{color:#e21833;font-style:normal;}
 /* Filter pills — no "current" shown until the JS adds .is-active on first interaction; current
