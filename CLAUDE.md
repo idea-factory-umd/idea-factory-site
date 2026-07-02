@@ -467,12 +467,13 @@ All promoted (pushed to `main` + Webflow published; `stable` advanced to `4bcb58
 
 ---
 
-## 20. Link weight (Interstate) — PENDING Adobe Fonts kit change (2026-07-01)
+## 20. Link weight (Interstate) — ✅ RESOLVED: if-inline-link = Medium 500 (2026-07-02)
 
 The red inline-link style **`if-inline-link`** (Interstate; on the MOOCs card text links, `color:#e21833`, `letter-spacing:-0.4px`) looks spindly at weight **400** beside Georgia. The Adobe Fonts kit **`fdu6zpb`** only loads Interstate **400 / 700 / 800** (confirmed by curling `use.typekit.net/fdu6zpb.css`). Per CSS font-matching, `font-weight:500` falls back to **400** (no change) and `600` jumps to **700** — so the only real heavier face is 700, a big jump. Rendered a real comparison with the actual faces (scratchpad `linkweight.png`): 400 spindly, 700 bold, `-webkit-text-stroke` 0.2–0.45px = a faux-medium.
 - **User rejected the faux** `text-stroke` (only renders on published, not a real face). **Decision: add weights to the kit.**
 - **HAND-OFF (user, Adobe Fonts UI):** fonts.adobe.com → avatar → **Web Projects** (`fonts.adobe.com/my_fonts#web_projects-section`) → project **`fdu6zpb`** → **Edit Project** → under **Interstate** tick extra weights (need **Medium = 500**; user may add all upright weights) → **Save**. Auto-republishes (~1–2 min); domains already allow-listed; carries to spin-offs on this kit. No small per-project cap on current plans — limit is performance (each weight = another file); italics + Condensed/Compressed are extra families, add only if used.
 - **THEN (Claude):** verify the new face by re-curling `use.typekit.net/fdu6zpb.css` for `font-weight:500`, then set `if-inline-link` → `font-weight:500` **natively** in the Designer (real medium; shows in the Designer canvas too — no faux, no shared-CSS override). Publish.
+- **✅ DONE (2026-07-02):** user added Interstate **500 (Medium)** to the kit (kit now serves 400/500/700/800 normal — verified by curl). Set `if-inline-link` **font-weight:500 natively** via MCP `data_style_tool update_style` (style id `b19bcee7-daa1-abbf-3314-78d964d4c195`; other props — `color:#e21833`, `letter-spacing:-0.4px`, `text-decoration:none` — preserved). **Published** (compiled CSS `20cf1c38c` confirms `.if-inline-link{font-weight:500}` live). Real Medium face, no faux. Polish inside a link is weight-matched too: the broad `if-` rule gives the link `var(--if-sans)` (Interstate,OverpassFB,…), and OverpassFB 500 = wght520 matches Interstate 500 (§22). Rendered 400-vs-500-vs-700 comparison (`link_weight.png`): 500 beefier than 400, not as heavy as 700. **Dial:** if the user wants heavier, change to 700 (same native `update_style`).
 
 ---
 
