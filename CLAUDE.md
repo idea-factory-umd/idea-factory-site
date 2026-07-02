@@ -1,5 +1,20 @@
 # Idea Factory — Claude Code Working Memory (READ THIS FIRST, IN FULL)
 
+> ## 🚫 #1 HARD RULE — NATIVE WEBFLOW ONLY (breaking this has caused repeated crises)
+> **Build every element and every style in the NATIVE Webflow Designer.** The shared
+> `idea-factory.css` / `idea-factory.js` may hold ONLY things Webflow cannot do natively
+> (parent‑hover‑child, keyframes, JS behaviors) — **NEVER the base look, layout, or typography
+> of a native element.**
+> - **NEVER use the shared CSS to set or "rescue" a native element's font/typography** — e.g. do
+>   NOT add a class to the `[class^="if-"]{font-family…!important}` broad rule's exception list to
+>   make a native Designer font show. If that broad rule clobbers a native font, take the element
+>   **out of `if-` scope** (rename its class without the `if-` prefix) or **remove the broad rule**
+>   (systemic fix). Do NOT feed it more exceptions.
+> - **ALWAYS verify a native change RENDERS in the Designer (`element_snapshot_tool`) before saying
+>   "done."** Never claim done/verified from a published‑only check.
+> - Full detail + rationale: **OPERATING PROTOCOL §0, rule #0** (and §22/§27a for the font history).
+> - This is a PERMANENT correction across sessions — keep this banner intact and pass it on.
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is
