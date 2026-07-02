@@ -539,4 +539,17 @@ body,[class^="if-"],[class*=" if-"]{ font-family: var(--if-sans) !important; }  
 
 **To fully strip later:** delete the 4 `overpass-pl-*.woff2` + the FONT block from the CSS, and restore the plain `body{font-family:Interstate,…}` line. (Or leave it — invisible, and it only loads for Polish text.)
 
+---
+
+## 23. Header drop shadow — both bars (2026‑07‑02) — NATIVE Designer, PUBLISHED
+
+Subtle downward drop shadow under the **lowest visible header bar**, so the sticky header has depth in every state. User ask: "add a slight shadow under the lowest item of the header bar, be it the RED nav bar or the white bar above it (which occurs when 1) the red bar retracts as the footer enters view, or 2) the hamburger appears and the red bar disappears responsively). Keep it subtle."
+
+- **Live DOM (from staging):** `header.if-header` (sticky, z-index 50) › `div.if-umdbar` (black top bar) + `div.if-navroot.w-nav` › **`div.if-idband-wrap`** (WHITE bar, full-width, `border-bottom:1px #e6e6e6`) + **`nav.if-navmenu.w-nav-menu`** (RED bar, `background:#e21833`, `width:100%`, `overflow:visible`). The red bg lives on `.if-navmenu`; `.if-navroot` is transparent/no-clip; the old `.if-navbar` retract JS targets a class that no longer exists in the DOM, so the red bar's disappearance is via Webflow's own mechanisms (mobile `w-nav-menu` display, and/or interaction).
+- **Solution = one native box-shadow on EACH bar** (not a single wrapper shadow — a wrapper shadow would detach if the red bar hides via opacity/transform, which preserve layout). Value on both: **`box-shadow: 0 4px 8px -2px rgba(0,0,0,0.1)`** (offset down 4px, 8px blur, −2px spread so no side/upward halo, 10% black = subtle). Set via `data_style_tool update_style` (NATIVE Designer → shows in canvas, published, travels with Duplicate Site).
+- **The conditional reveal is automatic via paint order — no JS.** Normal desktop: the opaque, `position:relative` red bar is a later sibling that paints over the white band's downward shadow → only the RED bar's shadow shows. When the red bar is hidden (footer‑retract OR mobile hamburger) the white `.if-idband-wrap` becomes the lowest header element → ITS shadow shows.
+- **⚠️ §11 DUP:** `.if-idband-wrap` has TWO style objects — `b6a33b02‑b64e‑8920‑2c44‑8262eda20143` (updated → has the shadow) and `dea6a492‑…‑0c` (no shadow). Compiled CSS emits BOTH `.if-idband-wrap` rules; the shadow-bearing one applies and the other never declares `box-shadow` (so it can't override it) — **verified in compiled CSS the shadow is live.** `.if-navmenu` is a single object (`3a6b25b4‑b8bc‑7df3‑8427‑e6f54b9a3d5d`).
+- **Verified:** computed `box-shadow: rgba(0,0,0,0.1) 0px 4px 8px -2px` on both elements; compiled staging CSS shows the shadow on both; offline screenshots (`hdr_normal.png` = shadow under red bar over scrolled white content; `hdr_redhidden.png` = red bar force-hidden → shadow under the white band); 0 JS errors. **Published to staging.** Designer-only change — **nothing pushed to the shared `idea-factory.{css,js}`**, so `stable` is unaffected.
+- **Dial:** the `box-shadow` value on `.if-navmenu` and `.if-idband-wrap` (keep them equal). To drop the white-bar shadow entirely, remove it from `if-idband-wrap`; to drop the red-bar one, remove from `if-navmenu`.
+
 **NEXT SESSION: keep maintaining this file per the OPERATING PROTOCOL, and pass that instruction on.**
