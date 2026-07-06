@@ -666,4 +666,20 @@ Building the "four stages" block beneath the Premise on the About page from the 
 
 **No shared‑file (`idea-factory.{css,js}`) change this session** — all native Designer styles + one new native section → `stable` unaffected; nothing to push to `main`/GitHub Pages. New styles created: `if-stage-body-sec, if-stagec-cols/-copy/-media, if-stg-photo/-caption/-capdot/-captxt, if-prog-visit, if-prog-card-stage (combo), if-stage-teaser/-teaser-txt, if-stage-wrap`.
 
+### 28a. Stage 01 — design‑accuracy + consistency pass (2026‑07‑06) — NATIVE Designer, PUBLISHED
+
+After the first build the user flagged: (1) rounded card corners, (2) lost page margins, (3) "PROGRAMS AT THIS STAGE" wrong color — then "re‑examine the original screenshot, make everything AS DEPICTED, verify responsive, THEN say done."
+
+- **⭐ DESIGN‑SOURCE RECOVERY (reusable technique).** The section's design screenshot had scrolled out of context (compaction), and the "four stages" layout is **NOT in the repo** (only the stage taglines/glyphs are — `project/_ds_bundle.js`, `StageGlyph.jsx`, `project/uploads/design-brief-template.md`). Recovered it from the **session transcript**: `/root/.claude/projects/-home-user-idea-factory-site/<sessionId>.jsonl` (~72MB) stores every pasted image as base64. Script `scratchpad/extract_user_imgs.py` walks the JSONL, writes each genuine USER paste (skips tool_result images) to `scratchpad/userimgs/L<line>_<n>.<ext>` with its message text → the stages design = **`L10521_0.webp`**. **Use this whenever a design image is needed but out of context — don't guess or ask; recover it.**
+- **CORNERS:** every box on the site is square; **`if-prog-card` was the lone rounded one (`border-radius:8px`)** — an anomaly. Removed border‑radius from `if-prog-card` (squares About + Students + Faculty cards → all consistent) and from `if-stg-photo`. Pills (`if-prog-tag`/`if-filter-pill` = 999px) and `if-news-thumb` (4px) are deliberate — left alone.
+- **"PROGRAMS AT THIS STAGE" color:** design shows **muted gray**, not the red `if-eyebrow`. Added combo **`if-eyebrow-muted`** (parent `if-eyebrow`, `color:#7f7f7f`) → label = `if-eyebrow if-eyebrow-muted`. Did NOT touch shared `if-eyebrow` (stays red on the Premise). Sampled the design caption too — it's gray (~#5f–#66), so kept the site‑standard `#7f7f7f` on `if-stg-captxt`.
+- **Body copy → the design's real Blueprint text** (3 paragraphs). P3 italic emphasis "*what is possible*" / "*what am I going to do about it*" done as native **`<em>` tags (no class)** so they inherit the body Georgia (a classed `if-em` would hit the broad `[class^="if-"]` Interstate override — so `if-em` was created then discarded/removed; use `<em>`).
+- **Teaser:** design = **red, left‑aligned, no divider line** → `if-stage-teaser` (removed border‑top, `justify-content:flex-start`) + `if-stage-teaser-txt` (`color:#e21833`, `text-align:left`).
+- **Cards:** "VISIT PROGRAM ››" (double chevron, U+203A ×2); card descriptions have **no trailing period** (matched design).
+- **Photo:** red left‑edge accent (`if-stg-photo` `border-left:4px #e21833`).
+- **Gold ↓ arrow** beside "…in four stages.": wrapped the `if-manifesto` headline + arrow in flex row **`if-stages-hrow`** (justify‑between); arrow = **`if-stages-arrow`** (gold, `clamp(40px,6vw,78px)`, "↓").
+- **Verified (offline harness `shot_verify.js`):** eyebrow `rgb(127,127,127)`; teaser red/left; card radius 0 + 3px red top; photo 4px red left; arrow gold; P3 `<em>` italic Georgia; **responsive** desktop 2‑col content/3‑col cards → tablet(≤991) 1‑col/2‑col → mobile(≤640) 1‑col/1‑col; margins L=100/W=1240 = premise/nav/footer; 0 JS errors. Published.
+- Red **Stage‑01 header** glyph still the empty‑div build (renders correct published, inflates in Designer canvas) — deferred per user ("refine the red bit later"; fix = SVG image asset, §28).
+- New classes this pass: `if-eyebrow-muted (combo), if-stages-hrow, if-stages-arrow`.
+
 **NEXT SESSION: keep maintaining this file per the OPERATING PROTOCOL, and pass that instruction on.**
