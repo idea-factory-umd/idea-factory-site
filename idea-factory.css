@@ -126,6 +126,20 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
    horizontally instead of wrapping — hide the scrollbar so the pinned bar stays clean. */
 .if-walk-row{scrollbar-width:none;-ms-overflow-style:none;}
 .if-walk-row::-webkit-scrollbar{display:none;}
+/* Walk bar STACKS once the one-row buttons can't shrink further (~880px, measured with real
+   Interstate): the label goes inline ("WALK THE FACTORY | Jump to a stage ›") on its own full-width
+   row, then the four buttons become two full-width rows of two (2x2). Custom breakpoint (Webflow only
+   offers 991/767/479) + the "|" pseudo-element → this must live in the shared file, not the Designer.
+   Full-bleed BOTH edges here (base already bleeds right; add left) so the button rows span edge-to-edge. */
+@media (max-width:880px){
+  .if-walk-row{flex-wrap:wrap;margin-left:calc(50% - 50vw);}
+  .if-walk-label{flex-basis:100%;flex-direction:row;align-items:baseline;justify-content:flex-start;padding:8px 24px;}
+  .if-walk-label-sub{margin-top:0;}
+  .if-walk-label-sub::before{content:"|";margin:0 .55em;color:#c9c9c9;font-weight:400;}
+  .if-walk-item{flex-basis:50%;border-top:1px solid #e6e6e6;padding-left:12px;padding-right:12px;}
+  .if-walk-glyph{width:28px;height:28px;}
+  .if-walk-name{font-size:12px;}
+}
 
 /* ============================================================
    3. STAGE photo + headline  (JS sets transform/opacity inline)
