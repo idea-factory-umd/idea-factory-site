@@ -119,15 +119,14 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 /* Walk-the-Factory wayfinding bar (About): parent-hover-child reveal — box turns white
    (native :hover), the greyscale glyph goes full-colour and the label darkens. Can't be a
    native Designer style (parent hover targeting a child), so it lives here. */
-.if-walk-item:hover .if-walk-glyph{filter:none;}
-.if-walk-item:hover .if-walk-num{color:#e21833;}
-.if-walk-item:hover .if-walk-name{color:#111111;}
-/* "Current" state (walk-spy JS adds .is-current to the button whose stage is scrolled into view).
-   The current marker is a LEFT BAR present on every current button; it greys out with the rest of
-   the button when not hovered and goes red on hover — colour (glyph/text/bg white) is HOVER-only,
-   so only a hovered item is full colour (current or not), while the bar tells which item is current. */
-.if-walk-item.is-current{box-shadow:inset 3px 0 0 0 #555555;border-left-color:#555555;}
-.if-walk-item.is-current:hover{box-shadow:inset 3px 0 0 0 #e21833;border-left-color:#e21833;}
+.if-walk-item:hover .if-walk-glyph,.if-walk-item.is-current .if-walk-glyph{filter:none;}
+.if-walk-item:hover .if-walk-num,.if-walk-item.is-current .if-walk-num{color:#e21833;}
+.if-walk-item:hover .if-walk-name,.if-walk-item.is-current .if-walk-name{color:#111111;}
+/* "Current" state (walk-spy JS adds .is-current to the button whose linked stage is scrolled into
+   view): full colour (via the combinators above) PLUS a red left bar that stays on regardless of
+   hover. A hovered-but-not-current item is full colour too (native :hover, background only) but
+   has NO bar — the bar is what marks the current item; hovering it just keeps the bar. */
+.if-walk-item.is-current{background:#fff;box-shadow:inset 3px 0 0 0 #e21833;border-left-color:#e21833;}
 /* Walk bar is one slim row (matches the red nav height); on narrow widths it scrolls
    horizontally instead of wrapping — hide the scrollbar so the pinned bar stays clean. */
 .if-walk-row{scrollbar-width:none;-ms-overflow-style:none;}

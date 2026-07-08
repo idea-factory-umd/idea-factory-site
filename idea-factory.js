@@ -506,7 +506,9 @@ try {
     var spacer=null,stuck=false,raf=null;
     function active(){var bh=bar.offsetHeight,vh=window.innerHeight||document.documentElement.clientHeight;return bh>0&&bh<vh*0.5;}
     function headerH(){return header?Math.round(header.getBoundingClientRect().height):0;}
-    function syncGap(){var items=bar.querySelectorAll('.if-walk-item'),g=active()?(bar.offsetHeight+24):24,i;
+    /* gap = bar height so a clicked stage lands FLUSH under the pinned bar (no white strip of the
+       preceding section showing); 0 when the bar can't pin. (walk-spy reads this for its threshold.) */
+    function syncGap(){var items=bar.querySelectorAll('.if-walk-item'),g=active()?bar.offsetHeight:0,i;
       for(i=0;i<items.length;i++)items[i].setAttribute('data-scroll-gap',g);}
     function unpin(){if(!stuck)return;stuck=false;
       bar.style.position='';bar.style.top='';bar.style.left='';bar.style.width='';bar.style.zIndex='';
@@ -536,8 +538,8 @@ try {
 
 /* ===== module: walk-spy (About "Walk the Factory" current-stage marker) =====
    Scrollspy: the walk button whose linked stage (#stage-0X) is scrolled up to just below the
-   pinned bar gets class .is-current — styled (shared CSS) to look like the hover state minus the
-   red left bar, so the red left bar distinguishes hover from current. Class-driven + portable. */
+   pinned bar gets class .is-current — styled (shared CSS) full-colour + a red left bar that stays
+   on regardless of hover; hovering a non-current item is full-colour too but has no bar. */
 try {
 (function(){
   function init(){
@@ -552,7 +554,7 @@ try {
       var hb=header?header.getBoundingClientRect().height:0, barH=bar?bar.offsetHeight:0;
       /* threshold must sit just BELOW where a clicked stage lands (headerH + data-scroll-gap),
          else the just-navigated stage stays under the line and the PRECEDING button reads current. */
-      var g=parseInt(pairs[0].it.getAttribute('data-scroll-gap'),10); if(isNaN(g)) g=barH+24;
+      var g=parseInt(pairs[0].it.getAttribute('data-scroll-gap'),10); if(isNaN(g)) g=barH;
       var threshold=hb+g+12, cur=-1, p;
       for(p=0;p<pairs.length;p++){ if(pairs[p].sec.getBoundingClientRect().top<=threshold) cur=p; }
       for(p=0;p<pairs.length;p++){ pairs[p].it.classList[p===cur?'add':'remove']('is-current'); }
