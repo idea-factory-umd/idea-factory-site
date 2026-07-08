@@ -445,7 +445,7 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 /* Body text grows WITHIN if-prog-body via the JS-inserted .if-prog-bodyinner wrapper: scaling the
    wrapper (center-pinned, default origin) grows the content inside the body without moving the body's
    own perimeter. The wrapper re-hosts the body's flex column + gap so rest layout is unchanged. */
-.if-prog-bodyinner{display:flex;flex-direction:column;gap:12px;transition:transform 240ms cubic-bezier(0.22,1,0.36,1);will-change:transform;}
+.if-prog-bodyinner{display:flex;flex-direction:column;gap:12px;flex-grow:1;transition:transform 240ms cubic-bezier(0.22,1,0.36,1);will-change:transform;}
 .if-prog-card:hover .if-prog-bodyinner{transform:scale(1.03);}
 .if-prog-hidden{display:none !important;}
 /* Filter switch is a JS-driven soft cross-dissolve (program-filter module): the visible cards fade
