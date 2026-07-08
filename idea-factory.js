@@ -550,7 +550,10 @@ try {
     var raf=null;
     function spy(){raf=null;
       var hb=header?header.getBoundingClientRect().height:0, barH=bar?bar.offsetHeight:0;
-      var threshold=hb+barH+12, cur=-1, p;
+      /* threshold must sit just BELOW where a clicked stage lands (headerH + data-scroll-gap),
+         else the just-navigated stage stays under the line and the PRECEDING button reads current. */
+      var g=parseInt(pairs[0].it.getAttribute('data-scroll-gap'),10); if(isNaN(g)) g=barH+24;
+      var threshold=hb+g+12, cur=-1, p;
       for(p=0;p<pairs.length;p++){ if(pairs[p].sec.getBoundingClientRect().top<=threshold) cur=p; }
       for(p=0;p<pairs.length;p++){ pairs[p].it.classList[p===cur?'add':'remove']('is-current'); }
     }
