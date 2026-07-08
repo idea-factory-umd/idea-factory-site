@@ -125,8 +125,12 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 /* "Current" state (walk-spy JS adds .is-current to the button whose linked stage is scrolled into
    view): full colour (via the combinators above) PLUS a red left bar that stays on regardless of
    hover. A hovered-but-not-current item is full colour too (native :hover, background only) but
-   has NO bar — the bar is what marks the current item; hovering it just keeps the bar. */
-.if-walk-item.is-current{background:#fff;box-shadow:inset 3px 0 0 0 #e21833;border-left-color:#e21833;}
+   has NO bar — the bar is what marks the current item; hovering it just keeps the bar.
+   NOTE: .if-walk-item.is-current's OWN background/box-shadow/border-left is a NATIVE Designer
+   combo class (create_style, parent if-walk-item) — same element, so Webflow CAN represent it
+   directly (matches the if-backtotop.is-visible precedent). Only the cross-element cascade above
+   (parent class recolouring the child glyph/num/name) has to live here — Webflow has no way to
+   make one element's class restyle a *different* element. */
 /* Walk bar is one slim row (matches the red nav height); on narrow widths it scrolls
    horizontally instead of wrapping — hide the scrollbar so the pinned bar stays clean. */
 .if-walk-row{scrollbar-width:none;-ms-overflow-style:none;}
