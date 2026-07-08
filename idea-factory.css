@@ -142,7 +142,7 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
   .if-walk-label{flex-basis:100%;flex-direction:row;align-items:baseline;justify-content:flex-start;padding:8px 24px;}
   .if-walk-label-sub{margin-top:0;}
   .if-walk-label-sub::before{content:"|";margin:0 .55em;color:#c9c9c9;font-weight:400;}
-  .if-walk-item{flex-basis:50%;border-top:1px solid #e6e6e6;padding-left:12px;padding-right:12px;}
+  .if-walk-item{flex-basis:50%;border-top:1px solid #e6e6e6;padding-left:12px;padding-right:12px;justify-content:center;}
   .if-walk-glyph{width:28px;height:28px;}
   .if-walk-name{font-size:12px;}
 }
