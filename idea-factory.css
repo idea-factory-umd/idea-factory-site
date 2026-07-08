@@ -111,6 +111,11 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
    color:inherit keeps it black at rest even before the native red is republished. */
 .if-mani-red{color:inherit;transition:color .45s ease;}
 .if-mani-red.if-lit-red{color:#e21833;}
+/* Read-line: footer-CTA-style word-by-word read on any .if-readline heading. Words dim then
+   brighten one-by-one; the wrapped accent (.if-mani-red child) reddens as it is reached and holds.
+   Only opacity here — the accent color transition lives on .if-mani-red above. */
+.if-rl-word{transition:opacity 0.28s cubic-bezier(0.22,1,0.36,1);}
+.rl-settling .if-rl-word{transition-duration:2.4s;transition-timing-function:ease-out;}
 
 /* ============================================================
    3. STAGE photo + headline  (JS sets transform/opacity inline)
