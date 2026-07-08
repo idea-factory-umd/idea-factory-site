@@ -565,3 +565,36 @@ try {
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] walk-spy error:', _e); } catch (_) {} }
+
+/* ===== module: walk-colalign (About "Walk the Factory" stacked column alignment) =====
+   When the bar is stacked (2 rows), the buttons' content is centered (CSS). Within each column the
+   two stacked buttons have different-length names, so their content lands at different x. This
+   equalises the two buttons' text-block width per column (to the column's longest) so the LONGEST
+   is centred and the SHORTER left-aligns to it (they share a left edge). Runs on load / fonts /
+   resize; clears itself in the one-row (desktop) layout. Measurement-based → portable to any names. */
+try {
+(function(){
+  function init(){
+    var row=document.querySelector('.if-walk-row'); if(!row) return;
+    var items=[].slice.call(row.querySelectorAll('.if-walk-item')); if(!items.length) return;
+    function txt(it){ return it.querySelector('.if-walk-txt'); }
+    function align(){
+      var i,t;
+      for(i=0;i<items.length;i++){ t=txt(items[i]); if(t) t.style.width=''; }   // reset to natural first
+      var topSet={}; for(i=0;i<items.length;i++){ topSet[Math.round(items[i].getBoundingClientRect().top)]=1; }
+      if(Object.keys(topSet).length<=1) return;                                  // one row (desktop) → leave natural
+      var cols={};
+      for(i=0;i<items.length;i++){ var L=Math.round(items[i].getBoundingClientRect().left); (cols[L]=cols[L]||[]).push(items[i]); }
+      for(var k in cols){ if(!cols.hasOwnProperty(k)) continue; var grp=cols[k], max=0, j, w;
+        for(j=0;j<grp.length;j++){ t=txt(grp[j]); if(t){ w=t.getBoundingClientRect().width; if(w>max) max=w; } }
+        for(j=0;j<grp.length;j++){ t=txt(grp[j]); if(t) t.style.width=Math.ceil(max)+'px'; }
+      }
+    }
+    var raf=null; function onR(){ if(raf) cancelAnimationFrame(raf); raf=requestAnimationFrame(align); }
+    align();
+    window.addEventListener('resize', onR, {passive:true});
+    if(document.fonts && document.fonts.ready && document.fonts.ready.then){ document.fonts.ready.then(align); }
+  }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] walk-colalign error:', _e); } catch (_) {} }
