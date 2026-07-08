@@ -489,3 +489,47 @@ try {
   if(document.readyState!=='loading') init(); else document.addEventListener('DOMContentLoaded', init);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] scroll-red error:', _e); } catch (_) {} }
+
+/* ===== module: walk-sticky (About "Walk the Factory" bar pins under the header) =====
+   The .if-walk-sec wayfinding bar pins just below the sticky .if-header while scrolling through
+   the Premise + four stages, then is pushed up and released as the .if-syn-hero ("One place.
+   Every stage.") section rises to meet it. A spacer preserves layout on pin (no jump). Desktop
+   only (>=992) where the bar is one slim row — the stacked mobile form would be too tall to pin.
+   Also widens the walk anchors' data-scroll-gap so a stage jump clears the pinned bar. Class-driven. */
+try {
+(function(){
+  function init(){
+    var bar=document.querySelector('.if-walk-sec');
+    var stop=document.querySelector('.if-syn-hero');
+    var header=document.querySelector('.if-header');
+    if(!bar||!stop||bar.__ifwalk)return;bar.__ifwalk=1;
+    var spacer=null,stuck=false,raf=null;
+    function active(){return (window.innerWidth||document.documentElement.clientWidth)>=992;}
+    function headerH(){return header?Math.round(header.getBoundingClientRect().height):0;}
+    function syncGap(){var items=bar.querySelectorAll('.if-walk-item'),g=active()?(bar.offsetHeight+24):24,i;
+      for(i=0;i<items.length;i++)items[i].setAttribute('data-scroll-gap',g);}
+    function unpin(){if(!stuck)return;stuck=false;
+      bar.style.position='';bar.style.top='';bar.style.left='';bar.style.width='';bar.style.zIndex='';
+      if(spacer&&spacer.parentNode)spacer.parentNode.removeChild(spacer);spacer=null;}
+    function pin(){if(stuck)return;stuck=true;var r=bar.getBoundingClientRect();
+      spacer=document.createElement('div');spacer.setAttribute('aria-hidden','true');spacer.style.height=r.height+'px';
+      bar.parentNode.insertBefore(spacer,bar);
+      bar.style.position='fixed';bar.style.left=r.left+'px';bar.style.width=r.width+'px';bar.style.zIndex='40';bar.style.top=headerH()+'px';}
+    function frame(){raf=null;
+      if(!active()){unpin();return;}
+      var hb=headerH();
+      if(!stuck){ if(bar.getBoundingClientRect().top<=hb) pin(); }
+      if(stuck){var barH=bar.offsetHeight,synTop=stop.getBoundingClientRect().top;
+        bar.style.top=((synTop<hb+barH)?Math.round(synTop-barH):hb)+'px';
+        if(spacer&&spacer.getBoundingClientRect().top>=hb) unpin();}
+    }
+    function onScroll(){if(raf==null)raf=requestAnimationFrame(frame);}
+    function onResize(){if(stuck){var sr=spacer.getBoundingClientRect();bar.style.left=sr.left+'px';bar.style.width=sr.width+'px';}syncGap();onScroll();}
+    syncGap();
+    window.addEventListener('scroll',onScroll,{passive:true});
+    window.addEventListener('resize',onResize);
+    frame();
+  }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] walk-sticky error:', _e); } catch (_) {} }
