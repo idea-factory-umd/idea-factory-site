@@ -116,6 +116,12 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
    Only opacity here — the accent color transition lives on .if-mani-red above. */
 .if-rl-word{transition:opacity 0.28s cubic-bezier(0.22,1,0.36,1);}
 .rl-settling .if-rl-word{transition-duration:2.4s;transition-timing-function:ease-out;}
+/* Walk-the-Factory wayfinding bar (About): parent-hover-child reveal — box turns white
+   (native :hover), the greyscale glyph goes full-colour and the label darkens. Can't be a
+   native Designer style (parent hover targeting a child), so it lives here. */
+.if-walk-item:hover .if-walk-glyph{filter:none;}
+.if-walk-item:hover .if-walk-num{color:#e21833;}
+.if-walk-item:hover .if-walk-name{color:#111111;}
 
 /* ============================================================
    3. STAGE photo + headline  (JS sets transform/opacity inline)
