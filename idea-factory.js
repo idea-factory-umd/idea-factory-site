@@ -370,3 +370,91 @@ try {
 try {
 (function(){function init(){var bodies=document.querySelectorAll('.if-prog-body');for(var i=0;i<bodies.length;i++){var b=bodies[i];if(b.__ifinner)continue;b.__ifinner=1;if(b.querySelector(':scope > .if-prog-bodyinner'))continue;var w=document.createElement('div');w.className='if-prog-bodyinner';while(b.firstChild){w.appendChild(b.firstChild);}b.appendChild(w);}}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] program-card-inner error:', _e); } catch (_) {} }
+
+/* ===== module: read-line (footer-CTA-style word-by-word read on a headline) =====
+   Any element with class .if-readline gets the footer-CTA reading reveal: its words dim then
+   brighten one-by-one on first mouseenter of its section; a wrapped accent phrase (a child
+   element, e.g. <span class="if-mani-red">) reddens as the read reaches it and HOLDS. Words are
+   split at runtime so the source stays natively editable. Class-driven + portable. */
+try {
+(function(){
+  var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function splitInto(text,parent,wrap,words){
+    var parts=text.split(/(\s+)/);
+    for(var i=0;i<parts.length;i++){var tok=parts[i];if(tok==='')continue;
+      if(/^\s+$/.test(tok)){parent.appendChild(document.createTextNode(tok));}
+      else{var s=document.createElement('span');s.className='if-rl-word';s.textContent=tok;parent.appendChild(s);words.push({span:s,wrap:wrap});}}
+  }
+  function wire(head){
+    if(head.__ifrl)return;head.__ifrl=1;
+    var words=[],nodes=[].slice.call(head.childNodes),n;
+    for(n=0;n<nodes.length;n++){var node=nodes[n];
+      if(node.nodeType===3){var frag=document.createDocumentFragment();splitInto(node.textContent,frag,null,words);head.replaceChild(frag,node);}
+      else if(node.nodeType===1){var wrap=node,txt=node.textContent;node.textContent='';splitInto(txt,node,wrap,words);}}
+    if(!words.length)return;
+    if(reduce){for(var r=0;r<words.length;r++){if(words[r].wrap)words[r].wrap.classList.add('if-lit-red');}return;}
+    var N=words.length,last=N-1,played=false;
+    function setStep(step){for(var i=0;i<N;i++){var o=words[i],lit=o.wrap&&o.wrap.classList.contains('if-lit-red');
+      o.span.style.opacity=(step===999)?1:(step===i?1:(lit?1:0.62));
+      if((step===i||step===999)&&o.wrap)o.wrap.classList.add('if-lit-red');}}
+    function run(){var D=180,gap=40,lastExtra=640,tail=150,seq=[],w;
+      for(w=0;w<N;w++){seq.push({step:w,hold:D+(w===last?lastExtra:0)});if(w<last)seq.push({step:-1,hold:gap});}
+      seq.push({step:-1,hold:tail});seq.push({step:999,hold:0});
+      var k=0;(function tick(){var s=seq[k];if(s.step===999)head.classList.add('rl-settling');setStep(s.step);k++;if(k<seq.length)setTimeout(tick,s.hold);})();}
+    var trig=head.closest('section')||head;
+    function onEnter(){if(played)return;played=true;trig.removeEventListener('mouseenter',onEnter);run();}
+    trig.addEventListener('mouseenter',onEnter);
+  }
+  function init(){var hs=document.querySelectorAll('.if-readline');for(var i=0;i<hs.length;i++)wire(hs[i]);}
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] read-line error:', _e); } catch (_) {} }
+
+/* ===== module: syn-moment (About synthesis "One place. Every stage." scroll) =====
+   Mirrors the Home stage-moment scroll on the About synthesis band: the text block
+   (.if-syn-inner) drifts down + scales + fades in as it enters; the background photo
+   (.if-syn-bg) zooms 1.0->1.16 on scroll. The .if-syn-hero section already clips
+   (overflow:hidden). Independent of the Home .if-sm-box module (left untouched). */
+try {
+(function(){
+  var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function init(){
+    var sec=document.querySelector('.if-syn-hero');if(!sec||sec.__ifsyn)return;sec.__ifsyn=1;if(reduce)return;
+    var txt=sec.querySelector('.if-syn-inner'),img=sec.querySelector('.if-syn-bg');
+    var smooth=function(x){return x*x*x*(x*(x*6-15)+10);};
+    var locked=false,txtRaf;
+    function txtFrame(){txtRaf=null;if(locked||!txt)return;
+      var rect=sec.getBoundingClientRect(),vh=window.innerHeight||document.documentElement.clientHeight;
+      var amp=200,startTop=vh*0.9,endTop=vh*0.2;
+      var p=Math.max(0,Math.min(1,(startTop-rect.top)/(startTop-endTop)));
+      var over=48,tt=0.68,shift;if(p<tt)shift=-amp+(amp+over)*smooth(p/tt);else shift=over*(1-smooth((p-tt)/(1-tt)));
+      var sc=1+0.05*smooth(p);
+      txt.style.transform='translateY('+shift.toFixed(1)+'px) scale('+sc.toFixed(4)+')';txt.style.opacity=(p*p).toFixed(3);
+      if(p>=1){locked=true;txt.style.transform='translateY(0px) scale(1.05)';txt.style.opacity='1';}}
+    if(txt){txt.style.willChange='transform,opacity';var onScroll=function(){if(txtRaf==null)txtRaf=requestAnimationFrame(txtFrame);};txtFrame();
+      window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',onScroll);}
+    if(img){var MIN=1.0,MAX=1.16,cur=null,peak=0;img.style.willChange='transform';
+      (function zoomFrame(){var rect=sec.getBoundingClientRect(),vh=window.innerHeight||document.documentElement.clientHeight;
+        var p=Math.max(0,Math.min(1,(vh*0.9-rect.top)/(vh*0.9-vh*0.2)));
+        if(rect.top>=vh){peak=0;cur=MIN;}else if(p>peak)peak=p;if(cur==null)cur=MIN;
+        var eased=1-Math.pow(1-peak,3),tgt=MIN+(MAX-MIN)*eased;cur+=(tgt-cur)*0.1;if(Math.abs(tgt-cur)<0.0002)cur=tgt;
+        img.style.transform='translateZ(0) scale('+cur.toFixed(4)+')';requestAnimationFrame(zoomFrame);})();}
+  }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] syn-moment error:', _e); } catch (_) {} }
+
+/* ===== module: about-goldbars (scroll-width, like the Hero gold bar) =====
+   The stage-photo gold bars (.if-stg-goldbar) and the synthesis gold bar (.if-syn-goldbar)
+   grow in width 30%->90% as they scroll into view, matching .if-hero-goldbar. */
+try {
+(function(){
+  function init(){var bars=document.querySelectorAll('.if-stg-goldbar, .if-syn-goldbar');if(!bars.length)return;
+    var MIN=30,MAX=90,ticking=false;
+    function apply(){ticking=false;var vh=window.innerHeight||document.documentElement.clientHeight,i;
+      for(i=0;i<bars.length;i++){var r=bars[i].getBoundingClientRect();var p=(vh-r.top)/(vh+r.height);if(p<0)p=0;if(p>1)p=1;bars[i].style.width=(MIN+(MAX-MIN)*p)+'%';}}
+    function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(apply);}}
+    apply();window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',onScroll,{passive:true});}
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] about-goldbars error:', _e); } catch (_) {} }
