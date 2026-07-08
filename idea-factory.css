@@ -122,6 +122,10 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 .if-walk-item:hover .if-walk-glyph{filter:none;}
 .if-walk-item:hover .if-walk-num{color:#e21833;}
 .if-walk-item:hover .if-walk-name{color:#111111;}
+/* Walk bar is one slim row (matches the red nav height); on narrow widths it scrolls
+   horizontally instead of wrapping — hide the scrollbar so the pinned bar stays clean. */
+.if-walk-row{scrollbar-width:none;-ms-overflow-style:none;}
+.if-walk-row::-webkit-scrollbar{display:none;}
 
 /* ============================================================
    3. STAGE photo + headline  (JS sets transform/opacity inline)

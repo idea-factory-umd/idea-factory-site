@@ -504,7 +504,7 @@ try {
     var header=document.querySelector('.if-header');
     if(!bar||!stop||bar.__ifwalk)return;bar.__ifwalk=1;
     var spacer=null,stuck=false,raf=null;
-    function active(){return (window.innerWidth||document.documentElement.clientWidth)>=992;}
+    function active(){var bh=bar.offsetHeight,vh=window.innerHeight||document.documentElement.clientHeight;return bh>0&&bh<vh*0.5;}
     function headerH(){return header?Math.round(header.getBoundingClientRect().height):0;}
     function syncGap(){var items=bar.querySelectorAll('.if-walk-item'),g=active()?(bar.offsetHeight+24):24,i;
       for(i=0;i<items.length;i++)items[i].setAttribute('data-scroll-gap',g);}
