@@ -122,6 +122,14 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 .if-walk-item:hover .if-walk-glyph{filter:none;}
 .if-walk-item:hover .if-walk-num{color:#e21833;}
 .if-walk-item:hover .if-walk-name{color:#111111;}
+/* "Current" state (walk-spy JS adds .is-current to the button whose stage is scrolled into view):
+   same look as hover — white box, full-colour glyph, red number, dark name — BUT WITHOUT the red
+   left bar (keeps the plain grey divider). The red left bar is the hover-only cue that tells hover
+   from current. Hovering a current button re-adds the bar (hover rules layer on top). */
+.if-walk-item.is-current{background-color:#ffffff;}
+.if-walk-item.is-current .if-walk-glyph{filter:none;}
+.if-walk-item.is-current .if-walk-num{color:#e21833;}
+.if-walk-item.is-current .if-walk-name{color:#111111;}
 /* Walk bar is one slim row (matches the red nav height); on narrow widths it scrolls
    horizontally instead of wrapping — hide the scrollbar so the pinned bar stays clean. */
 .if-walk-row{scrollbar-width:none;-ms-overflow-style:none;}
