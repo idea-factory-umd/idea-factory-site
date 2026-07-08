@@ -431,7 +431,7 @@ try {
       var sc=1+0.05*smooth(p);
       txt.style.transform='translateY('+shift.toFixed(1)+'px) scale('+sc.toFixed(4)+')';txt.style.opacity=(p*p).toFixed(3);
       if(p>=1){locked=true;txt.style.transform='translateY(0px) scale(1.05)';txt.style.opacity='1';}}
-    if(txt){txt.style.willChange='transform,opacity';var onScroll=function(){if(txtRaf==null)txtRaf=requestAnimationFrame(txtFrame);};txtFrame();
+    if(txt){txt.style.willChange='transform,opacity';txt.style.transformOrigin='left center';var onScroll=function(){if(txtRaf==null)txtRaf=requestAnimationFrame(txtFrame);};txtFrame();
       window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',onScroll);}
     if(img){var MIN=1.0,MAX=1.16,cur=null,peak=0;img.style.willChange='transform';
       (function zoomFrame(){var rect=sec.getBoundingClientRect(),vh=window.innerHeight||document.documentElement.clientHeight;
