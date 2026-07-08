@@ -533,3 +533,32 @@ try {
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] walk-sticky error:', _e); } catch (_) {} }
+
+/* ===== module: walk-spy (About "Walk the Factory" current-stage marker) =====
+   Scrollspy: the walk button whose linked stage (#stage-0X) is scrolled up to just below the
+   pinned bar gets class .is-current — styled (shared CSS) to look like the hover state minus the
+   red left bar, so the red left bar distinguishes hover from current. Class-driven + portable. */
+try {
+(function(){
+  function init(){
+    var items=[].slice.call(document.querySelectorAll('.if-walk-item[href^="#stage-"]'));
+    if(!items.length)return;
+    var header=document.querySelector('.if-header'), bar=document.querySelector('.if-walk-sec');
+    var pairs=[];
+    for(var i=0;i<items.length;i++){var sec=document.getElementById(items[i].getAttribute('href').slice(1));if(sec)pairs.push({it:items[i],sec:sec});}
+    if(!pairs.length)return;
+    var raf=null;
+    function spy(){raf=null;
+      var hb=header?header.getBoundingClientRect().height:0, barH=bar?bar.offsetHeight:0;
+      var threshold=hb+barH+12, cur=-1, p;
+      for(p=0;p<pairs.length;p++){ if(pairs[p].sec.getBoundingClientRect().top<=threshold) cur=p; }
+      for(p=0;p<pairs.length;p++){ pairs[p].it.classList[p===cur?'add':'remove']('is-current'); }
+    }
+    function onScroll(){if(raf==null)raf=requestAnimationFrame(spy);}
+    window.addEventListener('scroll',onScroll,{passive:true});
+    window.addEventListener('resize',onScroll);
+    spy();
+  }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] walk-spy error:', _e); } catch (_) {} }
