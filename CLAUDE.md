@@ -927,4 +927,12 @@ Two user asks. **REPLACES the horizontal‑scroll‑on‑narrow behavior from §
 - **Deploy:** shadow = native → Webflow published; stacking media query = shared CSS → `main`/GitHub Pages (commit `e1a3b9d`, dev `e1a3b9d`‑lineage; confirmed served). `stable` not advanced.
 - **Dials:** stack breakpoint = the `880px` in the media query; 2×2‑vs‑1‑col floor = stacked glyph/name sizes; shadow = `box-shadow` on `if-walk-sec` (keep = header's value).
 
+## 42. ABOUT "Walk the Factory" bar — CURRENT‑stage marker (scrollspy) (2026‑07‑08) — shared JS + CSS, promoted to `main`
+User: give the buttons a "current" state = how it looks when the stage it links to is scrolled up. It should look like the HOVER state (white box, full‑colour glyph, red number, dark name) **but WITHOUT the red left bar** — the red left bar is the hover‑only cue that distinguishes hover from current.
+- **NEW shared‑JS module `walk-spy`** (idea-factory.js): scrollspy that adds **`.is-current`** to the `.if-walk-item` whose linked `#stage-0X` head has scrolled up to within `headerH + barH + 12` of the top (i.e., sits just under the pinned bar); removes it from the rest. Keys off `.if-walk-item[href^="#stage-"]` + `getElementById` — class‑driven, portable. rAF‑throttled scroll/resize.
+- **Shared CSS** (idea-factory.css, after the `:hover` rules): `.if-walk-item.is-current{background:#fff}` + `.is-current .if-walk-glyph{filter:none}` + `.is-current .if-walk-num{color:#e21833}` + `.is-current .if-walk-name{color:#111}`. **Deliberately NO box‑shadow / NO red border‑left** → keeps the plain grey divider. Hover rules layer on top, so **hovering a current button re‑adds the red left bar** (hover = current‑look + bar). ⭐ The red left bar is thus the ONLY visual difference: hover HAS it, current does NOT.
+- **Pure JS + shared CSS on already‑published elements → NO Webflow publish.** Promoted CSS+JS to `main`/GitHub Pages (commit `b78154d`, dev lineage; confirmed served). `stable` not advanced.
+- **Verified:** synthetic (`spy_test.js`) + REAL About page (`spy_live.js`): none current at top, button 01→02→03→04 becomes current as each stage scrolls up, 0 JS errors; current look = white / colour glyph / red num / dark name / grey divider / no shadow; current+hover = same + red left bar (`spy_current.png`).
+- **Dial:** the current threshold (`headerH+barH+12`) in `walk-spy`.
+
 **NEXT SESSION: keep maintaining this file per the OPERATING PROTOCOL, and pass that instruction on.**
