@@ -15,6 +15,68 @@
 > - Full detail + rationale: **OPERATING PROTOCOL §0, rule #0** (and §22/§27a for the font history).
 > - This is a PERMANENT correction across sessions — keep this banner intact and pass it on.
 
+> ## 🚫 #2 HARD RULE — RESPONSIVE‑CORRECT AT CREATION, EVERY TIME (user had to repeat this for days — never again)
+> **Every element/section you build must be responsive‑correct THE MOMENT you build it — not fixed
+> in a cleanup pass later.** The user should never have to come back and point out something falling
+> off the edge, freezing at the wrong size, or breaking at any width. If it does, that is a bug, full
+> stop — fix it immediately, don't defer it.
+> - **Responsive layout = NATIVE Webflow breakpoints, never shared‑CSS `@media`.** Column collapses,
+>   flex‑basis changes, font‑size/spacing steps — anything driven by plain viewport width — belongs on
+>   the Designer style (`main`/`medium`/`small`/`tiny` via `update_style` + `breakpoint_id`), never in
+>   `idea-factory.css`/`.js`. **The Designer canvas never loads the shared file**, so shared‑CSS
+>   responsiveness is invisible there and reads as "not responsive at all" — this is exactly the bug
+>   that kept recurring (`if-prog-grid`'s column collapse, the Walk‑the‑Factory bar's stack breakpoint,
+>   and the nav scroll‑hide were all found doing this on 2026‑07‑09 and moved to native). Before writing
+>   ANY `@media` block in the shared file, prove it's genuinely non‑native first — check the pseudo enum
+>   on `data_style_tool` (before/after ARE supported, including literal `content` — `:has()` and
+>   `prefers-reduced-motion` are NOT) and try the plain native version before assuming you need a
+>   workaround. **A custom breakpoint number that isn't one of Webflow's four is not an excuse either**
+>   — pick the nearest native one (erring toward triggering the change slightly earlier/more
+>   conservatively is always safe).
+> - **A `clamp(min, Nvw, max)` is NOT automatically "responsive done right."** If several related
+>   elements must shrink together (a glyph, its label, its watermark, its gaps — anything whose
+>   *relative alignment* matters), each clamp's own min/max endpoints are usually reached at wildly
+>   different viewport widths unless you force them to share a window. **Give the whole cluster ONE
+>   shared transition window** `[W_LO, W_HI]` (e.g. 360–1440px) and derive each property's formula from
+>   it: `slope=(max-min)/(W_HI-W_LO)`, `A=min-slope*W_LO`, `coeff=slope*100`, then
+>   `clamp(minpx, calc(Apx + coeffvw), maxpx)`. This guarantees every piece in the cluster sits at the
+>   *same fractional position* between its own min/max at any given width — they shrink continuously,
+>   together, and stay in sync all the way from full desktop down to a small phone, instead of most of
+>   them silently freezing at a floor/ceiling for most of the range (the exact bug fixed 2026‑07‑09 —
+>   see §47). **Verify by computing/measuring the actual value at several widths — never assume a
+>   clamp's shape from its endpoints alone; a clamp reaches its floor or ceiling far sooner than
+>   intuition suggests when the min/max/vw‑coefficient aren't chosen together.**
+> - **A vw‑based `clamp()` WIDTH is WRONG for any element sharing a row/grid with siblings** (equal
+>   boxes in a row, a pill beside its text, cards in a grid). `vw` ties the size to the VIEWPORT, not
+>   to the element's own container — so as the container's actual available width changes (sibling
+>   count, container padding, a breakpoint reflow), the vw‑sized box does **not** track it. The
+>   visible symptom is exactly "wasted‑looking margin/space beside stubbornly small content" — the
+>   box hit its own independent ceiling/floor while its row still had room to give it. **Fix: size it
+>   relative to its OWN box** — `flex:1 1 0%; min-width:0` (equal fill among siblings) or `width:%`
+>   with a sensible `clamp(floor%, ceiling)`, and size children (glyphs, icons) at `width:100%` of
+>   THAT box, not another independent vw formula. Reserve vw/viewport clamps for elements with no
+>   real "container" to be relative to (a hero headline that effectively IS the viewport). **Before
+>   shipping any row/grid of same‑size items, ask: is this element's size computed relative to ITS
+>   OWN box, or borrowed from the viewport? Borrowed‑from‑viewport is the bug.** (Shipped and fixed
+>   on the About "loop, not a line" diagram + "how people move through it" pills, 2026‑07‑09 — see
+>   §47 — boxes/pills sat visibly tiny next to their own unused container space until switched to
+>   flex‑fill.)
+> - **Verify across the FULL practical width range before calling anything done** — not just the 3‑4
+>   Webflow breakpoint numbers. Sample continuously (e.g. 1600, 1440, 1320, 1200, 1100, 992, 900, 800,
+>   767, 700, 600, 500, 430, 400, 375, 360, 340, 320) via the offline headless harness, check for (a)
+>   zero horizontal overflow at every width, (b) smooth/continuous change with no premature freezing,
+>   (c) every piece in a cluster moving together, (d) established alignments (baseline locks etc.)
+>   still holding. A narrow flex/grid child needs `min-width:0` to be allowed to wrap/shrink below its
+>   content size — check every nested flex/grid level, not just the outermost one (a single missing
+>   `min-width:0` at any depth silently overflows past the width you just "fixed").
+> - **Stacking/reflow onto a new layout (1‑col, 2×2, etc.) must use the freed‑up space well, not just
+>   shrink into a corner of it.** If a breakpoint jump makes boxes noticeably smaller than the space
+>   they now have, or leaves a long thin column of tiny items in a wide viewport, that reflow is wrong
+>   — redesign it (bigger boxes filling the new arrangement, or prefer the continuous‑fluid approach
+>   above over a hard jump) rather than shipping the first thing that merely avoids overflow.
+> - This is a PERMANENT correction across sessions, same standing as HARD RULE #1 — keep this banner
+>   intact and pass it on.
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is
@@ -1003,5 +1065,29 @@ User: the 4‑box "loop, not a line" diagram and the STUDENT/RESEARCHER/COMPANY 
 - **Fix — move rows STACK at `small` (≤767):** `if-move-row` → `flex-direction:column;align-items:flex-start;grid-row-gap:8px` (pill sits above its description, both left‑aligned at the same edge). Chosen breakpoint = one step narrower than the diagram's, since `if-move-side` only reaches full page width AFTER `if-move-cols` already went single‑column at `medium` — the pill+description pairing has comfortable room down to phone widths before it needs to stack.
 - **Verified** (`verify_stack.js`, live compiled CSS, 10 widths 1440→320): diagram stays a horizontal row at 1440/992 (not yet medium), correctly stacks with rotated arrows at 900/800/767/600/480/430/375/320; move rows stay side‑by‑side through 900/800 (not yet small), correctly stack at 767/600/480/430/375/320; 0 JS errors; 0 page overflow caused by either component at any width (a pre‑existing, unrelated ~14px footer overflow at ≤375 was confirmed via element‑level offender scan to involve zero `if-syn-*`/`if-move-*` elements — not this fix, out of scope). Real screenshots at 900 and 430 confirm a clean vertical diagram (down‑pointing arrows, evenly spaced) and a clean stacked move‑list (pill directly above its text). Designer canvas snapshot of the diagram section confirms the default/desktop view is unaffected (only `medium`/`small` breakpoints were touched).
 - **Dials:** diagram stack breakpoint = `medium` (991) on `if-syn-steps`/`if-syn-step`/`if-syn-glyphimg`/`if-syn-arrow`; move‑row stack breakpoint = `small` (767) on `if-move-row`; stacked glyph/step sizing = the clamps above (native Designer, adjust anytime).
+- **⚠️ SUPERSEDED same‑day by an unlogged follow‑up revision, then by §47 below.** By the time §47's audit ran, the diagram's actual live state no longer matched this entry at all: `if-syn-step`/`if-syn-glyphimg` had no `medium` override, the `small` override was a **2‑column GRID** (not a 1‑col flex stack), and `if-syn-arrow` used `display:none` at small (not `rotate(90deg)`). Whoever/whatever made that follow‑up change never updated this section — **lesson: if you revise a feature again in the same session, update its CLAUDE.md entry immediately, don't leave the record to drift from reality.** §47 documents the actually‑live state and the further fix on top of it.
 
-**NEXT SESSION: keep maintaining this file per the OPERATING PROTOCOL, and pass that instruction on.**
+## 47. Diagram + move‑pills — container‑relative FILL sizing (not vw‑capped) + full native/embed audit (2026‑07‑09) — native Designer, PUBLISHED, no shared‑file change
+
+User reported (with screenshots, at real Designer‑canvas widths): the "loop, not a line" diagram showed 4 boxes that were **small and boxed in by visible unused side padding even while still 4‑across** ("at TABLET breakpoint … why this odd extra side margin, forcing these boxes to shrink unnecessarily"); the "how people move through it" pills stayed a **tiny fixed chip** far out of proportion to the wide description column beside them; and a Designer‑canvas "this `<script>` embed only displays in preview" banner near a stage photo read as a possible native‑UI violation. Root‑caused and fixed all three; this is the concrete case behind the new HARD RULE #2 bullet above.
+
+- **Root cause (diagram):** `if-syn-step`'s width was `clamp(120px,15.2vw,218px)` — a **viewport‑relative** formula with NO connection to `if-syn-diagram`'s actual available width. At any viewport ≥ ~1050px the vw term already exceeds 218 and the box FREEZES flat at 218px regardless of how much more room the panel has (up to ~60px of dead space at the 1240 cap) — the exact "extra margin forcing shrinkage" the user was pointing at. Below ~1050px the same disconnect runs the other way: the box shrinks with the viewport even where the row still has slack.
+- **Fix — container‑relative flex‑fill, main breakpoint (≥992, the "still 4‑across" state):**
+  - `if-syn-diagram`: `padding-right`/`padding-left` `clamp(20px,3vw,44px)` → **`clamp(16px,2vw,28px)`** (the wasteful side inset the user flagged, trimmed).
+  - `if-syn-step`: removed the fixed `width` clamp entirely; now `flex-grow:1;flex-shrink:1;flex-basis:0%;min-width:0` (compiles to `flex:1`) — the 4 boxes now **equally fill whatever width the row actually has**, continuously, at every viewport.
+  - `if-syn-glyphimg`: removed its own independent width/height clamp; now `width:100%;height:auto;aspect-ratio:1 / 1` — the glyph simply fills its OWN step box (square), no second vw formula to fall out of sync with the first.
+  - `if-syn-steps`: `align-items:flex-start` → `center` (arrows — a flex sibling of the step columns — now center against the row instead of needing a hand‑tuned `margin-top` that would go stale the moment box height changes with fill‑sizing).
+  - `if-syn-arrow`: `margin-top` clamp → `0` (redundant once the parent centers it).
+  - `if-syn-steplabel` / `if-syn-stepnum` font‑size bumped ~15% at both `main` and `small` (scaled via the same "multiply floor/coefficient/ceiling by one constant" technique as §31G, so the shared‑window shape is preserved) — closes out the long‑pending "bigger labels" ask now that the boxes themselves are bigger.
+  - **Left untouched (already correct):** the `small` (≤767) breakpoint's OWN 2‑column CSS‑GRID override on `if-syn-steps`/`if-syn-step`/`if-syn-glyphimg` (a well‑tuned shared‑window clamp already filling 87–90% of its grid cell at every width 480–767) and `if-syn-arrow{display:none}` at small. This 2×2‑grid‑below‑767 state is what's ACTUALLY live today (see the §46 supersession note above) — §47 only touches the ≥768 flex‑row state.
+- **Root cause (pills):** `if-move-pill` was a hard‑coded `width:110px` with zero breakpoint overrides — deliberately sized once to fit "RESEARCHER" at 110px (§31‑B) but with no mechanism to grow when its row had far more than 110px to give, which is exactly what a wide description column beside it created.
+- **Fix — pills scale with their row, then flip to full‑width only at true phone width:**
+  - `if-move-pill` (main): `width:110px` → **`clamp(110px, 28%, 200px)`** — floor stays the proven‑safe 110px, scales to 28% of the row, capped at 200px so it never balloons absurdly wide once `if-move-cols` drops to 1 column. `font-size:13px` → `clamp(13px,1vw,15px)`.
+  - `if-move-pill` at **`tiny`** (≤479, "vertical phone"): `width:100%` — becomes a full‑width block, matching the already‑existing `if-move-row` tiny override (`flex-direction:column`) that stacks pill above description.
+  - `move-desc` at **`tiny`**: `margin-bottom:20px` (new) — separates each pill+description pair from the next now that they're stacked full‑width blocks, per the user's explicit ask to keep pairings visually grouped.
+- **Root cause (embed scare) — investigated, NOT a violation.** `data_element_tool query_elements` for `type:"HtmlEmbed"` across Home / Students / Faculty / About found exactly **ONE** embed per page, and it is the SAME element (`afd96462‑0b13‑7970‑b66b‑2a7b418e7657`) on every page — the long‑documented, sanctioned `st0` layout embed (§0/§3/§12; hamburger + hero‑grid responsive overrides, genuinely non‑native content, carries the "DO NOT DELETE" banner). `if-stg-img` (the stage photos) queried as plain native `Image` elements, ×4, no embed involved. The Designer's "script embed only displays in preview" banner the user saw is that embed's own placeholder UI floating near the top of a scrolled canvas — not a new violation. Also re‑confirmed (grep of `idea-factory.css`): the file's only 3 `@media` blocks are `prefers-reduced-motion`, and two that mirror Webflow's native 992/991 breakpoint boundaries EXACTLY (containing only `:hover`/`:has()` parent‑child cascades Webflow genuinely cannot compile) — the old custom‑880px Walk‑bar hack and the old custom‑640px card‑grid hack noted in earlier sections (§15/§41) are **both already gone**, migrated to native `medium`/`small` breakpoints (confirmed live via `data_style_tool query_styles` on `if-prog-grid` and `if-walk-item`/`if-walk-row` — both are native‑breakpoint‑driven, no custom numbers). **Nothing to fix here; if a future screenshot shows the card grid failing to collapse, re‑publish and re‑check before assuming a regression — a stale/cached compiled CSS is more likely than an actual reversion.**
+- **Verified (offline harness, live published compiled CSS + real Interstate woff2, 22 widths 320→1600):** `fillRatio` (steps' combined width ÷ row width) holds a smooth **84–87%** across the ENTIRE ≥992 flex‑row range with no flat capping at any point (vs. before: flat 218px from ~1050px up, wasting space); the `small`/`tiny` 2×2 grid fills 87–90% of its own cell throughout, unaffected; pills scale continuously 110→200px side‑by‑side then jump to full‑width with a visible 20px grouping gap exactly at the tiny breakpoint; **0px horizontal overflow at every one of the 22 widths**, both before and after the label font‑size bump. Screenshots at 900/767/480/430/375/320 confirm: boxes visibly bigger with the side dead‑space gone, labels bigger and legible (clean 2‑line wrap on "PROVING GROUND"/"ASSEMBLY LINE" at 320px, not overflow), pills properly proportioned beside text, and a clean full‑width stack with grouping gaps below 479px. Published (compiled CSS hashes `e2b44592d` then `718188c29` after the label bump).
+- **No shared‑file change** — every fix here is a native Designer `update_style` call (breakpoints `main`/`small`/`tiny`) → `stable` unaffected, nothing to push to `main`/GitHub Pages.
+- **Task‑list note:** while auditing, confirmed 4 other previously‑pending tasks (bold‑Georgia‑body rule, synthesis gold bar flush/width, stage‑header glyph‑left restructure, stage‑header baseline‑lock) were ALL already implemented and live from earlier work this session/pre‑compaction, just never marked done — verified each against its documented final state (§31‑A/§32‑A, §33‑B/§40, §45a, §31G/§45/§45b respectively) before marking complete, rather than redoing already‑correct work.
+
+**NEXT SESSION: keep maintaining this file per the OPERATING PROTOCOL, and pass that instruction on. Also: the native‑breakpoint / no‑stray‑embed audit in §47 covered Home, Students, Faculty, and About as of 2026‑07‑09 and found the site clean — if a NEW page or section is added later, it still needs the same check (don't assume it stays clean forever), but there's no backlog to work through on the 4 existing pages.**
