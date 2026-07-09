@@ -573,23 +573,37 @@ try {
    two stacked buttons have different-length names, so their content lands at different x. This
    equalises the two buttons' text-block width per column (to the column's longest) so the LONGEST
    is centred and the SHORTER left-aligns to it (they share a left edge). Runs on load / fonts /
-   resize; clears itself in the one-row (desktop) layout. Measurement-based → portable to any names. */
+   resize; clears itself in the one-row (desktop) layout. Measurement-based → portable to any names.
+   Also, while stacked, sets the "WALK THE FACTORY / Jump to a stage" label's left padding to match
+   the resulting shared text left-edge of the FIRST (leftmost) column — the centered content's x
+   position depends on the rendered glyph+text width, which is font/viewport-dependent, so this
+   can't be a fixed CSS value; it has to reuse the same measurement this module already does. */
 try {
 (function(){
   function init(){
     var row=document.querySelector('.if-walk-row'); if(!row) return;
     var items=[].slice.call(row.querySelectorAll('.if-walk-item')); if(!items.length) return;
+    var label=document.querySelector('.if-walk-label');
     function txt(it){ return it.querySelector('.if-walk-txt'); }
     function align(){
       var i,t;
       for(i=0;i<items.length;i++){ t=txt(items[i]); if(t) t.style.width=''; }   // reset to natural first
       var topSet={}; for(i=0;i<items.length;i++){ topSet[Math.round(items[i].getBoundingClientRect().top)]=1; }
-      if(Object.keys(topSet).length<=1) return;                                  // one row (desktop) → leave natural
+      if(Object.keys(topSet).length<=1){ if(label) label.style.paddingLeft=''; return; } // one row (desktop) → leave natural
       var cols={};
       for(i=0;i<items.length;i++){ var L=Math.round(items[i].getBoundingClientRect().left); (cols[L]=cols[L]||[]).push(items[i]); }
-      for(var k in cols){ if(!cols.hasOwnProperty(k)) continue; var grp=cols[k], max=0, j, w;
+      var keys=[]; for(var k in cols){ if(cols.hasOwnProperty(k)) keys.push(parseFloat(k)); }
+      keys.sort(function(a,b){ return a-b; });
+      for(var ci=0;ci<keys.length;ci++){ var grp=cols[keys[ci]], max=0, j, w;
         for(j=0;j<grp.length;j++){ t=txt(grp[j]); if(t){ w=t.getBoundingClientRect().width; if(w>max) max=w; } }
         for(j=0;j<grp.length;j++){ t=txt(grp[j]); if(t) t.style.width=Math.ceil(max)+'px'; }
+      }
+      if(label && keys.length){
+        var firstCol=cols[keys[0]], t0=firstCol[0] && txt(firstCol[0]);
+        if(t0){
+          var rowLeft=row.getBoundingClientRect().left, txtLeft=t0.getBoundingClientRect().left;
+          label.style.paddingLeft=Math.max(0,Math.round(txtLeft-rowLeft))+'px';
+        }
       }
     }
     var raf=null; function onR(){ if(raf) cancelAnimationFrame(raf); raf=requestAnimationFrame(align); }
@@ -637,3 +651,40 @@ try {
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] stage-header-eyebrow-fix error:', _e); } catch (_) {} }
+
+/* ===== module: stage-head-vcenter (About "four stages" equalize top/bottom bar margin) =====
+   The section's padding-top/padding-bottom (native CSS) was tuned once for a single-line title;
+   it does not re-balance when the title wraps to 2-3 lines (varies per stage/per width), so the
+   visual gap above the whole content cluster (glyph+eyebrow+title+watermark) and below it can end
+   up unequal. This measures the ACTUAL rendered top/bottom gap at runtime and redistributes the
+   section's own padding-top/padding-bottom (their SUM — hence the bar's total height — is left
+   unchanged; only the split moves) so the two gaps come out equal. Runs after stage-header-
+   eyebrow-fix (later in this file → later init → sees its corrections already applied) so it
+   measures final positions, not pre-correction ones. Touches ONLY section padding-top/-bottom —
+   no other property, per explicit instruction. */
+try {
+(function(){
+  function centerV(){
+    var secs = document.querySelectorAll('.if-stage-head-sec');
+    for (var i=0;i<secs.length;i++){
+      var sec = secs[i];
+      sec.style.paddingTop = ''; sec.style.paddingBottom = ''; // reset to native CSS values first (idempotent re-runs)
+      var els = sec.querySelectorAll('.if-stage-glyphimg,.if-stage-eyebrow-row,.if-stage-title,.if-stage-wm');
+      if (!els.length) continue;
+      var top = Infinity, bottom = -Infinity, r, j;
+      for (j=0;j<els.length;j++){ r = els[j].getBoundingClientRect(); if (r.top < top) top = r.top; if (r.bottom > bottom) bottom = r.bottom; }
+      var secRect = sec.getBoundingClientRect();
+      var topGap = top - secRect.top, bottomGap = secRect.bottom - bottom;
+      var delta = topGap - bottomGap;
+      if (Math.abs(delta) < 0.5) continue;
+      var pt = parseFloat(getComputedStyle(sec).paddingTop) || 0;
+      var pb = parseFloat(getComputedStyle(sec).paddingBottom) || 0;
+      sec.style.paddingTop = Math.max(0, pt - delta / 2) + 'px';
+      sec.style.paddingBottom = Math.max(0, pb + delta / 2) + 'px';
+    }
+  }
+  var raf=null; function onR(){ if(raf) cancelAnimationFrame(raf); raf=requestAnimationFrame(centerV); }
+  function init(){ centerV(); window.addEventListener('resize', onR, {passive:true}); if(document.fonts && document.fonts.ready && document.fonts.ready.then){ document.fonts.ready.then(centerV); } }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] stage-head-vcenter error:', _e); } catch (_) {} }
