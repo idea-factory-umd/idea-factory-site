@@ -350,9 +350,12 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 
 /* TOP-LEVEL current link — dark-red fill + gold underline.
    Hook: .if-nav-link.w--current. Net: any current <a> in the menu that is NOT a dropdown
-   sub-item (i.e. not inside a dropdown list). */
+   sub-item (i.e. not inside a dropdown list). Excludes .if-give-btn-solid: a same-page
+   anchor href (e.g. "#how-to-apply") resolves to "the current page" just like a real page
+   link, so Webflow marks it current too — but that class is a solid branded CTA button, not
+   a plain nav link, so it must never take the current-page look. */
 .if-nav-link.w--current,
-.if-navmenu a.w--current:not(.if-nav-sublink):not(.if-dd-list a):not(.w-dropdown-list a){
+.if-navmenu a.w--current:not(.if-nav-sublink):not(.if-dd-list a):not(.w-dropdown-list a):not(.if-give-btn-solid){
   background-color:#a40f23;border-bottom-color:#ffd200;
 }
 /* DROPDOWN sub-item current — red left bar marks the current page inside the dropdown
@@ -407,7 +410,7 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
   /* CURRENT marker: red left bar via ::before; text matches its normal siblings (not red). */
   .if-navmenu.if-navmenu .if-nav-link.w--current,
   .if-navmenu.if-navmenu .if-nav-sublink.w--current,
-  .if-navmenu.if-navmenu a.w--current{
+  .if-navmenu.if-navmenu a.w--current:not(.if-give-btn-solid){
     background-color:transparent !important;
     background-image:none !important;
     border-bottom-color:#e6e6e6 !important;
@@ -417,7 +420,7 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
   .if-navmenu.if-navmenu .if-nav-link.w--current{color:#000 !important;}          /* top-level: black */
   .if-navmenu.if-navmenu .if-nav-sublink.w--current{color:#7f7f7f !important;}    /* sub-item: gray */
   /* (kept at specificity (0,4,0) so the :hover rule below wins the tie and reddens on hover) */
-  .if-navmenu.if-navmenu a.w--current::before{
+  .if-navmenu.if-navmenu a.w--current:not(.if-give-btn-solid)::before{
     content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#e21833;pointer-events:none;
   }
   /* HOVER = GROW ONLY (no red, no hatch, no background). The grow is on the INNER text
