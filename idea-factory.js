@@ -600,3 +600,40 @@ try {
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] walk-colalign error:', _e); } catch (_) {} }
+
+/* ===== module: stage-header-eyebrow-fix (About "four stages" glyph/watermark realign) =====
+   The glyph-to-title-baseline lock (native CSS calc formula) assumes the eyebrow ("STAGE 0X ...")
+   renders as exactly ONE line. Longer stage names wrap to two lines at widths that differ per
+   stage (each stage's own text wraps at its own width - measured 450/522/548/488px for the four
+   current stages) - no single CSS breakpoint can match all four. This measures the eyebrow's
+   ACTUAL rendered height at runtime and nudges the glyph + watermark down by whatever extra
+   height wrapping added, at any width, for any future stage-name text - no magic breakpoint. */
+try {
+(function(){
+  function adjust(){
+    var secs = document.querySelectorAll('.if-stage-head-sec');
+    for (var i=0;i<secs.length;i++){
+      var sec = secs[i];
+      var eyebrow = sec.querySelector('.if-stage-eyebrow');
+      var glyph = sec.querySelector('.if-stage-glyphimg');
+      var wm = sec.querySelector('.if-stage-wm');
+      if(!eyebrow || !glyph) continue;
+      glyph.style.marginTop = '';
+      if (wm) wm.style.top = '';
+      var fs = parseFloat(getComputedStyle(eyebrow).fontSize) || 0;
+      var actualH = eyebrow.getBoundingClientRect().height;
+      var extra = Math.round(actualH - fs);
+      if (extra < 1) continue;
+      var baseGlyphTop = parseFloat(getComputedStyle(glyph).marginTop) || 0;
+      glyph.style.marginTop = (baseGlyphTop + extra) + 'px';
+      if (wm) {
+        var baseWmTop = parseFloat(getComputedStyle(wm).top) || 0;
+        wm.style.top = (baseWmTop + extra) + 'px';
+      }
+    }
+  }
+  var raf=null; function onR(){ if(raf) cancelAnimationFrame(raf); raf=requestAnimationFrame(adjust); }
+  function init(){ adjust(); window.addEventListener('resize', onR, {passive:true}); if(document.fonts && document.fonts.ready && document.fonts.ready.then){ document.fonts.ready.then(adjust); } }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] stage-header-eyebrow-fix error:', _e); } catch (_) {} }
