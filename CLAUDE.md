@@ -172,6 +172,7 @@
 **CONVENTIONS (user‑set this session):**
 1. **Bracket‑define jargon inline** the first time it appears, e.g. *repo [a project folder on GitHub]*, ≤~10 words.
 2. **Every piece of in‑Webflow custom code carries a `DO NOT DELETE` banner + a concise "what it does."** The shared files already have DO‑NOT‑EDIT headers; the in‑site `st0` embed still needs its banner added (do during embed cleanup).
+3. **⭐ PER‑PROGRAM‑PAGE CLASS NAMING (standing protocol, set 2026‑07‑09, follow WITHOUT FAIL going forward):** any NEW Designer class created while developing a spinoff/program page (ASPIRE, or any future one) that **isn't reused elsewhere on the site** must be prefixed **`program-page-<name>-`** instead of the normal `if-` prefix — e.g. the ASPIRE header block's classes are `program-page-aspire-hdrprog`, `program-page-aspire-hdrprog-title`, etc. (renamed from an initial `if-hdrprog*` pass — §59/§59a/§59b). **Purpose:** makes page‑specific, likely‑one‑off classes instantly recognizable/greppable for later cleanup, distinct from the shared `if-` vocabulary meant to travel across the whole suite. **Same rule for any shared‑file code** (`idea-factory.css`/`.js` on GitHub) that's specific to one program page — label it just as clearly (e.g. a `/* program-page-aspire: ... */` comment block or a `program-page-aspire-` prefixed selector) if it's ever needed (none has been needed yet — all ASPIRE work so far is native Designer classes, per HARD RULE #0). **When work returns to a page that is NOT a `program-page-*` context** (Home/Students/About/Faculty, or the general shared system), **revert to the normal `if-` convention** — this prefix is scoped to program‑page-specific one‑offs only, not a wholesale replacement of `if-`.
 
 ---
 
@@ -1207,6 +1208,8 @@ User is developing a small spinoff site, **ASPIRE**, using this master site as t
 ## 59. ASPIRE spinoff — header "program logo" block replacing the tagline (2026‑07‑09) — native Designer + 1 uploaded asset, PUBLISHED, ASPIRE-Home only
 
 On spinoff sites, the header white bar's tagline (`.if-id-tagline`, "The University of Maryland's home for…") is replaced by a **program identity block**: program name (1–3 lines) + gold accent + a small stage‑glyph badge with a caption. Built inside the **independent `Main Nav — ASPIRE` component** (§58) — the master's real `Main Nav`/tagline is completely untouched (confirmed: its instance count stayed at 4 throughout this work).
+
+**⚠️ RENAMED (2026‑07‑09, see CONVENTIONS §3): every `if-hdrprog*` class named below was renamed to `program-page-aspire-hdrprog*`** (e.g. `if-hdrprog`→`program-page-aspire-hdrprog`, `if-hdrprog-title`→`program-page-aspire-hdrprog-title`, etc.) per the new per‑program‑page naming protocol. The structure/values described in §59/§59a are otherwise unchanged — mentally substitute the prefix when reading. `if-hdrprog-sep` (the divider) was deleted outright, not renamed — see §59b.
 
 **Structure (children of `if-id-tagline`, which keeps its own shared style untouched — only its CONTENTS were swapped):**
 ```
