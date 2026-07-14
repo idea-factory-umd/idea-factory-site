@@ -505,3 +505,11 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 .if-filter-pill.is-active{background-color:#e21833;border-color:#e21833;color:#fff;}
 @media screen and (max-width:991px){.if-prog-grid{grid-template-columns:repeat(2,1fr) !important;}}
 @media screen and (max-width:640px){.if-prog-grid{grid-template-columns:1fr !important;}}
+/* program-page-aspire: submission-card PDF download icon — crossfade on hover.
+   background-image can't be transitioned (hard cut), so the link stacks two overlaid <img>s
+   (normal + hover state) and we crossfade their opacity. Because the two icons' strokes don't
+   line up exactly, dissolving them (rather than instant-swapping) reads smooth — rapid but graceful.
+   Parent-hover-child, so it can't be native; the resting opacity/stacking/size are native. */
+.program-page-aspire-card-dl-normal,.program-page-aspire-card-dl-hover{transition:opacity 0.18s ease;}
+.program-page-aspire-card-dl:hover .program-page-aspire-card-dl-normal{opacity:0;}
+.program-page-aspire-card-dl:hover .program-page-aspire-card-dl-hover{opacity:1;}
