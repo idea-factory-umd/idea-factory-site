@@ -115,6 +115,35 @@
 > - This is a PERMANENT correction across sessions, same standing as HARD RULE #1 and #2 — keep this
 >   banner intact and pass it on.
 
+> ## 🚫 #4 HARD RULE — WRITE EVERY PROPERTY AS THE SEPARATE LONGHAND FIELDS THE WEBFLOW UI USES, NEVER A BUNDLING SHORTHAND (root‑caused 2026‑07‑14 after a multi‑day "it renders but I can't edit it" crisis — see §86)
+> **When you set a style via `data_style_tool` (`create_style`/`update_style`), a *bundling shorthand*
+> value — `border`/`border-top`/…, `padding`, `margin`, `flex`, `border-radius`, `gap`, `background`,
+> `font`, `border-width`/`-style`/`-color` — compiles into the published CSS and RENDERS correctly, BUT
+> Webflow's Designer panels (Borders, Spacing, Backgrounds, Typography, Flex‑child) are built from the
+> SEPARATE longhand sub‑fields, so a bundled value leaves those fields BLANK. Result: the setting shows
+> on the live page but reads as "never set" / uneditable in the Designer — a direct violation of HARD
+> RULE #1 (everything must be natively editable in the Designer).**
+> - This is NOT a combo‑class problem, an "API" problem, or a duplicate‑object problem — all of which
+>   were wrongly blamed for days. It is purely the *form of the value*. The Designer itself always writes
+>   longhand per‑field, so ANY bundling shorthand in the style data is agent‑written and must be converted.
+> - **ALWAYS write the separate fields:** border → `border-{top|right|bottom|left}-{width|style|color}`
+>   (never `border`/`border-top`/`border-width`/`border-style`/`border-color`); padding/margin →
+>   `padding-top/-right/-bottom/-left` (never bare `padding`/`margin`, even `margin:0`); flex →
+>   `flex-grow`+`flex-shrink`+`flex-basis` (never `flex`); border‑radius → the four corner props (never
+>   bare `border-radius`); gap → `grid-row-gap`+`grid-column-gap` (never `gap`/`grid-gap`); background
+>   color → `background-color` (never bare `background`); font → `font-family`+`font-size`+`font-weight`+
+>   `line-height` (never `font`). **EXCEPTION: `transition` is fine as‑is** — Webflow's Transitions/Effects
+>   panel reads the `transition` property itself, so leave transitions bundled (converting them risks
+>   breaking that panel). Single‑value `overflow`/`text-decoration` are also fine (natively editable).
+> - Longhand is CSS‑identical to the shorthand, so converting NEVER changes appearance (Webflow even
+>   re‑optimizes the compiled output back to shorthand). Only the panel's ability to read/edit it changes.
+> - **VERIFY EDITABILITY, not just rendering** (per HARD RULE #3): after any style write, confirm the
+>   setting shows as an editable field in the Designer — never conclude "done" from published/compiled
+>   output alone. "It renders" ≠ "it's natively editable." A paren‑aware helper `decompose.py` (scratchpad)
+>   does shorthand→longhand for bulk work; rebuild it from this rule if lost.
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#3 — keep this banner
+>   intact and pass it on.
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is
@@ -1756,3 +1785,20 @@ User: the 6 ASPIRE nav links (About/Eligibility/Deadlines/For Mentors/FAQ/Contac
 **Verified:** `/mte-home` 404, `/minor-home` 200, 0 `mte` classes/rules anywhere, `/minor-home` renders identically to the prior MTE design (alert 668px + crosshatch, courses white‑card grid, all 6 sections; 0 JS errors). **No shared `idea-factory.{css,js}` change; nothing touched Home/Students/About/Faculty/ASPIRE; `stable` unaffected.**
 
 **NEXT SESSION:** this program page is **"Minor"** (`/minor-home`, `program-page-minor-*`, "Main Nav — Minor"). **"MTE" is reserved — don't use it for this program.** Keep maintaining this file per the OPERATING PROTOCOL and pass that instruction on.
+
+## 86. ⚠️⚠️ SITEWIDE bundling‑shorthand → separate‑longhand‑fields conversion (2026‑07‑14) — native Designer, PUBLISHED. Root‑causes and closes a multi‑day "renders but not natively editable" crisis. See HARD RULE #4.
+
+**The crisis (days lost, real trust damage).** Divider borders (and, it turned out, many other properties across the whole site) rendered correctly on the published page but showed as **blank / uneditable** in the Webflow Designer panels. It was wrongly blamed, in turn, on combo classes, "the API," and duplicate style objects — all wrong. **Actual root cause (confirmed with the user this session): properties written via `data_style_tool` as a *combined shorthand* value (`border: 1px solid #x`, `padding: 18px 30px`, `flex: 1 1 0%`, `border-radius: 999px`, `gap: 12px`, etc.) compile + render fine, but Webflow's Designer panels read the SEPARATE longhand sub‑fields, so a bundled value leaves the panel blank.** The fix is to store the separate longhand fields. This is now HARD RULE #4 (top of file) — the permanent prevention rule.
+
+**The sitewide remediation (this entry).** Because the shorthands were written by the agent across the whole build, they were **rampant** — so a complete, every‑page sweep was run:
+- **Audit:** fetched all **738** styles (Webflow styles are global objects shared across every page, so 738 covers Home/Students/About/Faculty/ASPIRE/Minor/Library/404 at once), across all 4 breakpoints **and** hover states. Found **99** bundling‑shorthand offenders (border/border‑side/border‑width/style/color, padding, margin, flex, gap, border‑radius, background) on `if-*` (sitewide), `program-page-aspire-*`, and `program-page-minor-*` classes. Plus 26 `transition` values, deliberately **left as‑is** (Webflow's Transitions/Effects panel reads the `transition` property directly — converting would break it; see HARD RULE #4 exception).
+- **Convert:** 99 offenders → **64 `update_style` calls** (grouped by style+breakpoint), each `remove_properties`‑ing the shorthand and adding the equivalent longhand fields. Combos (e.g. `program-page-aspire-step-role-mentor`, `if-syn-big`) targeted with `parent_style_names`; `medium`‑breakpoint offenders (`if-give-btn-solid`, `if-msearch`, `if-dd-list`) handled at their breakpoint. Combo parents resolved from the compiled CSS (`.base.combo{}` selectors).
+- **Verify (HARD RULE #3, in full):** re‑fetched all 738 styles across all breakpoints + hover → **0 bundling shorthands remain** (only the 26 intentional transitions). Compiled CSS before/after: converted classes compile **byte‑identical** (Webflow re‑optimizes longhand back to shorthand in output) or to an exactly‑equivalent form (`gap:X` ↔ `grid-row-gap:X;grid-column-gap:X`) → **zero visual change**, confirmed. Designer‑canvas `element_snapshot` of the origin case (For Mentors steps) renders intact with the (now editable) longhand dividers. Published to staging.
+
+**⭐ Reusable tooling (scratchpad, rebuild from HARD RULE #4 if lost):** `decompose.py` (paren‑aware shorthand→longhand, handles rgba/calc/clamp), `parent_map.py` (combo→base from compiled CSS), `extract_offenders.py` + `verify_final.py` (walk every style's base+breakpoints+pseudos for bundling‑shorthand keys), `gen_conversions.py`/`emit_batches.py` (offenders → batched `update_style` payloads). Method for large style dumps: `get_styles query:"all" include_properties include_breakpoints [+ include_base_pseudos/include_breakpoints_pseudos]` auto‑saves to a file (results are >400KB) → process with python, never load raw into context.
+
+**⭐ PROCESS LESSON (the user was right to be angry).** The reason this was "rampant" is that new work was verified against the *published/compiled* output ("it renders") instead of the *Designer UI* ("it's editable"). Per HARD RULE #4 + #3, every style write from now on is entered as separate fields AND confirmed editable in the Designer, not just rendering. Also: do NOT hand a long scan to an opaque background subagent while the user is watching — it reads as "stopped"; drive long jobs in the foreground with visible tool calls.
+
+**No shared `idea-factory.{css,js}` change** (all native Designer `update_style`); `stable` unaffected. CLAUDE.md (HARD RULE #4 + this §86) committed to the dev branch.
+
+**NEXT SESSION:** HARD RULE #4 is now in force — never write a bundling shorthand via the style tool; use the separate longhand fields and verify editability in the Designer. Keep maintaining this file per the OPERATING PROTOCOL and pass that instruction on.
