@@ -146,6 +146,13 @@
 >   setting shows as an editable field in the Designer — never conclude "done" from published/compiled
 >   output alone. "It renders" ≠ "it's natively editable." A paren‑aware helper `decompose.py` (scratchpad)
 >   does shorthand→longhand for bulk work; rebuild it from this rule if lost.
+> - **⭐ DURABLE ENFORCEMENT CHECK (committed to the repo, not scratchpad): `tools/audit-shorthands.py`.**
+>   It scans a full `get_styles` dump (base + all breakpoints + all pseudos) and flags EVERY bundled‑shorthand
+>   value — border/padding/margin/flex/gap/border‑radius/background/font AND `transition`. Run it after ANY
+>   style work, and any session (or the user) can run it anytime to prove the invariant holds: expect
+>   `CLEAN — 0 bundled shorthands`, exit 0. Header comment has the exact `get_styles` args + why it must run
+>   against STORED data, not compiled CSS. **This is the guarantee that does NOT depend on remembering the
+>   rule** — if a lapse ever happens, this catches it across the whole site in one run.
 > - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#3 — keep this banner
 >   intact and pass it on.
 
