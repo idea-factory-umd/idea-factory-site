@@ -1873,3 +1873,28 @@ User established a firm, standing rule so every hero banner follows ONE of exact
 - **Verified 2026‑07‑15:** served compiled CSS shows both rules at main + `@media(max-width:991px)`; offline render measured BASE 57.14/42.86 and INNER 53.00/47.00 at BOTH 1440 (desktop) and 900 (tablet). Published site‑wide.
 - **⚠️ REVERT values (user said they might ask to revert):** before this change, base `if-hero-grid` was `1.15fr 0.85fr` (main + medium); combo `if-hero-inner` was `1.05fr 0.95fr` (main) and `1.15fr 0.85fr` (medium). Small was `1fr` in both (unchanged). To revert, restore those.
 - No shared `idea-factory.{css,js}` change (native Designer `update_style`) → `stable` unaffected.
+
+## 91. ⭐ MIPS spinoff staging — the FIRST MULTI‑PAGE spinoff (nav = page links, one shared nav component across its pages) (2026‑07‑16) — page dups + independent nav, DRAFT, nothing published/promoted
+
+MIPS (Maryland Industrial Partnerships) is being staged in the master site as a spinoff, same model as ASPIRE (§58) and Minor (§85) — but with a **key difference the user called out explicitly: MIPS will have real INTERIOR pages, so its nav is NOT all anchor‑links to one page.** ASPIRE/Minor are each a single page whose nav points to `#anchors` on that one page; **MIPS is multi‑page, so its nav uses page LINKS and is SHARED across all its pages via ONE component** (edit the nav once → every MIPS page updates — exactly how a real multi‑page site behaves after Duplicate Site).
+
+**Pages (both DRAFT — excluded from publish/crawl, per the §6/§58 spinoff convention):**
+| Page | Page ID | Slug | Source dup | State |
+|---|---|---|---|---|
+| **MIPS‑Home** | `6a58d8a9ab7d786192c3c7b7` | `/mips-home` | (created in a prior compacted turn — undocumented until now) | draft; **content build PENDING** — user supplied the MIPS‑Home content (matching‑R&D‑funding landing page: hero "Maryland Industrial Partnerships (MIPS) program", "What MIPS is", Key Facts, Who Wins, "Made with MIPS", "Four decades of return" stat band, "How it works", "Where MIPS fits" stage strip) and it is the NEXT task to build. |
+| **MIPS‑Apply** | `6a58f64b8c63363ee93b973c` | `/mips-apply` | **About** (`6a4459c75b0e32811729bb1b`) — an INTERIOR page, so it carries `if-hero-inner` → the 53/47 interior hero ratio (§90) + shorter interior hero height (§15) automatically | draft; **placeholder only — LEFT ALONE per user ("we'll get to it later")** |
+
+**Independent nav component (shared by both MIPS pages):** **`Main Nav — MIPS`**, id **`9779561a-0d8e-01e2-0c30-9ce78455d782`**, group **"MIPS"**. Duplicated from the master `Main Nav` when MIPS‑Home was created (same independence pattern as `Main Nav — ASPIRE`/`Main Nav — Minor`). **instanceCount is now 2 (MIPS‑Home + MIPS‑Apply)** — i.e. the two MIPS pages share the ONE component, unlike ASPIRE/Minor whose single nav each sits on one page.
+
+**MIPS‑Apply build steps (this session, the reusable recipe for adding an interior page to a multi‑page spinoff):**
+1. `create_page` `duplicateOf` = the desired master interior page (About here), `draft:true`, title `MIPS-Apply` (caps to match `MIPS-Home`), slug `mips-apply`.
+2. The duplicate's header carries an instance of the **shared** `Main Nav` (`bffe20a1…`) — must be swapped for the spinoff's own nav. Header structure to match (identical to MIPS‑Home, verified): `if-header` › `UMD Bar` instance (`012e2a6d…`) › **nav instance** › `st0` HtmlEmbed (`afd96462…`).
+3. `insert_component_instance` `Main Nav — MIPS` **`before` the st0 embed** (⚠️ can't anchor before/after a ComponentInstance — anchor on the embed sibling, §58).
+4. `remove_element` the shared `Main Nav` instance from this page only (scoped to the page's component id — never touches the definition or other pages' instances).
+5. **Verify (HARD RULE #3):** re‑query the header → order is `UMD Bar → Main Nav — MIPS → st0 embed`; re‑query component counts → **shared `Main Nav` stayed at 4** (Home/Students/About/Faculty untouched — master site unaffected) while `Main Nav — MIPS` went 1→2. ✓ Both confirmed this session.
+
+**Scope of isolation (same as §58):** `duplicate_component`/instance‑swap isolates the nav's STRUCTURE (which links exist, their targets) so editing `Main Nav — MIPS` never touches the master `Main Nav`. It does NOT fork the Designer `if-` STYLE classes (still global) — harmless for now, and fully moot after the user runs **Duplicate Site** for the real MIPS spinoff (that clones classes too, §4). To style the MIPS nav distinctly BEFORE duplicating the site, give its elements new non‑shared classes (per CONVENTIONS §3, a new MIPS one‑off class = prefix **`program-page-mips-`**).
+
+**Nothing published/promoted, no shared `idea-factory.{css,js}` change** → `stable` unaffected; Home/Students/About/Faculty/ASPIRE/Minor all untouched. Transient "Tool permission stream closed" errors hit several calls this session (the documented §2/§25 outage — just retried, nothing double‑created since those failures occur at the permission step before execution).
+
+**➡️ NEXT: build the MIPS‑Home content** from the user's provided design (landing page listed above), on page `6a58d8a9ab7d786192c3c7b7`, reusing established `if-` classes where possible (reuse‑first practice, §61) and `program-page-mips-` for one‑offs; MIPS‑Home hero = program/landing ratio (`if-hero-grid` base, 4fr 3fr, §90). Leave MIPS‑Apply alone until asked.
