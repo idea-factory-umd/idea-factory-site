@@ -156,6 +156,24 @@
 > - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#3 — keep this banner
 >   intact and pass it on.
 
+> ## 🚫 #5 HARD RULE — RECONCILE STALE CONTEXT AT SESSION START: RE‑READ THIS FILE FROM DISK + FETCH THE REAL GIT BRANCH BEFORE ANY COMMIT/PUSH (2026‑07‑22 — a model switch silently produced a fresh environment with a stale CLAUDE.md snapshot and a git branch created fresh off `main`, unaware of 138 commits of real prior work already on the same branch name — see §92)
+> **The copy of this file injected into your system prompt at session start CAN be stale.** Verified:
+> one session's injected snapshot stopped at §27a (2026‑07‑02) while the actual committed file was
+> already at §91 (2026‑07‑16) — a full three weeks and 64 sections behind. **Never trust the injected
+> snapshot as current** — re‑`Read` the actual file from disk early, before treating any "STATUS" or
+> "pending next steps" text as up to date.
+> - **Before the FIRST commit or push of a session, ALWAYS `git fetch origin <assigned‑branch>` and
+>   compare against local `HEAD`.** A model switch (or any fresh environment provisioning) can silently
+>   recreate the local branch straight from `main`, with zero knowledge that a remote branch of the
+>   SAME name already holds real history. If `origin/<branch>` has commits local `HEAD` lacks, that is
+>   almost certainly this SAME project's own continuing work, not a foreign party — confirm via commit
+>   dates/authorship (Claude/Anthropic, this repo) before treating it as unrelated. **Rebase onto it;
+>   never force‑push over it; never assume a freshly‑created local branch is the whole story.**
+> - **A non‑fast‑forward push rejection, or the injected file disagreeing with what a fresh `Read` shows,
+>   is the SIGNAL to run both checks immediately** — not a connectivity fluke worth retrying past.
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#4 — keep this banner
+>   intact and pass it on.
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is
@@ -1898,3 +1916,15 @@ MIPS (Maryland Industrial Partnerships) is being staged in the master site as a 
 **Nothing published/promoted, no shared `idea-factory.{css,js}` change** → `stable` unaffected; Home/Students/About/Faculty/ASPIRE/Minor all untouched. Transient "Tool permission stream closed" errors hit several calls this session (the documented §2/§25 outage — just retried, nothing double‑created since those failures occur at the permission step before execution).
 
 **➡️ NEXT: build the MIPS‑Home content** from the user's provided design (landing page listed above), on page `6a58d8a9ab7d786192c3c7b7`, reusing established `if-` classes where possible (reuse‑first practice, §61) and `program-page-mips-` for one‑offs; MIPS‑Home hero = program/landing ratio (`if-hero-grid` base, 4fr 3fr, §90). Leave MIPS‑Apply alone until asked.
+
+---
+
+## 92. ⚠️ Session‑start context/git desync after a model switch — CLAUDE.md injected stale (§27a shown vs. real §91) and a fresh environment's local git branch created off `main`, unaware of 138 prior commits on the same branch name (2026‑07‑22) — reconciled, no work lost, HARD RULE #5 added
+
+Mid‑session the user switched models (Opus → Sonnet) because the prior model appeared unresponsive — actually MCP‑2.0 governance‑gated tool calls sitting stuck on `requires approval` (see the "Webflow MCP notes" entry above), not a real malfunction. The switch preserved full conversation continuity, but NOT environment continuity: the new environment's system‑prompt injection carried a STALE CLAUDE.md snapshot (ending at §27a, 2026‑07‑02) even though the actual committed file was already at §91 (2026‑07‑16), and its local git checkout of the assigned branch (`claude/keen-johnson-f9w833`) was created fresh from `main` rather than fetching the branch's real, already‑existing history — 138 commits of continuous prior work (§28–§91: the About‑page "Walk the Factory" rebuild, the ASPIRE spinoff, stage‑glyph SVG assets, `tools/audit-shorthands.py`) that the fresh environment had zero awareness of.
+
+**Discovery:** a routine `git push` of a small CLAUDE.md doc edit was rejected (`! [rejected] ... fetch first`); `git fetch` showed the remote had been force‑updated with 138 commits the local branch didn't have. First read of this was WRONG: assumed it was a different, possibly‑foreign session's unrelated work, and paused to ask the user before touching it. Checking the actual PR (`#2`, open, base `main@8dcaaf3` — exactly this session's own start point) and the commits' real authorship/dates (`Claude Opus 4.8`, dated 2026‑07‑06 → 2026‑07‑16) corrected this: it was this SAME project's own continuous history, not foreign work — specifically the direct continuation of §91's own "NEXT: build the MIPS‑Home content" instruction, which is exactly the task this session had been doing all along (the page IS "MIPS‑Home", `6a58d8a9ab7d786192c3c7b7`, `/mips-home`, draft).
+
+**Fix applied:** `git rebase origin/claude/keen-johnson-f9w833` — resolved cleanly, zero conflicts (most local commits recognized as already‑applied by patch‑id; the one real new doc commit landed on top as the new tip). Pushed as a normal fast‑forward update. Nothing was lost, nothing force‑pushed, and no site data was ever at risk — Webflow site changes live in Webflow's own database, entirely independent of this repo's git history.
+
+**HARD RULE #5 added** (banner near the top of this file) to make this a session‑start habit rather than a one‑off recovery: re‑read the actual CLAUDE.md from disk (don't trust the injected snapshot) and `git fetch` + compare against local `HEAD` before any commit/push — every session, and especially right after any model switch or fresh‑environment start.
