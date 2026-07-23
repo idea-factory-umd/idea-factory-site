@@ -691,78 +691,75 @@ try {
 
 /* ===== module: header-name-fit (header content between the Idea Factory logo and the hamburger
    never breaks beyond its intended shape) =====
-   Two distinct pieces share this space and each has its own rule:
-   1. Program-page identity block (.if-hdrprog: glyph badge + program name, e.g. "ASPIRE Program",
-      "Maryland Industrial / Partnerships (MIPS)", "Minor in Technology / Entrepreneurship & /
-      Corporate Innovation"). The name text itself uses non-breaking spaces within each authored
-      line, so the browser can never wrap a line internally - it either fits or overflows its box.
-      That overflow (title.scrollWidth > title.clientWidth - a direct native fit/no-fit signal, not
-      a sum of paddings/gaps/positions) is the ONLY trigger: the glyph badge (.if-hdrprog-badge)
-      drops first, freeing the room it was using; only if the title is STILL overflowing after that
-      does its font-size shrink, one step at a time, down to a legibility floor.
-   2. Regular tagline (.if-tag-p, non-program pages) - wraps normally, but must never render more
-      than 3 lines. If it would, shrink its font-size until it's back to 3 lines or fewer (down to a
-      legibility floor).
-   Both are measurement-based (not a fixed breakpoint) because the trigger point depends on real
+   Applies per .if-id-band (the logo + tagline/program-name row). Two content shapes share it:
+   program-page identity blocks (.if-hdrprog: glyph badge + program name, e.g. "ASPIRE Program",
+   "Maryland Industrial / Partnerships (MIPS)", "Minor in Technology / Entrepreneurship &
+   Corporate Innovation") and the regular tagline (.if-tag-p, non-program pages). Program names use
+   non-breaking spaces within each authored line, so the browser can never wrap a line internally -
+   it either fits or overflows its box; the tagline wraps normally but must never exceed 3 lines.
+   Response, in order, each stage only engaging if the previous one wasn't enough:
+   1. Program pages only: the glyph badge (.if-hdrprog-badge) drops the instant the name overflows
+      its box - frees its room at zero visual cost, no shrink involved yet.
+   2. If still too tight, the logo (.if-logo-img-hdr) and the tagline/name text shrink TOGETHER, by
+      the same proportional factor, down to a legibility floor - rather than the text alone
+      absorbing all the compression while the logo stays fixed. Native left/right padding is left
+      alone (only the logo's own width/height and the text's own font-size scale), and both stay
+      vertically centered within their own flex parents, so this reads as one consistent unit
+      shrinking in place, not a resize that shifts margins or alignment.
+   Fully measurement-based (not a fixed breakpoint) because the trigger point depends on real
    rendered text width, which a static breakpoint cannot predict for every program name. */
 try {
 (function(){
-  var TITLE_FLOOR_RATIO = 0.6;
-  var TAG_FLOOR_RATIO = 0.7;
+  var FLOOR_RATIO = 0.6;
+  var STEP = 0.02;
 
-  function shrinkUntil(el, floor, conditionFn){
-    var size = parseFloat(getComputedStyle(el).fontSize);
-    if (!size) return;
-    var guard = 0;
-    while (conditionFn() && (size - 0.5) >= floor && guard < 60) {
-      size -= 0.5;
-      el.style.fontSize = size + 'px';
-      guard++;
-    }
-  }
-
-  function fitProgramNames(){
-    document.querySelectorAll('.if-hdrprog').forEach(function(root){
-      var badge = root.querySelector('.if-hdrprog-badge');
-      var title = root.querySelector('.if-hdrprog-title');
-      if (!title) return;
+  function fitHeaderLeft(){
+    document.querySelectorAll('.if-id-band').forEach(function(band){
+      var logo = band.querySelector('.if-logo-img-hdr');
+      var badge = band.querySelector('.if-hdrprog-badge');
+      var title = band.querySelector('.if-hdrprog-title');
+      var tagline = band.querySelector('.if-tag-p');
+      var textEl = title || tagline;
+      if (!textEl) return;
 
       // Reset to native defaults every run so behavior is fully reversible.
+      if (logo) { logo.style.width = ''; logo.style.height = ''; }
       if (badge) badge.style.display = '';
-      title.style.fontSize = '';
+      textEl.style.fontSize = '';
 
-      var baseSize = parseFloat(getComputedStyle(title).fontSize) || 19;
-      var floor = baseSize * TITLE_FLOOR_RATIO;
+      var isProgram = !!title;
 
-      function overflowing(){
-        return title.scrollWidth > title.clientWidth + 1; // +1: subpixel rounding slack
+      function tooTight(){
+        if (isProgram) return textEl.scrollWidth > textEl.clientWidth + 1; // +1: subpixel slack
+        var lh = parseFloat(getComputedStyle(textEl).lineHeight);
+        return lh ? Math.round(textEl.getBoundingClientRect().height / lh) > 3 : false;
       }
 
-      // 1) Glyph drops the moment the name no longer fits its own box - no room math at all.
-      if (overflowing() && badge) badge.style.display = 'none';
+      // 1) Program pages: glyph badge drops first - no shrink involved yet.
+      if (isProgram && tooTight() && badge) badge.style.display = 'none';
 
-      // 2) Only shrink the title if it's still overflowing once the glyph is already gone.
-      if (overflowing()) shrinkUntil(title, floor, overflowing);
+      // 2) Still too tight: logo + text shrink together, proportionally, to a shared floor.
+      if (tooTight() && logo) {
+        var logoBaseW = parseFloat(getComputedStyle(logo).width) || 0;
+        var logoBaseH = parseFloat(getComputedStyle(logo).height) || 0;
+        var textBaseSize = parseFloat(getComputedStyle(textEl).fontSize) || (isProgram ? 19 : 16);
+        if (logoBaseW && logoBaseH) {
+          var factor = 1;
+          var guard = 0;
+          while (tooTight() && (factor - STEP) >= FLOOR_RATIO && guard < 60) {
+            factor -= STEP;
+            logo.style.width = (logoBaseW * factor) + 'px';
+            logo.style.height = (logoBaseH * factor) + 'px';
+            textEl.style.fontSize = (textBaseSize * factor) + 'px';
+            guard++;
+          }
+        }
+      }
     });
   }
 
-  function fitTagline(){
-    document.querySelectorAll('.if-tag-p').forEach(function(p){
-      p.style.fontSize = '';
-      var baseSize = parseFloat(getComputedStyle(p).fontSize) || 16;
-      var floor = baseSize * TAG_FLOOR_RATIO;
-      function lines(){
-        var lh = parseFloat(getComputedStyle(p).lineHeight);
-        if (!lh) return 1;
-        return Math.round(p.getBoundingClientRect().height / lh);
-      }
-      shrinkUntil(p, floor, function(){ return lines() > 3; });
-    });
-  }
-
-  function run(){ fitProgramNames(); fitTagline(); }
-  var raf=null; function onR(){ if(raf) cancelAnimationFrame(raf); raf=requestAnimationFrame(run); }
-  function init(){ run(); window.addEventListener('resize', onR, {passive:true}); if(document.fonts && document.fonts.ready && document.fonts.ready.then){ document.fonts.ready.then(run); } }
+  var raf=null; function onR(){ if(raf) cancelAnimationFrame(raf); raf=requestAnimationFrame(fitHeaderLeft); }
+  function init(){ fitHeaderLeft(); window.addEventListener('resize', onR, {passive:true}); if(document.fonts && document.fonts.ready && document.fonts.ready.then){ document.fonts.ready.then(fitHeaderLeft); } }
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] header-name-fit error:', _e); } catch (_) {} }
