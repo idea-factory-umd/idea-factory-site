@@ -688,3 +688,98 @@ try {
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] stage-head-vcenter error:', _e); } catch (_) {} }
+
+/* ===== module: header-name-fit (header content between the Idea Factory logo and the hamburger
+   never breaks beyond its intended shape) =====
+   Two distinct pieces share this space and each has its own rule:
+   1. Program-page identity block (.if-hdrprog: glyph badge + program name, e.g. "ASPIRE Program",
+      "Maryland Industrial / Partnerships (MIPS)", "Minor in Technology / Entrepreneurship & /
+      Corporate Innovation"). Each program name is authored with FIXED line breaks (\n,
+      white-space:pre-line) — it must NEVER let the browser wrap one of those authored lines into
+      two. If the current rendered line count exceeds the authored line count, shrink the title's
+      font-size until it matches (down to a legibility floor). Separately, if the whole block still
+      crowds the hamburger button (.if-navbtn) even at that size, the glyph badge (.if-hdrprog-badge)
+      drops out first to free room; only if that alone isn't enough does the title shrink further.
+   2. Regular tagline (.if-tag-p, non-program pages) — may wrap normally, but must never render more
+      than 3 lines. If it would, shrink its font-size until it's back to 3 lines or fewer (down to a
+      legibility floor).
+   Both are collision/measurement-based (not a fixed breakpoint) because the trigger point depends
+   on real rendered text width, which a static breakpoint cannot predict for every program name. */
+try {
+(function(){
+  var TITLE_FLOOR_RATIO = 0.6;
+  var TAG_FLOOR_RATIO = 0.7;
+  var SAFE_GAP = 12;
+
+  function shrinkUntil(el, floor, conditionFn){
+    var size = parseFloat(getComputedStyle(el).fontSize);
+    if (!size) return;
+    var guard = 0;
+    while (conditionFn() && (size - 0.5) >= floor && guard < 60) {
+      size -= 0.5;
+      el.style.fontSize = size + 'px';
+      guard++;
+    }
+  }
+
+  function fitProgramNames(){
+    var navbtn = document.querySelector('.if-navbtn');
+    document.querySelectorAll('.if-hdrprog').forEach(function(root){
+      var badge = root.querySelector('.if-hdrprog-badge');
+      var title = root.querySelector('.if-hdrprog-title');
+      if (!title) return;
+
+      // Reset to native defaults every run so behavior is fully reversible.
+      if (badge) badge.style.display = '';
+      title.style.fontSize = '';
+
+      var rawText = title.getAttribute('data-fit-text');
+      if (rawText === null) {
+        rawText = title.textContent;
+        title.setAttribute('data-fit-text', rawText);
+      }
+      var authoredLines = rawText.split('\n').length;
+      var baseSize = parseFloat(getComputedStyle(title).fontSize) || 19;
+      var floor = baseSize * TITLE_FLOOR_RATIO;
+
+      function renderedLines(){
+        var lh = parseFloat(getComputedStyle(title).lineHeight);
+        if (!lh) return authoredLines;
+        return Math.round(title.getBoundingClientRect().height / lh);
+      }
+
+      // 1) Never let an authored line wrap into extra lines.
+      shrinkUntil(title, floor, function(){ return renderedLines() > authoredLines; });
+
+      // 2) Hamburger collision: badge falls off first, title shrinks further only if still tight.
+      if (navbtn) {
+        function gap(){
+          var r = root.getBoundingClientRect(), h = navbtn.getBoundingClientRect();
+          return h.left - r.right;
+        }
+        if (gap() < SAFE_GAP && badge) badge.style.display = 'none';
+        if (gap() < SAFE_GAP) shrinkUntil(title, floor, function(){ return gap() < SAFE_GAP; });
+      }
+    });
+  }
+
+  function fitTagline(){
+    document.querySelectorAll('.if-tag-p').forEach(function(p){
+      p.style.fontSize = '';
+      var baseSize = parseFloat(getComputedStyle(p).fontSize) || 16;
+      var floor = baseSize * TAG_FLOOR_RATIO;
+      function lines(){
+        var lh = parseFloat(getComputedStyle(p).lineHeight);
+        if (!lh) return 1;
+        return Math.round(p.getBoundingClientRect().height / lh);
+      }
+      shrinkUntil(p, floor, function(){ return lines() > 3; });
+    });
+  }
+
+  function run(){ fitProgramNames(); fitTagline(); }
+  var raf=null; function onR(){ if(raf) cancelAnimationFrame(raf); raf=requestAnimationFrame(run); }
+  function init(){ run(); window.addEventListener('resize', onR, {passive:true}); if(document.fonts && document.fonts.ready && document.fonts.ready.then){ document.fonts.ready.then(run); } }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] header-name-fit error:', _e); } catch (_) {} }
