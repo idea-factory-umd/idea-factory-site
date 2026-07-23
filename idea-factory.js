@@ -694,22 +694,21 @@ try {
    Two distinct pieces share this space and each has its own rule:
    1. Program-page identity block (.if-hdrprog: glyph badge + program name, e.g. "ASPIRE Program",
       "Maryland Industrial / Partnerships (MIPS)", "Minor in Technology / Entrepreneurship & /
-      Corporate Innovation"). Each program name is authored with FIXED line breaks (\n,
-      white-space:pre-line) — it must NEVER let the browser wrap one of those authored lines into
-      two. If the current rendered line count exceeds the authored line count, shrink the title's
-      font-size until it matches (down to a legibility floor). Separately, if the whole block still
-      crowds the hamburger button (.if-navbtn) even at that size, the glyph badge (.if-hdrprog-badge)
-      drops out first to free room; only if that alone isn't enough does the title shrink further.
-   2. Regular tagline (.if-tag-p, non-program pages) — may wrap normally, but must never render more
+      Corporate Innovation"). The name text itself uses non-breaking spaces within each authored
+      line, so the browser can never wrap a line internally - it either fits or overflows its box.
+      That overflow (title.scrollWidth > title.clientWidth - a direct native fit/no-fit signal, not
+      a sum of paddings/gaps/positions) is the ONLY trigger: the glyph badge (.if-hdrprog-badge)
+      drops first, freeing the room it was using; only if the title is STILL overflowing after that
+      does its font-size shrink, one step at a time, down to a legibility floor.
+   2. Regular tagline (.if-tag-p, non-program pages) - wraps normally, but must never render more
       than 3 lines. If it would, shrink its font-size until it's back to 3 lines or fewer (down to a
       legibility floor).
-   Both are collision/measurement-based (not a fixed breakpoint) because the trigger point depends
-   on real rendered text width, which a static breakpoint cannot predict for every program name. */
+   Both are measurement-based (not a fixed breakpoint) because the trigger point depends on real
+   rendered text width, which a static breakpoint cannot predict for every program name. */
 try {
 (function(){
   var TITLE_FLOOR_RATIO = 0.6;
   var TAG_FLOOR_RATIO = 0.7;
-  var SAFE_GAP = 12;
 
   function shrinkUntil(el, floor, conditionFn){
     var size = parseFloat(getComputedStyle(el).fontSize);
@@ -723,7 +722,6 @@ try {
   }
 
   function fitProgramNames(){
-    var navbtn = document.querySelector('.if-navbtn');
     document.querySelectorAll('.if-hdrprog').forEach(function(root){
       var badge = root.querySelector('.if-hdrprog-badge');
       var title = root.querySelector('.if-hdrprog-title');
@@ -733,42 +731,18 @@ try {
       if (badge) badge.style.display = '';
       title.style.fontSize = '';
 
-      var rawText = title.getAttribute('data-fit-text');
-      if (rawText === null) {
-        rawText = title.textContent;
-        title.setAttribute('data-fit-text', rawText);
-      }
-      var authoredLines = rawText.split('\n').length;
       var baseSize = parseFloat(getComputedStyle(title).fontSize) || 19;
       var floor = baseSize * TITLE_FLOOR_RATIO;
 
-      function renderedLines(){
-        var lh = parseFloat(getComputedStyle(title).lineHeight);
-        if (!lh) return authoredLines;
-        return Math.round(title.getBoundingClientRect().height / lh);
+      function overflowing(){
+        return title.scrollWidth > title.clientWidth + 1; // +1: subpixel rounding slack
       }
 
-      // 1) Never let an authored line wrap into extra lines.
-      shrinkUntil(title, floor, function(){ return renderedLines() > authoredLines; });
+      // 1) Glyph drops the moment the name no longer fits its own box - no room math at all.
+      if (overflowing() && badge) badge.style.display = 'none';
 
-      // 2) Hamburger collision: badge falls off first, title shrinks further only if still tight.
-      //    Only meaningful while the hamburger button is actually rendered (desktop hides it in
-      //    favor of the full nav menu — a hidden element's rect collapses to 0,0,0,0, which would
-      //    otherwise read as a false collision and hide the glyph on the widest/desktop view).
-      if (navbtn) {
-        function navVisible(){
-          var r = navbtn.getBoundingClientRect();
-          return r.width > 0 && r.height > 0;
-        }
-        function gap(){
-          var r = root.getBoundingClientRect(), h = navbtn.getBoundingClientRect();
-          return h.left - r.right;
-        }
-        if (navVisible()) {
-          if (gap() < SAFE_GAP && badge) badge.style.display = 'none';
-          if (gap() < SAFE_GAP) shrinkUntil(title, floor, function(){ return gap() < SAFE_GAP; });
-        }
-      }
+      // 2) Only shrink the title if it's still overflowing once the glyph is already gone.
+      if (overflowing()) shrinkUntil(title, floor, overflowing);
     });
   }
 
