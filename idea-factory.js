@@ -697,10 +697,15 @@ try {
    Corporate Innovation") and the regular tagline (.if-tag-p, non-program pages). Program names use
    non-breaking spaces within each authored line, so the browser can never wrap a line internally -
    it either fits or overflows its box. The tagline wraps normally, but must never exceed 3 lines,
-   AND must never actually reach the hamburger button (.if-navbtn) - checked as a direct two-element
-   rect comparison (tagline's right edge vs the button's left edge), not a sum of paddings/gaps/
-   positions, and only while the button is genuinely rendered (hidden on desktop, where its rect
-   collapses to 0 and would otherwise read as a false collision).
+   AND must never get within a small safety margin of the hamburger button (.if-navbtn) - checked
+   as a direct two-element comparison (the text's real rendered right edge vs the button's left
+   edge), not a sum of paddings/gaps/positions, and only while the button is genuinely rendered
+   (hidden on desktop, where its rect collapses to 0 and would otherwise read as a false
+   collision). The text's "real rendered right edge" is measured via a Range over its content, not
+   the paragraph element's own getBoundingClientRect() - a left-aligned, ragged-right paragraph is
+   width:100% of its container regardless of where the glyphs actually stop, so the element's own
+   box tells us nothing about how close the visible text is to the button; a Range's per-line
+   client rects do.
    Response, in order, each stage only engaging if the previous one wasn't enough:
    1. Program pages only: the glyph badge (.if-hdrprog-badge) drops the instant the name overflows
       its box - frees its room at zero visual cost, no shrink involved yet.
@@ -740,12 +745,27 @@ try {
         return r.width > 0 && r.height > 0;
       }
 
+      function actualTextRight(){
+        // textEl.getBoundingClientRect() reflects the PARAGRAPH's own box (width:100% of its
+        // container, always), not where the rendered glyphs actually stop on a ragged-right,
+        // left-aligned line - so it can't tell us whether the text has really reached the
+        // hamburger. A Range over the text content gives the real per-line rendered rects.
+        var range = document.createRange();
+        range.selectNodeContents(textEl);
+        var rects = range.getClientRects();
+        var right = -Infinity;
+        for (var i = 0; i < rects.length; i++) if (rects[i].right > right) right = rects[i].right;
+        return right === -Infinity ? textEl.getBoundingClientRect().right : right;
+      }
+
+      var SAFE_GAP = 8; // small buffer so this engages just BEFORE real contact, not only after it
+
       function tooTight(){
         if (isProgram) return textEl.scrollWidth > textEl.clientWidth + 1; // +1: subpixel slack
         var lh = parseFloat(getComputedStyle(textEl).lineHeight);
         var tooManyLines = lh ? Math.round(textEl.getBoundingClientRect().height / lh) > 3 : false;
         if (tooManyLines) return true;
-        if (navVisible() && textEl.getBoundingClientRect().right >= navbtn.getBoundingClientRect().left) return true;
+        if (navVisible() && (navbtn.getBoundingClientRect().left - actualTextRight()) < SAFE_GAP) return true;
         return false;
       }
 
