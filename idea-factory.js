@@ -696,7 +696,11 @@ try {
    "Maryland Industrial / Partnerships (MIPS)", "Minor in Technology / Entrepreneurship &
    Corporate Innovation") and the regular tagline (.if-tag-p, non-program pages). Program names use
    non-breaking spaces within each authored line, so the browser can never wrap a line internally -
-   it either fits or overflows its box; the tagline wraps normally but must never exceed 3 lines.
+   it either fits or overflows its box. The tagline wraps normally, but must never exceed 3 lines,
+   AND must never actually reach the hamburger button (.if-navbtn) - checked as a direct two-element
+   rect comparison (tagline's right edge vs the button's left edge), not a sum of paddings/gaps/
+   positions, and only while the button is genuinely rendered (hidden on desktop, where its rect
+   collapses to 0 and would otherwise read as a false collision).
    Response, in order, each stage only engaging if the previous one wasn't enough:
    1. Program pages only: the glyph badge (.if-hdrprog-badge) drops the instant the name overflows
       its box - frees its room at zero visual cost, no shrink involved yet.
@@ -719,6 +723,7 @@ try {
       var badge = band.querySelector('.if-hdrprog-badge');
       var title = band.querySelector('.if-hdrprog-title');
       var tagline = band.querySelector('.if-tag-p');
+      var navbtn = band.querySelector('.if-navbtn');
       var textEl = title || tagline;
       if (!textEl) return;
 
@@ -729,10 +734,19 @@ try {
 
       var isProgram = !!title;
 
+      function navVisible(){
+        if (!navbtn) return false;
+        var r = navbtn.getBoundingClientRect();
+        return r.width > 0 && r.height > 0;
+      }
+
       function tooTight(){
         if (isProgram) return textEl.scrollWidth > textEl.clientWidth + 1; // +1: subpixel slack
         var lh = parseFloat(getComputedStyle(textEl).lineHeight);
-        return lh ? Math.round(textEl.getBoundingClientRect().height / lh) > 3 : false;
+        var tooManyLines = lh ? Math.round(textEl.getBoundingClientRect().height / lh) > 3 : false;
+        if (tooManyLines) return true;
+        if (navVisible() && textEl.getBoundingClientRect().right >= navbtn.getBoundingClientRect().left) return true;
+        return false;
       }
 
       // 1) Program pages: glyph badge drops first - no shrink involved yet.
