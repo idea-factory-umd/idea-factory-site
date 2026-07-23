@@ -752,13 +752,22 @@ try {
       shrinkUntil(title, floor, function(){ return renderedLines() > authoredLines; });
 
       // 2) Hamburger collision: badge falls off first, title shrinks further only if still tight.
+      //    Only meaningful while the hamburger button is actually rendered (desktop hides it in
+      //    favor of the full nav menu — a hidden element's rect collapses to 0,0,0,0, which would
+      //    otherwise read as a false collision and hide the glyph on the widest/desktop view).
       if (navbtn) {
+        function navVisible(){
+          var r = navbtn.getBoundingClientRect();
+          return r.width > 0 && r.height > 0;
+        }
         function gap(){
           var r = root.getBoundingClientRect(), h = navbtn.getBoundingClientRect();
           return h.left - r.right;
         }
-        if (gap() < SAFE_GAP && badge) badge.style.display = 'none';
-        if (gap() < SAFE_GAP) shrinkUntil(title, floor, function(){ return gap() < SAFE_GAP; });
+        if (navVisible()) {
+          if (gap() < SAFE_GAP && badge) badge.style.display = 'none';
+          if (gap() < SAFE_GAP) shrinkUntil(title, floor, function(){ return gap() < SAFE_GAP; });
+        }
       }
     });
   }
