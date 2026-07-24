@@ -1901,9 +1901,11 @@ MIPS (Maryland Industrial Partnerships) is being staged in the master site as a 
 |---|---|---|---|---|
 | **MIPS‑Home** | `6a58d8a9ab7d786192c3c7b7` | `/mips-home` | (created in a prior compacted turn — undocumented until now) | draft; **content build PENDING** — user supplied the MIPS‑Home content (matching‑R&D‑funding landing page: hero "Maryland Industrial Partnerships (MIPS) program", "What MIPS is", Key Facts, Who Wins, "Made with MIPS", "Four decades of return" stat band, "How it works", "Where MIPS fits" stage strip) and it is the NEXT task to build. |
 | **MIPS‑Apply** | `6a58f64b8c63363ee93b973c` | `/mips-apply` | **About** (`6a4459c75b0e32811729bb1b`) — an INTERIOR page, so it carries `if-hero-inner` → the 53/47 interior hero ratio (§90) + shorter interior hero height (§15) automatically | draft; **placeholder only — LEFT ALONE per user ("we'll get to it later")** |
-| **MIPS‑Impact** | *(not yet resolved — `data_pages_tool` blocked this session, §94)* | `/mips-impact` | **MIPS‑Apply** (user‑duplicated in the Designer, §94) | draft; content build PENDING |
-| **MIPS‑Projects** | *(not yet resolved — `data_pages_tool` blocked this session, §94)* | `/mips-projects` | **MIPS‑Apply** (user‑duplicated in the Designer, §94) | draft; content build PENDING |
-| **MIPS‑Contact** | *(not yet resolved — `data_pages_tool` blocked this session, §94)* | `/mips-contact` | **MIPS‑Apply** (user‑duplicated in the Designer, §94) | draft; content build PENDING |
+| **MIPS‑Impact** | `6a63db25acd3576979824a1f` | `/mips-impact` | **MIPS‑Apply** (user‑duplicated in the Designer, §94) | draft; content build IN PROGRESS |
+| **MIPS‑Projects** | `6a63db7c989b0dfbb4a9eebc` | `/mips-projects` | **MIPS‑Apply** (user‑duplicated in the Designer, §94) | draft; content build PENDING |
+| **MIPS‑Contact** | `6a63dba854564a2781799902` | `/mips-contact` | **MIPS‑Apply** (user‑duplicated in the Designer, §94) | draft; content build PENDING |
+
+**⭐ Page IDs recovered (2026‑07‑24): the user supplied all 5 MIPS page URLs directly** (`…design.webflow.com/?pageId=<id>`) after `data_pages_tool`/`data_sitemap_tool` both stayed blocked — confirms Home (`6a58d8a9ab7d786192c3c7b7`) and Apply (`6a58f64b8c63363ee93b973c`) match the IDs already on record, and resolves Impact/Projects/Contact above. **Reusable technique when page‑listing is gated: ask the user to open the target page in the Designer and paste the browser URL — the page ID is embedded in it as `?pageId=…`.**
 
 **Independent nav component (shared by both MIPS pages):** **`Main Nav — MIPS`**, id **`9779561a-0d8e-01e2-0c30-9ce78455d782`**, group **"MIPS"**. Duplicated from the master `Main Nav` when MIPS‑Home was created (same independence pattern as `Main Nav — ASPIRE`/`Main Nav — Minor`). **instanceCount is now 2 (MIPS‑Home + MIPS‑Apply)** — i.e. the two MIPS pages share the ONE component, unlike ASPIRE/Minor whose single nav each sits on one page.
 
