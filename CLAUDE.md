@@ -174,6 +174,46 @@
 > - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#4 — keep this banner
 >   intact and pass it on.
 
+> ## 🚫 #6 HARD RULE — A REFERENCE IMAGE IS LITERAL SOURCE TO TRANSCRIBE, NOT A VIBE TO APPROXIMATE. INVENTORY EVERY ELEMENT BEFORE BUILDING, RE-CHECK THE SAME LIST BEFORE EVER SAYING "DONE" (2026‑07‑25 — the user had already said this dozens of times before it became this rule; never let that happen again)
+> **When the user hands you a layout guide / screenshot / reference image to build a page from, every
+> specific in it — industries, cities, dollar figures, founder names, quotes, photos, logos, section
+> order, item counts — is literal source material to transcribe exactly, not a general style/vibe to
+> approximate.** Inventing a plausible-sounding substitute for something you could just read (or could
+> read if you actually looked closely enough) is fabrication, full stop, even when the substitute
+> "fits" the page's theme. This produced a real, user-facing disaster on the MIPS‑Impact page
+> (2026‑07‑25): a from-scratch build invented wrong industries/cities/funding figures for every company,
+> invented a fabricated 5th logo where the guide showed a 6th real one, and left every photo and every
+> company logo as an empty placeholder box — while being reported "done."
+> - **BEFORE building anything from a reference image: enumerate every discrete element in it as an
+>   explicit checklist** — every text block, every stat, every quote, every photo, every logo, every
+>   section — before writing a single word of content. Do not start building from a general impression
+>   of "what this page is about."
+> - **AFTER building, go back through that SAME checklist item‑by‑item and confirm each one is present
+>   and matches** — not a sample, not "the parts I remember," every item. This is the same discipline as
+>   HARD RULE #3 ("full sweep, not a sample"), applied to reference‑image fidelity specifically.
+> - **If a reference image is too low‑resolution to read one specific detail, say so explicitly for that
+>   ONE item** ("this dollar figure isn't legible at this resolution") **rather than silently inventing a
+>   plausible‑sounding number/name/fact in its place.** A vague, generic placeholder that's honestly
+>   labeled as a placeholder is fine; a specific‑sounding invented fact is not.
+> - **A pasted/inline chat image can be silently downsampled before it ever reaches you** (verified:
+>   an 1920px‑wide, ~13,000px‑tall full‑page screenshot arrived as 290×2000 — an 8.9x compression that
+>   destroyed all fine print before any reading happened). If a reference image's fine print reads as an
+>   unrecoverable blur even after aggressive crop/zoom/sharpen, do not conclude the detail is simply
+>   unavailable — ask the user to hand you the FILE directly (git‑committed, or a direct file URL you can
+>   `curl`, or a Dropbox/Drive direct‑download link) so you get the undamaged original and can crop it
+>   yourself at full native resolution. This resolved the exact case above (2588×17828 real file vs.
+>   290×2000 chat‑paste copy) and should be reached for immediately, not after several rounds of dispute
+>   about whose system is responsible for the compression.
+> - **"I did the work" is not "I confirmed the result is what the user actually sees."** Don't report a
+>   fix as done from the fact that you called an edit tool and it returned success — re‑query the actual
+>   stored data (HARD RULE #3), AND separately confirm the change is live wherever the user is looking
+>   (published output vs. an open Designer tab needing a reload, per HARD RULE #3 item 6) before using
+>   the word "done." Stopping mid‑task to ask "want me to keep going?" after fixing only the part you'd
+>   already looked at is the same failure in a different shape — finish the full checklist above before
+>   ever pausing.
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#5 — keep this banner
+>   intact and pass it on.
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is
