@@ -853,7 +853,7 @@ try {
       if(bar.__ifjng)return;bar.__ifjng=1;
       var links=bar.querySelectorAll('a[data-smooth-scroll],a.if-smooth-scroll');
       if(!links.length)return;
-      function sync(){var g=bar.offsetHeight-10;for(var i=0;i<links.length;i++)links[i].setAttribute('data-scroll-gap',g);}
+      function sync(){var g=bar.offsetHeight-(-1);for(var i=0;i<links.length;i++)links[i].setAttribute('data-scroll-gap',g);}
       sync();
       window.addEventListener('resize',sync,{passive:true});
       if(document.fonts&&document.fonts.ready)document.fonts.ready.then(sync);
