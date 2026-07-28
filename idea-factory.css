@@ -221,7 +221,7 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
   z-index: 2;
 }
 .if-aud-cell h3 {
-  transition: transform 520ms var(--if-ease-spring);
+  transition: transform 520ms var(--if-ease-glide);
   transform-origin: left center;
   will-change: transform;
 }
