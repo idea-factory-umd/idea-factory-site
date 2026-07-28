@@ -833,3 +833,28 @@ try {
   if (document.readyState !== 'loading') run(); else document.addEventListener('DOMContentLoaded', run);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] cross-page-anchor-scroll error:', _e); } catch (_) {} }
+
+/* ===== module: jumpnav-gap (sticky secondary nav bar clearance) =====
+   Any sticky in-page nav bar carrying class .if-jumpnav-gap gets its own live height synced onto
+   the data-scroll-gap of its data-smooth-scroll links, so a section jump clears BOTH the fixed
+   .if-header AND this bar sitting beneath it (the shared smooth-scroll module only accounts for
+   .if-header's height by default). Re-syncs on resize and font load since the bar's height can
+   change (e.g. its links wrap onto more lines at narrow widths). Class-driven + portable. */
+try {
+(function(){
+  function init(){
+    var bars=document.querySelectorAll('.if-jumpnav-gap');
+    if(!bars.length)return;
+    bars.forEach(function(bar){
+      if(bar.__ifjng)return;bar.__ifjng=1;
+      var links=bar.querySelectorAll('a[data-smooth-scroll],a.if-smooth-scroll');
+      if(!links.length)return;
+      function sync(){var g=bar.offsetHeight+24;for(var i=0;i<links.length;i++)links[i].setAttribute('data-scroll-gap',g);}
+      sync();
+      window.addEventListener('resize',sync,{passive:true});
+      if(document.fonts&&document.fonts.ready)document.fonts.ready.then(sync);
+    });
+  }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] jumpnav-gap error:', _e); } catch (_) {} }
