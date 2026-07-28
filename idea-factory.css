@@ -203,11 +203,11 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 }
 
 /* ============================================================
-   7. AUDIENCE CELL lift + label spring  (CSS only)
+   7. AUDIENCE CELL lift + text grow  (CSS only)
    The whole card lifts (grows + drop shadow) on hover, matching
    the news/program card family (.if-nfeat/.if-nrow/.if-prog-card).
-   The title h3 inside additionally springs out, anchored left so
-   it grows in place.
+   The title h3 AND the description paragraph inside additionally
+   grow together, anchored left so they grow in place.
    Assign .if-aud-cell to each audience card <a>.
    ============================================================ */
 .if-aud-cell {
@@ -220,12 +220,16 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
   position: relative;
   z-index: 2;
 }
-.if-aud-cell h3 {
+.if-aud-cell h3,
+.if-aud-cell .if-aud-desc {
   transition: transform 520ms var(--if-ease-glide);
   transform-origin: left center;
   will-change: transform;
 }
-.if-aud-cell:hover h3 { transform: scale(1.12); }
+.if-aud-cell:hover h3,
+.if-aud-cell:hover .if-aud-desc {
+  transform: scale(1.12);
+}
 
 /* ============================================================
    8. LOGO hover: scale lift  (CSS only)
