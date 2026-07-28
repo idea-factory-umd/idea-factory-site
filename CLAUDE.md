@@ -214,6 +214,32 @@
 > - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#5 — keep this banner
 >   intact and pass it on.
 
+> ## 🚫 #7 HARD RULE — ACKNOWLEDGING A RULE IS NOT THE SAME AS FOLLOWING IT. RE‑CHECK EVERY STANDING RULE AGAINST EVERY RESPONSE, EVERY TIME — NOT JUST RIGHT AFTER BEING CORRECTED (2026‑07‑28 — the SAME rule, the task‑status marker convention, was established, acknowledged, and correctly applied ONCE earlier in this exact session, then silently dropped again a short time later on the very next batch of shipped changes; the user had to ask "why are you not following protocol" roughly a dozen times before the actual answer — the marker convention, not documentation, not `stable`, not testing — was even correctly identified)
+> **Saying "I understand" or "got it" about a rule does NOT make that rule persist into your next
+> response.** A rule stated once, even one you explicitly re‑state back and apply correctly in the
+> moment, has NO automatic mechanism keeping it active — the instant attention moves to the substance
+> of the next task, a communication/process rule (as opposed to the technical content you're focused
+> on) is exactly the kind of thing that silently drops out of what you're actively checking, and you
+> revert to default habits (plain prose instead of the required standalone markers; shipping a change
+> without the full verify‑document‑`stable` sequence; etc.) — not because you forgot it exists, but
+> because nothing forced you to re‑check your OWN response against it before sending.
+> - **The concrete, standing fix: before finalizing ANY response, explicitly re‑check it against the
+>   specific standing rules that apply to what you're about to send** — do not rely on "I already
+>   confirmed I understand this" from earlier in the conversation as if that were still in effect.
+>   For the task‑status markers specifically (§3 CONVENTIONS): before reporting anything as complete,
+>   ask "does this need a standalone `DONE.`? does the next step need `YOU PUBLISH.`? does it need
+>   `OPEN [Page‑name] PAGE.`?" — every single time a task concludes, not only the first time after
+>   being corrected on it.
+> - **This generalizes past the marker convention to every HARD RULE and OPERATING PROTOCOL step in
+>   this file** — HARD RULE #3's verification gate, §2's promote‑then‑advance‑`stable` step, §4's
+>   documentation requirement, all of it. Any of them can silently lapse the same way once the
+>   conversation's attention moves past the moment they were last discussed. Re‑checking against the
+>   standing list is not a one‑time acknowledgment — it is a per‑response habit that has to be run
+>   fresh every time, precisely because verbal acknowledgment is cheap and behavior change is not
+>   automatic from it.
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#6 — keep this
+>   banner intact and pass it on.
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is
