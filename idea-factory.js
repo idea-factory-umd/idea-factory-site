@@ -797,3 +797,39 @@ try {
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] header-name-fit error:', _e); } catch (_) {} }
+
+try {
+// Cross-page smooth-scroll landing: a link to another page can append "#goto:<id>"
+// (instead of the real "#<id>") so the browser's native instant hash-jump never fires
+// (no element has that literal id) — this module reads it on load and performs the
+// same eased scroll used by in-page anchor links (idea-factory.js smooth-scroll module).
+(function(){
+  var m = /^#goto:([\w-]+)$/.exec(location.hash);
+  if (!m) return;
+  var tgt = document.getElementById(m[1]);
+  if (!tgt) return;
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  var reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function ease(t){ return t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
+  function animate(toY){
+    var startY = window.pageYOffset, dist = toY - startY;
+    if (Math.abs(dist) < 2) { window.scrollTo(0, toY); return; }
+    var dur = Math.min(820, Math.max(430, Math.abs(dist)*0.28)), t0 = null;
+    function step(ts){
+      if (t0 == null) t0 = ts;
+      var p = Math.min(1, (ts-t0)/dur);
+      window.scrollTo(0, Math.round(startY + dist*ease(p)));
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  function run(){
+    var hdr = document.querySelector('.if-header') || document.querySelector('header');
+    var h = hdr ? hdr.offsetHeight : 0;
+    var toY = Math.max(0, tgt.getBoundingClientRect().top + window.pageYOffset - h - 24);
+    if (history.replaceState) history.replaceState(null, '', location.pathname + location.search);
+    if (reduced) { window.scrollTo(0, toY); } else { animate(toY); }
+  }
+  if (document.readyState !== 'loading') run(); else document.addEventListener('DOMContentLoaded', run);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] cross-page-anchor-scroll error:', _e); } catch (_) {} }
