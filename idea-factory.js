@@ -839,8 +839,11 @@ try {
    the data-scroll-gap of its data-smooth-scroll links, so a section jump clears BOTH the fixed
    .if-header AND this bar sitting beneath it (the shared smooth-scroll module only accounts for
    .if-header's height by default). Re-syncs on resize and font load since the bar's height can
-   change (e.g. its links wrap onto more lines at narrow widths). Clearance = bar height - 1px
-   (dialed down from +49px per user feedback on MIPS-Apply — a 50px correction). Class-driven + portable. */
+   change (e.g. its links wrap onto more lines at narrow widths). Clearance = bar height - 51px
+   (moves the scroll destination 50px further down the page per user feedback on MIPS-Apply — the
+   target section's OWN top padding, e.g. 72px on program-page-mips-apply-section, sits between
+   this scroll-target boundary and the actual visible heading; this constant controls the visible
+   gap to that heading, not the invisible section edge). Class-driven + portable. */
 try {
 (function(){
   function init(){
@@ -850,7 +853,7 @@ try {
       if(bar.__ifjng)return;bar.__ifjng=1;
       var links=bar.querySelectorAll('a[data-smooth-scroll],a.if-smooth-scroll');
       if(!links.length)return;
-      function sync(){var g=bar.offsetHeight-1;for(var i=0;i<links.length;i++)links[i].setAttribute('data-scroll-gap',g);}
+      function sync(){var g=bar.offsetHeight-51;for(var i=0;i<links.length;i++)links[i].setAttribute('data-scroll-gap',g);}
       sync();
       window.addEventListener('resize',sync,{passive:true});
       if(document.fonts&&document.fonts.ready)document.fonts.ready.then(sync);
