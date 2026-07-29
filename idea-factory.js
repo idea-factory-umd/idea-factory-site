@@ -862,3 +862,48 @@ try {
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] jumpnav-gap error:', _e); } catch (_) {} }
+
+/* ===== module: jumpnav-spy (current-section marker for a sticky in-page nav bar) =====
+   Any link carrying both class .program-page-mips-apply-jumpnav-link and a data-label attribute
+   is treated as a jump-nav item; its target is resolved from its own href (#section-id). As the
+   page scrolls, whichever target section has most recently scrolled up past the sticky header +
+   bar line is marked current by toggling .is-current on that link's own .program-page-mips-apply-
+   jumpnav-label child (the visible text span) — the heavier is-current weight never shifts layout
+   because an invisible ::before ghost of the same text, always rendered at that heavier weight,
+   already reserves the space (see idea-factory.css). Class-driven, portable to any future link
+   sharing the same two markers. */
+try {
+(function(){
+  function init(){
+    var links=document.querySelectorAll('.program-page-mips-apply-jumpnav-link[data-label]');
+    if(!links.length)return;
+    var header=document.querySelector('.if-header');
+    var bar=document.querySelector('.program-page-mips-apply-jumpnav-sec');
+    var items=[];
+    links.forEach(function(a){
+      var href=a.getAttribute('href')||'';
+      var id=href.charAt(0)==='#'?href.slice(1):null;
+      var target=id?document.getElementById(id):null;
+      var label=a.querySelector('.program-page-mips-apply-jumpnav-label');
+      if(target&&label)items.push({target:target,label:label});
+    });
+    if(!items.length)return;
+    function sync(){
+      var headerH=header?header.getBoundingClientRect().height:0;
+      var barH=bar?bar.getBoundingClientRect().height:0;
+      var line=headerH+barH+12;
+      var current=null;
+      items.forEach(function(it){
+        if(it.target.getBoundingClientRect().top<=line)current=it;
+      });
+      items.forEach(function(it){it.label.classList.toggle('is-current',it===current);});
+    }
+    var ticking=false;
+    function onScroll(){if(ticking)return;ticking=true;requestAnimationFrame(function(){sync();ticking=false;});}
+    window.addEventListener('scroll',onScroll,{passive:true});
+    window.addEventListener('resize',onScroll,{passive:true});
+    sync();
+  }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] jumpnav-spy error:', _e); } catch (_) {} }
