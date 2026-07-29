@@ -149,6 +149,23 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
   .if-walk-glyph{width:28px;height:28px;}
   .if-walk-name{font-size:12px;}
 }
+/* Walk-the-Factory bar DUPLICATE (MIPS-Apply, program-page-mips-apply-walkcopy-*): every class
+   renamed so this copy can be restyled independently of the About-page original above. Same
+   parent-hover-child reveal + custom-breakpoint stacking, ported verbatim under the new names. */
+.program-page-mips-apply-walkcopy-item:hover .program-page-mips-apply-walkcopy-glyph,.program-page-mips-apply-walkcopy-item.program-page-mips-apply-walkcopy-current .program-page-mips-apply-walkcopy-glyph{filter:none;}
+.program-page-mips-apply-walkcopy-item:hover .program-page-mips-apply-walkcopy-num,.program-page-mips-apply-walkcopy-item.program-page-mips-apply-walkcopy-current .program-page-mips-apply-walkcopy-num{color:#e21833;}
+.program-page-mips-apply-walkcopy-item:hover .program-page-mips-apply-walkcopy-name,.program-page-mips-apply-walkcopy-item.program-page-mips-apply-walkcopy-current .program-page-mips-apply-walkcopy-name{color:#111111;}
+.program-page-mips-apply-walkcopy-row{scrollbar-width:none;-ms-overflow-style:none;}
+.program-page-mips-apply-walkcopy-row::-webkit-scrollbar{display:none;}
+@media (max-width:880px){
+  .program-page-mips-apply-walkcopy-row{flex-wrap:wrap;margin-left:calc(50% - 50vw);}
+  .program-page-mips-apply-walkcopy-label{flex-basis:100%;flex-direction:row;align-items:baseline;justify-content:flex-start;padding:8px 24px;}
+  .program-page-mips-apply-walkcopy-label-sub{margin-top:0;}
+  .program-page-mips-apply-walkcopy-label-sub::before{content:"|";margin:0 .55em;color:#c9c9c9;font-weight:400;}
+  .program-page-mips-apply-walkcopy-item{flex-basis:50%;border-top:1px solid #e6e6e6;padding-left:12px;padding-right:12px;justify-content:center;}
+  .program-page-mips-apply-walkcopy-glyph{width:28px;height:28px;}
+  .program-page-mips-apply-walkcopy-name{font-size:12px;}
+}
 
 /* ============================================================
    3. STAGE photo + headline  (JS sets transform/opacity inline)
