@@ -905,3 +905,45 @@ try {
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] jumpnav-spy error:', _e); } catch (_) {} }
+/* module: walkcopy-spy — current-section marker for the MIPS-Apply Walk-the-Factory duplicate.
+   A link carrying .program-page-mips-apply-walkcopy-item and data-smooth-scroll is tracked; its
+   target is resolved from its own href. As the page scrolls, the last target whose top has
+   scrolled up past (header + gap + 12) is marked current by toggling the same
+   .program-page-mips-apply-walkcopy-current combo already used for the static demo state, so
+   this simply makes it live instead. */
+try {
+(function(){
+  function init(){
+    var links=document.querySelectorAll('.program-page-mips-apply-walkcopy-item[data-smooth-scroll]');
+    if(!links.length)return;
+    var header=document.querySelector('.if-header');
+    var bar=document.querySelector('.program-page-mips-apply-walkcopy-sec');
+    var items=[];
+    links.forEach(function(a){
+      var href=a.getAttribute('href')||'';
+      var id=href.charAt(0)==='#'?href.slice(1):null;
+      var target=id?document.getElementById(id):null;
+      if(target)items.push({target:target,link:a});
+    });
+    if(!items.length)return;
+    function sync(){
+      var headerH=header?header.getBoundingClientRect().height:0;
+      var barH=bar?bar.getBoundingClientRect().height:0;
+      var g=parseInt(items[0].link.getAttribute('data-scroll-gap'),10);
+      if(isNaN(g))g=barH+24;
+      var line=headerH+g+12;
+      var current=null;
+      items.forEach(function(it){
+        if(it.target.getBoundingClientRect().top<=line)current=it;
+      });
+      items.forEach(function(it){it.link.classList.toggle('program-page-mips-apply-walkcopy-current',it===current);});
+    }
+    var ticking=false;
+    function onScroll(){if(ticking)return;ticking=true;requestAnimationFrame(function(){sync();ticking=false;});}
+    window.addEventListener('scroll',onScroll,{passive:true});
+    window.addEventListener('resize',onScroll,{passive:true});
+    sync();
+  }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] walkcopy-spy error:', _e); } catch (_) {} }
