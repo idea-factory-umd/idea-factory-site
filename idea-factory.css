@@ -163,15 +163,11 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 .program-page-mips-apply-walkcopy-item.program-page-mips-apply-walkcopy-current .program-page-mips-apply-tl-dot-page-nav{background-color:#e21833;}
 .program-page-mips-apply-walkcopy-row{scrollbar-width:none;-ms-overflow-style:none;}
 .program-page-mips-apply-walkcopy-row::-webkit-scrollbar{display:none;}
-@media (max-width:880px){
-  .program-page-mips-apply-walkcopy-row{flex-wrap:wrap;margin-left:calc(50% - 50vw);}
-  .program-page-mips-apply-walkcopy-label{flex-basis:100%;flex-direction:row;align-items:baseline;justify-content:flex-start;padding:8px 24px;}
-  .program-page-mips-apply-walkcopy-label-sub{margin-top:0;}
-  .program-page-mips-apply-walkcopy-label-sub::before{content:"|";margin:0 .55em;color:#c9c9c9;font-weight:400;}
-  .program-page-mips-apply-walkcopy-item{flex-basis:50%;border-top:1px solid #e6e6e6;padding-left:12px;padding-right:12px;justify-content:center;}
-  .program-page-mips-apply-walkcopy-glyph{width:28px;height:28px;}
-  .program-page-mips-apply-walkcopy-name{font-size:12px;}
-}
+/* Responsive stacking (3-col Tablet, 2-col Phone-Horizontal) is now handled by NATIVE Designer
+   medium/small breakpoint overrides on program-page-mips-apply-walkcopy-item, per HARD RULE #2 —
+   the old custom @media(880px) block that used to live here (mirroring the About-page original
+   above) has been removed; it would otherwise conflict with the native breakpoints in the
+   767-880px range. */
 
 /* ============================================================
    3. STAGE photo + headline  (JS sets transform/opacity inline)
