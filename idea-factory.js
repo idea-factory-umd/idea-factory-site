@@ -947,3 +947,26 @@ try {
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] walkcopy-spy error:', _e); } catch (_) {} }
+/* module: walkcopy-gap — keeps data-scroll-gap on the walkcopy items in sync with the bar's own
+   ACTUAL rendered height at whatever breakpoint is currently active. The bar's height changes a
+   lot as it stacks (single row at desktop, label row + 3-col grid at Tablet, label row + 2-col at
+   Phone-Horizontal, label row + 1-col at Phone-Vertical), so a single static gap number can't
+   clear it correctly everywhere. Re-measures on load, resize, and font-load; walkcopy-spy reads
+   this same attribute fresh on every scroll/resize, so its threshold stays in sync automatically. */
+try {
+(function(){
+  function init(){
+    var bar=document.querySelector('.program-page-mips-apply-walkcopy-sec');
+    var links=document.querySelectorAll('.program-page-mips-apply-walkcopy-item[data-smooth-scroll]');
+    if(!bar||!links.length)return;
+    function sync(){
+      var g=Math.round(bar.getBoundingClientRect().height);
+      links.forEach(function(a){a.setAttribute('data-scroll-gap',g);});
+    }
+    sync();
+    window.addEventListener('resize',sync,{passive:true});
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(sync);
+  }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] walkcopy-gap error:', _e); } catch (_) {} }
