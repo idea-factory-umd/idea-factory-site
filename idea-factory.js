@@ -947,3 +947,30 @@ try {
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] walkcopy-spy error:', _e); } catch (_) {} }
+/* module: walkcopy-gap-tiers — sets data-scroll-gap on the walkcopy items to one of four EXPLICIT,
+   fixed numbers depending on which native breakpoint is currently active. No measurement, no
+   computation — these are exact values set directly: Desktop >=992px = 50, Tablet 768-991px = 100,
+   Horizontal-phone 480-767px = 150, Vertical-phone <=479px = 300. Re-applies on load and resize;
+   walkcopy-spy reads this same attribute fresh each sync, so its threshold stays in step. */
+try {
+(function(){
+  function init(){
+    var links=document.querySelectorAll('.program-page-mips-apply-walkcopy-item[data-smooth-scroll]');
+    if(!links.length)return;
+    function pick(){
+      var w=window.innerWidth;
+      if(w<=479)return 300;
+      if(w<=767)return 150;
+      if(w<=991)return 100;
+      return 50;
+    }
+    function sync(){
+      var g=pick();
+      links.forEach(function(a){a.setAttribute('data-scroll-gap',g);});
+    }
+    sync();
+    window.addEventListener('resize',sync,{passive:true});
+  }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] walkcopy-gap-tiers error:', _e); } catch (_) {} }
