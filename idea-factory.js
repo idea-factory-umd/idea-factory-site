@@ -974,3 +974,40 @@ try {
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] walkcopy-gap-tiers error:', _e); } catch (_) {} }
+
+/* module: hero-countup-easeout — one specific instance (MIPS-Impact hero "41:1" stat) that
+   needs a different feel than the shared .if-countup (ease-in-cubic, slow start / abrupt stop):
+   ease-out-quad instead, for a quicker pickup and a gentle deceleration into the final value.
+   Scoped to its own class (.if-hero-countup) so .if-countup and every element using it elsewhere
+   are completely unaffected. */
+try {
+(function(){
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function init(){
+    var els = document.querySelectorAll('.if-hero-countup');
+    if(!els.length) return;
+    els.forEach(function(el){
+      var value = el.getAttribute('data-value') || el.textContent.trim();
+      var m = value.match(/^([^\d]*)([\d.,]+)(.*)$/) || [null,'','0',''];
+      var numStr = m[2], hasComma = numStr.indexOf(',')>=0, plain = numStr.replace(/,/g,'');
+      var dot = plain.indexOf('.'), decimals = dot>=0 ? plain.length-dot-1 : 0;
+      var prefix = m[1]||'', suffix = m[3]||'', target = parseFloat(plain)||0;
+      function fmt(n){ var s = n.toFixed(decimals); if(hasComma){ var p = s.split('.'); p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g,','); s = p.join('.'); } return prefix+s+suffix; }
+      if(reduce){ el.textContent = value; el.style.opacity = 1; return; }
+      el.style.opacity = 0; el.textContent = fmt(0);
+      var started = false, raf;
+      function run(){
+        var dur = 1600, fade = 480, t0 = performance.now();
+        function tick(now){ var dt = now-t0, p = Math.min(1, dt/dur), e = 1-(1-p)*(1-p); // easeOutQuad
+          el.textContent = p<1 ? fmt(target*e) : value; el.style.opacity = Math.min(1, dt/fade).toFixed(3);
+          if(p<1) raf = requestAnimationFrame(tick); else el.style.opacity = 1; }
+        raf = requestAnimationFrame(tick);
+      }
+      function check(){ if(started) return; var r = el.getBoundingClientRect(), vh = window.innerHeight||document.documentElement.clientHeight;
+        if(r.top<vh*0.85 && r.bottom>0){ started = true; window.removeEventListener('scroll', check); run(); } }
+      window.addEventListener('scroll', check, {passive:true}); window.addEventListener('resize', check); check();
+    });
+  }
+  if(document.readyState!=='loading') init(); else document.addEventListener('DOMContentLoaded', init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] hero-countup-easeout error:', _e); } catch (_) {} }
