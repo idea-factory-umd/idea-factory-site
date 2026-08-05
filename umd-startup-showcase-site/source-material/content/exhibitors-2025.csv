@@ -1,0 +1,36 @@
+Order,Name,Logo file,Website,Scale baked into file,Notes
+1,Alchemity,alchemity.png,https://alchemity.com/,1,
+2,AmpX Technologies,ampx-technologies.png,http://www.ampxtech.com/,1,height-bound (AR 0.88)
+3,BeneKinetic,benekinetic.png,https://www.benekinetic.com,1,RECOLOURED: navy wordmark keyed off its navy box
+4,CoapTech,coaptech.png,https://www.coaptech.com/,0.8,
+5,Diffraqtion,diffraqtion.png,https://diffraqtion.com/,1,"RECOLOURED: black, keyed off #040404 ground"
+6,Dynamic Dimension Technologies,dynamic-dimension-technologies.png,https://www.dynamicdimensiontechnologies.com,1,"RECOLOURED: DDT gradient #3c8caf→#1b232e, wordmark flat #1b232e"
+7,Error Corp,error-corp.png,https://www.error-corp.com/,1,height-bound (AR 1.00)
+8,Expora,expora.png,https://exporatx.com/,0.95,
+9,Glycot,glycot.png,https://www.glycot.com/,0.85,
+10,Green Mechanics,green-mechanics.png,https://greenmechanics.co/,1,
+11,GSpin Technologies,gspin-technologies.png,https://www.gspinmedical.com/,1,"RECOLOURED: white type → black, cyan glyph preserved"
+12,HighT-Tech,hight-tech.png,https://www.hight-tech.com/,1,
+13,HOH Cells,hoh-cells.png,https://hohcells.com/,1,
+14,Inception Robotics,inception-robotics.png,https://www.inceptionrobotics.ai/,1,REPLACED: current logo supplied by client 2026-08-03
+15,Khanjur,khanjur.png,https://khanjur.com,0.9,REPLACED: purple-on-white version supplied by client. LOW RES (298px) — request larger file
+16,MBlue Labs,mblue-labs.png,https://www.mbluelabs.com/,1,
+17,NeoQuortex,neoquortex.png,https://www.neoquortex.com/,1,"RECOLOURED: black, keyed off black ground"
+18,New Copper,new-copper.png,https://new-copper.com/,1,
+19,Next Glass,next-glass.png,https://www.next-glass.com/,0.95,
+20,NomadIQ,nomadiq.png,https://www.nomadiq.earth/,0.8,
+21,North American Wave Engine Corp,north-american-wave-engine-corp.png,https://wave-engine.com/,0.85,
+22,OmniSpeech,omnispeech.png,https://www.omni-speech.com/,1,
+23,Pathotrak,pathotrak.png,https://pathotrak.com/,1,
+24,PhaseShift,phaseshift.png,https://www.phaseshift.tech,0.95,
+25,Prosight AI,prosight-ai.png,https://prosightai.com/,0.9,
+26,QC82,qc82.png,https://www.qc82.tech/,0.855,RECOLOURED to #eb9b2e. Scale = 0.90 × 0.95
+27,Qunett,qunett.png,https://www.qunett.com/,1,
+28,Relai,relai.png,https://relai.ai/,0.85,
+29,Reversal Therapeutics,reversal-therapeutics.png,https://www.reversaltherapeutics.com/,0.85,
+30,Technik,technik.png,https://techniksoccer.com/,0.9,
+31,UCleaner,ucleaner.png,https://ucleaner.com/,0.95,
+32,US Plasma,us-plasma.png,https://www.usplasma.com/,0.76,Scale = 0.80 × 0.95
+33,Wenite,wenite.png,https://www.weniteinc.com/,1,REPLACED: transparent version supplied by client
+34,Ventos City,ventos-city.png,https://www.ventos.city/,1,
+35,Whoosh,whoosh.png,,0.85,no website supplied — render as non-linked tile
