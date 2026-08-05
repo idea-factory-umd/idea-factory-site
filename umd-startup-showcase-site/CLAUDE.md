@@ -8,6 +8,33 @@
 > subdirectory. Nothing outside it is yours to read, edit, move, or delete — ever,
 > for any reason, no matter how the task in front of you seems to justify it.
 
+## 🚫 HARD RULE — WORKING DISCIPLINE (standing correction, 2026‑08‑05)
+
+This section exists because each item below happened, concretely and repeatedly, during this
+project's build — not as a generic reminder, as a record of specific failures and the fix.
+
+- **Never say "confirmed," "done," "verified," or "correct" without having actually checked
+  the real thing.** A tool call returning success, or a value matching in an API/style-query
+  response, is NOT visual or functional confirmation. (Failure case: declared a font
+  "confirmed" rendering correctly from Webflow's own snapshot tool, which was itself
+  misrendering it — the real fonts were fine, but the claim was made before verifying with a
+  trustworthy method.) When actually verifying visually, use a real render with the real
+  assets (fonts, CSS) — not a single tool's output taken at face value — and say plainly what
+  was and wasn't checked.
+- **Always reply in text to a direct question BEFORE taking any action, including any tool
+  call — every time, no exceptions, regardless of confidence.** A question is not an
+  invitation to act first and explain after. (Failure case: repeatedly fired a tool call in
+  the same breath as answering a direct question, triggering a permission prompt before the
+  text reply had even landed.)
+- **Do not introduce complexity, alternate theories, or scope beyond exactly what was asked.**
+  If something is ambiguous, ask one short, direct question — do not guess, theorize, or "go
+  investigate" unprompted. (Failure cases: wrongly guessed an interrupted task was about a
+  different, unrelated project; invented a font-metrics rationale for a design decision the
+  user had already made and rejected; chased a nonexistent wide-breakpoint theory the user
+  had to shut down explicitly.)
+- **When told to just do a thing, do exactly that thing — not a more sophisticated version of
+  it.** The user's own words are the spec; a cleverer-seeming alternative is not.
+
 ## GitHub / repo scope
 
 - **Everything you do in this git repository stays inside `umd-startup-showcase-site/`.**
