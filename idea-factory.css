@@ -588,7 +588,7 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 /* TEMP DIAGNOSTIC — nav-link wrap-to-content width, forced via !important to bypass
    whatever is preventing the native Designer rule from taking visible effect. Remove once
    confirmed the native style is the one actually rendering. */
-.if-navmenu .if-nav-link{flex-basis:0% !important;flex-grow:1 !important;flex-shrink:1 !important;min-width:0 !important;width:auto !important;max-width:max-content !important;}
+.if-navmenu .if-nav-link{flex-basis:auto !important;flex-grow:0 !important;flex-shrink:1 !important;min-width:0 !important;max-width:none !important;width:fit-content !important;}
 @media screen and (max-width:991px){
   .if-navmenu .if-nav-link{flex-basis:auto !important;flex-grow:0 !important;max-width:none !important;width:100% !important;}
 }
