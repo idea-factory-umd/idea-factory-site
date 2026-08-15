@@ -1012,3 +1012,70 @@ try {
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] hero-countup-easeout error:', _e); } catch (_) {} }
 
+/* ===== module: nav-link-exact-fit (desktop only, >991px) =====
+   Static CSS cannot do this: fit-content/max-content are defined as "available space, clamped
+   by content" - not "current wrap state" - so the box and the text's wrap state are circularly
+   dependent (verified directly: flex-grow and flex-basis:fit-content both keep growing the box
+   as viewport widens even while the text stays wrapped). This measures the ACTUAL rendered
+   width of each plain nav-link's text (the .if-mtext span the "nav" module above already
+   creates) and pins the link's width to exactly that plus its own left/right padding - read
+   live from computed style, never assumed. Dropdown toggles (if-ddtoggle) are skipped: they
+   pair text with an icon, a different composition this isn't meant to size. Desktop-only by
+   design (clears any pinned width below 992px so the native mobile width:100% governs).
+   Re-runs on load, after web fonts finish loading (a font swap after initial layout can leave
+   a stale measurement), and via ResizeObserver on the row (catches any width change without a
+   raw window-resize listener; observing the row rather than the links it writes to avoids a
+   feedback loop, since the row's own width comes from max-width/viewport, not its children). */
+try {
+  (function(){
+    var mq = window.matchMedia('(min-width:992px)');
+    function widestLineWidth(target){
+      var range = document.createRange();
+      range.selectNodeContents(target);
+      var rects = range.getClientRects();
+      if(!rects.length) return null;
+      var lines = {};
+      for(var i=0;i<rects.length;i++){
+        var r = rects[i], key = Math.round(r.top);
+        if(!lines[key]) lines[key] = {left:r.left, right:r.right};
+        else { lines[key].left = Math.min(lines[key].left, r.left); lines[key].right = Math.max(lines[key].right, r.right); }
+      }
+      var widest = 0;
+      Object.keys(lines).forEach(function(k){ var w = lines[k].right - lines[k].left; if(w > widest) widest = w; });
+      return widest;
+    }
+    function fit(){
+      var menu = document.querySelector('.if-navmenu'); if(!menu) return;
+      var all = menu.querySelectorAll('.if-nav-link');
+      var links = [];
+      for(var i=0;i<all.length;i++){ if(all[i].className.indexOf('if-ddtoggle')===-1) links.push(all[i]); }
+      if(!links.length) return;
+      if(!mq.matches){
+        links.forEach(function(el){ el.style.width=''; });
+        return;
+      }
+      links.forEach(function(el){ el.style.width=''; });
+      var plans = links.map(function(el){
+        var target = el.querySelector('.if-mtext'); if(!target) return null;
+        var widest = widestLineWidth(target); if(widest===null) return null;
+        var cs = getComputedStyle(el);
+        var pad = (parseFloat(cs.paddingLeft)||0) + (parseFloat(cs.paddingRight)||0);
+        return { el: el, width: Math.ceil(widest + pad) + 1 };
+      });
+      plans.forEach(function(p){ if(p) p.el.style.width = p.width + 'px'; });
+    }
+    var raf = 0;
+    function scheduleFit(){ if(raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(function(){ raf=0; fit(); }); }
+    if(document.readyState!=='loading') fit(); else document.addEventListener('DOMContentLoaded', fit);
+    window.addEventListener('load', function(){ setTimeout(fit, 50); });
+    if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ setTimeout(fit, 30); }).catch(function(){}); }
+    if(mq.addEventListener) mq.addEventListener('change', scheduleFit); else if(mq.addListener) mq.addListener(scheduleFit);
+    var navbarIn = document.querySelector('.if-navbar-in');
+    if(navbarIn && window.ResizeObserver){
+      new ResizeObserver(scheduleFit).observe(navbarIn);
+    } else {
+      window.addEventListener('resize', scheduleFit, {passive:true});
+    }
+  })();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] nav-link-exact-fit error:', _e); } catch (_) {} }
+
