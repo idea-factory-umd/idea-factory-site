@@ -1012,25 +1012,3 @@ try {
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] hero-countup-easeout error:', _e); } catch (_) {} }
 
-/* ===== module: nav-link-font-reflow =====
-   Interstate loads async over the network after initial layout. If the flex row lays out
-   once with a fallback font, then Interstate swaps in, a nav-link sized by width:fit-content
-   can be left stale — sized from the fallback font's metrics while the text wraps against the
-   real font's (wider/narrower) metrics. Forces a hard reflow (display:none -> restore) on each
-   .if-nav-link once document.fonts confirms loading is actually finished, so fit-content gets
-   recomputed against final metrics. */
-try {
-  function reflowNavLinks(){
-    var links = document.querySelectorAll('.if-nav-link');
-    links.forEach(function(el){
-      var prev = el.style.display;
-      el.style.display = 'none';
-      void el.offsetHeight;
-      el.style.display = prev;
-    });
-  }
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(reflowNavLinks).catch(function(){});
-  }
-  window.addEventListener('load', function(){ setTimeout(reflowNavLinks, 50); });
-} catch (_e) { try { console && console.warn && console.warn('[idea-factory] nav-link-font-reflow error:', _e); } catch (_) {} }
