@@ -490,6 +490,17 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
   .if-navmenu.if-navmenu .if-nav-sublink:hover{color:#7f7f7f !important;}     /* sub-item stays gray */
 }
 
+/* Desktop only: the shared JS (module "nav") wraps every nav-link's text in an inner
+   <span class="if-mtext"> at runtime. As a plain child of an inline-flex .if-nav-link it
+   becomes its own nested flex item, sized independently of the outer box — which can leave
+   the outer box measuring one thing while the text wraps against another. display:contents
+   removes the span's own box so its text is the outer box's direct sizing content again,
+   matching the un-wrapped markup. Mobile (≤991px) overrides this back to inline-block below,
+   where a real box is needed for the hover-scale transform. */
+@media screen and (min-width:992px){
+  .if-navmenu .if-mtext{display:contents;}
+}
+
 /* ===== MOBILE MENU — STRUCTURAL STABILITY, SITEWIDE (2026‑07‑24) =====
    Found: About's hamburger menu diverged from Home's — dropdown sub-items
    (News/About) collapsed instead of staying always-visible (so the current-page
@@ -584,3 +595,4 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 .program-page-aspire-card-dl-normal,.program-page-aspire-card-dl-hover{transition:opacity 0.18s ease;}
 .program-page-aspire-card-dl:hover .program-page-aspire-card-dl-normal{opacity:0;}
 .program-page-aspire-card-dl:hover .program-page-aspire-card-dl-hover{opacity:1;}
+
