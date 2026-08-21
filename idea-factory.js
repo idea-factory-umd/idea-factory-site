@@ -322,6 +322,45 @@ try {
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] hs-form-late-css error:', _e); } catch (_) {} }
 
+/* ===== module: hs-form-iframe-css (Updates page) =====
+ * Real DevTools inspection (2026-08-21) showed HubSpot's "Canvas" theme renders this
+ * form's fields/richtext inside an isolated iframe document (data-hs-shell/data-hs-frame
+ * on the embed script), not directly in the host page. A host-page stylesheet can never
+ * cross an iframe boundary — but if the iframe is same-origin (created + populated by
+ * HubSpot's own script running on this page, not loaded via a cross-origin src=), the
+ * parent page CAN reach its contentDocument directly and inject a real <style> there.
+ * Polls every 500ms for up to ~15s since the iframe/content renders asynchronously.
+ * Fails silently per-iframe (try/catch) if the browser blocks it as cross-origin —
+ * that outcome is itself the definitive answer on whether this is reachable at all. */
+try {
+(function(){
+  var CSS = ".hs-richtext,.hs-richtext p,.hs-main-font-element{font-size:18px!important;color:#454545!important;line-height:1.5!important;font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;}";
+  function tryInject(frame){
+    try {
+      var doc = frame.contentDocument || (frame.contentWindow && frame.contentWindow.document);
+      if (!doc) return false;
+      if (doc.getElementById('if-hs-iframe-css')) return true;
+      if (!doc.querySelector('.hs-richtext')) return false;
+      var s = doc.createElement('style');
+      s.id = 'if-hs-iframe-css';
+      s.textContent = CSS;
+      (doc.head || doc.body || doc.documentElement).appendChild(s);
+      return true;
+    } catch (e) { return false; }
+  }
+  var wrap = document.querySelector('.if-updates-form-wrap');
+  if (!wrap) return;
+  var tries = 0;
+  var timer = setInterval(function(){
+    tries++;
+    var frames = document.querySelectorAll('iframe');
+    var done = false;
+    for (var i = 0; i < frames.length; i++) { if (tryInject(frames[i])) done = true; }
+    if (done || tries > 30) clearInterval(timer);
+  }, 500);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] hs-form-iframe-css error:', _e); } catch (_) {} }
+
 /* ===== module: program-filter (Students directory) =====
    Class-driven + portable: keys only off .if-filter-pills/.if-filter-pill[data-filter] and
    .if-prog-grid/.if-prog-card[data-tags] — never off ids, order, or text. On load NO pill is
