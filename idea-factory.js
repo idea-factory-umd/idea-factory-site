@@ -345,10 +345,18 @@ try {
       if (!doc) return false;
       if (doc.getElementById('if-hs-iframe-css')) return true;
       if (!doc.querySelector('.hs-richtext')) return false;
+      var head = doc.head || doc.body || doc.documentElement;
+      if (!doc.getElementById('if-hs-iframe-font')) {
+        var l = doc.createElement('link');
+        l.id = 'if-hs-iframe-font';
+        l.rel = 'stylesheet';
+        l.href = 'https://use.typekit.net/fdu6zpb.css';
+        head.appendChild(l);
+      }
       var s = doc.createElement('style');
       s.id = 'if-hs-iframe-css';
       s.textContent = CSS;
-      (doc.head || doc.body || doc.documentElement).appendChild(s);
+      head.appendChild(s);
       return true;
     } catch (e) { return false; }
   }
