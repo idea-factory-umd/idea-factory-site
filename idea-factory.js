@@ -300,28 +300,6 @@ try {
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] cse-late-css error:', _e); } catch (_) {} }
 
-/* ===== module: hs-form-late-css (cascade fix, Updates page) =====
- * HubSpot's forms embed (js.hsforms.net v2) injects its own <style> into <head> at
- * runtime, after page load — same failure mode as Google CSE above. Its rule can win
- * the cascade regardless of !important because it lands later in DOM/style order.
- * Re-injecting our override AFTER the HubSpot form actually renders (watched via
- * MutationObserver, since the embed loads async) restores our rule as the last word. */
-try {
-(function(){
-  var CSS = ".if-updates-form-wrap .hs-richtext p{margin-top:0!important;margin-bottom:0!important;color:#454545!important;font-size:18px!important;line-height:1.5!important;font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;}.if-updates-form-wrap [class*=\"hs-richtext\"],.if-updates-form-wrap [class*=\"hs-richtext\"] *{margin-top:0!important;margin-bottom:0!important;color:#454545!important;font-size:18px!important;line-height:1.5!important;font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;}.if-updates-form-wrap [class*=\"hs-richtext\"]{margin-bottom:32px!important;}";
-  function inj(){ if(document.getElementById('if-hs-latecss')) return; var s=document.createElement('style'); s.id='if-hs-latecss'; s.textContent=CSS; (document.body||document.documentElement).appendChild(s); }
-  var wrap = document.querySelector('.if-updates-form-wrap');
-  if(!wrap) return;
-  var done = false;
-  function check(){ if(done) return; if(wrap.querySelector('[class*="hs-richtext"]')){ done = true; inj(); mo.disconnect(); } }
-  var mo = new MutationObserver(check);
-  mo.observe(wrap, {childList:true, subtree:true});
-  check();
-  setTimeout(inj, 1500);
-  setTimeout(inj, 4000);
-})();
-} catch (_e) { try { console && console.warn && console.warn('[idea-factory] hs-form-late-css error:', _e); } catch (_) {} }
-
 /* ===== module: hs-form-iframe-css (Updates page) =====
  * Real DevTools inspection (2026-08-21) showed HubSpot's "Canvas" theme renders this
  * form's fields/richtext inside an isolated iframe document (data-hs-shell/data-hs-frame

@@ -596,17 +596,3 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 .program-page-aspire-card-dl-normal,.program-page-aspire-card-dl-hover{transition:opacity 0.18s ease;}
 .program-page-aspire-card-dl:hover .program-page-aspire-card-dl-normal{opacity:0;}
 .program-page-aspire-card-dl:hover .program-page-aspire-card-dl-hover{opacity:1;}
-/* Updates page: HubSpot form embed (js.hsforms.net v2) sitting beside the native
-   if-updates-form-* fields for a style comparison. Genuinely non-native third-party
-   markup injected by HubSpot's own script — verified real class names directly from
-   the served v2.js (not guessed): .hs-richtext/.hs-main-font-element for the form's
-   own configured intro text, label + .hs-form-required span for fields, .hs-input,
-   .hs-button. Scoped to .if-updates-form-wrap so it only touches this one embed. */
-.if-updates-form-wrap .hs-richtext p{margin-top:0 !important;margin-bottom:0 !important;color:#454545 !important;font-size:18px !important;line-height:1.5 !important;font-family:"Interstate","Helvetica Neue",Arial,sans-serif !important;}
-.if-updates-form-wrap [class*="hs-richtext"],.if-updates-form-wrap [class*="hs-richtext"] *{margin-top:0 !important;margin-bottom:0 !important;color:#454545 !important;font-size:18px !important;line-height:1.5 !important;font-family:"Interstate","Helvetica Neue",Arial,sans-serif !important;}
-.if-updates-form-wrap [class*="hs-richtext"]{margin-bottom:32px !important;}
-.if-updates-form-wrap label,.if-updates-form-wrap .hs-form label{display:block !important;margin-top:0 !important;margin-bottom:8px !important;color:#1a1a1a !important;font-size:16px !important;font-weight:600 !important;font-family:"Interstate","Helvetica Neue",Arial,sans-serif !important;}
-.if-updates-form-wrap .hs-form-required{color:#e21833 !important;}
-.if-updates-form-wrap .hs-input{display:block !important;width:100% !important;margin-top:0 !important;margin-bottom:24px !important;padding:12px 14px !important;border:1px solid #cfcfcf !important;border-radius:4px !important;background-color:#ffffff !important;color:#1a1a1a !important;font-size:16px !important;font-family:"Interstate","Helvetica Neue",Arial,sans-serif !important;}
-.if-updates-form-wrap .hs-button{display:inline-block !important;margin-top:16px !important;padding:14px 32px !important;border:0 !important;border-radius:4px !important;background-color:#e21833 !important;color:#ffffff !important;font-size:16px !important;font-weight:700 !important;text-align:center !important;font-family:"Interstate","Helvetica Neue",Arial,sans-serif !important;}
-
