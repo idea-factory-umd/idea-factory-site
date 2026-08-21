@@ -334,7 +334,11 @@ try {
  * that outcome is itself the definitive answer on whether this is reachable at all. */
 try {
 (function(){
-  var CSS = ".hs-richtext,.hs-richtext p,.hs-main-font-element{font-size:18px!important;color:#454545!important;line-height:1.5!important;font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;}";
+  var CSS = ".hs-richtext,.hs-richtext p,.hs-main-font-element{font-size:18px!important;color:#454545!important;line-height:1.5!important;font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;margin-top:0!important;margin-bottom:32px!important;}"
+    + ".hs-form-field label{display:block!important;margin-top:0!important;margin-bottom:8px!important;font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;color:#1a1a1a!important;font-size:16px!important;font-weight:600!important;}"
+    + ".hs-form-required{color:#e21833!important;}"
+    + ".hs-input{display:block!important;width:100%!important;margin-top:0!important;margin-bottom:24px!important;padding:12px 14px!important;border:1px solid #cfcfcf!important;border-radius:4px!important;background-color:#ffffff!important;font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;color:#1a1a1a!important;font-size:16px!important;box-sizing:border-box!important;}"
+    + ".hs-button{display:inline-block!important;margin-top:16px!important;padding:14px 32px!important;border:0!important;border-radius:4px!important;background-color:#e21833!important;font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;color:#ffffff!important;font-size:16px!important;font-weight:700!important;text-align:center!important;cursor:pointer!important;}";
   function tryInject(frame){
     try {
       var doc = frame.contentDocument || (frame.contentWindow && frame.contentWindow.document);
