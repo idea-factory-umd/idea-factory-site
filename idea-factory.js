@@ -284,8 +284,12 @@ try {
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] cse-placement error:', _e); } catch (_) {} }
 
 /* ===== module: back-to-top ===== */
+/* Per-page opt-out: add a native custom attribute data-hide-backtotop="1" to any
+ * element on a page (convention: the page's own .if-header Block, never an element
+ * inside the shared Footer symbol) to hide the button on that page only, with zero
+ * effect on the shared Footer component definition or any other page/instance. */
 try {
-(function(){if(window.__ifBTT)return;window.__ifBTT=1;function init(){var btn=document.querySelector('.if-backtotop'),footer=document.querySelector('.if-footer');if(!btn||!footer)return;var hero=document.querySelector('.if-hero-sec');var footerIn=false,heroIn=false;function apply(){btn.classList.toggle('is-visible',footerIn&&!heroIn);}new IntersectionObserver(function(es){es.forEach(function(e){footerIn=e.isIntersecting;});apply();}).observe(footer);if(hero){new IntersectionObserver(function(es){es.forEach(function(e){heroIn=e.isIntersecting;});apply();}).observe(hero);}apply();var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;btn.addEventListener('click',function(){window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});});}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();
+(function(){if(window.__ifBTT)return;window.__ifBTT=1;function init(){var btn=document.querySelector('.if-backtotop'),footer=document.querySelector('.if-footer');if(!btn||!footer)return;if(document.querySelector('[data-hide-backtotop]'))return;var hero=document.querySelector('.if-hero-sec');var footerIn=false,heroIn=false;function apply(){btn.classList.toggle('is-visible',footerIn&&!heroIn);}new IntersectionObserver(function(es){es.forEach(function(e){footerIn=e.isIntersecting;});apply();}).observe(footer);if(hero){new IntersectionObserver(function(es){es.forEach(function(e){heroIn=e.isIntersecting;});apply();}).observe(hero);}apply();var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;btn.addEventListener('click',function(){window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});});}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] back-to-top error:', _e); } catch (_) {} }
 
 /* ===== module: cse-late-css (cascade fix) =====
