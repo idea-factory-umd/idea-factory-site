@@ -360,8 +360,6 @@ try {
       return true;
     } catch (e) { return false; }
   }
-  var wrap = document.querySelector('.if-updates-form-wrap');
-  if (!wrap) return;
   var tries = 0;
   var timer = setInterval(function(){
     tries++;
