@@ -353,6 +353,58 @@ try {
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] hs-form-iframe-css error:', _e); } catch (_) {} }
 
+/* ===== module: ff-form-iframe-css (MIPS Company/Faculty Statement-of-Interest pages) =====
+ * Same root cause and same fix as hs-form-iframe-css above, for a different vendor.
+ * The Formstack "FastForms" embed on these two pages creates a blank <iframe
+ * id="ffEmbedFrame"> and populates it itself via document.write() from a script
+ * running on this host page — so, same as the HubSpot Canvas iframe, it's
+ * same-origin and reachable via contentDocument even though it's still a real,
+ * isolated document a host-page stylesheet could never otherwise reach. Real
+ * class names below came from the actual Formstack Main.js engine (curled and
+ * grepped directly — sfapi.formstack.io/FormEngine/Scripts/Main.js), not a guess:
+ * .ff-general-text-label (intro/description text), .ff-label (field labels),
+ * .ff-required-mark (the red asterisk), .ff-input-type input/textarea/select
+ * (the actual fields), .ff-submit-btn / .ff-btn-submit (submit / multi-page nav
+ * buttons — styled both since it's unconfirmed which this specific form uses). */
+try {
+(function(){
+  var CSS = ".ff-general-text-label{font-size:18px!important;color:#454545!important;line-height:1.5!important;font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;}"
+    + ".ff-label{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;color:#1a1a1a!important;font-size:16px!important;font-weight:600!important;}"
+    + ".ff-required-mark{color:#e21833!important;}"
+    + ".ff-input-type input,.ff-input-type textarea,.ff-input-type select{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;color:#1a1a1a!important;font-size:16px!important;border:1px solid #cfcfcf!important;border-radius:4px!important;padding:12px 14px!important;background-color:#ffffff!important;box-sizing:border-box!important;}"
+    + ".ff-submit-btn,.ff-btn-submit{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;background-color:#e21833!important;color:#ffffff!important;font-weight:700!important;border:0!important;border-radius:4px!important;padding:14px 32px!important;cursor:pointer!important;}";
+  function tryInject(frame){
+    try {
+      var doc = frame.contentDocument || (frame.contentWindow && frame.contentWindow.document);
+      if (!doc) return false;
+      if (doc.getElementById('if-ff-iframe-css')) return true;
+      if (!doc.querySelector('.ff-label,.ff-form,.ff-general-text-label')) return false;
+      var head = doc.head || doc.body || doc.documentElement;
+      if (!doc.getElementById('if-ff-iframe-font')) {
+        var l = doc.createElement('link');
+        l.id = 'if-ff-iframe-font';
+        l.rel = 'stylesheet';
+        l.href = 'https://use.typekit.net/fdu6zpb.css';
+        head.appendChild(l);
+      }
+      var s = doc.createElement('style');
+      s.id = 'if-ff-iframe-css';
+      s.textContent = CSS;
+      head.appendChild(s);
+      return true;
+    } catch (e) { return false; }
+  }
+  var tries = 0;
+  var timer = setInterval(function(){
+    tries++;
+    var frames = document.querySelectorAll('iframe');
+    var done = false;
+    for (var i = 0; i < frames.length; i++) { if (tryInject(frames[i])) done = true; }
+    if (done || tries > 30) clearInterval(timer);
+  }, 500);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] ff-form-iframe-css error:', _e); } catch (_) {} }
+
 /* ===== module: program-filter (Students directory) =====
    Class-driven + portable: keys only off .if-filter-pills/.if-filter-pill[data-filter] and
    .if-prog-grid/.if-prog-card[data-tags] — never off ids, order, or text. On load NO pill is
