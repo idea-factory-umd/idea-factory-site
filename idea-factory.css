@@ -606,3 +606,21 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
    styling pass ever fails to fire for any reason.*/
 #iFrameWrapper{opacity:0;transition:opacity 0.4s ease;}
 #iFrameWrapper.if-ff-ready{opacity:1;}
+
+/* MIPS "Round" pages: chart tables are pasted in as raw HTML/CSS via an HtmlEmbed
+   (from an external table-generator tool, not a Webflow element), so their header-
+   row styling is baked into the embed's own <style> block and completely outside
+   Webflow's native styling system — the Designer has no way to reach into an
+   embed's markup at all. That generator gives every export the SAME boilerplate
+   base rule ".tg th{...}" for header cells, but a DIFFERENT randomly-generated
+   per-table class (e.g. "tg-sqty") for the color — so targeting the random class
+   would only fix the one table it was copied from. Targeting the boilerplate
+   ".tg th" instead is genuinely portable: it's identical across every export from
+   this tool, so this one rule covers every current AND future one of these embeds
+   with zero further action needed, matching the ask ("the coding should be the
+   same in all of them"). !important is required since the embed's own per-table
+   class (".tg .tg-xxxx") is more specific than a bare ".tg th" and would otherwise
+   still win the cascade. Swaps the tool's default pale-blue header fill for the
+   site's own established gold "hatch" pattern (the same repeating-linear-gradient
+   already used for the alternating-row highlight on the MIPS Projects page). */
+.tg th{background-color:rgba(255,210,0,0.7)!important;background-image:repeating-linear-gradient(170deg,rgba(255,255,255,.55) 0,rgba(255,255,255,.55) .5px,transparent .5px,transparent 2.5px)!important;}
