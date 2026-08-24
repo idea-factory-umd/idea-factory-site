@@ -501,6 +501,43 @@ try {
       s.textContent = CSS;
       head.appendChild(s);
       forceInlineFonts(doc);
+      syncFrameHeight(doc);
+    } catch (e) {}
+  }
+  // Formstack sets the iframe's own height itself (FFSetIframeSize, in the
+  // embed's own script) based on the form's content height AT THE MOMENT IT
+  // MEASURES — before this module's own font/weight/line-height changes have
+  // been applied, and potentially before conditional fields finish showing/
+  // hiding or a multi-page form settles on its actual visible page. That
+  // locked-in height can end up taller than the real, final rendered content,
+  // leaving a block of blank space between the form and the footer below it
+  // (reported: ~260px on one page, ~650px on the other — the size varies with
+  // how much each specific form's content shifted, not a fixed amount).
+  // Rather than reverse-engineer exactly when/how Formstack calls
+  // FFSetIframeSize, this re-measures the iframe's OWN real content height
+  // every time it re-asserts styling anyway and sets the height to match —
+  // self-correcting regardless of the exact cause, the same "fix the
+  // resulting state, not the internal mechanism" approach used for the
+  // fonts/borders above.
+  function syncFrameHeight(doc){
+    try {
+      var frameEl = doc.defaultView && doc.defaultView.frameElement;
+      if (!frameEl) return;
+      // scrollHeight reports max(real content height, the iframe's OWN
+      // current viewport height) — while the iframe is still locked at
+      // Formstack's earlier (too-tall) height, it just reflects that SAME
+      // height straight back, hiding the real content height entirely. Drop
+      // the constraint to the browser's small intrinsic default first, so
+      // scrollHeight is forced to measure the actual content instead of an
+      // artificially inflated floor, then apply the real measured height.
+      frameEl.style.setProperty('height', 'auto', 'important');
+      var real = Math.max(
+        doc.body ? doc.body.scrollHeight : 0,
+        doc.documentElement ? doc.documentElement.scrollHeight : 0
+      );
+      if (real > 0) {
+        frameEl.style.setProperty('height', real + 'px', 'important');
+      }
     } catch (e) {}
   }
   function revealWrapper(doc){
