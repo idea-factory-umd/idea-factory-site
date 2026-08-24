@@ -359,25 +359,40 @@ try {
  * id="ffEmbedFrame"> and populates it itself via document.write() from a script
  * running on this host page — so, same as the HubSpot Canvas iframe, it's
  * same-origin and reachable via contentDocument even though it's still a real,
- * isolated document a host-page stylesheet could never otherwise reach. Real
- * class names below came from the actual Formstack Main.js engine (curled and
- * grepped directly — sfapi.formstack.io/FormEngine/Scripts/Main.js), not a guess:
- * .ff-general-text-label (intro/description text), .ff-label (field labels),
- * .ff-required-mark (the red asterisk), .ff-input-type input/textarea/select
- * (the actual fields), .ff-submit-btn / .ff-btn-submit (submit / multi-page nav
- * buttons — styled both since it's unconfirmed which this specific form uses). */
+ * isolated document a host-page stylesheet could never otherwise reach.
+ *
+ * Two real bugs found here (2026-08-24), both confirmed by pulling and reading
+ * Formstack's actual Main.js engine directly (sfapi.formstack.io/FormEngine/
+ * Scripts/Main.js), not guessed:
+ * 1. `.ff-submit-btn` is NOT the submit button — tracing Main.js's own DOM-
+ *    construction chain shows it's a <div class="ff-submit-btn"> WRAPPER that
+ *    contains BOTH the "- required" footnote AND the real button (a nested
+ *    <input id="btnsubmit" class="sectionHeader ff-btn-submit">). Styling
+ *    `.ff-submit-btn` as a button therefore painted the whole footnote+button
+ *    row solid red — visually confirmed via a user screenshot. Fixed by
+ *    dropping `.ff-submit-btn` and keeping only the real button's own class,
+ *    `.ff-btn-submit`.
+ * 2. The font override wasn't sticking. Main.js appends ITS OWN stylesheets
+ *    (styles/load.css, styles/main.css) into this SAME iframe document, but
+ *    asynchronously, after an AJAX fetch of the specific form's config — which
+ *    can land in <head> AFTER this module's one-shot injection, so Formstack's
+ *    own font-family rule wins the cascade tie by simply coming later in
+ *    source order. This is the exact same failure class already solved on
+ *    this site for Google's CSE box (see the cse-late-css module) — the fix
+ *    is the same: don't inject once and stop, keep RE-ASSERTING the override
+ *    (by re-appending it as the LAST node in <head> every poll) so it always
+ *    ends up after whatever the vendor added, no matter when that happens. */
 try {
 (function(){
   var CSS = ".ff-general-text-label{font-size:18px!important;color:#454545!important;line-height:1.5!important;font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;}"
     + ".ff-label{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;color:#1a1a1a!important;font-size:16px!important;font-weight:600!important;}"
     + ".ff-required-mark{color:#e21833!important;}"
     + ".ff-input-type input,.ff-input-type textarea,.ff-input-type select{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;color:#1a1a1a!important;font-size:16px!important;border:1px solid #cfcfcf!important;border-radius:4px!important;padding:12px 14px!important;background-color:#ffffff!important;box-sizing:border-box!important;}"
-    + ".ff-submit-btn,.ff-btn-submit{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;background-color:#e21833!important;color:#ffffff!important;font-weight:700!important;border:0!important;border-radius:4px!important;padding:14px 32px!important;cursor:pointer!important;}";
-  function tryInject(frame){
+    + ".ff-btn-submit{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;background-color:#e21833!important;color:#ffffff!important;font-weight:700!important;border:0!important;border-radius:4px!important;padding:14px 32px!important;cursor:pointer!important;}";
+  function reassert(frame){
     try {
       var doc = frame.contentDocument || (frame.contentWindow && frame.contentWindow.document);
       if (!doc) return false;
-      if (doc.getElementById('if-ff-iframe-css')) return true;
       if (!doc.querySelector('.ff-label,.ff-form,.ff-general-text-label')) return false;
       var head = doc.head || doc.body || doc.documentElement;
       if (!doc.getElementById('if-ff-iframe-font')) {
@@ -387,7 +402,8 @@ try {
         l.href = 'https://use.typekit.net/fdu6zpb.css';
         head.appendChild(l);
       }
-      var s = doc.createElement('style');
+      var existing = doc.getElementById('if-ff-iframe-css');
+      var s = existing || doc.createElement('style');
       s.id = 'if-ff-iframe-css';
       s.textContent = CSS;
       head.appendChild(s);
@@ -398,9 +414,8 @@ try {
   var timer = setInterval(function(){
     tries++;
     var frames = document.querySelectorAll('iframe');
-    var done = false;
-    for (var i = 0; i < frames.length; i++) { if (tryInject(frames[i])) done = true; }
-    if (done || tries > 30) clearInterval(timer);
+    for (var i = 0; i < frames.length; i++) { reassert(frames[i]); }
+    if (tries > 30) clearInterval(timer);
   }, 500);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] ff-form-iframe-css error:', _e); } catch (_) {} }
