@@ -596,3 +596,13 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 .program-page-aspire-card-dl-normal,.program-page-aspire-card-dl-hover{transition:opacity 0.18s ease;}
 .program-page-aspire-card-dl:hover .program-page-aspire-card-dl-normal{opacity:0;}
 .program-page-aspire-card-dl:hover .program-page-aspire-card-dl-hover{opacity:1;}
+/* MIPS Statement-of-Interest pages: the Formstack embed briefly renders in its raw,
+   unstyled form before idea-factory.js's ff-form-iframe-css module reaches in and
+   fixes it, producing a visible flash/jump. #iFrameWrapper is the embed's own host-page
+   wrapper div (from Formstack's own embed code, not ours) — starting it invisible and
+   fading it in only once the JS module confirms styling is applied (see idea-factory.js)
+   turns that flash into a smooth reveal. A hard fallback in the JS force-reveals it
+   after ~6s regardless, so the form can never get stuck permanently invisible if the
+   styling pass ever fails to fire for any reason.*/
+#iFrameWrapper{opacity:0;transition:opacity 0.4s ease;}
+#iFrameWrapper.if-ff-ready{opacity:1;}

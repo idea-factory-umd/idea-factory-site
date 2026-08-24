@@ -503,10 +503,18 @@ try {
       forceInlineFonts(doc);
     } catch (e) {}
   }
+  function revealWrapper(doc){
+    try {
+      var frameEl = doc.defaultView && doc.defaultView.frameElement;
+      var wrapper = frameEl && (frameEl.closest ? frameEl.closest('#iFrameWrapper') : frameEl.parentElement);
+      if (wrapper) wrapper.classList.add('if-ff-ready');
+    } catch (e) {}
+  }
   function watch(doc){
     if (watched === doc) return;
     watched = doc;
     keepLast(doc);
+    revealWrapper(doc);
     try {
       var flag = { self: false };
       var reassertSoon = function(){
@@ -545,6 +553,17 @@ try {
     for (var i = 0; i < frames.length; i++) { if (tryFind(frames[i])) found = true; }
     if (found || tries > 40) clearInterval(timer);
   }, 500);
+  // Hard fallback: force the wrapper visible after 6s no matter what, so a
+  // future regression in the detection/styling above (a changed selector, a
+  // slow network, anything) can never leave the whole form permanently
+  // invisible — worst case it just shows a moment later, unstyled, exactly
+  // like before this reveal-on-ready behavior existed, instead of vanishing.
+  setTimeout(function(){
+    try {
+      var wraps = document.querySelectorAll('#iFrameWrapper');
+      for (var w = 0; w < wraps.length; w++) { wraps[w].classList.add('if-ff-ready'); }
+    } catch (e) {}
+  }, 6000);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] ff-form-iframe-css error:', _e); } catch (_) {} }
 
