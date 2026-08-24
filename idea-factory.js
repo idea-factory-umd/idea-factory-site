@@ -419,7 +419,30 @@ try {
  *    re-running the same syncFrameHeight() on every width change, via a
  *    ResizeObserver on the iframe element itself (see watch(), below) —
  *    so the iframe now tracks whatever height it actually needs at any
- *    width, continuously, with no fixed floor or ceiling. */
+ *    width, continuously, with no fixed floor or ceiling.
+ * 5. syncFrameHeight()'s original measurement technique (reset the iframe's
+ *    own CSS height to 'auto', THEN read scrollHeight, since scrollHeight
+ *    of the root scrolling element is defined as max(real content, current
+ *    viewport height) and otherwise just reflects a too-tall height back)
+ *    had a real side effect once it started re-running continuously instead
+ *    of just once at load: setting the iframe's CSS height directly changes
+ *    the HOST PAGE's own layout height too (the iframe occupies real space
+ *    in that document), so every re-sync briefly, genuinely shrank the
+ *    whole host page before growing it back a moment later. If the visitor
+ *    was scrolled near the bottom when that fired, the browser clamped
+ *    their scroll position to fit the momentarily-shorter page, and it did
+ *    NOT return on its own once the height grew back — visible as an
+ *    unexplained jump back up the page (reported: "jumping you back up to
+ *    the middle of the form"). Fixed by never touching the iframe's own
+ *    CSS height for the purpose of MEASURING at all: a normal in-flow
+ *    content element's own rendered height reflects only its own content,
+ *    not the height of some ancestor being stretched to fill the iframe's
+ *    viewport, so reading the real bottom edge of the actual top-level
+ *    content elements (not the root document/body) gives an accurate
+ *    reading with zero effect on the iframe's CSS height, hence zero effect
+ *    on the host page's layout or scroll position, right up until the one
+ *    deliberate height write at the end — and even that write is now
+ *    skipped whenever the measured height hasn't meaningfully changed. */
 try {
 (function(){
   var CSS = ".ff-general-text-label{font-size:18px!important;color:#454545!important;line-height:1.5!important;font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;}"
@@ -536,20 +559,35 @@ try {
   function syncFrameHeight(doc){
     try {
       var frameEl = doc.defaultView && doc.defaultView.frameElement;
-      if (!frameEl) return;
-      // scrollHeight reports max(real content height, the iframe's OWN
-      // current viewport height) — while the iframe is still locked at
-      // Formstack's earlier (too-tall) height, it just reflects that SAME
-      // height straight back, hiding the real content height entirely. Drop
-      // the constraint to the browser's small intrinsic default first, so
-      // scrollHeight is forced to measure the actual content instead of an
-      // artificially inflated floor, then apply the real measured height.
-      frameEl.style.setProperty('height', 'auto', 'important');
-      var real = Math.max(
-        doc.body ? doc.body.scrollHeight : 0,
-        doc.documentElement ? doc.documentElement.scrollHeight : 0
-      );
-      if (real > 0) {
+      if (!frameEl || !doc.body) return;
+      // Measure the real bottom edge of the actual top-level content
+      // elements directly — NOT document.body/documentElement.scrollHeight.
+      // The root scrolling element's scrollHeight is defined as max(real
+      // content, the iframe's own current viewport height), so it can only
+      // be read honestly by first resetting the iframe's CSS height —  but
+      // doing that on every re-sync (not just once at load) visibly shrinks
+      // the HOST page too while it's mid-measurement, which can jump the
+      // visitor's scroll position (see "5." above). A normal in-flow
+      // element's own rendered box reflects only its own content, not the
+      // size of some ancestor being stretched to fill the iframe's
+      // viewport, so this never needs to touch the iframe's height at all
+      // to get an accurate reading.
+      var kids = doc.body.children;
+      var maxBottom = 0;
+      for (var i = 0; i < kids.length; i++) {
+        // getBoundingClientRect().bottom stops at the element's own border
+        // box — it does NOT include that element's own trailing margin,
+        // which still occupies real, scrollable space below it (verified:
+        // undercounted a form ending in a field with margin-bottom by
+        // ~14-16px until this was added).
+        var mb = parseFloat(getComputedStyle(kids[i]).marginBottom) || 0;
+        var b = kids[i].getBoundingClientRect().bottom + mb;
+        if (b > maxBottom) maxBottom = b;
+      }
+      var scrollY = (doc.defaultView && doc.defaultView.scrollY) || 0;
+      var real = Math.ceil(maxBottom + scrollY) + 2; // +2px: avoid a hairline clip from subpixel rounding
+      var current = frameEl.getBoundingClientRect().height;
+      if (real > 0 && Math.abs(real - current) > 2) {
         frameEl.style.setProperty('height', real + 'px', 'important');
       }
     } catch (e) {}
