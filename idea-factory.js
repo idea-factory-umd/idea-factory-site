@@ -394,23 +394,77 @@ try {
  *    attribute changes, not just added nodes) AND on a belt-and-suspenders
  *    1s interval for a full 60s regardless of whether any mutation ever
  *    fires, since a jQuery .css() call while the observer setup is racing
- *    to attach could otherwise still slip through unnoticed once. */
+ *    to attach could otherwise still slip through unnoticed once.
+ * 3. Follow-up polish (2026-08-24): body/label/question text was rendering
+ *    artificially bold, and each page/section box had a heavy 2-3px rounded
+ *    gray border out of keeping with the site's plain 1px look. Font-weight/
+ *    line-height are now forced to 400/1.5 on body-only selectors (titles and
+ *    the submit button are deliberately excluded — same "target what it is,
+ *    not what it's named" logic as the label/heading fix, extended to
+ *    borders: no known class exists for the box, so it's detected by its
+ *    COMPUTED border-width (>1px) instead and thinned to 1px solid #e6e6e6
+ *    with border-radius:0, matching this site's own established subtle-edge
+ *    convention (documented in CLAUDE.md as the border/shadow vocabulary
+ *    used everywhere else instead of a heavy or rounded box). */
 try {
 (function(){
   var CSS = ".ff-general-text-label{font-size:18px!important;color:#454545!important;line-height:1.5!important;font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;}"
-    + ".ff-label{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;color:#1a1a1a!important;font-size:16px!important;font-weight:600!important;}"
+    + ".ff-label{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;color:#1a1a1a!important;font-size:16px!important;font-weight:400!important;}"
     + ".ff-required-mark{color:#e21833!important;}"
     + ".ff-input-type input,.ff-input-type textarea,.ff-input-type select{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;color:#1a1a1a!important;font-size:16px!important;border:1px solid #cfcfcf!important;border-radius:4px!important;padding:12px 14px!important;background-color:#ffffff!important;box-sizing:border-box!important;}"
     + ".ff-btn-submit{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;background-color:#e21833!important;color:#ffffff!important;font-weight:700!important;border:0!important;border-radius:4px!important;padding:14px 32px!important;cursor:pointer!important;}"
     + ".ff-page-header,.ff-invalid-msg,.ff-alink,.ff-footnote-label{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;}";
   var FONT_STACK = '"Interstate","Helvetica Neue",Arial,sans-serif';
+  // Broad: every visible text piece gets the site's sans-serif face, titles included.
   var FONT_SEL = '.ff-general-text-label,.ff-label,.ff-input-type input,.ff-input-type textarea,.ff-input-type select,.ff-btn-submit,.ff-page-header,.ff-invalid-msg,.ff-alink,.ff-footnote-label,label,h1,h2,h3,h4,h5,h6,legend';
+  // Narrower: "body" text only (instructions, questions, field labels, field
+  // values) — titles/headings and the submit button are deliberately excluded
+  // per the user's own read ("the title pieces you just fixed are fine").
+  var BODY_SEL = '.ff-general-text-label,.ff-label,label,.ff-input-type input,.ff-input-type textarea,.ff-input-type select';
   var watched = null;
   function forceInlineFonts(doc){
     try {
       var els = doc.querySelectorAll(FONT_SEL);
       for (var i = 0; i < els.length; i++) {
         els[i].style.setProperty('font-family', FONT_STACK, 'important');
+      }
+      var bodyEls = doc.querySelectorAll(BODY_SEL);
+      for (var j = 0; j < bodyEls.length; j++) {
+        bodyEls[j].style.setProperty('font-weight', '400', 'important');
+        bodyEls[j].style.setProperty('line-height', '1.5', 'important');
+      }
+    } catch (e) {}
+    forceThinBorders(doc);
+  }
+  // No known class name for the heavy 2-3px, rounded-corner box Formstack
+  // draws around each page/section — same problem as the earlier per-field
+  // labels (mostly built via jQuery, not literal HTML strings a static grep
+  // can find). Rather than guess another class, this detects the box by its
+  // COMPUTED STYLE instead of its name: any element with more than 1px of
+  // border on any side gets thinned to the site's own established subtle-edge
+  // convention (1px solid #e6e6e6, the same value used for card/section
+  // borders elsewhere on this site) and squared off (border-radius:0),
+  // matching the user's explicit ask ("just make those borders one pixel...
+  // slightly rounded corners which aren't really in keeping with the site").
+  function forceThinBorders(doc){
+    try {
+      var all = doc.querySelectorAll('*');
+      var sides = ['Top', 'Right', 'Bottom', 'Left'];
+      for (var i = 0; i < all.length; i++) {
+        var el = all[i];
+        var cs = getComputedStyle(el);
+        for (var s = 0; s < 4; s++) {
+          var side = sides[s];
+          if (cs['border' + side + 'Style'] !== 'none' && parseFloat(cs['border' + side + 'Width']) > 1) {
+            el.style.setProperty('border-' + side.toLowerCase() + '-width', '1px', 'important');
+            el.style.setProperty('border-' + side.toLowerCase() + '-color', '#e6e6e6', 'important');
+            el.style.setProperty('border-' + side.toLowerCase() + '-style', 'solid', 'important');
+          }
+        }
+        if (parseFloat(cs.borderTopLeftRadius) > 0 || parseFloat(cs.borderTopRightRadius) > 0
+          || parseFloat(cs.borderBottomLeftRadius) > 0 || parseFloat(cs.borderBottomRightRadius) > 0) {
+          el.style.setProperty('border-radius', '0px', 'important');
+        }
       }
     } catch (e) {}
   }
