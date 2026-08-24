@@ -372,28 +372,30 @@ try {
  *    row solid red — visually confirmed via a user screenshot. Fixed by
  *    dropping `.ff-submit-btn` and keeping only the real button's own class,
  *    `.ff-btn-submit`.
- * 2. The font override wasn't sticking. Main.js appends ITS OWN stylesheets
- *    (styles/load.css, styles/main.css) into this SAME iframe document, but
- *    asynchronously, after an AJAX fetch of the specific form's config — which
- *    can land in <head> AFTER this module's one-shot injection, so Formstack's
- *    own font-family rule wins the cascade tie by simply coming later in
- *    source order. This is the exact same failure class already solved on
- *    this site for Google's CSE box (see the cse-late-css module) — the fix
- *    is the same: don't inject once and stop, keep RE-ASSERTING the override
- *    (by re-appending it as the LAST node in <head> every poll) so it always
- *    ends up after whatever the vendor added, no matter when that happens. */
+ * 2. Font override still wasn't sticking even after switching to a 15-second
+ *    re-assert-on-a-timer loop (2026-08-24 follow-up) — the real form's own
+ *    stylesheets (styles/load.css, styles/main.css) load over the network from
+ *    sfapi.formstack.io, and real-world load time isn't bounded the way a
+ *    same-tick synthetic test is; a fixed timeout can simply run out before
+ *    Formstack's own late CSS actually lands, handing it the last word anyway.
+ *    Fixed properly this time with a MutationObserver on the iframe's own
+ *    <head>/<body>: instead of guessing how long to keep re-asserting, it
+ *    reacts INSTANTLY, indefinitely, to any node Formstack (or anything else)
+ *    ever adds there, and re-appends this override to stay last — no timeout,
+ *    no guessed duration, correct no matter how long the real network call
+ *    actually takes. A `selfMutating` guard stops the observer from reacting
+ *    to its own re-append (which would otherwise fire itself forever). */
 try {
 (function(){
   var CSS = ".ff-general-text-label{font-size:18px!important;color:#454545!important;line-height:1.5!important;font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;}"
     + ".ff-label{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;color:#1a1a1a!important;font-size:16px!important;font-weight:600!important;}"
     + ".ff-required-mark{color:#e21833!important;}"
     + ".ff-input-type input,.ff-input-type textarea,.ff-input-type select{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;color:#1a1a1a!important;font-size:16px!important;border:1px solid #cfcfcf!important;border-radius:4px!important;padding:12px 14px!important;background-color:#ffffff!important;box-sizing:border-box!important;}"
-    + ".ff-btn-submit{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;background-color:#e21833!important;color:#ffffff!important;font-weight:700!important;border:0!important;border-radius:4px!important;padding:14px 32px!important;cursor:pointer!important;}";
-  function reassert(frame){
+    + ".ff-btn-submit{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;background-color:#e21833!important;color:#ffffff!important;font-weight:700!important;border:0!important;border-radius:4px!important;padding:14px 32px!important;cursor:pointer!important;}"
+    + ".ff-page-header,.ff-invalid-msg,.ff-alink,.ff-footnote-label{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;}";
+  var watched = null;
+  function keepLast(doc){
     try {
-      var doc = frame.contentDocument || (frame.contentWindow && frame.contentWindow.document);
-      if (!doc) return false;
-      if (!doc.querySelector('.ff-label,.ff-form,.ff-general-text-label')) return false;
       var head = doc.head || doc.body || doc.documentElement;
       if (!doc.getElementById('if-ff-iframe-font')) {
         var l = doc.createElement('link');
@@ -407,6 +409,32 @@ try {
       s.id = 'if-ff-iframe-css';
       s.textContent = CSS;
       head.appendChild(s);
+    } catch (e) {}
+  }
+  function watch(doc){
+    if (watched === doc) return;
+    watched = doc;
+    keepLast(doc);
+    try {
+      var flag = { self: false };
+      var reassertSoon = function(){
+        if (flag.self) return;
+        flag.self = true;
+        keepLast(doc);
+        setTimeout(function(){ flag.self = false; }, 0);
+      };
+      var mo = new MutationObserver(reassertSoon);
+      mo.observe(doc.head || doc.documentElement, { childList: true });
+      if (doc.body) mo.observe(doc.body, { childList: true });
+      else { var bodyPoll = setInterval(function(){ if (doc.body) { mo.observe(doc.body, { childList: true }); clearInterval(bodyPoll); } }, 300); }
+    } catch (e) {}
+  }
+  function tryFind(frame){
+    try {
+      var doc = frame.contentDocument || (frame.contentWindow && frame.contentWindow.document);
+      if (!doc) return false;
+      if (!doc.querySelector('.ff-label,.ff-form,.ff-general-text-label')) return false;
+      watch(doc);
       return true;
     } catch (e) { return false; }
   }
@@ -414,8 +442,9 @@ try {
   var timer = setInterval(function(){
     tries++;
     var frames = document.querySelectorAll('iframe');
-    for (var i = 0; i < frames.length; i++) { reassert(frames[i]); }
-    if (tries > 30) clearInterval(timer);
+    var found = false;
+    for (var i = 0; i < frames.length; i++) { if (tryFind(frames[i])) found = true; }
+    if (found || tries > 40) clearInterval(timer);
   }, 500);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] ff-form-iframe-css error:', _e); } catch (_) {} }
