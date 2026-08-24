@@ -404,7 +404,7 @@ try {
     + ".ff-btn-submit{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;background-color:#e21833!important;color:#ffffff!important;font-weight:700!important;border:0!important;border-radius:4px!important;padding:14px 32px!important;cursor:pointer!important;}"
     + ".ff-page-header,.ff-invalid-msg,.ff-alink,.ff-footnote-label{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;}";
   var FONT_STACK = '"Interstate","Helvetica Neue",Arial,sans-serif';
-  var FONT_SEL = '.ff-general-text-label,.ff-label,.ff-input-type input,.ff-input-type textarea,.ff-input-type select,.ff-btn-submit,.ff-page-header,.ff-invalid-msg,.ff-alink,.ff-footnote-label,label';
+  var FONT_SEL = '.ff-general-text-label,.ff-label,.ff-input-type input,.ff-input-type textarea,.ff-input-type select,.ff-btn-submit,.ff-page-header,.ff-invalid-msg,.ff-alink,.ff-footnote-label,label,h1,h2,h3,h4,h5,h6,legend';
   var watched = null;
   function forceInlineFonts(doc){
     try {
