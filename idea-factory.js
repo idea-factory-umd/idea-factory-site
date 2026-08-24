@@ -471,9 +471,16 @@ try {
         // faint lift so it pops off the page — this site's own established
         // subtle-shadow value, reused verbatim (same one used on the header
         // bars, the Walk-the-Factory bar, and the Premise section) rather
-        // than inventing a new one.
+        // than inventing a new one. Also force overflow:visible on it — a
+        // rounded box very commonly carries overflow:hidden to clip its own
+        // content to the (now-removed) rounded corners, and overflow:hidden
+        // clips that SAME element's own box-shadow from ever being painted
+        // even though the property still computes as set. Safe to force
+        // here specifically because the corners are already squared off, so
+        // there's no rounding left to clip content to.
         if (hadThickBorder) {
           el.style.setProperty('box-shadow', '0 4px 8px -2px rgba(0,0,0,0.06)', 'important');
+          el.style.setProperty('overflow', 'visible', 'important');
         }
       }
     } catch (e) {}
