@@ -405,7 +405,21 @@ try {
  *    COMPUTED border-width (>1px) instead and thinned to 1px solid #e6e6e6
  *    with border-radius:0, matching this site's own established subtle-edge
  *    convention (documented in CLAUDE.md as the border/shadow vocabulary
- *    used everywhere else instead of a heavy or rounded box). */
+ *    used everywhere else instead of a heavy or rounded box).
+ * 4. The height-sync fix below (syncFrameHeight) originally only re-ran when
+ *    the iframe's OWN document mutated or on a fixed startup interval — so a
+ *    fixed height applied once at load stayed locked forever, even though
+ *    this iframe sits in a responsive column: narrowing the host browser
+ *    changes the iframe's own rendered WIDTH, which reflows the form's
+ *    fields (labels wrap, fields stack) and changes how much height it
+ *    actually needs, in either direction, with no DOM mutation inside the
+ *    iframe to trigger anything. Reported symptom: after the first fix, a
+ *    narrower width clipped content off the bottom (fixed height now too
+ *    SHORT for the reflowed content) instead of leaving a gap. Fixed by
+ *    re-running the same syncFrameHeight() on every width change, via a
+ *    ResizeObserver on the iframe element itself (see watch(), below) —
+ *    so the iframe now tracks whatever height it actually needs at any
+ *    width, continuously, with no fixed floor or ceiling. */
 try {
 (function(){
   var CSS = ".ff-general-text-label{font-size:18px!important;color:#454545!important;line-height:1.5!important;font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;}"
@@ -566,10 +580,46 @@ try {
       if (doc.body) mo.observe(doc.body, obsOpts);
       else { var bodyPoll = setInterval(function(){ if (doc.body) { mo.observe(doc.body, obsOpts); clearInterval(bodyPoll); } }, 300); }
     } catch (e) {}
+    // Keep the height in sync with the iframe's own WIDTH, continuously, not
+    // just once — see the "4." note in this module's header comment above.
+    // Two mechanisms, belt-and-suspenders:
+    // 1. A ResizeObserver on the iframe element itself, from the host side —
+    //    fires the instant the host page gives it a different width (e.g. a
+    //    responsive column reflowing on window resize). Guarded to act only
+    //    when WIDTH actually changed: syncFrameHeight() below sets a new
+    //    HEIGHT on this same element, which would otherwise immediately
+    //    re-trigger this same observer forever; a self-triggered entry never
+    //    changes width, so comparing against the last-seen width silently
+    //    absorbs it with no extra re-entrancy flag needed.
+    // 2. A debounced window resize listener as cheap extra coverage for any
+    //    environment where ResizeObserver either isn't available or the
+    //    guard above happens to land on an unchanged width mid-reflow.
+    try {
+      var frameEl = doc.defaultView && doc.defaultView.frameElement;
+      if (frameEl) {
+        var lastW = null;
+        if (typeof ResizeObserver !== 'undefined') {
+          var ro = new ResizeObserver(function(entries){
+            for (var i = 0; i < entries.length; i++) {
+              var w = entries[i].contentRect ? entries[i].contentRect.width : frameEl.clientWidth;
+              if (lastW === null) { lastW = w; continue; }
+              if (Math.abs(w - lastW) > 1) { lastW = w; syncFrameHeight(doc); }
+            }
+          });
+          ro.observe(frameEl);
+        }
+        var resizeTimer = null;
+        window.addEventListener('resize', function(){
+          if (resizeTimer) clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(function(){ syncFrameHeight(doc); }, 150);
+        });
+      }
+    } catch (e) {}
     var safetyTries = 0;
     var safetyNet = setInterval(function(){
       safetyTries++;
       forceInlineFonts(doc);
+      syncFrameHeight(doc);
       if (safetyTries > 60) clearInterval(safetyNet);
     }, 1000);
   }
