@@ -453,9 +453,11 @@ try {
       for (var i = 0; i < all.length; i++) {
         var el = all[i];
         var cs = getComputedStyle(el);
+        var hadThickBorder = false;
         for (var s = 0; s < 4; s++) {
           var side = sides[s];
           if (cs['border' + side + 'Style'] !== 'none' && parseFloat(cs['border' + side + 'Width']) > 1) {
+            hadThickBorder = true;
             el.style.setProperty('border-' + side.toLowerCase() + '-width', '1px', 'important');
             el.style.setProperty('border-' + side.toLowerCase() + '-color', '#e6e6e6', 'important');
             el.style.setProperty('border-' + side.toLowerCase() + '-style', 'solid', 'important');
@@ -464,6 +466,14 @@ try {
         if (parseFloat(cs.borderTopLeftRadius) > 0 || parseFloat(cs.borderTopRightRadius) > 0
           || parseFloat(cs.borderBottomLeftRadius) > 0 || parseFloat(cs.borderBottomRightRadius) > 0) {
           el.style.setProperty('border-radius', '0px', 'important');
+        }
+        // The box itself (the element whose border was just thinned) gets a
+        // faint lift so it pops off the page — this site's own established
+        // subtle-shadow value, reused verbatim (same one used on the header
+        // bars, the Walk-the-Factory bar, and the Premise section) rather
+        // than inventing a new one.
+        if (hadThickBorder) {
+          el.style.setProperty('box-shadow', '0 4px 8px -2px rgba(0,0,0,0.06)', 'important');
         }
       }
     } catch (e) {}
