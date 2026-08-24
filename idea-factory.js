@@ -372,19 +372,29 @@ try {
  *    row solid red — visually confirmed via a user screenshot. Fixed by
  *    dropping `.ff-submit-btn` and keeping only the real button's own class,
  *    `.ff-btn-submit`.
- * 2. Font override still wasn't sticking even after switching to a 15-second
- *    re-assert-on-a-timer loop (2026-08-24 follow-up) — the real form's own
- *    stylesheets (styles/load.css, styles/main.css) load over the network from
- *    sfapi.formstack.io, and real-world load time isn't bounded the way a
- *    same-tick synthetic test is; a fixed timeout can simply run out before
- *    Formstack's own late CSS actually lands, handing it the last word anyway.
- *    Fixed properly this time with a MutationObserver on the iframe's own
- *    <head>/<body>: instead of guessing how long to keep re-asserting, it
- *    reacts INSTANTLY, indefinitely, to any node Formstack (or anything else)
- *    ever adds there, and re-appends this override to stay last — no timeout,
- *    no guessed duration, correct no matter how long the real network call
- *    actually takes. A `selfMutating` guard stops the observer from reacting
- *    to its own re-append (which would otherwise fire itself forever). */
+ * 2. Font override still wasn't sticking after two follow-up attempts
+ *    (2026-08-24): first a 15s re-assert timer (real network load isn't
+ *    bounded like a synthetic test's setTimeout, so a fixed window can run
+ *    out before Formstack's own late CSS lands), then a MutationObserver
+ *    watching for new nodes (didn't help either — verified afterward that
+ *    the BUTTON styling from this SAME injected block, in the SAME CSS
+ *    string, DID visibly apply, which rules out "never reaching the iframe
+ *    at all"; the failure is specific to font-family). The real remaining
+ *    possibility: Formstack's own jQuery-based engine may set font/typography
+ *    via a direct inline style or .css() call on EXISTING elements rather
+ *    than by adding a new stylesheet node — a plain childList-only
+ *    MutationObserver is structurally blind to that (it only fires on nodes
+ *    being added/removed, never on an existing node's own attributes
+ *    changing). Fixed by no longer relying on a stylesheet rule to win a
+ *    cascade fight at all: this now walks the real elements directly and
+ *    sets `el.style.setProperty('font-family', ..., 'important')` — a JS-set
+ *    inline !important beats a plain inline style and ties only against
+ *    another !important stylesheet rule by simply running last, which this
+ *    guarantees by re-running on every observed mutation (now including
+ *    attribute changes, not just added nodes) AND on a belt-and-suspenders
+ *    1s interval for a full 60s regardless of whether any mutation ever
+ *    fires, since a jQuery .css() call while the observer setup is racing
+ *    to attach could otherwise still slip through unnoticed once. */
 try {
 (function(){
   var CSS = ".ff-general-text-label{font-size:18px!important;color:#454545!important;line-height:1.5!important;font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;}"
@@ -393,7 +403,17 @@ try {
     + ".ff-input-type input,.ff-input-type textarea,.ff-input-type select{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;color:#1a1a1a!important;font-size:16px!important;border:1px solid #cfcfcf!important;border-radius:4px!important;padding:12px 14px!important;background-color:#ffffff!important;box-sizing:border-box!important;}"
     + ".ff-btn-submit{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;background-color:#e21833!important;color:#ffffff!important;font-weight:700!important;border:0!important;border-radius:4px!important;padding:14px 32px!important;cursor:pointer!important;}"
     + ".ff-page-header,.ff-invalid-msg,.ff-alink,.ff-footnote-label{font-family:\"Interstate\",\"Helvetica Neue\",Arial,sans-serif!important;}";
+  var FONT_STACK = '"Interstate","Helvetica Neue",Arial,sans-serif';
+  var FONT_SEL = '.ff-general-text-label,.ff-label,.ff-input-type input,.ff-input-type textarea,.ff-input-type select,.ff-btn-submit,.ff-page-header,.ff-invalid-msg,.ff-alink,.ff-footnote-label';
   var watched = null;
+  function forceInlineFonts(doc){
+    try {
+      var els = doc.querySelectorAll(FONT_SEL);
+      for (var i = 0; i < els.length; i++) {
+        els[i].style.setProperty('font-family', FONT_STACK, 'important');
+      }
+    } catch (e) {}
+  }
   function keepLast(doc){
     try {
       var head = doc.head || doc.body || doc.documentElement;
@@ -409,6 +429,7 @@ try {
       s.id = 'if-ff-iframe-css';
       s.textContent = CSS;
       head.appendChild(s);
+      forceInlineFonts(doc);
     } catch (e) {}
   }
   function watch(doc){
@@ -424,10 +445,17 @@ try {
         setTimeout(function(){ flag.self = false; }, 0);
       };
       var mo = new MutationObserver(reassertSoon);
+      var obsOpts = { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] };
       mo.observe(doc.head || doc.documentElement, { childList: true });
-      if (doc.body) mo.observe(doc.body, { childList: true });
-      else { var bodyPoll = setInterval(function(){ if (doc.body) { mo.observe(doc.body, { childList: true }); clearInterval(bodyPoll); } }, 300); }
+      if (doc.body) mo.observe(doc.body, obsOpts);
+      else { var bodyPoll = setInterval(function(){ if (doc.body) { mo.observe(doc.body, obsOpts); clearInterval(bodyPoll); } }, 300); }
     } catch (e) {}
+    var safetyTries = 0;
+    var safetyNet = setInterval(function(){
+      safetyTries++;
+      forceInlineFonts(doc);
+      if (safetyTries > 60) clearInterval(safetyNet);
+    }, 1000);
   }
   function tryFind(frame){
     try {
