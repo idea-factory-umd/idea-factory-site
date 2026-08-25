@@ -1471,3 +1471,49 @@ try {
   })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] nav-link-exact-fit error:', _e); } catch (_) {} }
 
+/* ===== module: nav-toggle-js (mobile hamburger open/close for plain-element navs
+   that don't use Webflow's native Navbar component/runtime) =====
+   Webflow's native Navbar open/close state is managed entirely by its own JS
+   (webflow.js), not by any Designer-authored CSS - a plain-element nav has no
+   native runtime to drive it. This reimplements the same end-user behavior
+   (closed by default at <=991px, hamburger reveals the menu, click again or
+   pick a link closes it) using only class toggles, so it needs zero native
+   Navbar support.
+   Scoped via two dedicated marker classes so it can NEVER affect a page whose
+   nav already has native Navbar toggle behavior:
+     .if-navbtn.if-navbtn-js   - the hamburger button to wire up
+     .if-navmenu.if-navmenu-js - the menu it controls (closed by default at the
+                                 medium breakpoint via that combo's own CSS)
+   Toggling adds/removes:
+     - "is-nav-open" on the menu (its own combo .if-navmenu.if-navmenu-js.is-nav-open
+       reopens it, reusing if-navmenu's existing max-height transition)
+     - "w--open" on the button - the SAME literal class name the in-site layout
+       embed's hamburger-to-X morph CSS already keys off (.w--open .if-bar:nth-child(N)),
+       so the icon animates without any new CSS at all. */
+try {
+(function(){
+  document.querySelectorAll('.if-navbtn.if-navbtn-js').forEach(function(btn){
+    var root = btn.closest('.if-navroot') || document;
+    var menu = root.querySelector('.if-navmenu.if-navmenu-js');
+    if(!menu) return;
+    function isOpen(){ return menu.classList.contains('is-nav-open'); }
+    function setOpen(open){
+      menu.classList.toggle('is-nav-open', open);
+      btn.classList.toggle('w--open', open);
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    setOpen(false);
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      setOpen(!isOpen());
+    });
+    menu.addEventListener('click', function(e){
+      if(e.target.closest('a')) setOpen(false);
+    });
+    window.addEventListener('resize', function(){
+      if(window.innerWidth > 991 && isOpen()) setOpen(false);
+    }, {passive:true});
+  });
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] nav-toggle-js error:', _e); } catch (_) {} }
+
