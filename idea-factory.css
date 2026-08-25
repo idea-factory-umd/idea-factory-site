@@ -169,6 +169,19 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
    above) has been removed; it would otherwise conflict with the native breakpoints in the
    767-880px range. */
 
+/* Hides the gold "Apply" CTA (.if-give-btn-solid) from the MIPS mobile/hamburger dropdown ONLY —
+   desktop and every other spinoff's identical button are untouched (the combo class below is
+   MIPS-only). A plain native display:none on the combo can't win here: the in-site st0 layout
+   embed carries `.if-navmenu .if-give-btn-solid{display:block!important}` (same (0,2,0)
+   specificity, but !important — which beats a non-important rule regardless of specificity, and
+   Webflow's Designer style panel has no way to mark a property !important). Fix = the same
+   out-specify technique already used against this embed elsewhere in this file (see the nav
+   current-marker rules, §13 in CLAUDE.md): one class higher specificity (0,3,0) + !important of
+   our own beats the embed's (0,2,0) + !important outright, regardless of source order. */
+@media screen and (max-width:991px){
+  .if-navmenu .if-give-btn-solid.program-page-mips-navbtn-hidemobile{display:none!important;}
+}
+
 /* ============================================================
    3. STAGE photo + headline  (JS sets transform/opacity inline)
    ============================================================ */
