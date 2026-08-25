@@ -1,0 +1,81 @@
+/* ==========================================================================
+   HubSpot form styling — UMD Startup Showcase, /updates
+   Paste into Webflow → Page settings → Updates → Inside <head> tag.
+   Do NOT put this inside the Embed element; it must load before the form paints.
+   The wrapper div must have id="hubspot-form".
+   ========================================================================== */
+
+#hubspot-form .hs-form-field { margin-bottom: 22px; }
+
+#hubspot-form label {
+  display: block;
+  font-family: 'Roboto Condensed', 'Interstate', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #000000;
+  margin-bottom: 9px;
+}
+
+#hubspot-form .hs-form-required { color: #E21833; }
+
+#hubspot-form input[type=text],
+#hubspot-form input[type=email],
+#hubspot-form input[type=tel],
+#hubspot-form input[type=number],
+#hubspot-form select,
+#hubspot-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Interstate', 'Source Sans 3', sans-serif;
+  font-size: 17px;
+  padding: 14px;
+  border: 2px solid #454545;
+  border-radius: 0;            /* square corners — nothing in this design is rounded */
+  background: #FFFFFF;
+  color: #000000;
+}
+
+#hubspot-form input:focus,
+#hubspot-form select:focus,
+#hubspot-form textarea:focus {
+  outline: none;
+  border-color: #E21833;
+}
+
+#hubspot-form .hs-button {
+  background: #E21833;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 0;
+  font-family: 'Interstate', 'Source Sans 3', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 18px 32px;
+  cursor: pointer;
+}
+
+#hubspot-form .hs-button:hover { background: #000000; }
+
+#hubspot-form ul { list-style: none; padding: 0; margin: 8px 0 0; }
+
+/* error text drops the uppercase/tracking treatment so it reads as a message, not a label */
+#hubspot-form .hs-error-msg,
+#hubspot-form .hs-error-msgs label {
+  color: #E21833;
+  font-family: 'Interstate', 'Source Sans 3', sans-serif;
+  font-size: 16px;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 400;
+}
+
+#hubspot-form .submitted-message {
+  font-family: 'Interstate', 'Source Sans 3', sans-serif;
+  font-size: 18px;
+  line-height: 1.5;
+  color: #000000;
+}
