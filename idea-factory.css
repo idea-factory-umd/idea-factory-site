@@ -637,3 +637,16 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
    site's own established gold "hatch" pattern (the same repeating-linear-gradient
    already used for the alternating-row highlight on the MIPS Projects page). */
 .tg th{background-color:rgba(255,210,0,0.7)!important;background-image:repeating-linear-gradient(170deg,rgba(255,255,255,.55) 0,rgba(255,255,255,.55) .5px,transparent .5px,transparent 2.5px)!important;}
+
+/* nav-toggle-js closed-state padding fix: the in-site layout embed forces
+   ".if-navmenu{padding-bottom:30px!important}" at <=991px on every page (part of
+   the open-menu look Webflow's native Navbar pages rely on). That !important beats
+   any plain Designer-authored padding on the if-navmenu-js combo, so a page using
+   the JS-driven toggle (idea-factory.js "nav-toggle-js") still showed a 30px sliver
+   of the first link peeking through even at max-height:0. Needs its own !important
+   to win, scoped to the two-class closed selector only; the three-class open
+   selector is more specific so it wins back the normal 30px once genuinely open. */
+@media screen and (max-width:991px){
+  .if-navmenu.if-navmenu-js{padding-bottom:0!important;}
+  .if-navmenu.if-navmenu-js.is-nav-open{padding-bottom:30px!important;}
+}
