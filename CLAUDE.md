@@ -2634,3 +2634,15 @@ User: make the About section match the layout guide. Compared the current build 
 - **Gold bar:** reused the site's established `if-stg-goldbar` accent-bar class (the same one used on the About page's stage photos) as a sibling of the photo image. Its default `margin-left:-12px` assumes a separate bordered frame div around the image (not the case here — this page's photo IS the `<img>`, carrying its own border directly) — so a scoped combo `program-page-ventures-about-goldbar` (parent `if-stg-goldbar`) overrides just `margin-left:0` to keep it flush instead of poking into the page's left margin.
 
 Verified in the compiled CSS (both rules live) and via a real render matching the guide's layout exactly. No shared `idea-factory.{css,js}` change. `stable` not advanced yet.
+
+## 122. Ventures — simplified black bottom nav band added above the footer (2026‑08‑26) — native section + 5 new classes, PUBLISHED, verified
+
+The layout guide's very last element before the footer is a near-duplicate of the top red navbar, but black. User called this "very stupid" as a literal duplicate and asked for a simplified version instead: no current-page underlines, only the TOP-LEVEL nav items (excluding anything hidden inside the Incubator/Programs dropdowns), "Home" renamed to "Mtech Ventures", styled like the footer's own yellow-hover links for visual consistency with the section directly beneath it.
+
+- Pulled the authoritative current item list straight from the real top nav (not the guide's own rough approximation, which showed different labels like "Office Hours"/"FAQ" that are actually dropdown sub-items): **Mtech Ventures (renamed from Home) · Incubator · Impact · Programs · Calendar · Contact · Resources · Apply**.
+- New section `program-page-ventures-botnav-sec` (black, full-width) inserted as a sibling directly after the stats band and before the Footer component instance. Inner row reuses `if-stage-wrap` (the standard 1240px page-margin wrapper) via a combo (`program-page-ventures-botnav-row`, flex/space-between).
+- New classes `program-page-ventures-botnav-brand` and `-botnav-link` reuse `if-foot-link`'s exact values (`rgba(255,255,255,.82)` resting, `#ffd200` on hover, 140ms color transition) as fresh Ventures-scoped classes rather than applying the shared footer class directly — same "copy the values, don't risk entangling with the shared class" practice as §120's video fix. Apply reuses `if-give-btn-solid` directly (a pure visual/button-shape pattern with no page-specific data, safe to share — same page even).
+- All 6 main items and the brand link are plain `TextLink`s, no dropdown behavior, no `.w--current`/active-state classes, no underlines anywhere.
+- Verified: full tree independently re-queried (correct placement, correct text, correct classes) before publishing; live compiled CSS confirmed; real render shows the band exactly where intended, 0 horizontal overflow, 0 JS errors.
+
+No shared `idea-factory.{css,js}` change. `stable` not advanced yet.
