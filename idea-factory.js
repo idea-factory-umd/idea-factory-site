@@ -1086,7 +1086,11 @@ try {
    Applies per .if-id-band (the logo + tagline/program-name row). Two content shapes share it:
    program-page identity blocks (.if-hdrprog: glyph badge + program name, e.g. "ASPIRE Program",
    "Maryland Industrial / Partnerships (MIPS)", "Minor in Technology / Entrepreneurship &
-   Corporate Innovation") and the regular tagline (.if-tag-p, non-program pages). Program names use
+   Corporate Innovation") and the regular tagline (.if-tag-p, non-program pages). The logo/badge/
+   title selectors match EITHER the shared .if-logo-img-hdr/.if-hdrprog-badge/.if-hdrprog-title
+   marker classes OR any class ending in -hdrprog-badge / -hdrprog-title (badge/title) resp.
+   .if-logo-mark (logo) - a page's own program-page-<name>-hdrprog-badge/-title class is enough on
+   its own, no extra marker class required. Program names use
    non-breaking spaces within each authored line, so the browser can never wrap a line internally -
    it either fits or overflows its box. The tagline wraps normally, but must never exceed 3 lines,
    AND must never get within a small safety margin of the hamburger button (.if-navbtn) - checked
@@ -1116,9 +1120,9 @@ try {
 
   function fitHeaderLeft(){
     document.querySelectorAll('.if-id-band').forEach(function(band){
-      var logo = band.querySelector('.if-logo-img-hdr');
-      var badge = band.querySelector('.if-hdrprog-badge');
-      var title = band.querySelector('.if-hdrprog-title');
+      var logo = band.querySelector('.if-logo-img-hdr, .if-logo-mark');
+      var badge = band.querySelector('.if-hdrprog-badge, [class*="-hdrprog-badge"]');
+      var title = band.querySelector('.if-hdrprog-title, [class*="-hdrprog-title"]');
       var tagline = band.querySelector('.if-tag-p');
       var navbtn = band.querySelector('.if-navbtn');
       var textEl = title || tagline;

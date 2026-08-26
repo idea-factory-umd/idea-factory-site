@@ -650,3 +650,18 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
   .if-navmenu.if-navmenu-js{padding-bottom:0!important;}
   .if-navmenu.if-navmenu-js.is-nav-open{padding-bottom:30px!important;}
 }
+
+/* Ventures header lockup responsive fix: the in-site layout embed carries a legacy,
+   site-wide !important rule (".if-id-band > .if-id-tagline{display:none!important}"
+   at <=575px, predating the idea-factory.js "header-name-fit" module's own
+   continuous shrink-to-fit system) that unconditionally hard-hides the ENTIRE
+   logo/program-name/tagline area below 575px, regardless of what header-name-fit
+   has already done to make it fit. That's the opposite of the intended behavior
+   (the piece should shrink, never vanish). Beat it the same way every other
+   embed-!important conflict on this site is beaten (see the nav-toggle-js fix
+   just above): a MORE SPECIFIC selector (class-doubled) with our own !important,
+   loaded after the embed in the DOM so it wins regardless of !important-vs-
+   !important source-order ties. */
+@media screen and (max-width:575px){
+  .if-id-band > .if-id-tagline.if-id-tagline{display:flex!important;}
+}
