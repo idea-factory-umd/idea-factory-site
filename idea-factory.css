@@ -666,18 +666,15 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
   .if-id-band > .if-id-tagline.if-id-tagline{display:flex!important;}
 }
 
-/* Ventures bottom-nav tricolor accent bar: an intentional mirror of the footer's own
-   .if-foot-accent bar (see the "GOLD ACCENT BARS"/foot-accent section above) - same
-   8px height + drop-shadow, same repeating-gradient + scroll-driven background-position
-   technique (background-position can't be expressed as a native Designer property, and
-   the scroll-progress calculation is genuinely JS - this mirrors the platform limitation
-   the original bar already works around). Deliberately REVERSED from the footer's own:
-   gradient stop order flipped left-to-right (red/white/gold instead of gold/white/red),
-   scroll motion flipped to the opposite sign, and the total background-position travel
-   scaled to exactly 1/3 of the footer bar's (see idea-factory.js "botnav-accent-scroll"
-   for the matching 1/3-rate, opposite-direction scroll module). */
-.program-page-ventures-botnav-accent{
-  background-image:linear-gradient(90deg,#e21833 0%,#e21833 30%,#fff 30%,#fff 50%,#ffd200 50%,#ffd200 100%);
-  background-repeat:repeat-x;
-  background-size:100% 100%;
-}
+/* NOTE: the Ventures bottom-nav tricolor accent bar's gradient/repeat/size used to live
+   here as shared CSS, but Webflow DOES support native gradient backgrounds - there was no
+   real platform limitation forcing it into the shared file. Moved to a native Designer
+   style on .program-page-ventures-botnav-accent (2026-08-26) so it renders correctly in
+   the Designer canvas, not just published. Only the scroll-driven background-position
+   itself stays in JS (idea-factory.js "botnav-accent-scroll") - background-position can't
+   be scroll-bound natively, and an animation is inherently invisible in a static canvas
+   snapshot regardless, so that's the one genuine, unavoidable exception. See idea-factory.js
+   for the matching module (1/3 the footer's rate, opposite direction, same technique as
+   the footer's own .if-foot-accent bar - which still uses the shared-CSS approach and
+   would benefit from the same native conversion if it's ever revisited).
+*/
