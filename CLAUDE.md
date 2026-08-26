@@ -2545,6 +2545,31 @@ Solved algebraically (verified in a real render before touching Webflow, not ass
 
 No shared `idea-factory.{css,js}` change (native Designer). `stable` not advanced yet.
 
-### 118c. Temporary MIPS reference bar removed from Ventures-Home (2026‑08‑26) — native Designer, PUBLISHED, verified live
+### 118d. Ventures nav — "Incubator" and "Programs" converted from plain links to real native dropdowns (2026‑08‑26) — native Designer, PUBLISHED, verified via real hover interaction
+
+User: "Incubator" is a dropdown with 6 link items, "Programs" is a dropdown with 3 — build them as real dropdowns, placeholder text "Link1"/"Link2"/etc., matching the class/styling model already used elsewhere on the site. This closes one of the gaps flagged since §115 ("Incubator/Programs top-nav items have no dropdown submenus").
+
+**Modeled directly from a real, working example, not guessed.** Queried the master site's own Main Nav component (`bffe20a1-a591-82e2-1c75-4864d9f1f0b9`, scoped via `scope_component_id` — plain page-level queries return 0 matches for anything inside a component definition, the established §112‑D gotcha) and read its "News"/"About" dropdowns' real, live structure:
+```
+DropdownWrapper (if-dd-wrap, data-hover="true" data-delay="200")
+  ├── DropdownToggle (if-nav-link if-ddtoggle)
+  │     ├── Icon (if-toggle-caret)
+  │     └── Block(div) → String (toggle label)
+  └── DropdownList (if-dd-list)
+        └── DropdownLink × N (if-nav-sublink) → String (label)   [confirmed a plain "Link"-type element styled if-nav-sublink works identically — the real "About" dropdown mixes DropdownLink-typed defaults with 2 later-added plain Links, both render/behave the same]
+```
+This is the exact class contract already documented in §13b's "NAV CLASS CONTRACT."
+
+**Build mechanics (a few real findings worth keeping):** `data_element_builder`'s type enum only lists `Dropdown` (no separate DropdownToggle/List/Link types) — building `type:"Dropdown"` auto-generates the WHOLE composite tree above with **3 default DropdownLink placeholders** ("Link 1"/"Link 2"/"Link 3", zero classes on any piece — a throwaway test build confirmed this before touching the real thing, then was deleted). Since `DropdownLink` itself isn't a buildable type, the 3 EXTRA sub-items Incubator needed (6 total) were added as `type:"TextLink"` — which resolves back to plain `type:"Link"` once queried, exactly matching the master nav's own "Directions"/"Timeline" precedent for mixing types within one `if-dd-list`.
+
+**Built:** two `Dropdown` elements positioned exactly where the old plain "Incubator" (`37adcf48…`) and "Programs" (`dad30b66…`) `if-nav-link` Links sat (`creation_position:"before"` anchored on each old link), then the old links removed once the new ones were verified. Applied the full class contract (`if-dd-wrap` / `if-nav-link if-ddtoggle` / `if-toggle-caret` / `if-dd-list` / `if-nav-sublink`) plus `data-hover="true" data-delay="200"` on both wrappers, matching the reference exactly. Toggle text → "Incubator"/"Programs"; all sub-items → "Link1"…"Link6" (Incubator) / "Link1"…"Link3" (Programs), per the user's placeholder-naming instruction.
+
+**Verified structurally** (full-depth re-query of both dropdowns independently, not the build responses' echoes): correct classes/attributes on every piece, correct text on every String node, final nav order intact (Home → Incubator‑dropdown → Impact → Programs‑dropdown → Calendar → Contact → Resources → Apply), 0 leftover references to the old plain links anywhere in the tree.
+
+**Verified FUNCTIONALLY — the part that actually matters for a dropdown, done the same way as §117's hamburger toggle: real hover interaction against the genuinely published page, not just DOM inspection.** Published, then built a real-browser harness with the live page + live compiled CSS + the real shared files + the real Webflow runtime bundles (`webflow.schunk*.js`, `webflow.c9f80112*.js`) + jQuery (Webflow's native interactions depend on it) — hovered each toggle and measured the list panel directly: **Incubator** — closed before hover (not visible) → hover → visible, real 220×240px box, all 6 links present in order, wrapper gains Webflow's own `w-dropdown` class (proof its runtime genuinely initialized it as a native dropdown, not just static markup) → mouse away → closes again. **Programs** — identical pattern, 220×123px box, 3 links. Screenshot of Incubator open confirms it renders with the same white-panel/uppercase-row look as every other dropdown on the site. The one recurring JS error in this harness (`Uncaught SyntaxError`) is the same pre-existing, already-diagnosed artifact from §118/§118c, reproducible independent of this change — not chased further.
+
+No shared `idea-factory.{css,js}` change (100% reuse of the pre-existing class contract + native Webflow Dropdown element behavior). `stable` not advanced yet.
+
+### 118e. Temporary MIPS reference bar removed from Ventures-Home (2026‑08‑26) — native Designer, PUBLISHED, verified live
 
 The lockup work in §118–118b confirmed done; removed the scratch MIPS bar (§118‑A, element `c9bac48f-456c-cd61-acb3-2865d5485dc9`) inserted purely for side-by-side comparison. `remove_element`, independently re-queried (0 matches for the element id, 0 elements anywhere on the page still carrying any `program-page-mips-hdrprog*` class — no orphaned children left behind), published, re-fetched the live HTML fresh (0 occurrences of `program-page-mips-hdrprog`, exactly 1 `if-idband-wrap` remaining — Ventures' own), and re-rendered the real published page to confirm visually: a single clean header bar, "Mtech Ventures" + gold bar + Assembly Line glyph + "ASSEMBLY LINE" label, no leftover second bar. Ventures-Home's program-name lockup (§115–118c) is now complete.
