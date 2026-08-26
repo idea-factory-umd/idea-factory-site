@@ -1521,3 +1521,41 @@ try {
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] nav-toggle-js error:', _e); } catch (_) {} }
 
+/* ===== module: botnav-accent-scroll (Ventures bottom-nav tricolor bar) =====
+   Deliberate mirror of the footer's own if-foot-accent scroll module (see the main-bundle
+   IIFE that targets '.if-foot-accent') - same scroll-progress formula, applied to
+   .program-page-ventures-botnav-accent instead, but with the travel distance scaled to
+   1/3 (MAXFRAC = -0.20 vs the footer's 0.60) and the sign flipped so the pattern slides
+   in the opposite direction as the page scrolls. See idea-factory.css for the matching
+   reversed gradient (red/white/gold instead of the footer's gold/white/red). */
+try {
+(function(){
+  function init(){
+    var bar = document.querySelector('.program-page-ventures-botnav-accent');
+    if (!bar) return;
+    var MAXFRAC = -0.20; // 1/3 of the footer bar's 0.60, sign flipped for opposite direction
+    var ticking = false;
+    function apply(){
+      ticking = false;
+      var w = bar.offsetWidth || bar.getBoundingClientRect().width;
+      var rect = bar.getBoundingClientRect();
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      var scrollMax = Math.max(1, (document.documentElement.scrollHeight || document.body.scrollHeight || 0) - vh);
+      var scrolled = window.pageYOffset || document.documentElement.scrollTop || 0;
+      var otop = rect.top + scrolled;
+      var finalTop = otop - scrollMax;
+      var denom = vh - finalTop;
+      var p = denom > 0 ? (vh - rect.top) / denom : 1;
+      if (p < 0) p = 0;
+      if (p > 1) p = 1;
+      bar.style.backgroundPosition = (p * MAXFRAC * w) + 'px 0px';
+    }
+    function onScroll(){ if (!ticking) { ticking = true; requestAnimationFrame(apply); } }
+    apply();
+    window.addEventListener('scroll', onScroll, {passive:true});
+    window.addEventListener('resize', onScroll, {passive:true});
+  }
+  if (document.readyState !== 'loading') init(); else document.addEventListener('DOMContentLoaded', init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] botnav-accent-scroll error:', _e); } catch (_) {} }
+
