@@ -678,3 +678,13 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
    the footer's own .if-foot-accent bar - which still uses the shared-CSS approach and
    would benefit from the same native conversion if it's ever revisited).
 */
+
+/* Ventures bottom-nav "current page" marker - bolder weight on whichever link matches the
+   current page. This CAN'T be done natively: Webflow's Designer has no way to select/style
+   .w--current directly (it's a runtime-only marker the platform adds to a link whose href
+   matches the current page - never a real, applicable combo class in the Designer), so the
+   compiler won't emit a hand-made .w--current rule. Same reason the site's main nav
+   current-page styling already lives here (see the older nav .w--current rules above).
+   program-page-ventures-botnav-link is page-specific to Ventures-Home, so this is safely
+   scoped - no other page's nav is affected. */
+.program-page-ventures-botnav-link.w--current{font-weight:700;}
