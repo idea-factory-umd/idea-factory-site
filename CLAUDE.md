@@ -240,6 +240,28 @@
 > - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#6 — keep this
 >   banner intact and pass it on.
 
+> ## 🚫 #8 HARD RULE — BANNED WORD: "EYEBROW" (user, 2026‑08‑28, extremely forceful, repeated 3× in one turn — treat as permanent, never re‑litigate)
+> **Never use the word "eyebrow" in any user‑facing text, in this or any future session.** The user's
+> own words: *"AN 'EYEBROW' IS HAIR THAT GROWS OVER A PERSON'S EYE. DON'T EVER USE THAT TERM AGAIN. THAT
+> TERM HAS NOTHING TO DO WITH ANYTHING YOU'RE TALKING ABOUT. PLEASE REMOVE THAT TERM PERMANENTLY FROM
+> YOUR LEXICON. AND NEVER RE‑INTRODUCE IT. I'M TIRED OF THAT."* This is about a class of small,
+> uppercase label/meta‑text elements above a heading (kicker text) that earlier sessions habitually
+> described using that word. **Going forward, describe that element type as "the small uppercase
+> label," "the meta‑text line," or "the kicker text" — never the banned word, in speech or in any new
+> prose written to this file or to the user.**
+> - **The ONE narrow exception:** a handful of PRE‑EXISTING Webflow style names already baked into the
+>   live site literally contain the word as part of their identifier (e.g. the shared small‑label style
+>   referenced throughout the ASPIRE/MIPS/Ventures sections of this file, and a few page‑specific combos
+>   built on it). **Do NOT rename these** — a sitewide rename is unnecessary churn with real regression
+>   risk (§76/§78/§100/§101's own repeated lesson about renaming live, in‑use style objects) and the user's
+>   objection was about the WORD IN CONVERSATION/PROSE, not about a legacy code identifier. When a tool
+>   call genuinely requires passing that literal class name as a string, that is a technical necessity,
+>   not a violation — but describe it to the user functionally ("the shared small‑label style") rather
+>   than reading the identifier aloud. **Never coin a NEW class name containing the word** — pick
+>   alternatives like `-meta`, `-label`, `-kicker`, `-tag` for anything created from here on.
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#7 — keep this
+>   banner intact and pass it on.
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is
@@ -2795,3 +2817,29 @@ Built all 9 pages from §129's table, in order: Resources, Incubator, Impact, Ho
 **No shared `idea-factory.{css,js}` change anywhere in this whole 9‑page build** — every fix is native Designer (styles + elements). `stable` branch not advanced yet this session. **Still open, explicitly out of scope per §129's own instruction:** nav wiring (the 9 pages' real destinations are not yet linked into `Main Nav — Ventures`'s dropdowns or the bottom‑nav band's placeholder `#` links — deferred, the user will specify how); Ventures‑Calendar's real external calendar embed (placeholder section awaits it); a handful of judgment‑call placeholder links noted at build time where no real destination was supplied (flagged inline in each page's build, not fabricated).
 
 **NEXT SESSION: keep maintaining this file per the OPERATING PROTOCOL. All 9 Ventures pages are live, content‑verified, and responsive‑verified — the two genuine remaining threads are (1) nav wiring once the user specifies it, and (2) the Calendar page's real embed. If a future session touches ANY native Webflow `Form` element via `data_element_builder`, read §130's two Form‑specific lessons above first — they are easy to get wrong exactly the way this session did.**
+
+## 131. Ventures‑Impact graduate‑company grid — real destination links wired, logo sizing fixed, and a genuine tablet/mobile responsive gap closed (2026‑08‑28) — native Designer, PUBLISHED, verified across 11 widths
+
+Three follow‑up fixes on the graduate‑company section built in §130, after the user reviewed the live page.
+
+**A. Real logos were already uploaded — only the FRAME class needed fixing.** The 9 rows' placeholder `Image` elements (from §130's Task #14 fix) already carried real uploaded logo assets (confirmed via the live HTML: `datastream-content-solutions.png`, `digene.png`, `inventwood.png`, `ion-storage-systems.png`, `martek-biosciences.jpg`, `medcura.png`, `novascreen-biosciences.png`, `paice.png`, `pixelligent.jpg`) — the user never needed to place them, they were already there. The bug the user flagged ("tiny for some reason") was the frame class itself: `program-page-ventures-impact-gradlogo` was a fixed **36×36px square with `object-fit:contain`** — every one of these logos is a WIDE wordmark (real measured aspect ratios 2.15:1 to 6.95:1), so `object-fit:contain` inside a forced‑square box shrinks the rendered HEIGHT far below 36px to keep the wide image from overflowing the width. **Fix, arrived at in two passes:** first pass fixed the height (40/34/30px per breakpoint) but used a fixed‑px `max-width` guess per breakpoint — measuring the ACTUAL rendered grid‑column width at each breakpoint (282px at 1440, 219.75px at 991, 719px stacked ≤767) showed the guessed values were either too tight or barely‑adequate. **Final fix: `max-width:100%`** (relative to the image's real container) instead of any fixed‑px guess — this adapts automatically to whatever column width actually exists at ANY viewport, rather than requiring a correctly‑measured guess at every single breakpoint. Live compiled CSS: `height:40px` (main) / `34px` (small) / `30px` (tiny), `max-width:100%` at all breakpoints, `object-fit:contain`, `object-position:left center`. Verified with the REAL uploaded assets (not synthetic mocks) rendered in a real headless browser at all 10 standard widths — no more squashed logos, correct height at every breakpoint, 0 overflow. (Test‑harness note, not a real bug: an early false "0 width" reading traced to Webflow's auto‑generated `srcset`/`sizes` on the large Medcura asset overriding a plain `src` swap, and separately to native `loading="lazy"` never firing without a scroll‑through step in a fixed‑viewport test — both fixed in the test, not the page.)
+
+**B. 14 real destination links wired on the graduate rows + the "More Mtech Impact" cross‑link grid**, all via `set_link`(`linkType:url`) + `target=_blank`/`rel=noopener` (external, per the site's established internal‑same‑tab/external‑new‑tab convention, §15): InventWood/Ion Storage Systems/Medcura/Pixelligent graduate‑row website links and Alchemity/Pathotrak/Resensys spotlight‑card website links were already correct (confirmed, no change needed); ASPIRE Program → `aspire.umd.edu/#IR2025-Nav`, Chesapeake Bay Seed Capital Fund → `cbscf.umd.edu/impact#IR2025-Nav`, MIPS → `mips.umd.edu/impact#IR2025-Nav`, Mtech → `mtech.umd.edu/impact#IR2025-Nav`, Mtech Learning and Development → `mtech.umd.edu/learning/mtech-learning-and-development-impact#IR2025-Nav`, NSF I‑Corps Mid‑Atlantic Hub → `icorps.umd.edu/impact#IR2025-Nav`, XFoundry → `xfoundry.org/impact-2025` — all 7 in the cross‑link grid updated and independently re‑queried before publishing.
+
+**C. ⭐ Tablet 2‑column stack + mobile left‑align fix — the actual responsive‑gap task.** User: *"this gets too 'squished' in the tablet breakpoint. Have the info in the middle column stack underneath the logo column immediately within the Tablet breakpoint so that at that point it's only two columns"* + *"when you do have this wrap that way (at the [Mobile Landscape] breakpoint) … you're floating [the small uppercase acquisition‑date label] to the right so it seems to have no relationship to the info above it. Don't do that! Keep all that left‑justified."*
+- **Root cause A (tablet):** `program-page-ventures-impact-gradrow`'s 3‑column grid (`1fr 1fr 2fr`) had **no "medium" breakpoint override at all** — it inherited the desktop 3‑column layout down to 767px, cramming all 3 columns into ~220px each at ~991px width.
+- **Root cause B (mobile left‑float):** the shared small‑uppercase‑label style (the one carrying the acquisition‑date text, referenced elsewhere in this file — see HARD RULE #8 for why it's not named here) has an existing `text-align:right` override AT THE SMALL BREAKPOINT, built for a different context (the 4 spotlight cards' metadata labels, which correctly right‑align there) — this same shared style, reused plain (no combo) on the 9 graduate rows, inherited that unrelated right‑align rule too.
+- **Fix — 4 new/updated native styles, all independently re‑queried before publishing, none touching the shared classes directly (so the spotlight cards' own combo‑based right‑align stays untouched):**
+  - `program-page-ventures-impact-gradcol1` (new, plain global, applied to the 9 logo+name blocks — previously unstyled): `medium` → `grid-column:1; grid-row:1`; `small` → resets both to `auto` (CSS media queries overlap — a narrower breakpoint must explicitly reset a wider one's placement, or it persists).
+  - `program-page-ventures-impact-gradcol2` (new, plain global, on the 9 stat blocks): `medium` → `grid-column:1; grid-row:2` (stacks directly under col1); `small` → reset to `auto`.
+  - `program-page-ventures-impact-graddesc` (new combo, parent `if-prog-desc`, on the 9 description paragraphs): `medium` → `grid-column:2; grid-row:1 / 3` (spans both stacked rows in the second track); `small` → reset to `auto`.
+  - `program-page-ventures-impact-gradmeta-left` (new combo, parent = the shared small‑label style, on the 9 plain graduate‑row instances ONLY — NOT the 4 spotlight‑card instances, which carry a separate, untouched combo): `small` → `text-align:left`.
+  - `program-page-ventures-impact-gradrow` updated: `medium` → `grid-template-columns:1fr 2fr` (2 tracks).
+- **Verified via a real‑browser sweep at 11 widths (1440→320px), against the genuinely‑live republished page + fresh compiled CSS — not asserted from the CSS text alone** (Webflow compiled the `grid-column`+`grid-row` longhand pair into the `grid-area` shorthand in its output, e.g. `grid-area:1/1`, `grid-area:2/1`, `grid-area:1/2/3`, `grid-area:auto` — a first quick regex check wrongly flagged these as "unscoped/base‑level"; a proper brace‑matched re‑check confirmed every rule is correctly scoped inside its intended `@media` block, not applying at the wrong widths):
+  - **1440px:** unchanged 3‑column desktop layout, all three items same row — no regression.
+  - **991px & 900px (tablet, medium):** genuine 2‑column grid — col1 (logo+name) top‑left, col2 (stat) directly beneath it in the same column (`col1.bottom ≤ col2.top` confirmed), description spanning both rows in the wide right column.
+  - **767px down to 320px (small/tiny):** single‑column stack in the correct order (col1 → col2 → desc, zero overlap at every width), and the acquisition‑date label's `textAlign` reads `left` with its left edge exactly matching the column's left edge (no more right‑float) — confirmed both numerically and via real screenshots.
+  - **0px horizontal overflow, 0 JS errors, at all 11 widths.**
+- No shared `idea-factory.{css,js}` change — all native Designer. `stable` not advanced yet.
+
+**⭐ Standing correction, HARD RULE #8 (top of file): the small‑label word habitually used to describe this element type is permanently banned from this session forward — see the banner for the full wording and the one narrow exception (existing code identifiers stay as‑is; never coin a new one with that word).**
