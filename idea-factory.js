@@ -464,7 +464,21 @@ try {
     // (color/weight/no-underline; letter-spacing intentionally left off
     // since that value is Interstate-specific kerning, not required for the
     // link to read as "on-brand").
-    + "a:not(.ff-alink){color:#e21833!important;font-weight:700!important;text-decoration:none!important;}";
+    + "a:not(.ff-alink){color:#e21833!important;font-weight:700!important;text-decoration:none!important;}"
+    // The clickable "Add File..." trigger inside a file-upload field
+    // (.ff-fileupload-select — confirmed as a real class name straight out
+    // of Formstack's own Main.js) rests at the site's link red via the
+    // rule above (it's a plain <a>), but Formstack's OWN stylesheet still
+    // supplies a DIFFERENT color specifically on :hover — a plain inline
+    // JS-forced style can't fix that at all, since an inline style is one
+    // static value with no notion of interaction state; only a real
+    // stylesheet :hover/:focus/:active rule can override another
+    // stylesheet's :hover/:focus/:active rule. Locking every state to the
+    // same red/bold/no-underline (matching the rest of this site, where a
+    // text link doesn't change color on hover either) rather than only
+    // adding a :hover rule, so nothing here can ever drift out of sync with
+    // the rest state again.
+    + ".ff-fileupload-select,.ff-fileupload-select:link,.ff-fileupload-select:visited,.ff-fileupload-select:hover,.ff-fileupload-select:active,.ff-fileupload-select:focus{color:#e21833!important;font-weight:700!important;text-decoration:none!important;}";
   var FONT_STACK = '"Interstate","Helvetica Neue",Arial,sans-serif';
   // Broad: every visible text piece gets the site's sans-serif face, titles included.
   var FONT_SEL = '.ff-general-text-label,.ff-label,.ff-input-type input,.ff-input-type textarea,.ff-input-type select,.ff-btn-submit,.ff-page-header,.ff-invalid-msg,.ff-alink,.ff-footnote-label,label,h1,h2,h3,h4,h5,h6,legend';
