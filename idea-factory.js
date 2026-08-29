@@ -455,12 +455,16 @@ try {
     // (e.g. "For more details Click Here") are plain <a> tags with no
     // Formstack-added class at all — Formstack only classes its OWN
     // functional UI links (.ff-alink, the repeatable-section Add/Remove
-    // controls) differently, so these are reachable by "any <a> nested
-    // inside a label/text element" without touching .ff-alink. Matches the
-    // site's established if-inline-link look (color/weight/no-underline;
-    // letter-spacing intentionally left off since that value is Interstate-
-    // specific kerning, not required for the link to read as "on-brand").
-    + ".ff-label a,.ff-general-text-label a{color:#e21833!important;font-weight:700!important;text-decoration:none!important;}";
+    // controls) differently. Deliberately NOT scoped to ".ff-label a"/
+    // ".ff-general-text-label a" (an earlier, narrower version of this rule
+    // — a real ancestor assumption that was never confirmed against the
+    // actual live markup and turned out wrong): matches ANY <a> in the form
+    // except .ff-alink, so it can't miss a link sitting under some other
+    // wrapper class. Matches the site's established if-inline-link look
+    // (color/weight/no-underline; letter-spacing intentionally left off
+    // since that value is Interstate-specific kerning, not required for the
+    // link to read as "on-brand").
+    + "a:not(.ff-alink){color:#e21833!important;font-weight:700!important;text-decoration:none!important;}";
   var FONT_STACK = '"Interstate","Helvetica Neue",Arial,sans-serif';
   // Broad: every visible text piece gets the site's sans-serif face, titles included.
   var FONT_SEL = '.ff-general-text-label,.ff-label,.ff-input-type input,.ff-input-type textarea,.ff-input-type select,.ff-btn-submit,.ff-page-header,.ff-invalid-msg,.ff-alink,.ff-footnote-label,label,h1,h2,h3,h4,h5,h6,legend';
@@ -468,9 +472,6 @@ try {
   // values) — titles/headings and the submit button are deliberately excluded
   // per the user's own read ("the title pieces you just fixed are fine").
   var BODY_SEL = '.ff-general-text-label,.ff-label,label,.ff-input-type input,.ff-input-type textarea,.ff-input-type select';
-  // Inline links inside label/instruction copy — see the CSS rule above for why
-  // these need their own selector rather than reusing .ff-alink.
-  var LINK_SEL = '.ff-label a,.ff-general-text-label a';
   var watched = null;
   function forceInlineFonts(doc){
     try {
@@ -487,9 +488,13 @@ try {
       // plain stylesheet rule already targets these via the CSS string, but
       // this also forces the color/weight/underline inline so nothing
       // Formstack's own engine sets directly on the element (rather than via
-      // its stylesheet) can silently win the cascade.
-      var linkEls = doc.querySelectorAll(LINK_SEL);
+      // its stylesheet) can silently win the cascade. Queries ALL <a> tags
+      // in the iframe document directly (not scoped to a specific ancestor
+      // class) — see the CSS rule's own comment for why an ancestor-scoped
+      // version was dropped.
+      var linkEls = doc.querySelectorAll('a');
       for (var k = 0; k < linkEls.length; k++) {
+        if (linkEls[k].classList.contains('ff-alink')) continue;
         linkEls[k].style.setProperty('color', '#e21833', 'important');
         linkEls[k].style.setProperty('font-weight', '700', 'important');
         linkEls[k].style.setProperty('text-decoration', 'none', 'important');
