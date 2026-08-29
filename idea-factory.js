@@ -464,21 +464,23 @@ try {
     // (color/weight/no-underline; letter-spacing intentionally left off
     // since that value is Interstate-specific kerning, not required for the
     // link to read as "on-brand").
-    + "a:not(.ff-alink){color:#e21833!important;font-weight:700!important;text-decoration:none!important;}"
+    // .ff-fileupload-select (the "Add File..." trigger) is deliberately
+    // EXCLUDED here — it needs a completely different treatment (grey at
+    // rest, red only on hover, see below), not the always-red inline-link
+    // look every other bare <a> gets.
+    + "a:not(.ff-alink):not(.ff-fileupload-select){color:#e21833!important;font-weight:700!important;text-decoration:none!important;}"
     // The clickable "Add File..." trigger inside a file-upload field
     // (.ff-fileupload-select — confirmed as a real class name straight out
-    // of Formstack's own Main.js) rests at the site's link red via the
-    // rule above (it's a plain <a>), but Formstack's OWN stylesheet still
-    // supplies a DIFFERENT color specifically on :hover — a plain inline
-    // JS-forced style can't fix that at all, since an inline style is one
-    // static value with no notion of interaction state; only a real
-    // stylesheet :hover/:focus/:active rule can override another
-    // stylesheet's :hover/:focus/:active rule. Locking every state to the
-    // same red/bold/no-underline (matching the rest of this site, where a
-    // text link doesn't change color on hover either) rather than only
-    // adding a :hover rule, so nothing here can ever drift out of sync with
-    // the rest state again.
-    + ".ff-fileupload-select,.ff-fileupload-select:link,.ff-fileupload-select:visited,.ff-fileupload-select:hover,.ff-fileupload-select:active,.ff-fileupload-select:focus{color:#e21833!important;font-weight:700!important;text-decoration:none!important;}";
+    // of Formstack's own Main.js) is meant to REST at its own normal
+    // (grey/body) color — same as the surrounding form text — and only
+    // turn red on hover, i.e. a genuine two-state rollover, not a static
+    // link color. Only :hover/:active/:focus are touched, and only color —
+    // font-weight/text-decoration are deliberately left alone at every
+    // state so nothing about its rest appearance changes. A plain inline
+    // JS-forced style could never express this (an inline style is one
+    // static value with no notion of interaction state), so this has to be
+    // a real stylesheet rule.
+    + ".ff-fileupload-select:hover,.ff-fileupload-select:active,.ff-fileupload-select:focus{color:#e21833!important;}";
   var FONT_STACK = '"Interstate","Helvetica Neue",Arial,sans-serif';
   // Broad: every visible text piece gets the site's sans-serif face, titles included.
   var FONT_SEL = '.ff-general-text-label,.ff-label,.ff-input-type input,.ff-input-type textarea,.ff-input-type select,.ff-btn-submit,.ff-page-header,.ff-invalid-msg,.ff-alink,.ff-footnote-label,label,h1,h2,h3,h4,h5,h6,legend';
@@ -509,6 +511,12 @@ try {
       var linkEls = doc.querySelectorAll('a');
       for (var k = 0; k < linkEls.length; k++) {
         if (linkEls[k].classList.contains('ff-alink')) continue;
+        // .ff-fileupload-select rests at its own normal color and only
+        // turns red on :hover (handled by the CSS rule above) — must NOT
+        // get an unconditional inline color forced here, or that inline
+        // value would apply at ALL times, including rest, overriding the
+        // grey it's supposed to keep when not hovered.
+        if (linkEls[k].classList.contains('ff-fileupload-select')) continue;
         linkEls[k].style.setProperty('color', '#e21833', 'important');
         linkEls[k].style.setProperty('font-weight', '700', 'important');
         linkEls[k].style.setProperty('text-decoration', 'none', 'important');
