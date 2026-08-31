@@ -1246,15 +1246,19 @@ try {
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] header-name-fit error:', _e); } catch (_) {} }
 
 try {
-// Cross-page smooth-scroll landing: a link to another page can append "#goto:<id>"
-// (instead of the real "#<id>") so the browser's native instant hash-jump never fires
-// (no element has that literal id) — this module reads it on load and performs the
-// same eased scroll used by in-page anchor links (idea-factory.js smooth-scroll module).
+// Cross-page / same-page smooth-scroll landing for "#goto:<id>" links: a link to another page's
+// section appends "#goto:<id>" (instead of a real "#<id>") so the browser's native instant
+// hash-jump never fires (no element has that literal id) — this module scrolls to the real target
+// with the same eased motion + .if-header offset as the in-page smooth-scroll module. Handles BOTH
+// directions: (1) arriving from another page -- a real navigation reloads the document, so the
+// on-load check below runs fresh with the new hash already set; (2) clicking one of these links
+// while ALREADY on the target page -- only the URL hash differs from the current page, so the
+// browser treats it as a same-document navigation and never reloads, meaning the on-load check
+// (which only ever runs once, at the original page load) never sees the new hash. The click
+// listener below is what makes that second case work: it intercepts the click directly, runs the
+// scroll immediately, and lets the browser navigate normally (uninterrupted) for any link whose
+// own page differs from the current one.
 (function(){
-  var m = /^#goto:([\w-]+)$/.exec(location.hash);
-  if (!m) return;
-  var tgt = document.getElementById(m[1]);
-  if (!tgt) return;
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   var reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   function ease(t){ return t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
@@ -1270,14 +1274,34 @@ try {
     }
     requestAnimationFrame(step);
   }
-  function run(){
+  function goTo(id){
+    var tgt = document.getElementById(id);
+    if (!tgt) return false;
     var hdr = document.querySelector('.if-header') || document.querySelector('header');
     var h = hdr ? hdr.offsetHeight : 0;
     var toY = Math.max(0, tgt.getBoundingClientRect().top + window.pageYOffset - h - 24);
-    if (history.replaceState) history.replaceState(null, '', location.pathname + location.search);
     if (reduced) { window.scrollTo(0, toY); } else { animate(toY); }
+    return true;
   }
-  if (document.readyState !== 'loading') run(); else document.addEventListener('DOMContentLoaded', run);
+  function runFromHash(){
+    var m = /^#goto:([\w-]+)$/.exec(location.hash);
+    if (!m) return;
+    if (goTo(m[1]) && history.replaceState) history.replaceState(null, '', location.pathname + location.search);
+  }
+  if (document.readyState !== 'loading') runFromHash(); else document.addEventListener('DOMContentLoaded', runFromHash);
+  document.addEventListener('click', function(e){
+    var a = e.target && e.target.closest && e.target.closest('a[href*="#goto:"]');
+    if (!a) return;
+    var href = a.getAttribute('href') || '';
+    var m = /#goto:([\w-]+)$/.exec(href);
+    if (!m) return;
+    var linkPath = a.pathname || href.split('#')[0];
+    if (linkPath && linkPath !== location.pathname) return;
+    if (goTo(m[1])) {
+      e.preventDefault();
+      if (history.replaceState) history.replaceState(null, '', location.pathname + location.search);
+    }
+  }, true);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] cross-page-anchor-scroll error:', _e); } catch (_) {} }
 
