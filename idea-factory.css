@@ -686,5 +686,8 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
    compiler won't emit a hand-made .w--current rule. Same reason the site's main nav
    current-page styling already lives here (see the older nav .w--current rules above).
    program-page-ventures-botnav-link is page-specific to Ventures-Home, so this is safely
-   scoped - no other page's nav is affected. */
+   scoped - no other page's nav is affected. Same rule mirrored for CBSCF's own bottom-nav
+   link class below (each spinoff gets its own scoped rule, not a shared one, so tuning one
+   spinoff's current-link weight can never touch another's). */
 .program-page-ventures-botnav-link.w--current{font-weight:700;}
+.program-page-cbscf-botnav-link.w--current{font-weight:700;}
