@@ -3052,4 +3052,34 @@ Downloaded PNGs cached this session at `/tmp/vaudit/cbscf/{home,impact,apply}_gu
 
 **User's explicit build instruction: do not stop, build everything across all 3 pages now (content, all sections, all breakpoints), refine later** — same "keep going, don't get stuck on one problem" instruction as the original Ventures 9-page batch (§129/§130). Real native `Image` elements for every photo (not grey placeholder boxes) — an explicit, repeated requirement this session (echoing §120's "if it's supposed to be an image, add the PROPER ELEMENT" standing rule).
 
-**Status at this entry: layout guides downloaded, page IDs recorded, build not yet started.**
+**⚠️ `data_component_tool` re-tested (`get_all_components`) immediately before building — still gated ("MCP tool call requires approval"), same as it was for the entire Ventures build.** Per the plan above: falling back to the established §117 marker-class pattern (`if-navbtn-js`/`if-navmenu-js` + the existing shared `nav-toggle-js` module) for the CBSCF nav/bottom-nav, built as plain elements reused via `move_element`/copy across all 3 pages. **A manual Designer-side "Create Component" + paste-to-other-2-pages step will still be needed from the user later, exactly as it was for Ventures — flagged here up front this time, not discovered as a surprise at the end.**
+
+**Real body-content hyperlinks for all 3 CBSCF pages (user-supplied, verbatim — header/footer links and same-page anchors `#overview/#funding/#criteria/#industries/#companies/#team` excluded, those are wired separately as in-page anchors):**
+
+| Link text | URL |
+|---|---|
+| Submit an application on Gust | `https://gust.com/organizations/cbscf/public_profile` |
+| cbscf@umd.edu | `mailto:cbscf@umd.edu` |
+| Neighborhood Sun | `https://neighborhoodsun.solar` |
+| N5 Sensors | `https://n5sensors.com/` |
+| Datakwip | `https://www.datakwip.com` |
+| Dynamhex | `https://dynmhx.io` |
+| PaverGuide | `http://www.paverguide.com/` |
+| Aqualith Advanced Materials | `https://www.aqualith.net/` |
+| Manta Biofuel | `https://mantabiofuel.com/` |
+| Advanced Bionutrition | `http://www.advancedbionutrition.com` |
+| Scott Christensen | `https://www.linkedin.com/in/schristensen32/` |
+| schris14@umd.edu | `mailto:schris14@umd.edu` |
+| Sarah Lane | `https://www.linkedin.com/in/sarah-lane-5891259a/` |
+| JumpLights | `https://jumplights.com/` |
+| Advanced BioNutrition (2nd instance, "'s" — likely "Advanced BioNutrition's") | `https://www.advancedbionutrition.com` |
+| Datakwip's | `https://www.datakwip.com` |
+| ASPIRE Program | `https://aspire.umd.edu/#IR2025-Nav` |
+| Maryland Industrial Partnerships (MIPS) | `https://www.mips.umd.edu/impact#IR2025-Nav` |
+| Maryland Technology Enterprise Institute (Mtech) | `https://www.mtech.umd.edu/impact#IR2025-Nav` |
+| Mtech Learning and Development | `https://www.mtech.umd.edu/learning/mtech-learning-and-development-impact#IR2025-Nav` |
+| Mtech Ventures | `https://www.mtechventures.umd.edu/impact#IR2025-Nav` |
+| NSF I-Corps Mid-Atlantic Hub | `https://www.icorps.umd.edu/impact#IR2025-Nav` |
+| XFoundry | `https://www.xfoundry.org/impact-2025` |
+
+**Status at this entry: layout guides downloaded, page IDs recorded, hyperlinks recorded, component-tool re-confirmed gated, build starting now.**
