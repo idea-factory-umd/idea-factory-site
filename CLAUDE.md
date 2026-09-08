@@ -3305,3 +3305,17 @@ User (with screenshots): the horizontal divider line under each big number ($94.
 - Zero overflow caused by this fix at any width — the one overflow that DOES exist at 375/320px was traced element-by-element and is the pre-existing, already-documented, unrelated `.if-tag-strong` header issue (0 offenders found inside `.if-proof-sec` itself).
 
 No shared `idea-factory.{css,js}` change (native Designer only). `stable` branch not advanced yet this session.
+
+## 152. Home hero — "Find Your Path" button butting into the headline on phone (2026‑09‑08) — native Designer, 1 new isolated combo class, PUBLISHED, verified at 6 widths + real screenshot
+
+User (with a Designer-canvas screenshot at the ≤767px breakpoint): the hero CTA button sits almost flush against the bottom of "Where ideas get built.", with no visible gap, on both phone orientations.
+
+**Root cause:** `if-hero-h1` (the sitewide shared hero headline class, used by every page's hero) has `margin-bottom: max(0.34em, 30px)` at the base/main level — a floor specifically designed (§8) so the gap above the CTA never collapses. But at the **medium** breakpoint it's overridden to a flat `margin-bottom: 10px`, and since nothing re-overrides it at `small`/`tiny`, that 10px cascades all the way down to phone, exactly killing the floor at the one place it matters most.
+
+**Fix — isolated to Home only, base `if-hero-h1` untouched (this class is shared sitewide, editing it directly would affect every page's hero):** new combo `home-hero-h1-gap` (parent `if-hero-h1`), with `margin-bottom: max(0.34em, 30px)` set ONLY at the `medium` breakpoint (correctly cascades down through `small`/`tiny` since nothing re-overrides it there, restoring the same floor desktop already has). Applied to Home's H1 element only. Independently re-verified the class persisted before publishing.
+
+**Verified (HARD RULE #3) against the genuinely republished live page** — real compiled CSS confirmed the combo rule is live; real Interstate fonts, all external network requests blocked, measured at 6 widths (1440/991/767/480/375/320): `gapH1ToCta` is a healthy, consistent **30px at 767/480/375/320** (was near-zero before the fix) and unaffected at 991/1440 (67px/60px, unchanged from before — `justify-content:space-between` still governs the larger desktop gap, the fix only restores the FLOOR at narrow widths). Real screenshot at 480px confirms it visually — clean breathing room between the headline and the button, matching the reported break exactly. Zero overflow introduced by this fix.
+
+⚠️ This same `medium`-breakpoint `10px` override likely affects every OTHER page's hero too (Students/About/Faculty/ASPIRE/Minor/MIPS/etc. all use base `if-hero-h1`), but per the user's explicit "isolate to this page" instruction, only Home was touched — not fixed elsewhere, flagged here for if it's ever raised on another page.
+
+No shared `idea-factory.{css,js}` change (native Designer only). `stable` branch not advanced yet this session.
