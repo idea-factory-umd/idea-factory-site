@@ -903,13 +903,21 @@ try {
 
 /* ===== module: about-goldbars (scroll-width, like the Hero gold bar) =====
    The stage-photo gold bars (.if-stg-goldbar) and the synthesis gold bar (.if-syn-goldbar)
-   grow in width 30%->90% as they scroll into view, matching .if-hero-goldbar. */
+   grow in width 30%->90% as they scroll into view, matching .if-hero-goldbar.
+   PERF: previously wrote element.style.width on every scroll frame - width is a
+   layout-affecting property, so that forced a real synchronous layout recalculation
+   on every single scroll frame, for every bar on the page (up to 5 on the About page).
+   Fixed to set the CSS width ONCE (to its own max value) and drive the actual growth
+   via transform:scaleX() instead, which is compositor-only and never touches layout.
+   transform-origin:left keeps it anchored/growing from the left edge exactly like the
+   old width-based version did. */
 try {
 (function(){
   function init(){var bars=document.querySelectorAll('.if-stg-goldbar, .if-syn-goldbar');if(!bars.length)return;
-    var MIN=30,MAX=90,ticking=false;
-    function apply(){ticking=false;var vh=window.innerHeight||document.documentElement.clientHeight,i;
-      for(i=0;i<bars.length;i++){var _b=bars[i];var r=_b.getBoundingClientRect();var p=(vh-r.top)/(vh+r.height);if(p<0)p=0;if(p>1)p=1;var mx=_b.classList.contains('if-syn-goldbar')?60:MAX;_b.style.width=(MIN+(mx-MIN)*p)+'%';}}
+    var MIN=30,MAX=90,ticking=false,i;
+    for(i=0;i<bars.length;i++){var _bar=bars[i];var _max=_bar.classList.contains('if-syn-goldbar')?60:MAX;_bar.style.width=_max+'%';_bar.style.transformOrigin='left center';}
+    function apply(){ticking=false;var vh=window.innerHeight||document.documentElement.clientHeight,j;
+      for(j=0;j<bars.length;j++){var _b=bars[j];var r=_b.getBoundingClientRect();var p=(vh-r.top)/(vh+r.height);if(p<0)p=0;if(p>1)p=1;var mx=_b.classList.contains('if-syn-goldbar')?60:MAX;var w=MIN+(mx-MIN)*p;_b.style.transform='scaleX('+(w/mx)+')';}}
     function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(apply);}}
     apply();window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',onScroll,{passive:true});}
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
