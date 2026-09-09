@@ -858,13 +858,21 @@ try {
    with ifScrollEngine instead of its own private scroll listener). Rolls 0 -> value once
    scrolled into view, fading in while counting, accelerating into the final number
    (easeInCubic). Preserves prefix/suffix/commas. Separate, deliberately, from
-   hero-countup-easeout below (.if-hero-countup) - that one uses a different easing curve
-   on purpose for a different context (a hero-banner stat vs. a stats-band stat); they never
-   target the same element on any live page, so they are NOT a duplicate pair to consolidate. */
+   hero-countup-easeout below (renamed off .if-hero-countup, see that module's own comment) -
+   that one used a different easing curve on purpose for a different context (a hero-banner
+   stat), so it was never a duplicate pair to consolidate.
+   Selector also lists MIPS-Impact's own standalone number classes (glance-value, stats-value)
+   directly by name, alongside .if-countup - added 2026-09-09 so those numbers count up the
+   same way Home's do, WITHOUT sharing Home's if-countup style object (that coupling was
+   deliberately removed once already, see CLAUDE-HISTORY.md HARD RULE #10 / §149). A combined
+   set_style adding a brand-new marker class alongside an existing one kept failing ("styles not
+   found") on freshly-created classes this session, so naming the classes directly in the
+   selector was used instead of a marker class - same pattern stage-parallax already uses below
+   for its own legacy+current class aliasing. */
 try {
 (function(){
   var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var els = document.querySelectorAll('.if-countup');
+  var els = document.querySelectorAll('.if-countup, .program-page-mips-impact-glance-value, .program-page-mips-impact-stats-value');
   els.forEach(function(el){
     if(el.__ifcu) return; el.__ifcu = 1;
     var value = el.getAttribute('data-value') || el.textContent.trim();
@@ -1316,11 +1324,16 @@ try {
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] walkcopy-spy error:', _e); } catch (_) {} }
 
-/* module: hero-countup-easeout — one specific instance (MIPS-Impact hero "41:1" stat) that
-   needs a different feel than the shared .if-countup (ease-in-cubic, slow start / abrupt stop):
+/* module: hero-countup-easeout — was one specific instance (MIPS-Impact hero "41:1" stat) that
+   needed a different feel than the shared .if-countup (ease-in-cubic, slow start / abrupt stop):
    ease-out-quad instead, for a quicker pickup and a gentle deceleration into the final value.
    Scoped to its own class (.if-hero-countup) so .if-countup and every element using it elsewhere
-   are completely unaffected. Migrated onto ifScrollEngine (same pattern as count-up above). */
+   were completely unaffected. Migrated onto ifScrollEngine (same pattern as count-up above).
+   2026-09-09: the hero "41:1" stat's class was renamed to program-page-mips-impact-hero-stat
+   (per the user's request to stop it counting up) - .if-hero-countup no longer exists anywhere
+   sitewide, so this module's querySelectorAll now always returns empty and it's a harmless,
+   permanent no-op. Left in place (guarded, costs nothing) rather than deleted, in case a future
+   hero stat ever wants this exact easing again. */
 try {
 (function(){
   var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
