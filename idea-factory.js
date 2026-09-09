@@ -861,20 +861,28 @@ try {
    hero-countup-easeout below (renamed off .if-hero-countup, see that module's own comment) -
    that one used a different easing curve on purpose for a different context (a hero-banner
    stat), so it was never a duplicate pair to consolidate.
-   Selector also lists MIPS-Impact's and ASPIRE-Home's own standalone number classes
-   (glance-value, stats-value, aspire-numbers-countup) directly by name, alongside .if-countup -
-   added 2026-09-09 so those numbers count up the same way Home's do, WITHOUT sharing Home's
-   if-countup style object (that coupling was deliberately removed once already per page, see
-   CLAUDE-HISTORY.md HARD RULE #10 / §149). A combined set_style adding a brand-new marker class
-   alongside an existing one kept failing ("styles not found") on freshly-created classes in the
-   same session, so naming the classes directly in the selector was used instead of a marker
-   class - same pattern stage-parallax already uses below for its own legacy+current class
-   aliasing. Any FUTURE spinoff wanting this same effect just needs its own number class added
-   to this one selector list - no Designer-side change required. */
+   Selector also lists several pages' own standalone number classes directly by name, alongside
+   .if-countup - added 2026-09-09 so those numbers count up the same way Home's do, WITHOUT
+   sharing Home's if-countup style object (that coupling was deliberately removed once already
+   per page, see CLAUDE-HISTORY.md HARD RULE #10 / §149). A combined set_style adding a brand-new
+   marker class alongside an existing one kept failing ("styles not found") on freshly-created
+   classes in the same session, so naming the classes directly in the selector was used instead
+   of a marker class - same pattern stage-parallax already uses below for its own legacy+current
+   class aliasing.
+   Currently covers: MIPS-Impact (program-page-mips-impact-glance-value, -stats-value),
+   ASPIRE-Home (program-page-aspire-numbers-countup), MIPS-Home's "Four decades of return"
+   section (program-page-mips-impact-num, program-page-mips-callout-big - note the confusing
+   name: these live on the MIPS-HOME page, not MIPS-Impact, despite the "impact" in the name -
+   verified by direct query before wiring, and separately confirmed via a live grep across every
+   known page that neither class exists anywhere else, so this is safe). Any FUTURE page wanting
+   this same effect just needs its own number class added to this one selector list - no
+   Designer-side change required. Before adding a new one, verify (a) it doesn't already exist
+   on some other page under a similar-looking name (this file has bitten that once already) and
+   (b) the class isn't a duplicate style object (data_style_tool query_styles, single match). */
 try {
 (function(){
   var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var els = document.querySelectorAll('.if-countup, .program-page-mips-impact-glance-value, .program-page-mips-impact-stats-value, .program-page-aspire-numbers-countup');
+  var els = document.querySelectorAll('.if-countup, .program-page-mips-impact-glance-value, .program-page-mips-impact-stats-value, .program-page-aspire-numbers-countup, .program-page-mips-impact-num, .program-page-mips-callout-big');
   els.forEach(function(el){
     if(el.__ifcu) return; el.__ifcu = 1;
     var value = el.getAttribute('data-value') || el.textContent.trim();
