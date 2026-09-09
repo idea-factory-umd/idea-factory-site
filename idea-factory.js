@@ -41,6 +41,12 @@
  *      permanently — a permanent will-change pins a compositor layer for
  *      the page's entire life, and Chrome demotes/re-rasterizes layers once
  *      its layer-memory budget is exceeded.
+ *   6. GLOBAL LOAD GUARD (below, before this file does anything else): if this
+ *      script is ever accidentally included twice on one page, every module's
+ *      per-element re-entry guards (e.g. `if(el.__ifsm)return;`) already stop
+ *      that SPECIFIC element from being double-processed — but the guard here
+ *      stops the whole file, including a second `ifScrollEngine` definition,
+ *      from running at all. Never remove it.
  *
  * SCOPE NOTE (2026-09): this pass consolidated every effect that registered
  * a `scroll` listener - all 20 of them: manifesto line-lift, Home stage-photo
@@ -57,6 +63,9 @@
  * they were never part of the choppy-scrolling problem, and touching them
  * was out of scope for this fix.
  * ========================================================================== */
+if (window.__ifEngine) { /* already loaded once on this page - stop here, do nothing else */ }
+else {
+window.__ifEngine = 1;
 try {
 window.ifScrollEngine = (function(){
   var effects = [], ticking = false;
@@ -907,13 +916,16 @@ try {
       } else {
         var played=false;
         function run(){
+          /* will-change set only for this one-shot sequence's own duration, cleared at
+             settle - never a permanent CSS declaration (B3 rule, see idea-factory.css). */
+          lines.forEach(function(l){l.style.willChange='transform, text-shadow, opacity';});
           var HOLD=1130,GAP=410,seq=[],i;
           for(i=0;i<lines.length;i++){seq.push({k:i,hold:HOLD});if(i<lines.length-1)seq.push({k:-1,hold:GAP});}
           seq.push({k:999,hold:0});
           var s=0;
           function step(){
             var cur=seq[s];
-            if(cur.k===999){h2.classList.remove('is-dimming');lines.forEach(function(l){l.classList.remove('is-lift');});}
+            if(cur.k===999){h2.classList.remove('is-dimming');lines.forEach(function(l){l.classList.remove('is-lift');l.style.willChange='';});}
             else{h2.classList.add('is-dimming');lines.forEach(function(l,idx){var on=idx===cur.k;l.classList.toggle('is-lift',on);if(on){var r=l.querySelector('.if-mani-red');if(r)r.classList.add('if-lit-red');}});}
             s++;
             if(s<seq.length)setTimeout(step,cur.hold);
@@ -1855,4 +1867,5 @@ try {
 
 /* botnav-accent-scroll moved to the consolidated 'botnav-accent-scroll' module (ifScrollEngine)
    above, right after hero-countup-easeout. */
+} /* end window.__ifEngine load guard */
 
