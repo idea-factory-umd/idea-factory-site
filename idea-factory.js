@@ -861,18 +861,20 @@ try {
    hero-countup-easeout below (renamed off .if-hero-countup, see that module's own comment) -
    that one used a different easing curve on purpose for a different context (a hero-banner
    stat), so it was never a duplicate pair to consolidate.
-   Selector also lists MIPS-Impact's own standalone number classes (glance-value, stats-value)
-   directly by name, alongside .if-countup - added 2026-09-09 so those numbers count up the
-   same way Home's do, WITHOUT sharing Home's if-countup style object (that coupling was
-   deliberately removed once already, see CLAUDE-HISTORY.md HARD RULE #10 / §149). A combined
-   set_style adding a brand-new marker class alongside an existing one kept failing ("styles not
-   found") on freshly-created classes this session, so naming the classes directly in the
-   selector was used instead of a marker class - same pattern stage-parallax already uses below
-   for its own legacy+current class aliasing. */
+   Selector also lists MIPS-Impact's and ASPIRE-Home's own standalone number classes
+   (glance-value, stats-value, aspire-numbers-countup) directly by name, alongside .if-countup -
+   added 2026-09-09 so those numbers count up the same way Home's do, WITHOUT sharing Home's
+   if-countup style object (that coupling was deliberately removed once already per page, see
+   CLAUDE-HISTORY.md HARD RULE #10 / §149). A combined set_style adding a brand-new marker class
+   alongside an existing one kept failing ("styles not found") on freshly-created classes in the
+   same session, so naming the classes directly in the selector was used instead of a marker
+   class - same pattern stage-parallax already uses below for its own legacy+current class
+   aliasing. Any FUTURE spinoff wanting this same effect just needs its own number class added
+   to this one selector list - no Designer-side change required. */
 try {
 (function(){
   var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var els = document.querySelectorAll('.if-countup, .program-page-mips-impact-glance-value, .program-page-mips-impact-stats-value');
+  var els = document.querySelectorAll('.if-countup, .program-page-mips-impact-glance-value, .program-page-mips-impact-stats-value, .program-page-aspire-numbers-countup');
   els.forEach(function(el){
     if(el.__ifcu) return; el.__ifcu = 1;
     var value = el.getAttribute('data-value') || el.textContent.trim();
