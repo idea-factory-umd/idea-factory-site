@@ -4,7 +4,89 @@
  * Loaded site-wide via jsDelivr <script> in Project Settings > Custom Code (Footer).
  * Each module is try/catch-isolated and binds by class.
  * Modules: base (count-up + v1 features), nav, main bundle, CSE placement, back-to-top.
+ *
+ * SCROLL EFFECTS — ONE ENGINE, MANDATORY. Read this before adding or editing
+ * anything that reacts to scroll position.
+ *
+ * This file used to register up to 20 independent `scroll` listeners, each
+ * running its own requestAnimationFrame loop. Because they were independent,
+ * their DOM reads (getBoundingClientRect etc.) and DOM writes (style changes)
+ * interleaved arbitrarily within a single frame: effect N's style write could
+ * force effect N+1's measurement into a synchronous layout recalculation
+ * ("forced reflow"), up to 20 times per scroll frame. That was a real,
+ * measured cause of choppy scrolling in Chrome (main-thread work competing
+ * with the compositor thread that's already smoothly scrolling the page).
+ *
+ * Fix: `ifScrollEngine` below is the ONLY `scroll`/`resize` listener pair for
+ * every scroll-position-driven effect in this file. An effect registers a
+ * `{read, write}` pair via `ifScrollEngine.add(...)`. Every effect's read()
+ * runs first, for every effect, THEN every effect's write() runs — so no
+ * write can ever land in between two reads and force a reflow.
+ *
+ * RULES FOR ANY SCROLL-DRIVEN EFFECT ADDED HERE GOING FORWARD:
+ *   1. NEVER call addEventListener('scroll', ...) or ('resize', ...) yourself
+ *      — register with ifScrollEngine.add({read, write}) instead.
+ *   2. read(el) may only MEASURE (getBoundingClientRect, innerHeight, etc.).
+ *      It must never set a style/class. write(m) may only WRITE (styles,
+ *      classes); it must never measure. Mixing the two is what causes the
+ *      forced-reflow problem above — keep them strictly separate.
+ *   3. Prefer transform/opacity for anything animated on scroll. They're
+ *      compositor-only. Never animate width/height/top/left/margin on
+ *      scroll — those are layout properties (see the gold-bar fix below).
+ *   4. Cache anything expensive to measure (document height, viewport size)
+ *      instead of reading it every frame — several effects used to read
+ *      document.documentElement.scrollHeight on every scroll frame, which
+ *      flushes layout for the WHOLE page, every frame, while scrolling.
+ *   5. Apply will-change only while an effect is actively animating, not
+ *      permanently — a permanent will-change pins a compositor layer for
+ *      the page's entire life, and Chrome demotes/re-rasterizes layers once
+ *      its layer-memory budget is exceeded.
+ *
+ * SCOPE NOTE (2026-09): this pass consolidated every effect that registered
+ * a `scroll` listener - all 20 of them: manifesto line-lift, Home stage-photo
+ * parallax/zoom, the About synthesis-band parallax/zoom (syn-moment), the
+ * hero + footer gold bars, the MIPS-Apply jump-nav and Walk-the-Factory-copy
+ * current-section spies, the spinoff bottom-nav accent slides, the About
+ * "Walk the Factory" bar (pin + current-stage spy), scroll-red, and both
+ * count-up variants (.if-countup and .if-hero-countup). Only ifScrollEngine's
+ * own single scroll/resize listener pair remains in the whole file.
+ * Resize-ONLY modules (header-name-fit, walk-colalign, stage-header-eyebrow-
+ * fix, stage-head-vcenter, nav-link-exact-fit, walkcopy-gap-tiers, jumpnav-
+ * gap, the header/footer gold-bar height/position measurements) were
+ * deliberately left untouched - they don't fire during a scroll gesture, so
+ * they were never part of the choppy-scrolling problem, and touching them
+ * was out of scope for this fix.
  * ========================================================================== */
+try {
+window.ifScrollEngine = (function(){
+  var effects = [], ticking = false;
+  function frame(){
+    ticking = false;
+    var i, len = effects.length, results = new Array(len);
+    // READ PHASE: every effect measures first. No writes happen yet, so no
+    // effect's own prior-frame write can still be "settling" and force a
+    // layout recalculation here - the DOM is only ever read in this loop.
+    for (i=0; i<len; i++){
+      try { results[i] = effects[i].read ? effects[i].read() : undefined; }
+      catch (e) { try { console && console.warn && console.warn('[idea-factory] scroll-engine read error:', e); } catch(_){} }
+    }
+    // WRITE PHASE: every effect writes second, using what it measured above.
+    // Because ALL reads already happened, no write here can force a reflow
+    // for a read that hasn't run yet - there isn't one left to run.
+    for (i=0; i<len; i++){
+      try { if (effects[i].write) effects[i].write(results[i]); }
+      catch (e) { try { console && console.warn && console.warn('[idea-factory] scroll-engine write error:', e); } catch(_){} }
+    }
+  }
+  function onScrollOrResize(){ if(!ticking){ ticking = true; requestAnimationFrame(frame); } }
+  window.addEventListener('scroll', onScrollOrResize, {passive:true});
+  window.addEventListener('resize', onScrollOrResize, {passive:true});
+  return {
+    add: function(effect){ effects.push(effect); },
+    kick: function(){ frame(); } // run one frame synchronously right after registering (initial paint / state)
+  };
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] scroll-engine init error:', _e); } catch (_) {} }
 
 /* ===== module: base-v1 (count-up, logo, etc.) ===== */
 try {
@@ -58,115 +140,18 @@ try {
     h1.closest("section").addEventListener("touchstart", sweep, {passive:true});
   }
 
-  /* ---- 2. MANIFESTO sentence lift ---------------------------------------
-     Markup: <h2 class="if-manifesto"><span class="if-manifesto-line">…</span> …</h2>
-     Plays once when scrolled into the lower-middle of the viewport. */
-  function initManifesto(){
-    var h2 = document.querySelector(".if-manifesto");
-    if(!h2) return;
-    var lines = h2.querySelectorAll(".if-manifesto-line");
-    if(!lines.length || reduce) return;
-    var played = false;
-    function run(){
-      var HOLD = 1700, GAP = 620, seq = [], i;
-      for(i=0;i<lines.length;i++){ seq.push({k:i, hold:HOLD}); if(i<lines.length-1) seq.push({k:-1, hold:GAP}); }
-      seq.push({k:999, hold:0});
-      var s = 0;
-      function step(){
-        var cur = seq[s];
-        if(cur.k===999){ h2.classList.remove("is-dimming"); lines.forEach(function(l){ l.classList.remove("is-lift"); }); }
-        else { h2.classList.add("is-dimming"); lines.forEach(function(l,idx){ l.classList.toggle("is-lift", idx===cur.k); }); }
-        s++;
-        if(s<seq.length) setTimeout(step, cur.hold);
-      }
-      step();
-    }
-    var ticking = false;
-    function check(){
-      ticking = false;
-      if(played) return;
-      var r = h2.getBoundingClientRect(), vh = window.innerHeight || document.documentElement.clientHeight;
-      if(r.top>=0 && r.bottom<=vh && r.top<=vh*0.55){ played = true; window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); run(); }
-    }
-    function onScroll(){ if(!ticking){ ticking = true; requestAnimationFrame(check); } }
-    window.addEventListener("scroll", onScroll, {passive:true}); window.addEventListener("resize", onScroll); check();
-  }
-
-  /* ---- 3. PROOF count-up ------------------------------------------------
-     Markup: <div class="if-countup">$94.8B</div>  (final value as text)
-     Rolls 0 → value when scrolled into view, fading in WHILE counting,
-     accelerating into the final number. Preserves prefix/suffix/commas. */
-  function initCountUp(){
-    var els = document.querySelectorAll(".if-countup");
-    if(!els.length) return;
-    els.forEach(function(el){
-      var value = el.getAttribute("data-value") || el.textContent.trim();
-      var m = value.match(/^([^\d]*)([\d.,]+)(.*)$/) || [null,"","0",""];
-      var numStr = m[2], hasComma = numStr.indexOf(",")>=0, plain = numStr.replace(/,/g,"");
-      var dot = plain.indexOf("."), decimals = dot>=0 ? plain.length-dot-1 : 0;
-      var prefix = m[1]||"", suffix = m[3]||"", target = parseFloat(plain)||0;
-      function fmt(n){ var s = n.toFixed(decimals); if(hasComma){ var p = s.split("."); p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g,","); s = p.join("."); } return prefix+s+suffix; }
-      if(reduce){ el.textContent = value; el.style.opacity = 1; return; }
-      el.style.opacity = 0; el.textContent = fmt(0);
-      var started = false, raf;
-      function run(){
-        var dur = 1600, fade = 480, t0 = performance.now();
-        function tick(now){ var dt = now-t0, p = Math.min(1, dt/dur), e = p*p*p; // easeInCubic
-          el.textContent = p<1 ? fmt(target*e) : value; el.style.opacity = Math.min(1, dt/fade).toFixed(3);
-          if(p<1) raf = requestAnimationFrame(tick); else el.style.opacity = 1; }
-        raf = requestAnimationFrame(tick);
-      }
-      var ticking = false;
-      function check(){ ticking = false; if(started) return; var r = el.getBoundingClientRect(), vh = window.innerHeight||document.documentElement.clientHeight;
-        if(r.top<vh*0.85 && r.bottom>0){ started = true; window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); run(); } }
-      function onScroll(){ if(!ticking){ ticking = true; requestAnimationFrame(check); } }
-      window.addEventListener("scroll", onScroll, {passive:true}); window.addEventListener("resize", onScroll); check();
-    });
-  }
-
-  /* ---- 4. STAGE headline parallax + photo zoom --------------------------
-     Markup: <section class="if-stage-moment">
-               <img class="if-stage-photo"> <div class="if-stage-text">…</div>
-             </section>
-     Headline drifts down & settles (locks once); photo zooms on scroll-down,
-     holds, re-arms when scrolled fully back out of view. */
-  function initStage(){
-    var sec = document.querySelector(".if-stage-moment");
-    if(!sec || reduce) return;
-    var txt = sec.querySelector(".if-stage-text");
-    var img = sec.querySelector(".if-stage-photo");
-    var smooth = function(x){ return x*x*x*(x*(x*6-15)+10); };
-    var locked = false, txtRaf;
-    function txtFrame(){
-      txtRaf = null; if(locked || !txt) return;
-      var rect = sec.getBoundingClientRect(), vh = window.innerHeight||document.documentElement.clientHeight;
-      var amp = 180, startTop = vh*0.88, endTop = vh*0.16;
-      var p = Math.max(0, Math.min(1, (startTop-rect.top)/(startTop-endTop)));
-      var over = 12, tt = 0.72, shift;
-      if(p<tt) shift = -amp + (amp+over)*smooth(p/tt); else shift = over*(1-smooth((p-tt)/(1-tt)));
-      txt.style.transform = "translateY("+shift.toFixed(1)+"px)"; txt.style.opacity = (p*p).toFixed(3);
-      if(p>=1){ locked = true; txt.style.transform = "translateY(0px)"; txt.style.opacity = "1"; }
-    }
-    if(txt){ var onScroll = function(){ if(txtRaf==null) txtRaf = requestAnimationFrame(txtFrame); }; txtFrame();
-      window.addEventListener("scroll", onScroll, {passive:true}); window.addEventListener("resize", onScroll); }
-    if(img){
-      var MIN=1.0, MAX=1.16, cur=null, peak=0, imgRaf=null;
-      function zoomFrame(){
-        imgRaf = null;
-        var rect = sec.getBoundingClientRect(), vh = window.innerHeight||document.documentElement.clientHeight;
-        var p = Math.max(0, Math.min(1, (vh*0.88 - rect.top)/(vh*0.88 - vh*0.16)));
-        if(rect.top>=vh){ peak=0; cur=MIN; } else if(p>peak) peak=p;
-        if(cur==null) cur=MIN;
-        var eased = 1-Math.pow(1-peak,3), tgt = MIN+(MAX-MIN)*eased;
-        cur += (tgt-cur)*0.1; if(Math.abs(tgt-cur)<0.0002) cur=tgt;
-        img.style.transform = "translateZ(0) scale("+cur.toFixed(4)+")";
-        if(cur!==tgt) imgRaf = requestAnimationFrame(zoomFrame);
-      }
-      var onImgScroll = function(){ if(imgRaf==null) imgRaf = requestAnimationFrame(zoomFrame); };
-      zoomFrame();
-      window.addEventListener("scroll", onImgScroll, {passive:true}); window.addEventListener("resize", onImgScroll);
-    }
-  }
+  /* ---- 2/3/4. MANIFESTO lift, PROOF count-up, STAGE parallax+zoom -------
+     Moved out of this legacy module entirely - see the new consolidated
+     "manifesto-lift", "count-up" and "stage-parallax" modules further down
+     (registered with ifScrollEngine). This legacy copy of all three was
+     confirmed dead code before removal: its manifesto/stage targets
+     (.if-manifesto-line / .if-stage-moment / .if-stage-photo) never actually
+     existed on any live page when checked - the CURRENT generation creates
+     those spans/uses different class names, and this legacy copy always ran
+     first (earlier in this file) and found nothing. Its count-up target
+     (.if-countup) is real and active, so that one's logic was carried over
+     unchanged into the new "count-up" module - just re-wired onto the shared
+     engine instead of its own private scroll listener. */
 
   /* ---- 5. HEADER GOLD BAR top measurement ------------------------------
      Markup: <div class="if-id-band"> … <div class="if-header-gold-bar"></div> </div>
@@ -224,24 +209,13 @@ try {
     } else { window.addEventListener("resize", measure); }
   }
 
-  /* ---- 7. NAVBAR retract at footer --------------------------------------
-     Markup: <nav class="if-navbar"> … </nav> and a footer that contains
-     <div class="if-foot-cols"> (the nav-link columns). Navbar slides up once
-     those columns are in view; re-emerges on scroll up. */
-  function initNavbarRetract(){
-    var nav = document.querySelector(".if-navbar");
-    var target = document.querySelector(".if-foot-cols");
-    if(!nav || !target) return;
-    nav.style.transition = "max-height 340ms " + getComputedStyle(document.documentElement).getPropertyValue("--if-ease-glide");
-    var ticking = false;
-    function check(){ ticking = false; var vh = window.innerHeight||document.documentElement.clientHeight;
-      var hide = target.getBoundingClientRect().top < vh - 160;
-      nav.style.maxHeight = hide ? "0px" : (nav.scrollHeight + "px");
-      nav.style.overflow = "hidden";
-    }
-    function onScroll(){ if(!ticking){ ticking = true; requestAnimationFrame(check); } }
-    window.addEventListener("scroll", onScroll, {passive:true}); window.addEventListener("resize", onScroll); check();
-  }
+  /* ---- 7. NAVBAR retract at footer — REMOVED (2026-09) ------------------
+     Targeted .if-navbar, which does not exist on any live page (confirmed
+     before removal) - it's superseded by the IntersectionObserver-based
+     nav-tuck mechanism (main-bundle, targets .if-navmenu/.if-nav-companion),
+     which was left completely untouched since it never used a scroll
+     listener in the first place. This was fully dead code, not a duplicate
+     of anything current - safe to delete outright rather than alias. */
 
   /* ---- 8. HERO font-load gate (no fallback-font flash) ------------------
      Add class `font-pending` to .if-hero-h1 in the Designer; this removes it
@@ -258,12 +232,8 @@ try {
   ready(function(){
     initFontGate();
     initHeroReading();
-    initManifesto();
-    initCountUp();
-    initStage();
     initHeaderGoldBar();
     initFooterGoldBar();
-    initNavbarRetract();
   });
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] base-v1 (count-up, logo, etc.) error:', _e); } catch (_) {} }
@@ -286,7 +256,17 @@ try {
 
 /* ===== module: main-bundle ===== */
 try {
-(function(){function init(){var ws=document.querySelectorAll('.if-dd-wrap');ws.forEach(function(w){var t=w.querySelector('.w-dropdown-toggle');if(!t||t.__ifb)return;t.__ifb=1;t.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();ws.forEach(function(o){if(o!==w)o.classList.remove('if-open');});w.classList.toggle('if-open');});});document.addEventListener('click',function(e){ws.forEach(function(w){if(!w.contains(e.target))w.classList.remove('if-open');});});}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){function hero(){var h1=document.querySelector('.if-hero-h1');if(!h1||h1.__ifhero)return;var words=h1.querySelectorAll(':scope > span');if(!words.length)return;h1.__ifhero=1;words.forEach(function(w){w.classList.add('if-hero-word');});var sec=h1.closest('section')||h1.parentElement;var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);var started=reduce;if(reduce){words.forEach(function(w){if(w.classList.contains('if-hero-word-red'))w.classList.add('if-lit-red');if(w.classList.contains('if-hero-word-gold'))w.classList.add('if-lit-gold');});}function setStep(step){words.forEach(function(w,idx){w.style.opacity=(step===999)?1:(step===idx?1:((w.classList.contains('if-lit-red')||w.classList.contains('if-lit-gold'))?1:0.62));if((step===idx||step===999)&&w.classList.contains('if-hero-word-red'))w.classList.add('if-lit-red');if((step===idx||step===999)&&w.classList.contains('if-hero-word-gold'))w.classList.add('if-lit-gold');});}function start(){if(started)return;started=true;var D=180,gap=40,ideasExtra=520,lastExtra=640,ideasPause=110,workPause=150;var seq=[];words.forEach(function(x,w){seq.push({step:w,hold:D+(x.classList.contains('if-hero-word-delay')?ideasExtra:0)+(w===words.length-1?lastExtra:0)});if(w<words.length-1)seq.push({step:-1,hold:gap+(x.classList.contains('if-hero-word-delay')?ideasPause:0)});});seq.push({step:-1,hold:workPause});seq.push({step:999,hold:0});var k=0;function run(){var s=seq[k];if(s.step===999)h1.classList.add('hero-settling');setStep(s.step);k++;if(k<seq.length)setTimeout(run,s.hold);}setTimeout(run,140);}sec.addEventListener('mouseenter',start);sec.addEventListener('touchstart',start,{passive:true});}if(document.readyState!=='loading')hero();else document.addEventListener('DOMContentLoaded',hero);})();(function(){var reduced=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);function ease(t){return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}var rafId=null;function animate(toY){if(rafId)cancelAnimationFrame(rafId);var startY=window.pageYOffset,dist=toY-startY;if(Math.abs(dist)<2){window.scrollTo(0,toY);return;}var dur=Math.min(820,Math.max(430,Math.abs(dist)*0.28)),t0=null;function step(ts){if(t0==null)t0=ts;var p=Math.min(1,(ts-t0)/dur);window.scrollTo(0,Math.round(startY+dist*ease(p)));if(p<1){rafId=requestAnimationFrame(step);}else{rafId=null;}}rafId=requestAnimationFrame(step);}function dest(a){var href=a.getAttribute('href');if(!href||href.charAt(0)!=='#'||href.length<2)return null;var tgt=document.getElementById(href.slice(1));if(!tgt)return null;var sel=a.getAttribute('data-scroll-target');if(!sel&&href==='#audience')sel='.if-eyebrow';var m=sel?(tgt.querySelector(sel)||document.querySelector(sel)||tgt):tgt;var g=parseInt(a.getAttribute('data-scroll-gap'),10);if(isNaN(g))g=(href==='#audience')?50:24;var hdr=document.querySelector('.if-header')||document.querySelector('header');var h=hdr?hdr.offsetHeight:0;return Math.max(0,m.getBoundingClientRect().top+window.pageYOffset-h-g);}document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a.if-smooth-scroll,a[data-smooth-scroll],a[href="#audience"]');if(!a)return;var toY=dest(a);if(toY===null)return;e.preventDefault();e.stopImmediatePropagation();if(reduced){window.scrollTo(0,toY);}else{animate(toY);}},true);})();(function(){function init(){var bar=document.querySelector('.if-hero-goldbar');if(!bar)return;var MIN=30,MAX=90,ticking=false;function apply(){ticking=false;var r=bar.getBoundingClientRect();var vh=window.innerHeight||document.documentElement.clientHeight;var p=(vh-r.top)/(vh+r.height);if(p<0)p=0;if(p>1)p=1;bar.style.width=(MIN+(MAX-MIN)*p)+'%';}function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(apply);}}apply();window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',onScroll,{passive:true});}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){function init(){var bar=document.querySelector('.if-foot-accent');if(!bar)return;var MAXFRAC=0.60,ticking=false;function apply(){ticking=false;var w=bar.offsetWidth||bar.getBoundingClientRect().width;var rect=bar.getBoundingClientRect();var vh=window.innerHeight||document.documentElement.clientHeight;var scrollMax=Math.max(1,(document.documentElement.scrollHeight||document.body.scrollHeight||0)-vh);var scrolled=window.pageYOffset||document.documentElement.scrollTop||0;var otop=rect.top+scrolled;var finalTop=otop-scrollMax;var denom=vh-finalTop;var p=denom>0?(vh-rect.top)/denom:1;if(p<0)p=0;if(p>1)p=1;bar.style.backgroundPosition=(p*MAXFRAC*w)+'px 0px';}function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(apply);}}apply();window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',onScroll,{passive:true});}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);function initManifesto(){var h2=document.querySelector('.if-manifesto:not(.if-scroll-red)');if(!h2||h2.__ifmani)return;var lines=h2.querySelectorAll(':scope > span');if(!lines.length)return;h2.__ifmani=1;lines.forEach(function(l){l.classList.add('if-manifesto-line');});if(reduce){lines.forEach(function(l){var r=l.querySelector('.if-mani-red');if(r)r.classList.add('if-lit-red');});return;}var played=false;function run(){var HOLD=1130,GAP=410,seq=[],i;for(i=0;i<lines.length;i++){seq.push({k:i,hold:HOLD});if(i<lines.length-1)seq.push({k:-1,hold:GAP});}seq.push({k:999,hold:0});var s=0;function step(){var cur=seq[s];if(cur.k===999){h2.classList.remove('is-dimming');lines.forEach(function(l){l.classList.remove('is-lift');});}else{h2.classList.add('is-dimming');lines.forEach(function(l,idx){var on=idx===cur.k;l.classList.toggle('is-lift',on);if(on){var r=l.querySelector('.if-mani-red');if(r)r.classList.add('if-lit-red');}});}s++;if(s<seq.length)setTimeout(step,cur.hold);}step();}var ticking=false;function check(){ticking=false;if(played)return;var r=h2.getBoundingClientRect(),vh=window.innerHeight||document.documentElement.clientHeight;if(r.top>=0&&r.bottom<=vh&&r.top<=vh*0.55){played=true;window.removeEventListener('scroll',onScroll);window.removeEventListener('resize',onScroll);run();}}function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(check);}}window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',onScroll);check();}if(document.readyState!=='loading')initManifesto();else document.addEventListener('DOMContentLoaded',initManifesto);})();(function(){var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);function initStage(){var sec=document.querySelector('.if-sm-box');if(!sec||sec.__ifsm)return;sec.__ifsm=1;if(reduce)return;var txt=sec.querySelector('.if-stage-text');var imgs=sec.querySelectorAll('.if-stage-photo-pos');var smooth=function(x){return x*x*x*(x*(x*6-15)+10);};var locked=false,txtRaf;function txtFrame(){txtRaf=null;if(locked||!txt)return;var rect=sec.getBoundingClientRect(),vh=window.innerHeight||document.documentElement.clientHeight;var amp=250,startTop=vh*0.88,endTop=vh*0.16;var p=Math.max(0,Math.min(1,(startTop-rect.top)/(startTop-endTop)));var over=72,tt=0.65,shift;if(p<tt)shift=-amp+(amp+over)*smooth(p/tt);else shift=over*(1-smooth((p-tt)/(1-tt)));var sc=1+0.06*smooth(p);txt.style.transform='translateY('+shift.toFixed(1)+'px) scale('+sc.toFixed(4)+')';txt.style.opacity=(p*p).toFixed(3);if(p>=1){locked=true;txt.style.transform='translateY(0px) scale(1.06)';txt.style.opacity='1';}}if(txt){var onScroll=function(){if(txtRaf==null)txtRaf=requestAnimationFrame(txtFrame);};txtFrame();window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',onScroll);}if(imgs&&imgs.length){var MIN=1.0,MAX=1.16,cur=null,peak=0,imgRaf=null;function zoomFrame(){imgRaf=null;var rect=sec.getBoundingClientRect(),vh=window.innerHeight||document.documentElement.clientHeight;var p=Math.max(0,Math.min(1,(vh*0.88-rect.top)/(vh*0.88-vh*0.16)));if(rect.top>=vh){peak=0;cur=MIN;}else if(p>peak)peak=p;if(cur==null)cur=MIN;var eased=1-Math.pow(1-peak,3),tgt=MIN+(MAX-MIN)*eased;cur+=(tgt-cur)*0.1;if(Math.abs(tgt-cur)<0.0002)cur=tgt;var tf='translateZ(0) scale('+cur.toFixed(4)+')';for(var i=0;i<imgs.length;i++){imgs[i].style.transform=tf;}if(cur!==tgt)imgRaf=requestAnimationFrame(zoomFrame);}var onImgScroll=function(){if(imgRaf==null)imgRaf=requestAnimationFrame(zoomFrame);};zoomFrame();window.addEventListener('scroll',onImgScroll,{passive:true});window.addEventListener('resize',onImgScroll);}}if(document.readyState!=='loading')initStage();else document.addEventListener('DOMContentLoaded',initStage);})();(function(){function init(){var els=document.querySelectorAll('.if-hover-grow');els.forEach(function(el){if(el.__ifg)return;el.__ifg=1;if(el.querySelector(':scope > .if-hover-grow-t'))return;var s=document.createElement('span');s.className='if-hover-grow-t';while(el.firstChild){s.appendChild(el.firstChild);}el.appendChild(s);});}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){var CX='164d3383cc05e4249';var loaded=false,ready=false,rendered=false,pending=null;var overlay,headEl,loadEl;function buildOverlay(){if(overlay)return;overlay=document.createElement('div');overlay.className='if-cse-overlay';overlay.innerHTML='<div class="if-cse-modal"><button class="if-cse-close" type="button" aria-label="Close search">×</button><div class="if-cse-head"></div><div class="if-cse-loading">Searching…</div><div id="if-cse-results"></div></div>';document.body.appendChild(overlay);headEl=overlay.querySelector('.if-cse-head');loadEl=overlay.querySelector('.if-cse-loading');overlay.addEventListener('mousedown',function(e){if(e.target===overlay)closeOverlay();});overlay.querySelector('.if-cse-close').addEventListener('click',closeOverlay);}function openOverlay(q){buildOverlay();headEl.textContent='Results for “'+q+'”';loadEl.style.display='block';overlay.classList.add('if-open');document.documentElement.style.overflow='hidden';}function closeOverlay(){if(overlay){overlay.classList.remove('if-open');document.documentElement.style.overflow='';}}document.addEventListener('keydown',function(e){if((e.key==='Escape'||e.keyCode===27)&&overlay&&overlay.classList.contains('if-open'))closeOverlay();});function onReady(){ready=true;render();if(pending){exec(pending);pending=null;}}function render(){if(rendered)return;if(!(window.google&&google.search&&google.search.cse&&google.search.cse.element))return;google.search.cse.element.render({div:'if-cse-results',tag:'searchresults-only',gname:'ifcse'});rendered=true;}function exec(q){render();var el=window.google&&google.search&&google.search.cse&&google.search.cse.element.getElement('ifcse');if(el){el.execute(q);if(loadEl)loadEl.style.display='none';}else{pending=q;}}function ensureCse(){if(loaded)return;loaded=true;window.__gcse={parsetags:'explicit',callback:onReady};var s=document.createElement('script');s.async=true;s.src='https://cse.google.com/cse.js?cx='+CX;document.head.appendChild(s);}function doSearch(q){q=(q||'').trim();if(!q)return;openOverlay(q);if(ready){exec(q);}else{pending=q;ensureCse();}}function wireBox(box){if(!box||box.__ifsearch)return;box.__ifsearch=1;var input;if(box.tagName==='INPUT'){input=box;}else{var ph=box.querySelector('.if-search-ph');input=document.createElement('input');input.type='search';input.className='if-search-realinput';input.setAttribute('placeholder',ph&&ph.textContent.trim()?ph.textContent.trim():'Search');if(ph)ph.style.display='none';box.appendChild(input);box.addEventListener('click',function(){input.focus();});}input.addEventListener('keydown',function(e){if(e.key==='Enter'||e.keyCode===13){e.preventDefault();doSearch(input.value);}});}function init(){var b=document.querySelectorAll('.if-search-input, .if-msearch');for(var i=0;i<b.length;i++)wireBox(b[i]);}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);function initCta(){var head=document.querySelector('.if-foot-cta-head');if(!head||head.__ifcta)return;var phrases=head.querySelectorAll(':scope > span');if(!phrases.length)return;head.__ifcta=1;var words=[],line1=0;phrases.forEach(function(ph,pi){var gold=ph.classList.contains('if-foot-cta-gold');var parts=ph.textContent.split(/(\s+)/);ph.textContent='';parts.forEach(function(tok){if(tok==='')return;if(/^\s+$/.test(tok)){ph.appendChild(document.createTextNode(tok));}else{var w=document.createElement('span');w.className=gold?'if-foot-cta-word if-foot-cta-gold':'if-foot-cta-word';w.textContent=tok;ph.appendChild(w);words.push(w);}});if(pi===0)line1=words.length;});if(!words.length)return;if(reduce){words.forEach(function(w){if(w.classList.contains('if-foot-cta-gold'))w.classList.add('if-lit-gold');});return;}var played=false,N=words.length,lineEnd=line1-1,last=N-1;function setStep(step){for(var i=0;i<N;i++){var w=words[i];w.style.opacity=(step===999)?1:(step===i?1:(w.classList.contains('if-lit-gold')?1:0.62));if((step===i||step===999)&&w.classList.contains('if-foot-cta-gold'))w.classList.add('if-lit-gold');}}function run(){var D=180,gap=40,ideasExtra=520,lastExtra=640,ideasPause=110,workPause=150;var seq=[];for(var w=0;w<N;w++){seq.push({step:w,hold:D+(w===lineEnd?ideasExtra:0)+(w===last?lastExtra:0)});if(w<last)seq.push({step:-1,hold:gap+(w===lineEnd?ideasPause:0)});}seq.push({step:-1,hold:workPause});seq.push({step:999,hold:0});var k=0;function tick(){var s=seq[k];if(s.step===999)head.classList.add('cta-settling');setStep(s.step);k++;if(k<seq.length)setTimeout(tick,s.hold);}tick();}var trig=head.closest('.if-footer')||head.closest('footer')||head;function onEnter(){if(played)return;played=true;trig.removeEventListener('mouseenter',onEnter);run();}trig.addEventListener('mouseenter',onEnter);}if(document.readyState!=='loading')initCta();else document.addEventListener('DOMContentLoaded',initCta);})();(function(){function init(){var menu=document.querySelector('.if-navmenu'),footer=document.querySelector('.if-footer');if(!menu||!footer||menu.__ifTuck)return;menu.__ifTuck=1;var companions=document.querySelectorAll('.if-nav-companion, .program-page-mips-apply-walkcopy-sec');var shortPage=false;function setTucked(on){menu.classList.toggle('if-nav-tucked',on);companions.forEach(function(c){c.classList.toggle('if-nav-tucked',on);});}function footerVisibleNow(){var r=footer.getBoundingClientRect();var vh=window.innerHeight||document.documentElement.clientHeight;return r.top<vh&&r.bottom>0;}function measure(){var vh=window.innerHeight||document.documentElement.clientHeight;var hdr=document.querySelector('.if-header')||menu;var scrollY=window.pageYOffset||document.documentElement.scrollTop||0;var dist=(footer.getBoundingClientRect().top+scrollY)-hdr.offsetHeight;var wasShort=shortPage;shortPage=dist<vh;if(shortPage){setTucked(false);}else if(wasShort){setTucked(footerVisibleNow());}}measure();window.addEventListener('resize',measure);window.addEventListener('load',measure);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measure);setTimeout(measure,500);setTimeout(measure,1500);var io=new IntersectionObserver(function(es){es.forEach(function(e){if(shortPage)return;setTucked(e.isIntersecting);});});io.observe(footer);}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){function init(){var menu=document.querySelector('.if-navmenu');var secs=document.querySelectorAll('[class*="-botnav-sec"]');if(!secs.length)return;secs.forEach(function(sec){if(sec.__ifBotnavHide)return;sec.__ifBotnavHide=1;function measure(){sec.classList.remove('if-botnav-hide');var vh=window.innerHeight||document.documentElement.clientHeight;var hdr=document.querySelector('.if-header')||menu||sec;var scrollY=window.pageYOffset||document.documentElement.scrollTop||0;var dist=(sec.getBoundingClientRect().top+scrollY)-hdr.offsetHeight;sec.classList.toggle('if-botnav-hide',dist<vh);}measure();window.addEventListener('resize',measure);window.addEventListener('load',measure);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measure);setTimeout(measure,500);setTimeout(measure,1500);});}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();
+(function(){function init(){var ws=document.querySelectorAll('.if-dd-wrap');ws.forEach(function(w){var t=w.querySelector('.w-dropdown-toggle');if(!t||t.__ifb)return;t.__ifb=1;t.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();ws.forEach(function(o){if(o!==w)o.classList.remove('if-open');});w.classList.toggle('if-open');});});document.addEventListener('click',function(e){ws.forEach(function(w){if(!w.contains(e.target))w.classList.remove('if-open');});});}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){function hero(){var h1=document.querySelector('.if-hero-h1');if(!h1||h1.__ifhero)return;var words=h1.querySelectorAll(':scope > span');if(!words.length)return;h1.__ifhero=1;words.forEach(function(w){w.classList.add('if-hero-word');});var sec=h1.closest('section')||h1.parentElement;var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);var started=reduce;if(reduce){words.forEach(function(w){if(w.classList.contains('if-hero-word-red'))w.classList.add('if-lit-red');if(w.classList.contains('if-hero-word-gold'))w.classList.add('if-lit-gold');});}function setStep(step){words.forEach(function(w,idx){w.style.opacity=(step===999)?1:(step===idx?1:((w.classList.contains('if-lit-red')||w.classList.contains('if-lit-gold'))?1:0.62));if((step===idx||step===999)&&w.classList.contains('if-hero-word-red'))w.classList.add('if-lit-red');if((step===idx||step===999)&&w.classList.contains('if-hero-word-gold'))w.classList.add('if-lit-gold');});}function start(){if(started)return;started=true;var D=180,gap=40,ideasExtra=520,lastExtra=640,ideasPause=110,workPause=150;var seq=[];words.forEach(function(x,w){seq.push({step:w,hold:D+(x.classList.contains('if-hero-word-delay')?ideasExtra:0)+(w===words.length-1?lastExtra:0)});if(w<words.length-1)seq.push({step:-1,hold:gap+(x.classList.contains('if-hero-word-delay')?ideasPause:0)});});seq.push({step:-1,hold:workPause});seq.push({step:999,hold:0});var k=0;function run(){var s=seq[k];if(s.step===999)h1.classList.add('hero-settling');setStep(s.step);k++;if(k<seq.length)setTimeout(run,s.hold);}setTimeout(run,140);}sec.addEventListener('mouseenter',start);sec.addEventListener('touchstart',start,{passive:true});}if(document.readyState!=='loading')hero();else document.addEventListener('DOMContentLoaded',hero);})();(function(){var reduced=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);function ease(t){return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}var rafId=null;function animate(toY){if(rafId)cancelAnimationFrame(rafId);var startY=window.pageYOffset,dist=toY-startY;if(Math.abs(dist)<2){window.scrollTo(0,toY);return;}var dur=Math.min(820,Math.max(430,Math.abs(dist)*0.28)),t0=null;function step(ts){if(t0==null)t0=ts;var p=Math.min(1,(ts-t0)/dur);window.scrollTo(0,Math.round(startY+dist*ease(p)));if(p<1){rafId=requestAnimationFrame(step);}else{rafId=null;}}rafId=requestAnimationFrame(step);}function dest(a){var href=a.getAttribute('href');if(!href||href.charAt(0)!=='#'||href.length<2)return null;var tgt=document.getElementById(href.slice(1));if(!tgt)return null;var sel=a.getAttribute('data-scroll-target');if(!sel&&href==='#audience')sel='.if-eyebrow';var m=sel?(tgt.querySelector(sel)||document.querySelector(sel)||tgt):tgt;var g=parseInt(a.getAttribute('data-scroll-gap'),10);if(isNaN(g))g=(href==='#audience')?50:24;var hdr=document.querySelector('.if-header')||document.querySelector('header');var h=hdr?hdr.offsetHeight:0;return Math.max(0,m.getBoundingClientRect().top+window.pageYOffset-h-g);}document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a.if-smooth-scroll,a[data-smooth-scroll],a[href="#audience"]');if(!a)return;var toY=dest(a);if(toY===null)return;e.preventDefault();e.stopImmediatePropagation();if(reduced){window.scrollTo(0,toY);}else{animate(toY);}},true);})();(function(){function init(){var bar=document.querySelector('.if-hero-goldbar');if(!bar)return;var MIN=30,MAX=90;bar.style.width=MAX+'%';bar.style.transformOrigin='left center';ifScrollEngine.add({read:function(){var r=bar.getBoundingClientRect();var vh=window.innerHeight||document.documentElement.clientHeight;return{vh:vh,top:r.top,h:r.height};},write:function(m){if(!m)return;var p=(m.vh-m.top)/(m.vh+m.h);if(p<0)p=0;if(p>1)p=1;bar.style.transform='scaleX('+((MIN+(MAX-MIN)*p)/MAX)+')';}});ifScrollEngine.kick();}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){function init(){var bar=document.querySelector('.if-foot-accent');if(!bar)return;var MAXFRAC=0.60;
+    /* PERF: previously read document.documentElement.scrollHeight on every scroll frame - that
+       flushes layout for the WHOLE document, every frame, while scrolling. Document height only
+       ever changes on resize/content-load, never mid-scroll, so it's measured once here and
+       cached, refreshed only on resize/load/fonts.ready (matching the pattern already used by
+       nav-tuck/botnav-hide elsewhere in this file). */
+    var cache={w:0,scrollMax:1};
+    function remeasure(){cache.w=bar.offsetWidth||bar.getBoundingClientRect().width;var vh=window.innerHeight||document.documentElement.clientHeight;cache.scrollMax=Math.max(1,(document.documentElement.scrollHeight||document.body.scrollHeight||0)-vh);}
+    remeasure();
+    window.addEventListener('resize',remeasure,{passive:true});window.addEventListener('load',remeasure);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(remeasure);
+    ifScrollEngine.add({read:function(){var rect=bar.getBoundingClientRect();var vh=window.innerHeight||document.documentElement.clientHeight;var scrolled=window.pageYOffset||document.documentElement.scrollTop||0;return{vh:vh,top:rect.top,scrolled:scrolled};},write:function(m){if(!m)return;var otop=m.top+m.scrolled;var finalTop=otop-cache.scrollMax;var denom=m.vh-finalTop;var p=denom>0?(m.vh-m.top)/denom:1;if(p<0)p=0;if(p>1)p=1;bar.style.backgroundPosition=(p*MAXFRAC*cache.w)+'px 0px';}});ifScrollEngine.kick();}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();/* manifesto-lift moved to the consolidated 'manifesto-lift' module (ifScrollEngine) below. *//* stage parallax+zoom moved to the consolidated 'stage-parallax' module (ifScrollEngine) below. */(function(){function init(){var els=document.querySelectorAll('.if-hover-grow');els.forEach(function(el){if(el.__ifg)return;el.__ifg=1;if(el.querySelector(':scope > .if-hover-grow-t'))return;var s=document.createElement('span');s.className='if-hover-grow-t';while(el.firstChild){s.appendChild(el.firstChild);}el.appendChild(s);});}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){var CX='164d3383cc05e4249';var loaded=false,ready=false,rendered=false,pending=null;var overlay,headEl,loadEl;function buildOverlay(){if(overlay)return;overlay=document.createElement('div');overlay.className='if-cse-overlay';overlay.innerHTML='<div class="if-cse-modal"><button class="if-cse-close" type="button" aria-label="Close search">×</button><div class="if-cse-head"></div><div class="if-cse-loading">Searching…</div><div id="if-cse-results"></div></div>';document.body.appendChild(overlay);headEl=overlay.querySelector('.if-cse-head');loadEl=overlay.querySelector('.if-cse-loading');overlay.addEventListener('mousedown',function(e){if(e.target===overlay)closeOverlay();});overlay.querySelector('.if-cse-close').addEventListener('click',closeOverlay);}function openOverlay(q){buildOverlay();headEl.textContent='Results for “'+q+'”';loadEl.style.display='block';overlay.classList.add('if-open');document.documentElement.style.overflow='hidden';}function closeOverlay(){if(overlay){overlay.classList.remove('if-open');document.documentElement.style.overflow='';}}document.addEventListener('keydown',function(e){if((e.key==='Escape'||e.keyCode===27)&&overlay&&overlay.classList.contains('if-open'))closeOverlay();});function onReady(){ready=true;render();if(pending){exec(pending);pending=null;}}function render(){if(rendered)return;if(!(window.google&&google.search&&google.search.cse&&google.search.cse.element))return;google.search.cse.element.render({div:'if-cse-results',tag:'searchresults-only',gname:'ifcse'});rendered=true;}function exec(q){render();var el=window.google&&google.search&&google.search.cse&&google.search.cse.element.getElement('ifcse');if(el){el.execute(q);if(loadEl)loadEl.style.display='none';}else{pending=q;}}function ensureCse(){if(loaded)return;loaded=true;window.__gcse={parsetags:'explicit',callback:onReady};var s=document.createElement('script');s.async=true;s.src='https://cse.google.com/cse.js?cx='+CX;document.head.appendChild(s);}function doSearch(q){q=(q||'').trim();if(!q)return;openOverlay(q);if(ready){exec(q);}else{pending=q;ensureCse();}}function wireBox(box){if(!box||box.__ifsearch)return;box.__ifsearch=1;var input;if(box.tagName==='INPUT'){input=box;}else{var ph=box.querySelector('.if-search-ph');input=document.createElement('input');input.type='search';input.className='if-search-realinput';input.setAttribute('placeholder',ph&&ph.textContent.trim()?ph.textContent.trim():'Search');if(ph)ph.style.display='none';box.appendChild(input);box.addEventListener('click',function(){input.focus();});}input.addEventListener('keydown',function(e){if(e.key==='Enter'||e.keyCode===13){e.preventDefault();doSearch(input.value);}});}function init(){var b=document.querySelectorAll('.if-search-input, .if-msearch');for(var i=0;i<b.length;i++)wireBox(b[i]);}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);function initCta(){var head=document.querySelector('.if-foot-cta-head');if(!head||head.__ifcta)return;var phrases=head.querySelectorAll(':scope > span');if(!phrases.length)return;head.__ifcta=1;var words=[],line1=0;phrases.forEach(function(ph,pi){var gold=ph.classList.contains('if-foot-cta-gold');var parts=ph.textContent.split(/(\s+)/);ph.textContent='';parts.forEach(function(tok){if(tok==='')return;if(/^\s+$/.test(tok)){ph.appendChild(document.createTextNode(tok));}else{var w=document.createElement('span');w.className=gold?'if-foot-cta-word if-foot-cta-gold':'if-foot-cta-word';w.textContent=tok;ph.appendChild(w);words.push(w);}});if(pi===0)line1=words.length;});if(!words.length)return;if(reduce){words.forEach(function(w){if(w.classList.contains('if-foot-cta-gold'))w.classList.add('if-lit-gold');});return;}var played=false,N=words.length,lineEnd=line1-1,last=N-1;function setStep(step){for(var i=0;i<N;i++){var w=words[i];w.style.opacity=(step===999)?1:(step===i?1:(w.classList.contains('if-lit-gold')?1:0.62));if((step===i||step===999)&&w.classList.contains('if-foot-cta-gold'))w.classList.add('if-lit-gold');}}function run(){var D=180,gap=40,ideasExtra=520,lastExtra=640,ideasPause=110,workPause=150;var seq=[];for(var w=0;w<N;w++){seq.push({step:w,hold:D+(w===lineEnd?ideasExtra:0)+(w===last?lastExtra:0)});if(w<last)seq.push({step:-1,hold:gap+(w===lineEnd?ideasPause:0)});}seq.push({step:-1,hold:workPause});seq.push({step:999,hold:0});var k=0;function tick(){var s=seq[k];if(s.step===999)head.classList.add('cta-settling');setStep(s.step);k++;if(k<seq.length)setTimeout(tick,s.hold);}tick();}var trig=head.closest('.if-footer')||head.closest('footer')||head;function onEnter(){if(played)return;played=true;trig.removeEventListener('mouseenter',onEnter);run();}trig.addEventListener('mouseenter',onEnter);}if(document.readyState!=='loading')initCta();else document.addEventListener('DOMContentLoaded',initCta);})();(function(){function init(){var menu=document.querySelector('.if-navmenu'),footer=document.querySelector('.if-footer');if(!menu||!footer||menu.__ifTuck)return;menu.__ifTuck=1;var companions=document.querySelectorAll('.if-nav-companion, .program-page-mips-apply-walkcopy-sec');var shortPage=false;function setTucked(on){menu.classList.toggle('if-nav-tucked',on);companions.forEach(function(c){c.classList.toggle('if-nav-tucked',on);});}function footerVisibleNow(){var r=footer.getBoundingClientRect();var vh=window.innerHeight||document.documentElement.clientHeight;return r.top<vh&&r.bottom>0;}function measure(){var vh=window.innerHeight||document.documentElement.clientHeight;var hdr=document.querySelector('.if-header')||menu;var scrollY=window.pageYOffset||document.documentElement.scrollTop||0;var dist=(footer.getBoundingClientRect().top+scrollY)-hdr.offsetHeight;var wasShort=shortPage;shortPage=dist<vh;if(shortPage){setTucked(false);}else if(wasShort){setTucked(footerVisibleNow());}}measure();window.addEventListener('resize',measure);window.addEventListener('load',measure);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measure);setTimeout(measure,500);setTimeout(measure,1500);var io=new IntersectionObserver(function(es){es.forEach(function(e){if(shortPage)return;setTucked(e.isIntersecting);});});io.observe(footer);}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){function init(){var menu=document.querySelector('.if-navmenu');var secs=document.querySelectorAll('[class*="-botnav-sec"]');if(!secs.length)return;secs.forEach(function(sec){if(sec.__ifBotnavHide)return;sec.__ifBotnavHide=1;function measure(){sec.classList.remove('if-botnav-hide');var vh=window.innerHeight||document.documentElement.clientHeight;var hdr=document.querySelector('.if-header')||menu||sec;var scrollY=window.pageYOffset||document.documentElement.scrollTop||0;var dist=(sec.getBoundingClientRect().top+scrollY)-hdr.offsetHeight;sec.classList.toggle('if-botnav-hide',dist<vh);}measure();window.addEventListener('resize',measure);window.addEventListener('load',measure);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measure);setTimeout(measure,500);setTimeout(measure,1500);});}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] main-bundle error:', _e); } catch (_) {} }
 
 /* ===== module: cse-placement ===== */
@@ -864,11 +844,173 @@ try {
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] read-line error:', _e); } catch (_) {} }
 
+/* ===== module: count-up (proof stats, .if-countup) =====
+   Carried over unchanged from the removed base-v1 copy - only the wiring changed (registers
+   with ifScrollEngine instead of its own private scroll listener). Rolls 0 -> value once
+   scrolled into view, fading in while counting, accelerating into the final number
+   (easeInCubic). Preserves prefix/suffix/commas. Separate, deliberately, from
+   hero-countup-easeout below (.if-hero-countup) - that one uses a different easing curve
+   on purpose for a different context (a hero-banner stat vs. a stats-band stat); they never
+   target the same element on any live page, so they are NOT a duplicate pair to consolidate. */
+try {
+(function(){
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var els = document.querySelectorAll('.if-countup');
+  els.forEach(function(el){
+    if(el.__ifcu) return; el.__ifcu = 1;
+    var value = el.getAttribute('data-value') || el.textContent.trim();
+    var m = value.match(/^([^\d]*)([\d.,]+)(.*)$/) || [null,'','0',''];
+    var numStr = m[2], hasComma = numStr.indexOf(',')>=0, plain = numStr.replace(/,/g,'');
+    var dot = plain.indexOf('.'), decimals = dot>=0 ? plain.length-dot-1 : 0;
+    var prefix = m[1]||'', suffix = m[3]||'', target = parseFloat(plain)||0;
+    function fmt(n){ var s = n.toFixed(decimals); if(hasComma){ var p = s.split('.'); p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g,','); s = p.join('.'); } return prefix+s+suffix; }
+    if(reduce){ el.textContent = value; el.style.opacity = 1; return; }
+    el.style.opacity = 0; el.textContent = fmt(0);
+    var started = false;
+    function run(){
+      var dur = 1600, fade = 480, t0 = performance.now();
+      function tick(now){ var dt = now-t0, p = Math.min(1, dt/dur), e = p*p*p; // easeInCubic
+        el.textContent = p<1 ? fmt(target*e) : value; el.style.opacity = Math.min(1, dt/fade).toFixed(3);
+        if(p<1) requestAnimationFrame(tick); else el.style.opacity = 1; }
+      requestAnimationFrame(tick);
+    }
+    ifScrollEngine.add({
+      read: function(){ if(started) return null; var r = el.getBoundingClientRect(); return {top:r.top, bottom:r.bottom, vh: window.innerHeight||document.documentElement.clientHeight}; },
+      write: function(m){ if(started || !m) return; if(m.top<m.vh*0.85 && m.bottom>0){ started = true; run(); } }
+    });
+  });
+  ifScrollEngine.kick();
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] count-up error:', _e); } catch (_) {} }
+
+/* ===== module: manifesto-lift (CONSOLIDATED - see CLAUDE.md Class A note) =====
+   Was two independent generations both targeting .if-manifesto: a legacy copy (no
+   .if-scroll-red exclusion, HOLD=1700/GAP=620, no guard) and this current one
+   (excludes .if-scroll-red, HOLD=1130/GAP=410, guarded by __ifmani). The legacy copy is
+   REMOVED - confirmed dead before removal, since its target (.if-manifesto-line spans)
+   are created by THIS module at runtime and the legacy copy always ran first (earlier in
+   this file) and found none, every time, on every page checked. This copy's values/
+   exclusion are authoritative (per CLAUDE.md's own record, they're the only ones that
+   were ever actually playing). Plays once when scrolled into the lower-middle of the
+   viewport. */
+try {
+(function(){
+  var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var h2=document.querySelector('.if-manifesto:not(.if-scroll-red)');
+  if(h2 && !h2.__ifmani){
+    var lines=h2.querySelectorAll(':scope > span');
+    if(lines.length){
+      h2.__ifmani=1;
+      lines.forEach(function(l){l.classList.add('if-manifesto-line');});
+      if(reduce){
+        lines.forEach(function(l){var r=l.querySelector('.if-mani-red');if(r)r.classList.add('if-lit-red');});
+      } else {
+        var played=false;
+        function run(){
+          var HOLD=1130,GAP=410,seq=[],i;
+          for(i=0;i<lines.length;i++){seq.push({k:i,hold:HOLD});if(i<lines.length-1)seq.push({k:-1,hold:GAP});}
+          seq.push({k:999,hold:0});
+          var s=0;
+          function step(){
+            var cur=seq[s];
+            if(cur.k===999){h2.classList.remove('is-dimming');lines.forEach(function(l){l.classList.remove('is-lift');});}
+            else{h2.classList.add('is-dimming');lines.forEach(function(l,idx){var on=idx===cur.k;l.classList.toggle('is-lift',on);if(on){var r=l.querySelector('.if-mani-red');if(r)r.classList.add('if-lit-red');}});}
+            s++;
+            if(s<seq.length)setTimeout(step,cur.hold);
+          }
+          step();
+        }
+        ifScrollEngine.add({
+          read: function(){ if(played) return null; var r=h2.getBoundingClientRect(); var vh=window.innerHeight||document.documentElement.clientHeight; return {top:r.top, bottom:r.bottom, vh:vh}; },
+          write: function(m){ if(played || !m) return; if(m.top>=0 && m.bottom<=m.vh && m.top<=m.vh*0.55){ played=true; run(); } }
+        });
+        ifScrollEngine.kick();
+      }
+    }
+  }
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] manifesto-lift error:', _e); } catch (_) {} }
+
+/* ===== module: stage-parallax (CONSOLIDATED - see CLAUDE.md Class A note) =====
+   Was two independent generations: legacy targeted .if-stage-moment/.if-stage-photo
+   (amp=180/over=12/tt=0.72), current targets .if-sm-box/.if-stage-photo-pos
+   (amp=250/over=72/tt=0.65). Both class names are matched here (aliased) so any spinoff
+   markup still carrying the legacy names keeps working; the legacy target was confirmed
+   to not exist on any live page before this change, so this is a safety net, not a
+   behavior change for anything live today. Current generation's parameter values are
+   authoritative (they're the only ones actually live).
+   PERF FIXES applied while consolidating (both were in the ORIGINAL brief, kept in scope
+   since they're inseparable from migrating this effect at all):
+     - B3: will-change is now applied only while the effect is actively animating (between
+       its first and last frame) and cleared once locked/settled, instead of being a
+       permanent CSS declaration on .if-stage-photo/.if-stage-photo-pos/.if-stage-text for
+       the whole life of the page.
+     - B4: the photo-zoom used to lerp toward its target 10%/frame (cur += (tgt-cur)*0.1)
+       and kept scheduling new animation frames on its own until the gap converged below
+       0.0002 - meaning it kept running for ~60 frames (about a second) after the LAST
+       scroll event, and it only had a chance to run at all because it self-scheduled via
+       requestAnimationFrame independent of any new scroll input. Under the new engine,
+       effects only get a frame when scroll/resize actually fires, so a lerp like that
+       would freeze partway and never finish settling. Replaced with a direct mapping
+       (cur = target, computed straight from the scroll-position-driven "peak" ratchet,
+       no smoothing lerp) - same peak-ratchet behavior (zoom holds instead of reversing on
+       scroll-up, re-arms only once the section scrolls fully out of view), but the very
+       last ~1s of "catch-up" easing after you stop scrolling is gone (it now tracks scroll
+       position exactly, every frame, rather than easing toward it). This is a real, minor,
+       intentional visual difference - flagged rather than silently absorbed. */
+try {
+(function(){
+  var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var sec=document.querySelector('.if-sm-box, .if-stage-moment');
+  if(sec && !sec.__ifsm){
+    sec.__ifsm=1;
+    if(!reduce){
+      var txt=sec.querySelector('.if-stage-text');
+      var imgs=sec.querySelectorAll('.if-stage-photo-pos, .if-stage-photo');
+      var smooth=function(x){return x*x*x*(x*(x*6-15)+10);};
+      var txtLocked=false;
+      var MIN=1.0,MAX=1.16,peak=0,imgSettled=false;
+      ifScrollEngine.add({
+        read: function(){
+          var rect=sec.getBoundingClientRect(),vh=window.innerHeight||document.documentElement.clientHeight;
+          return {top:rect.top, vh:vh};
+        },
+        write: function(m){
+          if(!m) return;
+          if(txt && !txtLocked){
+            var amp=250,startTop=m.vh*0.88,endTop=m.vh*0.16;
+            var p=Math.max(0,Math.min(1,(startTop-m.top)/(startTop-endTop)));
+            var over=72,tt=0.65,shift;
+            if(p<tt)shift=-amp+(amp+over)*smooth(p/tt);else shift=over*(1-smooth((p-tt)/(1-tt)));
+            var sc=1+0.06*smooth(p);
+            if(p>0 && p<1) txt.style.willChange='transform,opacity';
+            txt.style.transform='translateY('+shift.toFixed(1)+'px) scale('+sc.toFixed(4)+')';
+            txt.style.opacity=(p*p).toFixed(3);
+            if(p>=1){txtLocked=true;txt.style.transform='translateY(0px) scale(1.06)';txt.style.opacity='1';txt.style.willChange='auto';}
+          }
+          if(imgs && imgs.length){
+            var p2=Math.max(0,Math.min(1,(m.vh*0.88-m.top)/(m.vh*0.88-m.vh*0.16)));
+            if(m.top>=m.vh){ peak=0; } else if(p2>peak){ peak=p2; }
+            var eased=1-Math.pow(1-peak,3), cur=MIN+(MAX-MIN)*eased;
+            var animating = peak>0 && peak<1;
+            var tf='translateZ(0) scale('+cur.toFixed(4)+')';
+            for(var i=0;i<imgs.length;i++){ if(animating) imgs[i].style.willChange='transform'; imgs[i].style.transform=tf; if(!animating) imgs[i].style.willChange='auto'; }
+          }
+        }
+      });
+      ifScrollEngine.kick();
+    }
+  }
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] stage-parallax error:', _e); } catch (_) {} }
+
 /* ===== module: syn-moment (About synthesis "One place. Every stage." scroll) =====
    Mirrors the Home stage-moment scroll on the About synthesis band: the text block
    (.if-syn-inner) drifts down + scales + fades in as it enters; the background photo
    (.if-syn-bg) zooms 1.0->1.16 on scroll. The .if-syn-hero section already clips
-   (overflow:hidden). Independent of the Home .if-sm-box module (left untouched). */
+   (overflow:hidden). Independent of the Home stage-parallax module (left untouched).
+   Migrated onto ifScrollEngine; same B3/B4 fixes as stage-parallax above (will-change
+   only while animating; direct scroll-to-scale mapping, no persistent lerp loop). */
 try {
 (function(){
   var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -876,26 +1018,33 @@ try {
     var sec=document.querySelector('.if-syn-hero');if(!sec||sec.__ifsyn)return;sec.__ifsyn=1;if(reduce)return;
     var txt=sec.querySelector('.if-syn-inner'),img=sec.querySelector('.if-syn-bg');
     var smooth=function(x){return x*x*x*(x*(x*6-15)+10);};
-    var locked=false,txtRaf;
-    function txtFrame(){txtRaf=null;if(locked||!txt)return;
-      var rect=sec.getBoundingClientRect(),vh=window.innerHeight||document.documentElement.clientHeight;
-      var amp=200,startTop=vh*0.9,endTop=vh*0.2;
-      var p=Math.max(0,Math.min(1,(startTop-rect.top)/(startTop-endTop)));
-      var over=48,tt=0.68,shift;if(p<tt)shift=-amp+(amp+over)*smooth(p/tt);else shift=over*(1-smooth((p-tt)/(1-tt)));
-      var sc=1+0.05*smooth(p);
-      txt.style.transform='translateY('+shift.toFixed(1)+'px) scale('+sc.toFixed(4)+')';txt.style.opacity=(p*p).toFixed(3);
-      if(p>=1){locked=true;txt.style.transform='translateY(0px) scale(1.05)';txt.style.opacity='1';}}
-    if(txt){txt.style.willChange='transform,opacity';txt.style.transformOrigin='left center';var onScroll=function(){if(txtRaf==null)txtRaf=requestAnimationFrame(txtFrame);};txtFrame();
-      window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',onScroll);}
-    if(img){var MIN=1.0,MAX=1.16,cur=null,peak=0,imgRaf=null;img.style.willChange='transform';
-      function zoomFrame(){imgRaf=null;var rect=sec.getBoundingClientRect(),vh=window.innerHeight||document.documentElement.clientHeight;
-        var p=Math.max(0,Math.min(1,(vh*0.9-rect.top)/(vh*0.9-vh*0.2)));
-        if(rect.top>=vh){peak=0;cur=MIN;}else if(p>peak)peak=p;if(cur==null)cur=MIN;
-        var eased=1-Math.pow(1-peak,3),tgt=MIN+(MAX-MIN)*eased;cur+=(tgt-cur)*0.1;if(Math.abs(tgt-cur)<0.0002)cur=tgt;
-        img.style.transform='translateZ(0) scale('+cur.toFixed(4)+')';if(cur!==tgt)imgRaf=requestAnimationFrame(zoomFrame);}
-      var onImgScroll=function(){if(imgRaf==null)imgRaf=requestAnimationFrame(zoomFrame);};
-      zoomFrame();
-      window.addEventListener('scroll',onImgScroll,{passive:true});window.addEventListener('resize',onImgScroll);}
+    var txtLocked=false;
+    var MIN=1.0,MAX=1.16,peak=0;
+    if(txt)txt.style.transformOrigin='left center';
+    ifScrollEngine.add({
+      read: function(){ var rect=sec.getBoundingClientRect(),vh=window.innerHeight||document.documentElement.clientHeight; return {top:rect.top, vh:vh}; },
+      write: function(m){
+        if(!m) return;
+        if(txt && !txtLocked){
+          var amp=200,startTop=m.vh*0.9,endTop=m.vh*0.2;
+          var p=Math.max(0,Math.min(1,(startTop-m.top)/(startTop-endTop)));
+          var over=48,tt=0.68,shift;if(p<tt)shift=-amp+(amp+over)*smooth(p/tt);else shift=over*(1-smooth((p-tt)/(1-tt)));
+          var sc=1+0.05*smooth(p);
+          if(p>0 && p<1) txt.style.willChange='transform,opacity';
+          txt.style.transform='translateY('+shift.toFixed(1)+'px) scale('+sc.toFixed(4)+')';txt.style.opacity=(p*p).toFixed(3);
+          if(p>=1){txtLocked=true;txt.style.transform='translateY(0px) scale(1.05)';txt.style.opacity='1';txt.style.willChange='auto';}
+        }
+        if(img){
+          var p2=Math.max(0,Math.min(1,(m.vh*0.9-m.top)/(m.vh*0.9-m.vh*0.2)));
+          if(m.top>=m.vh){ peak=0; } else if(p2>peak){ peak=p2; }
+          var eased=1-Math.pow(1-peak,3), cur=MIN+(MAX-MIN)*eased;
+          var animating = peak>0 && peak<1;
+          img.style.willChange = animating ? 'transform' : 'auto';
+          img.style.transform='translateZ(0) scale('+cur.toFixed(4)+')';
+        }
+      }
+    });
+    ifScrollEngine.kick();
   }
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
@@ -910,16 +1059,22 @@ try {
    Fixed to set the CSS width ONCE (to its own max value) and drive the actual growth
    via transform:scaleX() instead, which is compositor-only and never touches layout.
    transform-origin:left keeps it anchored/growing from the left edge exactly like the
-   old width-based version did. */
+   old width-based version did. Migrated onto ifScrollEngine (was already RAF-gated
+   correctly on its own private listener; only the wiring changed here). */
 try {
 (function(){
   function init(){var bars=document.querySelectorAll('.if-stg-goldbar, .if-syn-goldbar');if(!bars.length)return;
-    var MIN=30,MAX=90,ticking=false,i;
+    var MIN=30,MAX=90,i;
     for(i=0;i<bars.length;i++){var _bar=bars[i];var _max=_bar.classList.contains('if-syn-goldbar')?60:MAX;_bar.style.width=_max+'%';_bar.style.transformOrigin='left center';}
-    function apply(){ticking=false;var vh=window.innerHeight||document.documentElement.clientHeight,j;
-      for(j=0;j<bars.length;j++){var _b=bars[j];var r=_b.getBoundingClientRect();var p=(vh-r.top)/(vh+r.height);if(p<0)p=0;if(p>1)p=1;var mx=_b.classList.contains('if-syn-goldbar')?60:MAX;var w=MIN+(mx-MIN)*p;_b.style.transform='scaleX('+(w/mx)+')';}}
-    function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(apply);}}
-    apply();window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',onScroll,{passive:true});}
+    ifScrollEngine.add({
+      read: function(){ return window.innerHeight||document.documentElement.clientHeight; },
+      write: function(vh){
+        var j;
+        for(j=0;j<bars.length;j++){var _b=bars[j];var r=_b.getBoundingClientRect();var p=(vh-r.top)/(vh+r.height);if(p<0)p=0;if(p>1)p=1;var mx=_b.classList.contains('if-syn-goldbar')?60:MAX;var w=MIN+(mx-MIN)*p;_b.style.transform='scaleX('+(w/mx)+')';}
+      }
+    });
+    ifScrollEngine.kick();
+  }
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] about-goldbars error:', _e); } catch (_) {} }
@@ -927,7 +1082,8 @@ try {
 /* ===== module: scroll-red (accent phrase reddens on scroll — no read/lift) =====
    Any heading with class .if-scroll-red stays all-black; its wrapped accent (.if-mani-red child)
    fades to red once the heading has scrolled ~1/3 of the way up into the viewport, and HOLDS.
-   No word-by-word read, no line-lift — just the color. Color transition lives on .if-mani-red. */
+   No word-by-word read, no line-lift — just the color. Color transition lives on .if-mani-red.
+   Migrated onto ifScrollEngine. */
 try {
 (function(){
   var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -940,16 +1096,19 @@ try {
       var reds = h.querySelectorAll('.if-mani-red'); if(reds.length) items.push({h:h, reds:reds, done:false}); }
     if(!items.length) return;
     if(reduce){ items.forEach(function(it){ for(var k=0;k<it.reds.length;k++) it.reds[k].classList.add('if-lit-red'); }); return; }
-    var ticking=false;
-    function check(){ ticking=false;
-      var vh = window.innerHeight || document.documentElement.clientHeight, remaining=false;
-      for(var i=0;i<items.length;i++){ var it=items[i]; if(it.done) continue;
-        if(it.h.getBoundingClientRect().top <= vh*TRIGGER){ for(var k=0;k<it.reds.length;k++) it.reds[k].classList.add('if-lit-red'); it.done=true; }
-        else remaining=true; }
-      if(!remaining){ window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); }
-    }
-    function onScroll(){ if(!ticking){ ticking=true; requestAnimationFrame(check); } }
-    window.addEventListener('scroll', onScroll, {passive:true}); window.addEventListener('resize', onScroll); check();
+    ifScrollEngine.add({
+      read: function(){
+        var vh = window.innerHeight || document.documentElement.clientHeight, tops=[];
+        for(var i=0;i<items.length;i++){ tops.push(items[i].done ? null : items[i].h.getBoundingClientRect().top); }
+        return {vh:vh, tops:tops};
+      },
+      write: function(m){
+        if(!m) return;
+        for(var i=0;i<items.length;i++){ var it=items[i]; if(it.done || m.tops[i]==null) continue;
+          if(m.tops[i] <= m.vh*TRIGGER){ for(var k=0;k<it.reds.length;k++) it.reds[k].classList.add('if-lit-red'); it.done=true; } }
+      }
+    });
+    ifScrollEngine.kick();
   }
   if(document.readyState!=='loading') init(); else document.addEventListener('DOMContentLoaded', init);
 })();
@@ -960,7 +1119,10 @@ try {
    the Premise + four stages, then is pushed up and released as the .if-syn-hero ("One place.
    Every stage.") section rises to meet it. A spacer preserves layout on pin (no jump). Desktop
    only (>=992) where the bar is one slim row — the stacked mobile form would be too tall to pin.
-   Also widens the walk anchors' data-scroll-gap so a stage jump clears the pinned bar. Class-driven. */
+   Also widens the walk anchors' data-scroll-gap so a stage jump clears the pinned bar. Class-driven.
+   Migrated onto ifScrollEngine - both scroll and resize now drive the same read/write pair
+   (the engine treats both triggers identically), so the pin geometry + gap sync always run
+   together instead of via two separately-named handlers. */
 try {
 (function(){
   function init(){
@@ -968,7 +1130,7 @@ try {
     var stop=document.querySelector('.if-syn-hero');
     var header=document.querySelector('.if-header');
     if(!bar||!stop||bar.__ifwalk)return;bar.__ifwalk=1;
-    var spacer=null,stuck=false,raf=null;
+    var spacer=null,stuck=false;
     function active(){var bh=bar.offsetHeight,vh=window.innerHeight||document.documentElement.clientHeight;return bh>0&&bh<vh*0.5;}
     function headerH(){return header?Math.round(header.getBoundingClientRect().height):0;}
     /* gap = bar height so a clicked stage lands FLUSH under the pinned bar (no white strip of the
@@ -978,24 +1140,40 @@ try {
     function unpin(){if(!stuck)return;stuck=false;
       bar.style.position='';bar.style.top='';bar.style.left='';bar.style.width='';bar.style.zIndex='';
       if(spacer&&spacer.parentNode)spacer.parentNode.removeChild(spacer);spacer=null;}
-    function pin(){if(stuck)return;stuck=true;var r=bar.getBoundingClientRect();
+    function pin(r){if(stuck)return;stuck=true;
       spacer=document.createElement('div');spacer.setAttribute('aria-hidden','true');spacer.style.height=r.height+'px';
       bar.parentNode.insertBefore(spacer,bar);
       bar.style.position='fixed';bar.style.left=r.left+'px';bar.style.width=r.width+'px';bar.style.zIndex='40';bar.style.top=headerH()+'px';}
-    function frame(){raf=null;
-      if(!active()){unpin();return;}
-      var hb=headerH();
-      if(!stuck){ if(bar.getBoundingClientRect().top<=hb) pin(); }
-      if(stuck){var barH=bar.offsetHeight,synTop=stop.getBoundingClientRect().top;
-        bar.style.top=((synTop<hb+barH)?Math.round(synTop-barH):hb)+'px';
-        if(spacer&&spacer.getBoundingClientRect().top>=hb) unpin();}
-    }
-    function onScroll(){if(raf==null)raf=requestAnimationFrame(frame);}
-    function onResize(){if(stuck){var sr=spacer.getBoundingClientRect();bar.style.left=sr.left+'px';bar.style.width=sr.width+'px';}syncGap();onScroll();}
+    ifScrollEngine.add({
+      read: function(){
+        var isActive=active();
+        var barRect = isActive && !stuck ? bar.getBoundingClientRect() : null;
+        var spacerRect = stuck && spacer ? spacer.getBoundingClientRect() : null;
+        /* barH/synTop are read UNCONDITIONALLY (not gated on the current `stuck` flag) - on the
+           exact frame pin() first fires, write() flips `stuck` mid-call and then immediately needs
+           these same two numbers for the handoff math below; gating the read on the pre-write
+           `stuck` value produced a stale barH=0/synTop=0 for that one frame (bar.style.top briefly
+           computed as 0px right as it pinned). Both are safe to read every frame regardless of
+           stuck state - bar's own height doesn't change across the fixed/in-flow transition (its
+           width is pinned to match), and stop's rect is unaffected by whether bar or its spacer is
+           currently holding the flow space. */
+        var barH = bar.offsetHeight;
+        var synTop = stop.getBoundingClientRect().top;
+        return {isActive:isActive, hb:headerH(), barRect:barRect, spacerRect:spacerRect, barH:barH, synTop:synTop};
+      },
+      write: function(m){
+        if(!m) return;
+        if(!m.isActive){ unpin(); syncGap(); return; }
+        if(!stuck && m.barRect && m.barRect.top<=m.hb) pin(m.barRect);
+        if(stuck){
+          bar.style.top=((m.synTop<m.hb+m.barH)?Math.round(m.synTop-m.barH):m.hb)+'px';
+          if(m.spacerRect && m.spacerRect.top>=m.hb) unpin();
+        }
+        syncGap();
+      }
+    });
     syncGap();
-    window.addEventListener('scroll',onScroll,{passive:true});
-    window.addEventListener('resize',onResize);
-    frame();
+    ifScrollEngine.kick();
   }
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
@@ -1004,7 +1182,8 @@ try {
 /* ===== module: walk-spy (About "Walk the Factory" current-stage marker) =====
    Scrollspy: the walk button whose linked stage (#stage-0X) is scrolled up to just below the
    pinned bar gets class .is-current — styled (shared CSS) full-colour + a red left bar that stays
-   on regardless of hover; hovering a non-current item is full-colour too but has no bar. */
+   on regardless of hover; hovering a non-current item is full-colour too but has no bar.
+   Migrated onto ifScrollEngine. */
 try {
 (function(){
   function init(){
@@ -1014,24 +1193,192 @@ try {
     var pairs=[];
     for(var i=0;i<items.length;i++){var sec=document.getElementById(items[i].getAttribute('href').slice(1));if(sec)pairs.push({it:items[i],sec:sec});}
     if(!pairs.length)return;
-    var raf=null;
-    function spy(){raf=null;
-      var hb=header?header.getBoundingClientRect().height:0, barH=bar?bar.offsetHeight:0;
-      /* threshold must sit just BELOW where a clicked stage lands (headerH + data-scroll-gap),
-         else the just-navigated stage stays under the line and the PRECEDING button reads current. */
-      var g=parseInt(pairs[0].it.getAttribute('data-scroll-gap'),10); if(isNaN(g)) g=barH;
-      var threshold=hb+g+12, cur=-1, p;
-      for(p=0;p<pairs.length;p++){ if(pairs[p].sec.getBoundingClientRect().top<=threshold) cur=p; }
-      for(p=0;p<pairs.length;p++){ pairs[p].it.classList[p===cur?'add':'remove']('is-current'); }
-    }
-    function onScroll(){if(raf==null)raf=requestAnimationFrame(spy);}
-    window.addEventListener('scroll',onScroll,{passive:true});
-    window.addEventListener('resize',onScroll);
-    spy();
+    ifScrollEngine.add({
+      read: function(){
+        var hb=header?header.getBoundingClientRect().height:0, barH=bar?bar.offsetHeight:0;
+        /* threshold must sit just BELOW where a clicked stage lands (headerH + data-scroll-gap),
+           else the just-navigated stage stays under the line and the PRECEDING button reads current. */
+        var g=parseInt(pairs[0].it.getAttribute('data-scroll-gap'),10); if(isNaN(g)) g=barH;
+        var threshold=hb+g+12, tops=[];
+        for(var p=0;p<pairs.length;p++){ tops.push(pairs[p].sec.getBoundingClientRect().top); }
+        return {threshold:threshold, tops:tops};
+      },
+      write: function(m){
+        if(!m) return;
+        var cur=-1, p;
+        for(p=0;p<pairs.length;p++){ if(m.tops[p]<=m.threshold) cur=p; }
+        for(p=0;p<pairs.length;p++){ pairs[p].it.classList[p===cur?'add':'remove']('is-current'); }
+      }
+    });
+    ifScrollEngine.kick();
   }
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] walk-spy error:', _e); } catch (_) {} }
+
+/* ===== module: jumpnav-spy (current-section marker for a sticky in-page nav bar) =====
+   Any link carrying both class .program-page-mips-apply-jumpnav-link and a data-label attribute
+   is treated as a jump-nav item; its target is resolved from its own href (#section-id). As the
+   page scrolls, whichever target section has most recently scrolled up past the sticky header +
+   bar line is marked current by toggling .is-current on that link itself, which reveals a bottom
+   border (the link's own base style already reserves a transparent border-bottom of the same
+   width, so revealing its color on .is-current never shifts layout). Class-driven, portable to
+   any future link sharing the same two markers. Migrated onto ifScrollEngine. */
+try {
+(function(){
+  function init(){
+    var links=document.querySelectorAll('.program-page-mips-apply-jumpnav-link[data-label]');
+    if(!links.length)return;
+    var header=document.querySelector('.if-header');
+    var bar=document.querySelector('.program-page-mips-apply-jumpnav-sec');
+    var items=[];
+    links.forEach(function(a){
+      var href=a.getAttribute('href')||'';
+      var id=href.charAt(0)==='#'?href.slice(1):null;
+      var target=id?document.getElementById(id):null;
+      if(target)items.push({target:target,link:a});
+    });
+    if(!items.length)return;
+    ifScrollEngine.add({
+      read:function(){
+        var headerH=header?header.getBoundingClientRect().height:0;
+        var barH=bar?bar.getBoundingClientRect().height:0;
+        var line=headerH+barH+12, tops=[];
+        for(var i=0;i<items.length;i++){tops.push(items[i].target.getBoundingClientRect().top);}
+        return {line:line, tops:tops};
+      },
+      write:function(m){
+        if(!m)return;
+        var cur=-1,i;
+        for(i=0;i<items.length;i++){if(m.tops[i]<=m.line)cur=i;}
+        for(i=0;i<items.length;i++){items[i].link.classList.toggle('is-current',i===cur);}
+      }
+    });
+    ifScrollEngine.kick();
+  }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] jumpnav-spy error:', _e); } catch (_) {} }
+
+/* module: walkcopy-spy — current-section marker for the MIPS-Apply Walk-the-Factory duplicate.
+   A link carrying .program-page-mips-apply-walkcopy-item and data-smooth-scroll is tracked; its
+   target is resolved from its own href. As the page scrolls, the last target whose top has
+   scrolled up past (header + gap + 12) is marked current by toggling the same
+   .program-page-mips-apply-walkcopy-current combo already used for the static demo state, so
+   this simply makes it live instead. Migrated onto ifScrollEngine. */
+try {
+(function(){
+  function init(){
+    var links=document.querySelectorAll('.program-page-mips-apply-walkcopy-item[data-smooth-scroll]');
+    if(!links.length)return;
+    var header=document.querySelector('.if-header');
+    var bar=document.querySelector('.program-page-mips-apply-walkcopy-sec');
+    var items=[];
+    links.forEach(function(a){
+      var href=a.getAttribute('href')||'';
+      var id=href.charAt(0)==='#'?href.slice(1):null;
+      var target=id?document.getElementById(id):null;
+      if(target)items.push({target:target,link:a});
+    });
+    if(!items.length)return;
+    ifScrollEngine.add({
+      read:function(){
+        var headerH=header?header.getBoundingClientRect().height:0;
+        var barH=bar?bar.getBoundingClientRect().height:0;
+        var g=parseInt(items[0].link.getAttribute('data-scroll-gap'),10);
+        if(isNaN(g))g=barH+24;
+        var line=headerH+g+12, tops=[];
+        for(var i=0;i<items.length;i++){tops.push(items[i].target.getBoundingClientRect().top);}
+        return {line:line, tops:tops};
+      },
+      write:function(m){
+        if(!m)return;
+        var cur=-1,i;
+        for(i=0;i<items.length;i++){if(m.tops[i]<=m.line)cur=i;}
+        for(i=0;i<items.length;i++){items[i].link.classList.toggle('program-page-mips-apply-walkcopy-current',i===cur);}
+      }
+    });
+    ifScrollEngine.kick();
+  }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] walkcopy-spy error:', _e); } catch (_) {} }
+
+/* module: hero-countup-easeout — one specific instance (MIPS-Impact hero "41:1" stat) that
+   needs a different feel than the shared .if-countup (ease-in-cubic, slow start / abrupt stop):
+   ease-out-quad instead, for a quicker pickup and a gentle deceleration into the final value.
+   Scoped to its own class (.if-hero-countup) so .if-countup and every element using it elsewhere
+   are completely unaffected. Migrated onto ifScrollEngine (same pattern as count-up above). */
+try {
+(function(){
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var els = document.querySelectorAll('.if-hero-countup');
+  els.forEach(function(el){
+    var value = el.getAttribute('data-value') || el.textContent.trim();
+    var m = value.match(/^([^\d]*)([\d.,]+)(.*)$/) || [null,'','0',''];
+    var numStr = m[2], hasComma = numStr.indexOf(',')>=0, plain = numStr.replace(/,/g,'');
+    var dot = plain.indexOf('.'), decimals = dot>=0 ? plain.length-dot-1 : 0;
+    var prefix = m[1]||'', suffix = m[3]||'', target = parseFloat(plain)||0;
+    function fmt(n){ var s = n.toFixed(decimals); if(hasComma){ var p = s.split('.'); p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g,','); s = p.join('.'); } return prefix+s+suffix; }
+    if(reduce){ el.textContent = value; el.style.opacity = 1; return; }
+    el.style.opacity = 0; el.textContent = fmt(0);
+    var started = false;
+    function run(){
+      var dur = 1600, fade = 480, t0 = performance.now();
+      function tick(now){ var dt = now-t0, p = Math.min(1, dt/dur), e = 1-(1-p)*(1-p); // easeOutQuad
+        el.textContent = p<1 ? fmt(target*e) : value; el.style.opacity = Math.min(1, dt/fade).toFixed(3);
+        if(p<1) requestAnimationFrame(tick); else el.style.opacity = 1; }
+      requestAnimationFrame(tick);
+    }
+    ifScrollEngine.add({
+      read: function(){ if(started) return null; var r = el.getBoundingClientRect(); return {top:r.top, bottom:r.bottom, vh: window.innerHeight||document.documentElement.clientHeight}; },
+      write: function(m){ if(started || !m) return; if(m.top<m.vh*0.85 && m.bottom>0){ started = true; run(); } }
+    });
+  });
+  ifScrollEngine.kick();
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] hero-countup-easeout error:', _e); } catch (_) {} }
+
+/* ===== module: botnav-accent-scroll (spinoff bottom-nav tricolor bars) =====
+   Deliberate mirror of the footer's own if-foot-accent scroll module (see the main-bundle
+   IIFE that targets '.if-foot-accent') - same scroll-progress formula, applied to every
+   [class*="-botnav-accent"] bar (originally .program-page-ventures-botnav-accent; now also
+   matches .program-page-cbscf-botnav-accent and any future spinoff's own bar, so a new
+   program page's bottom-nav gets this animation automatically as long as it follows the
+   established naming convention), but with the travel distance scaled to 1/3 (MAXFRAC =
+   -0.20 vs the footer's 0.60) and the sign flipped so the pattern slides in the opposite
+   direction as the page scrolls. See idea-factory.css for the matching reversed gradient
+   (red/white/gold instead of the footer's gold/white/red). Each bar found gets its own entry
+   on ifScrollEngine, keyed off that bar's own position — one page having two bars would
+   animate both correctly and independently (not currently the case, but the loop makes no
+   page-count assumption).
+   PERF: previously read document.documentElement.scrollHeight on every scroll frame (the same
+   bug .if-foot-accent had, above) - that flushes layout for the whole document, every frame,
+   while scrolling. Document height only ever changes on resize/content-load, never mid-scroll,
+   so it's measured once per bar and cached, refreshed only on resize/load/fonts.ready. */
+try {
+(function(){
+  function initBar(bar){
+    if (!bar || bar.__ifBotnavAccent) return;
+    bar.__ifBotnavAccent = 1;
+    var MAXFRAC = -0.20; // 1/3 of the footer bar's 0.60, sign flipped for opposite direction
+    var cache={w:0,scrollMax:1};
+    function remeasure(){cache.w=bar.offsetWidth||bar.getBoundingClientRect().width;var vh=window.innerHeight||document.documentElement.clientHeight;cache.scrollMax=Math.max(1,(document.documentElement.scrollHeight||document.body.scrollHeight||0)-vh);}
+    remeasure();
+    window.addEventListener('resize',remeasure,{passive:true});window.addEventListener('load',remeasure);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(remeasure);
+    ifScrollEngine.add({
+      read:function(){var rect=bar.getBoundingClientRect();var vh=window.innerHeight||document.documentElement.clientHeight;var scrolled=window.pageYOffset||document.documentElement.scrollTop||0;return{vh:vh,top:rect.top,scrolled:scrolled};},
+      write:function(m){if(!m)return;var otop=m.top+m.scrolled;var finalTop=otop-cache.scrollMax;var denom=m.vh-finalTop;var p=denom>0?(m.vh-m.top)/denom:1;if(p<0)p=0;if(p>1)p=1;bar.style.backgroundPosition=(p*MAXFRAC*cache.w)+'px 0px';}
+    });
+  }
+  function init(){
+    var bars = document.querySelectorAll('[class*="-botnav-accent"]');
+    bars.forEach(initBar);
+    ifScrollEngine.kick();
+  }
+  if (document.readyState !== 'loading') init(); else document.addEventListener('DOMContentLoaded', init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] botnav-accent-scroll error:', _e); } catch (_) {} }
 
 /* ===== module: walk-colalign (About "Walk the Factory" stacked column alignment) =====
    When the bar is stacked (2 rows), the buttons' content is centered (CSS). Within each column the
@@ -1356,90 +1703,12 @@ try {
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] jumpnav-gap error:', _e); } catch (_) {} }
 
-/* ===== module: jumpnav-spy (current-section marker for a sticky in-page nav bar) =====
-   Any link carrying both class .program-page-mips-apply-jumpnav-link and a data-label attribute
-   is treated as a jump-nav item; its target is resolved from its own href (#section-id). As the
-   page scrolls, whichever target section has most recently scrolled up past the sticky header +
-   bar line is marked current by toggling .is-current on that link itself, which reveals a bottom
-   border (the link's own base style already reserves a transparent border-bottom of the same
-   width, so revealing its color on .is-current never shifts layout). Class-driven, portable to
-   any future link sharing the same two markers. */
-try {
-(function(){
-  function init(){
-    var links=document.querySelectorAll('.program-page-mips-apply-jumpnav-link[data-label]');
-    if(!links.length)return;
-    var header=document.querySelector('.if-header');
-    var bar=document.querySelector('.program-page-mips-apply-jumpnav-sec');
-    var items=[];
-    links.forEach(function(a){
-      var href=a.getAttribute('href')||'';
-      var id=href.charAt(0)==='#'?href.slice(1):null;
-      var target=id?document.getElementById(id):null;
-      if(target)items.push({target:target,link:a});
-    });
-    if(!items.length)return;
-    function sync(){
-      var headerH=header?header.getBoundingClientRect().height:0;
-      var barH=bar?bar.getBoundingClientRect().height:0;
-      var line=headerH+barH+12;
-      var current=null;
-      items.forEach(function(it){
-        if(it.target.getBoundingClientRect().top<=line)current=it;
-      });
-      items.forEach(function(it){it.link.classList.toggle('is-current',it===current);});
-    }
-    var ticking=false;
-    function onScroll(){if(ticking)return;ticking=true;requestAnimationFrame(function(){sync();ticking=false;});}
-    window.addEventListener('scroll',onScroll,{passive:true});
-    window.addEventListener('resize',onScroll,{passive:true});
-    sync();
-  }
-  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
-})();
-} catch (_e) { try { console && console.warn && console.warn('[idea-factory] jumpnav-spy error:', _e); } catch (_) {} }
-/* module: walkcopy-spy — current-section marker for the MIPS-Apply Walk-the-Factory duplicate.
-   A link carrying .program-page-mips-apply-walkcopy-item and data-smooth-scroll is tracked; its
-   target is resolved from its own href. As the page scrolls, the last target whose top has
-   scrolled up past (header + gap + 12) is marked current by toggling the same
-   .program-page-mips-apply-walkcopy-current combo already used for the static demo state, so
-   this simply makes it live instead. */
-try {
-(function(){
-  function init(){
-    var links=document.querySelectorAll('.program-page-mips-apply-walkcopy-item[data-smooth-scroll]');
-    if(!links.length)return;
-    var header=document.querySelector('.if-header');
-    var bar=document.querySelector('.program-page-mips-apply-walkcopy-sec');
-    var items=[];
-    links.forEach(function(a){
-      var href=a.getAttribute('href')||'';
-      var id=href.charAt(0)==='#'?href.slice(1):null;
-      var target=id?document.getElementById(id):null;
-      if(target)items.push({target:target,link:a});
-    });
-    if(!items.length)return;
-    function sync(){
-      var headerH=header?header.getBoundingClientRect().height:0;
-      var barH=bar?bar.getBoundingClientRect().height:0;
-      var g=parseInt(items[0].link.getAttribute('data-scroll-gap'),10);
-      if(isNaN(g))g=barH+24;
-      var line=headerH+g+12;
-      var current=null;
-      items.forEach(function(it){
-        if(it.target.getBoundingClientRect().top<=line)current=it;
-      });
-      items.forEach(function(it){it.link.classList.toggle('program-page-mips-apply-walkcopy-current',it===current);});
-    }
-    var ticking=false;
-    function onScroll(){if(ticking)return;ticking=true;requestAnimationFrame(function(){sync();ticking=false;});}
-    window.addEventListener('scroll',onScroll,{passive:true});
-    window.addEventListener('resize',onScroll,{passive:true});
-    sync();
-  }
-  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
-})();
-} catch (_e) { try { console && console.warn && console.warn('[idea-factory] walkcopy-spy error:', _e); } catch (_) {} }
+/* jumpnav-spy moved to the consolidated 'jumpnav-spy' module (ifScrollEngine) above, right
+   after walk-spy. */
+/* walkcopy-spy moved to the consolidated 'walkcopy-spy' module (ifScrollEngine) above, right
+   after jumpnav-spy. walkcopy-gap-tiers (below) is unchanged - it's resize-only, out of scope
+   for the scroll-engine migration - and walkcopy-spy still reads the data-scroll-gap attribute
+   it sets, exactly as before. */
 /* module: walkcopy-gap-tiers — sets data-scroll-gap on the walkcopy items to one of four EXPLICIT,
    fixed numbers depending on which native breakpoint is currently active. No measurement, no
    computation — these are exact values set directly: Desktop >=992px = 50, Tablet 768-991px = 100,
@@ -1468,44 +1737,8 @@ try {
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] walkcopy-gap-tiers error:', _e); } catch (_) {} }
 
-/* module: hero-countup-easeout — one specific instance (MIPS-Impact hero "41:1" stat) that
-   needs a different feel than the shared .if-countup (ease-in-cubic, slow start / abrupt stop):
-   ease-out-quad instead, for a quicker pickup and a gentle deceleration into the final value.
-   Scoped to its own class (.if-hero-countup) so .if-countup and every element using it elsewhere
-   are completely unaffected. */
-try {
-(function(){
-  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  function init(){
-    var els = document.querySelectorAll('.if-hero-countup');
-    if(!els.length) return;
-    els.forEach(function(el){
-      var value = el.getAttribute('data-value') || el.textContent.trim();
-      var m = value.match(/^([^\d]*)([\d.,]+)(.*)$/) || [null,'','0',''];
-      var numStr = m[2], hasComma = numStr.indexOf(',')>=0, plain = numStr.replace(/,/g,'');
-      var dot = plain.indexOf('.'), decimals = dot>=0 ? plain.length-dot-1 : 0;
-      var prefix = m[1]||'', suffix = m[3]||'', target = parseFloat(plain)||0;
-      function fmt(n){ var s = n.toFixed(decimals); if(hasComma){ var p = s.split('.'); p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g,','); s = p.join('.'); } return prefix+s+suffix; }
-      if(reduce){ el.textContent = value; el.style.opacity = 1; return; }
-      el.style.opacity = 0; el.textContent = fmt(0);
-      var started = false, raf;
-      function run(){
-        var dur = 1600, fade = 480, t0 = performance.now();
-        function tick(now){ var dt = now-t0, p = Math.min(1, dt/dur), e = 1-(1-p)*(1-p); // easeOutQuad
-          el.textContent = p<1 ? fmt(target*e) : value; el.style.opacity = Math.min(1, dt/fade).toFixed(3);
-          if(p<1) raf = requestAnimationFrame(tick); else el.style.opacity = 1; }
-        raf = requestAnimationFrame(tick);
-      }
-      var ticking = false;
-      function check(){ ticking = false; if(started) return; var r = el.getBoundingClientRect(), vh = window.innerHeight||document.documentElement.clientHeight;
-        if(r.top<vh*0.85 && r.bottom>0){ started = true; window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); run(); } }
-      function onScroll(){ if(!ticking){ ticking = true; requestAnimationFrame(check); } }
-      window.addEventListener('scroll', onScroll, {passive:true}); window.addEventListener('resize', onScroll); check();
-    });
-  }
-  if(document.readyState!=='loading') init(); else document.addEventListener('DOMContentLoaded', init);
-})();
-} catch (_e) { try { console && console.warn && console.warn('[idea-factory] hero-countup-easeout error:', _e); } catch (_) {} }
+/* hero-countup-easeout moved to the consolidated 'hero-countup-easeout' module (ifScrollEngine)
+   above, right after walkcopy-spy. */
 
 /* ===== module: nav-link-exact-fit (desktop only, >991px) =====
    Static CSS cannot do this: fit-content/max-content are defined as "available space, clamped
@@ -1620,51 +1853,6 @@ try {
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] nav-toggle-js error:', _e); } catch (_) {} }
 
-/* ===== module: botnav-accent-scroll (spinoff bottom-nav tricolor bars) =====
-   Deliberate mirror of the footer's own if-foot-accent scroll module (see the main-bundle
-   IIFE that targets '.if-foot-accent') - same scroll-progress formula, applied to every
-   [class*="-botnav-accent"] bar (originally .program-page-ventures-botnav-accent; now also
-   matches .program-page-cbscf-botnav-accent and any future spinoff's own bar, so a new
-   program page's bottom-nav gets this animation automatically as long as it follows the
-   established naming convention), but with the travel distance scaled to 1/3 (MAXFRAC =
-   -0.20 vs the footer's 0.60) and the sign flipped so the pattern slides in the opposite
-   direction as the page scrolls. See idea-factory.css for the matching reversed gradient
-   (red/white/gold instead of the footer's gold/white/red). Each bar found gets its own
-   independent scroll/resize listener, keyed off that bar's own position — one page having
-   two bars would animate both correctly and independently (not currently the case, but
-   the loop makes no page-count assumption). */
-try {
-(function(){
-  function initBar(bar){
-    if (!bar || bar.__ifBotnavAccent) return;
-    bar.__ifBotnavAccent = 1;
-    var MAXFRAC = -0.20; // 1/3 of the footer bar's 0.60, sign flipped for opposite direction
-    var ticking = false;
-    function apply(){
-      ticking = false;
-      var w = bar.offsetWidth || bar.getBoundingClientRect().width;
-      var rect = bar.getBoundingClientRect();
-      var vh = window.innerHeight || document.documentElement.clientHeight;
-      var scrollMax = Math.max(1, (document.documentElement.scrollHeight || document.body.scrollHeight || 0) - vh);
-      var scrolled = window.pageYOffset || document.documentElement.scrollTop || 0;
-      var otop = rect.top + scrolled;
-      var finalTop = otop - scrollMax;
-      var denom = vh - finalTop;
-      var p = denom > 0 ? (vh - rect.top) / denom : 1;
-      if (p < 0) p = 0;
-      if (p > 1) p = 1;
-      bar.style.backgroundPosition = (p * MAXFRAC * w) + 'px 0px';
-    }
-    function onScroll(){ if (!ticking) { ticking = true; requestAnimationFrame(apply); } }
-    apply();
-    window.addEventListener('scroll', onScroll, {passive:true});
-    window.addEventListener('resize', onScroll, {passive:true});
-  }
-  function init(){
-    var bars = document.querySelectorAll('[class*="-botnav-accent"]');
-    bars.forEach(initBar);
-  }
-  if (document.readyState !== 'loading') init(); else document.addEventListener('DOMContentLoaded', init);
-})();
-} catch (_e) { try { console && console.warn && console.warn('[idea-factory] botnav-accent-scroll error:', _e); } catch (_) {} }
+/* botnav-accent-scroll moved to the consolidated 'botnav-accent-scroll' module (ifScrollEngine)
+   above, right after hero-countup-easeout. */
 
