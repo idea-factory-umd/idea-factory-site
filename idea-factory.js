@@ -871,18 +871,23 @@ try {
    class aliasing.
    Currently covers: MIPS-Impact (program-page-mips-impact-glance-value, -stats-value),
    ASPIRE-Home (program-page-aspire-numbers-countup), MIPS-Home's "Four decades of return"
-   section (program-page-mips-impact-num, program-page-mips-callout-big - note the confusing
-   name: these live on the MIPS-HOME page, not MIPS-Impact, despite the "impact" in the name -
-   verified by direct query before wiring, and separately confirmed via a live grep across every
-   known page that neither class exists anywhere else, so this is safe). Any FUTURE page wanting
-   this same effect just needs its own number class added to this one selector list - no
-   Designer-side change required. Before adding a new one, verify (a) it doesn't already exist
-   on some other page under a similar-looking name (this file has bitten that once already) and
-   (b) the class isn't a duplicate style object (data_style_tool query_styles, single match). */
+   section - ONLY the 3 big white numbers in the red stats box (program-page-mips-impact-num;
+   note the confusing name: these live on the MIPS-HOME page, not MIPS-Impact, despite the
+   "impact" in the name - verified by direct query before wiring, and separately confirmed via
+   a live grep across every known page that the class exists nowhere else, so this is safe).
+   The smaller black "$166M/yr" number in that same section's yellow callout box
+   (program-page-mips-callout-big) was deliberately wired up alongside it on 2026-09-09, then
+   deliberately REMOVED again the same day per direct user instruction - keep the effect only
+   on the big white numbers, not the yellow-box callout - so that class is intentionally absent
+   here; do not re-add it without a fresh instruction to do so. Any FUTURE page wanting this
+   effect just needs its own number class added to this one selector list - no Designer-side
+   change required. Before adding a new one, verify (a) it doesn't already exist on some other
+   page under a similar-looking name (this file has bitten that once already) and (b) the class
+   isn't a duplicate style object (data_style_tool query_styles, single match). */
 try {
 (function(){
   var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var els = document.querySelectorAll('.if-countup, .program-page-mips-impact-glance-value, .program-page-mips-impact-stats-value, .program-page-aspire-numbers-countup, .program-page-mips-impact-num, .program-page-mips-callout-big');
+  var els = document.querySelectorAll('.if-countup, .program-page-mips-impact-glance-value, .program-page-mips-impact-stats-value, .program-page-aspire-numbers-countup, .program-page-mips-impact-num');
   els.forEach(function(el){
     if(el.__ifcu) return; el.__ifcu = 1;
     var value = el.getAttribute('data-value') || el.textContent.trim();
