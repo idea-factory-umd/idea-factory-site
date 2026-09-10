@@ -298,27 +298,7 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 }
 
 /* ============================================================
-   9. WINDOW EFFECT — logo gold pane lights up on hover
-   The Idea Factory mark has a large gold "window" polygon.
-   In Webflow, embed the logo as an inline SVG and add the class
-   .if-logo-window to that gold polygon element.
-   The animation flashes on hover-enter (overshoot twinkle) and
-   settles a touch brighter while the mouse stays over the logo.
-   ============================================================ */
-.if-logo-window {
-  transform-origin: center;
-  transition: filter 360ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-@keyframes if-window-on {
-  from { filter: brightness(1) drop-shadow(0 0 0 rgba(255, 224, 77, 0)); }
-  to   { filter: brightness(1.35) drop-shadow(0 0 7px rgba(255, 226, 90, 0.85)); }
-}
-.if-logo-link:hover .if-logo-window {
-  animation: if-window-on 480ms var(--if-ease-window) forwards;
-}
-
-/* ============================================================
-   10. NAV DROPDOWN sublink text grow  (CSS only)
+   9. NAV DROPDOWN sublink text grow  (CSS only)
    The visible label text within each dropdown item grows slightly
    on hover, anchored left so surrounding layout doesn't shift.
    Assign .if-nav-sublink to the dropdown <a> and
