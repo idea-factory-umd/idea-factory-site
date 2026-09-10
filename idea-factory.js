@@ -879,15 +879,18 @@ try {
    (program-page-mips-callout-big) was deliberately wired up alongside it on 2026-09-09, then
    deliberately REMOVED again the same day per direct user instruction - keep the effect only
    on the big white numbers, not the yellow-box callout - so that class is intentionally absent
-   here; do not re-add it without a fresh instruction to do so. Any FUTURE page wanting this
-   effect just needs its own number class added to this one selector list - no Designer-side
-   change required. Before adding a new one, verify (a) it doesn't already exist on some other
-   page under a similar-looking name (this file has bitten that once already) and (b) the class
-   isn't a duplicate style object (data_style_tool query_styles, single match). */
+   here; do not re-add it without a fresh instruction to do so. Ventures-Home's "Since 1985"
+   stats band ($3.6B / 146 / 1,000+, program-page-ventures-statsband-num) added 2026-09-10,
+   confirmed exclusive to Ventures-Home via a live grep across every other known page first.
+   Any FUTURE page wanting this effect just needs its own number class added to this one
+   selector list - no Designer-side change required. Before adding a new one, verify (a) it
+   doesn't already exist on some other page under a similar-looking name (this file has bitten
+   that once already) and (b) the class isn't a duplicate style object (data_style_tool
+   query_styles, single match). */
 try {
 (function(){
   var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var els = document.querySelectorAll('.if-countup, .program-page-mips-impact-glance-value, .program-page-mips-impact-stats-value, .program-page-aspire-numbers-countup, .program-page-mips-impact-num');
+  var els = document.querySelectorAll('.if-countup, .program-page-mips-impact-glance-value, .program-page-mips-impact-stats-value, .program-page-aspire-numbers-countup, .program-page-mips-impact-num, .program-page-ventures-statsband-num');
   els.forEach(function(el){
     if(el.__ifcu) return; el.__ifcu = 1;
     var value = el.getAttribute('data-value') || el.textContent.trim();
