@@ -422,9 +422,14 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
    sub-item (i.e. not inside a dropdown list). Excludes .if-give-btn-solid: a same-page
    anchor href (e.g. "#how-to-apply") resolves to "the current page" just like a real page
    link, so Webflow marks it current too — but that class is a solid branded CTA button, not
-   a plain nav link, so it must never take the current-page look. */
+   a plain nav link, so it must never take the current-page look. Also excludes
+   .if-navlink-text (2026-09-10): a dropdown TOGGLE whose own label is itself a direct link
+   (e.g. Ventures' "Incubator") gets .w--current on that inner <a> too, since its href also
+   resolves to the current page — but marking the TOGGLE is redundant/wrong when the
+   dropdown's own sub-item (.if-nav-sublink) already carries the real "you are here" marker;
+   the toggle still gets its own separate gold-underline cue below (:has(.w--current)). */
 .if-nav-link.w--current,
-.if-navmenu a.w--current:not(.if-nav-sublink):not(.if-dd-list a):not(.w-dropdown-list a):not(.if-give-btn-solid){
+.if-navmenu a.w--current:not(.if-nav-sublink):not(.if-dd-list a):not(.w-dropdown-list a):not(.if-give-btn-solid):not(.if-navlink-text){
   background-color:#a40f23;border-bottom-color:#ffd200;
 }
 /* DROPDOWN sub-item current — red left bar marks the current page inside the dropdown
@@ -479,7 +484,7 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
   /* CURRENT marker: red left bar via ::before; text matches its normal siblings (not red). */
   .if-navmenu.if-navmenu .if-nav-link.w--current,
   .if-navmenu.if-navmenu .if-nav-sublink.w--current,
-  .if-navmenu.if-navmenu a.w--current:not(.if-give-btn-solid){
+  .if-navmenu.if-navmenu a.w--current:not(.if-give-btn-solid):not(.if-navlink-text){
     background-color:transparent !important;
     background-image:none !important;
     border-bottom-color:#e6e6e6 !important;
@@ -489,7 +494,10 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
   .if-navmenu.if-navmenu .if-nav-link.w--current{color:#000 !important;}          /* top-level: black */
   .if-navmenu.if-navmenu .if-nav-sublink.w--current{color:#7f7f7f !important;}    /* sub-item: gray */
   /* (kept at specificity (0,4,0) so the :hover rule below wins the tie and reddens on hover) */
-  .if-navmenu.if-navmenu a.w--current:not(.if-give-btn-solid)::before{
+  /* .if-navlink-text excluded here too (2026-09-10): see the desktop rule's comment above —
+     a dropdown toggle that's also a direct link (Ventures' "Incubator") must not get this
+     red left bar; its dropdown's own current sub-item already carries the real marker. */
+  .if-navmenu.if-navmenu a.w--current:not(.if-give-btn-solid):not(.if-navlink-text)::before{
     content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#e21833;pointer-events:none;
   }
   /* HOVER = GROW ONLY (no red, no hatch, no background). The grow is on the INNER text
