@@ -1339,6 +1339,74 @@ try {
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] walkcopy-spy error:', _e); } catch (_) {} }
 
+/* ===== module: dd-anchor-spy (current-section marker for a dropdown mixing same-page anchors
+   with separate-page links) =====
+   Ventures-Incubator's "Incubator" dropdown toggle is itself a link (.if-navlink-text) to
+   /ventures-incubator, and its first sub-items (Overview / What You Get / Eligibility &
+   Admission) are anchors WITHIN that same page - but Webflow's native current-page detection
+   only compares the PAGE portion of a link's href, so all three always resolve to "current"
+   together and never move as the user actually scrolls between sections; in practice only
+   Overview (the bare, no-hash href) ends up marked, frozen there regardless of scroll position
+   (2026-09-10 bug report). The dropdown's LATER sub-items (Current Companies / FAQ / Apply) are
+   genuinely separate pages, so native w--current already works correctly for those and must be
+   left alone.
+   Fix: for every .if-dd-wrap whose toggle link's href is a real page (not itself a hash), find
+   its .if-dd-list sub-items whose OWN href starts with that same page href - i.e. same-page
+   anchors, exactly the ones native detection can't distinguish. As the page scrolls, toggle
+   Webflow's own .w--current between just those items (never touching the separate-page ones),
+   so exactly one is current at a time and it tracks real scroll position - reusing the
+   already-correct, already-live .if-nav-sublink.w--current styling (idea-factory.css) rather
+   than inventing a parallel class/style pair. Keys off the dropdown/link CLASS CONTRACT and
+   href-prefix matching only - never a specific page id, item text, or position - so this is
+   fully portable to any future dropdown with the same "toggle is also a link, some sub-items
+   are anchors" shape, not a one-off hardcoded to Incubator. Migrated onto ifScrollEngine
+   pattern from the start (no legacy private-listener version existed for this one). */
+try {
+(function(){
+  function init(){
+    var wraps=document.querySelectorAll('.if-dd-wrap');
+    wraps.forEach(function(wrap){
+      var toggleLink=wrap.querySelector('.if-navlink-text[href]');
+      if(!toggleLink)return; // toggle isn't itself a link (e.g. "Programs") - native marking has nothing to correct
+      var base=toggleLink.getAttribute('href')||'';
+      if(!base||base.charAt(0)==='#')return;
+      var list=wrap.querySelector('.if-dd-list');
+      if(!list)return;
+      var subs=[].slice.call(list.querySelectorAll('a.if-nav-sublink[href]'));
+      var items=[];
+      subs.forEach(function(a){
+        var href=a.getAttribute('href')||'';
+        if(href.indexOf(base)!==0)return; // different page entirely - leave native w--current as-is
+        var hashIdx=href.indexOf('#');
+        var isBase=hashIdx<0;
+        var id=isBase?null:href.slice(hashIdx+1).replace(/^goto:/,'');
+        var target=isBase?document.body:(id?document.getElementById(id):null);
+        if(target)items.push({link:a,target:target,isBase:isBase});
+      });
+      if(items.length<2)return; // fewer than 2 same-page anchors - nothing ambiguous to spy on
+      var header=document.querySelector('.if-header');
+      ifScrollEngine.add({
+        read:function(){
+          var headerH=header?header.getBoundingClientRect().height:0;
+          var line=headerH+12,tops=[],i;
+          for(i=0;i<items.length;i++){tops.push(items[i].isBase?-1:items[i].target.getBoundingClientRect().top);}
+          return {line:line,tops:tops};
+        },
+        write:function(m){
+          if(!m)return;
+          var cur=0,i;
+          for(i=0;i<items.length;i++){if(items[i].isBase)cur=i;}
+          for(i=0;i<items.length;i++){if(!items[i].isBase&&m.tops[i]<=m.line)cur=i;}
+          for(i=0;i<items.length;i++){items[i].link.classList.toggle('w--current',i===cur);}
+        }
+      });
+    });
+    ifScrollEngine.kick();
+  }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] dd-anchor-spy error:', _e); } catch (_) {} }
+
 /* module: hero-countup-easeout — was one specific instance (MIPS-Impact hero "41:1" stat) that
    needed a different feel than the shared .if-countup (ease-in-cubic, slow start / abrupt stop):
    ease-out-quad instead, for a quicker pickup and a gentle deceleration into the final value.
