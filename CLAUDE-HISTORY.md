@@ -3036,3 +3036,13 @@ User asked to add the vertical gold accent bar seen on the right edge of red sec
 **Verified live, real-browser measurements at 2 widths (1440 desktop, 900 tablet):** the bar renders visible, 16px wide, `rgb(255,210,0)` (`#ffd200`) — both breakpoints identical since the grid doesn't stack until `small`; a 24px gap exists between the bar's left edge and the last stat's number at both widths, confirming genuine clearance, not just a coincidental non-overlap. 0 JS errors.
 
 No shared-file (`idea-factory.css`/`.js`) change — 100% native Designer, pure reuse. Published via `publish_site`. `stable` still not advanced across any of today's fixes (§157–168).
+
+## 169. Ventures-Incubator "What You Get" section background corrected to #e6e6e6, off-palette #faf9f8 replaced, scoped to this one section only (2026‑09‑10) — native Designer, PUBLISHED, verified live
+
+User pointed at the "What You Get" section on Ventures-Incubator (the off-white band with the "SPACE & SERVICES" eyebrow, "What you get" H2, and two photos) and said its background was too light and off-palette, asking for `#e6e6e6` instead.
+
+**Found the source without guessing:** the section (`id="what-you-get"`) carries `program-page-ventures-sec program-page-ventures-incubator-sec`. The color (`#faf9f8`) lives on the FIRST class, `program-page-ventures-sec` — confirmed shared with Ventures-Resources and Ventures-Impact (each uses it once, via a live grep) — so editing it directly would have changed those pages' own sections too, per HARD RULE #10. The SECOND class, `program-page-ventures-incubator-sec`, is an already-existing page-specific combo that was sitting empty (no properties at all) — created for exactly this kind of override, just never used yet. Confirmed via `query_elements` that only this ONE section on the whole page carries this exact combo (the page's other two sections use a different one, `-sec-pad`), so the fix is precisely scoped.
+
+**Fix:** added `background-color:#e6e6e6` to the empty `program-page-ventures-incubator-sec` combo — one property, zero new classes, zero risk to Resources/Impact's own sections (re-confirmed via a live grep after publishing: neither page's HTML contains `program-page-ventures-incubator-sec` at all) or to this page's other two sections (still on `-sec-pad`, untouched).
+
+Verified live: fetched fresh compiled CSS showing the combo now carries `background-color:#e6e6e6` while the shared base class is untouched (`#faf9f8`, unchanged); real-browser computed-style check confirms the section renders `rgb(230, 230, 230)` — exactly `#e6e6e6`. No shared-file change. Published.
