@@ -2996,3 +2996,13 @@ User reported §164's own fix broken almost immediately: clicking "Eligibility &
 **Final check against genuinely-fresh live production files** (fresh `curl`, not reused local copies) after promotion, at mobile width (700px): click Eligibility → only Eligibility current; click What You Get → only What You Get current. 0 JS errors.
 
 Promoted: confirmed `origin/main` content-identical to dev's pre-edit `HEAD` (0-diff) → committed (`31ca797`) → cherry-picked cleanly onto a worktree tracking `origin/main` (`ca0afde`) → pushed (fast-forward `bc0e2c1..ca0afde`) → polled GitHub Pages until serving the new file → byte-exact `cmp` confirmed. No native Designer/Webflow-publish step needed — pure shared-file JS fix. `stable` still not advanced across any of today's fixes (§157–165) — pending a single advance once the user confirms everything live.
+
+## 166. Ventures-Home hero: the 2:5/3:5 ratio + 480px floor now extends through the tablet breakpoint too (2026‑09‑10) — one property change on the already-isolated fork, PUBLISHED, verified continuous across the full width range
+
+User confirmed §164/§165's Incubator scroll-spy fix is working, then asked for one more refinement on §161's hero-ratio work: the desktop 2:5/3:5 (with 480px text-column floor) should continue through the `medium` (tablet, 768–991px) breakpoint too, instead of reverting to the old fixed `4fr:3fr` there — but the stacking point itself (single column at ≤767px) should stay exactly where it is.
+
+Since `program-page-ventures-home-hero-grid` was already forked exclusively to this page in §161, this needed only one `update_style` call: replaced its `medium` breakpoint's `grid-template-columns` (`4fr 3fr`) with the identical `minmax(480px, 2fr) minmax(0, 3fr)` formula already used at `main`. `small`'s `1fr` (the stacking rule) was left untouched entirely.
+
+**Verified with real rendered measurements across the full practical range** (1440 down to 400px, sampling every likely breakpoint boundary: 1200, 1100, 992, 991, 900, 850, 800, 768, 767, 700, 600, 480, 400): the ratio is now perfectly continuous with **zero discontinuity at the old main/medium boundary** (480px/512px at 992px → 480px/511px at 991px — a smooth 1px step from ordinary rounding, not a formula jump), the text column stays floored at exactly 480px throughout the entire two-column range (1200px down to 768px), and stacking still begins at exactly 767px, unchanged from before (both columns render as one full-width column, confirmed `sideBySide:false` there and below). 0 JS errors.
+
+Promoted via `publish_site` (native Designer change, one property on one already-isolated class — no shared-file involvement, no forking needed since §161 already did that work).
