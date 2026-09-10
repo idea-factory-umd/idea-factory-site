@@ -3062,3 +3062,15 @@ User asked, in the same "What You Get" section: at the Tablet breakpoint specifi
 **Verified with real rendered measurements across the full range** (1440, 900, 800, 700, 400): at 1440 (desktop) Support's 10 items span 5 row-tops (2 per row, unchanged) with the outer columns side-by-side; at 900 and 800 (both `medium`/tablet) Support's 10 items each land on their OWN row (genuinely 1-column) while the outer columns stay side-by-side (`outerSideBySide:true`) — exactly the requested combination; at 700 and 400 (`small`/`tiny`) the outer section is fully stacked (as it already was) with Support still correctly 1-column throughout. Facilities' own 6 items stayed 1-column (6 unique row-tops) at every width tested, confirming zero unintended change there. 0 JS errors.
 
 No shared-file change — 100% native Designer, one breakpoint property on one already page-exclusive class. Published via `publish_site`.
+
+## 171. Ventures-Incubator "Apply" process steps: number badge stacks above the text at phone-portrait width only (2026‑09‑10) — native Designer, one breakpoint override, PUBLISHED, verified across the full width range
+
+User screenshotted the numbered "Apply → Interview → Fit and planning" steps in phone-vertical view — red number badge beside the step text — and asked for the number to stack ABOVE the text at that width specifically.
+
+**Structure:** each step is `program-page-ventures-incubator-step` (`display:flex; flex-direction:row; align-items:flex-start; grid-column-gap:20px`, no breakpoint override at any width before this fix) holding a 48×48px number badge (`-step-num`) and the body paragraph (`-step-body`) side by side. Confirmed exclusive to Ventures-Incubator via a live grep across every other Ventures page before editing (zero matches elsewhere).
+
+**Fix:** added a `tiny` (≤479px, phone-portrait) breakpoint override to `program-page-ventures-incubator-step`: `flex-direction:"column"` plus `grid-row-gap:"12px"` (the existing `grid-column-gap:20px` only ever applied to the row layout and has no effect once direction is column, so it was left as-is rather than touched). `align-items:flex-start` was already set and needed no change — in column mode it left-aligns both the badge and the text, which is the correct look.
+
+**Verified with real rendered measurements across the full range** (1440, 900, 600, 480, 479, 390): side-by-side (badge left, text right, same row) at 1440/900/600/480 — i.e. unchanged all the way down through the `small` breakpoint's own minimum width; stacked (badge's bottom edge at or above the text's top edge, both flush left at the same x-position) at exactly 479 and at 390 (genuine phone-portrait) — confirming the switch lands precisely at the intended breakpoint boundary, not one step early or late. 0 JS errors.
+
+No shared-file change — 100% native Designer, one breakpoint override on one already page-exclusive class. Published via `publish_site`.
