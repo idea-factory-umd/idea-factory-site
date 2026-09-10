@@ -1388,7 +1388,14 @@ try {
       ifScrollEngine.add({
         read:function(){
           var headerH=header?header.getBoundingClientRect().height:0;
-          var line=headerH+12,tops=[],i;
+          /* +24 must match the "cross-page-anchor-scroll" module's own goTo() landing offset
+             (headerH+24) EXACTLY - these links are #goto:<id> anchors, so that's the offset a
+             click actually lands them at; +12 on top is the same "just past the landing point"
+             buffer walk-spy/jumpnav-spy/walkcopy-spy all already use. Getting this wrong (e.g.
+             the +12-only value first shipped here) reads the just-clicked target as NOT yet
+             reached at the exact moment it lands, so the PRECEDING item wrongly stays current -
+             confirmed live 2026-09-10 (click Eligibility, marker stuck on What You Get). */
+          var line=headerH+24+12,tops=[],i;
           for(i=0;i<items.length;i++){tops.push(items[i].isBase?-1:items[i].target.getBoundingClientRect().top);}
           return {line:line,tops:tops};
         },
