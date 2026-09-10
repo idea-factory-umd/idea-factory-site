@@ -280,17 +280,26 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
    release (420ms). Targets the logo by position — the direct
    img/svg child of the .if-logo-link wrapper. The legacy
    .if-logo-mark class selector is kept as a harmless fallback.
+   .if-logo-img-hdr added 2026-09-10: the current, correct logo
+   implementation is a plain div painted via that class's own
+   background-image (see if-logo-img-hdr's own Designer style) —
+   ASPIRE/MIPS/Minor apply it alongside .if-logo-mark on one element,
+   but Ventures/CBSCF/I-Corps needed it re-applied standalone (an
+   MCP tool limitation prevents assigning 2 independent classes to
+   one element in one call), so this selector must match it alone too.
    Assign .if-logo-link to each logo <a>/<span> wrapper.
    ============================================================ */
 .if-logo-link > img,
 .if-logo-link > svg,
-.if-logo-mark {
+.if-logo-mark,
+.if-logo-img-hdr {
   transition: transform 420ms cubic-bezier(0.83, 0, 0.17, 1);
   transform-origin: center;
 }
 .if-logo-link:hover > img,
 .if-logo-link:hover > svg,
-.if-logo-link:hover .if-logo-mark {
+.if-logo-link:hover .if-logo-mark,
+.if-logo-link:hover .if-logo-img-hdr {
   transition-duration: 110ms;
   transition-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
   transform: scale(1.05);
@@ -370,7 +379,7 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
   /* New effects */
   .if-stage-glyph, .if-stage-cell > img, .if-stage-cell > svg,
   .if-aud-cell h3,
-  .if-logo-link > img, .if-logo-link > svg, .if-logo-mark,
+  .if-logo-link > img, .if-logo-link > svg, .if-logo-mark, .if-logo-img-hdr,
   .if-logo-window,
   .if-nav-sublink-text { transition: none !important; animation: none !important; transform: none !important; }
 }
