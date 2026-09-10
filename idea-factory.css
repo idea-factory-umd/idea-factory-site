@@ -387,6 +387,7 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 /* ===== content-grow hover ===== */
 .if-flag-btn:hover .if-grow-inner{transform:scale(1.07)}.if-btn-primary:hover .if-grow-inner{transform:scale(1.06)}
 .program-page-ventures-next-box:hover .program-page-ventures-next-textwrap{transform:scale(1.04)}
+.program-page-ventures-hours-box-btn:hover .program-page-ventures-hours-box-btn-textwrap{transform:scale(1.04)}
 
 /* ===== NAV CURRENT-PAGE MARKERS + ROLLOVERS — CLASS-DRIVEN & PORTABLE =====
    These rules key ONLY off: (a) the site nav container (.if-navmenu / .if-navroot),
