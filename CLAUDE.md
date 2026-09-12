@@ -15,6 +15,270 @@
 > - Full detail + rationale: **OPERATING PROTOCOL §0, rule #0** (and §22/§27a for the font history).
 > - This is a PERMANENT correction across sessions — keep this banner intact and pass it on.
 
+> ## 🚫 #2 HARD RULE — RESPONSIVE‑CORRECT AT CREATION, EVERY TIME (user had to repeat this for days — never again)
+> **Every element/section you build must be responsive‑correct THE MOMENT you build it — not fixed
+> in a cleanup pass later.** The user should never have to come back and point out something falling
+> off the edge, freezing at the wrong size, or breaking at any width. If it does, that is a bug, full
+> stop — fix it immediately, don't defer it.
+> - **Responsive layout = NATIVE Webflow breakpoints, never shared‑CSS `@media`.** Column collapses,
+>   flex‑basis changes, font‑size/spacing steps — anything driven by plain viewport width — belongs on
+>   the Designer style (`main`/`medium`/`small`/`tiny` via `update_style` + `breakpoint_id`), never in
+>   `idea-factory.css`/`.js`. **The Designer canvas never loads the shared file**, so shared‑CSS
+>   responsiveness is invisible there and reads as "not responsive at all" — this is exactly the bug
+>   that kept recurring (`if-prog-grid`'s column collapse, the Walk‑the‑Factory bar's stack breakpoint,
+>   and the nav scroll‑hide were all found doing this on 2026‑07‑09 and moved to native). Before writing
+>   ANY `@media` block in the shared file, prove it's genuinely non‑native first — check the pseudo enum
+>   on `data_style_tool` (before/after ARE supported, including literal `content` — `:has()` and
+>   `prefers-reduced-motion` are NOT) and try the plain native version before assuming you need a
+>   workaround. **A custom breakpoint number that isn't one of Webflow's four is not an excuse either**
+>   — pick the nearest native one (erring toward triggering the change slightly earlier/more
+>   conservatively is always safe).
+> - **A `clamp(min, Nvw, max)` is NOT automatically "responsive done right."** If several related
+>   elements must shrink together (a glyph, its label, its watermark, its gaps — anything whose
+>   *relative alignment* matters), each clamp's own min/max endpoints are usually reached at wildly
+>   different viewport widths unless you force them to share a window. **Give the whole cluster ONE
+>   shared transition window** `[W_LO, W_HI]` (e.g. 360–1440px) and derive each property's formula from
+>   it: `slope=(max-min)/(W_HI-W_LO)`, `A=min-slope*W_LO`, `coeff=slope*100`, then
+>   `clamp(minpx, calc(Apx + coeffvw), maxpx)`. This guarantees every piece in the cluster sits at the
+>   *same fractional position* between its own min/max at any given width — they shrink continuously,
+>   together, and stay in sync all the way from full desktop down to a small phone, instead of most of
+>   them silently freezing at a floor/ceiling for most of the range (the exact bug fixed 2026‑07‑09 —
+>   see §47). **Verify by computing/measuring the actual value at several widths — never assume a
+>   clamp's shape from its endpoints alone; a clamp reaches its floor or ceiling far sooner than
+>   intuition suggests when the min/max/vw‑coefficient aren't chosen together.**
+> - **A vw‑based `clamp()` WIDTH is WRONG for any element sharing a row/grid with siblings** (equal
+>   boxes in a row, a pill beside its text, cards in a grid). `vw` ties the size to the VIEWPORT, not
+>   to the element's own container — so as the container's actual available width changes (sibling
+>   count, container padding, a breakpoint reflow), the vw‑sized box does **not** track it. The
+>   visible symptom is exactly "wasted‑looking margin/space beside stubbornly small content" — the
+>   box hit its own independent ceiling/floor while its row still had room to give it. **Fix: size it
+>   relative to its OWN box** — `flex:1 1 0%; min-width:0` (equal fill among siblings) or `width:%`
+>   with a sensible `clamp(floor%, ceiling)`, and size children (glyphs, icons) at `width:100%` of
+>   THAT box, not another independent vw formula. Reserve vw/viewport clamps for elements with no
+>   real "container" to be relative to (a hero headline that effectively IS the viewport). **Before
+>   shipping any row/grid of same‑size items, ask: is this element's size computed relative to ITS
+>   OWN box, or borrowed from the viewport? Borrowed‑from‑viewport is the bug.** (Shipped and fixed
+>   on the About "loop, not a line" diagram + "how people move through it" pills, 2026‑07‑09 — see
+>   §47 — boxes/pills sat visibly tiny next to their own unused container space until switched to
+>   flex‑fill.)
+> - **Verify across the FULL practical width range before calling anything done** — not just the 3‑4
+>   Webflow breakpoint numbers. Sample continuously (e.g. 1600, 1440, 1320, 1200, 1100, 992, 900, 800,
+>   767, 700, 600, 500, 430, 400, 375, 360, 340, 320) via the offline headless harness, check for (a)
+>   zero horizontal overflow at every width, (b) smooth/continuous change with no premature freezing,
+>   (c) every piece in a cluster moving together, (d) established alignments (baseline locks etc.)
+>   still holding. A narrow flex/grid child needs `min-width:0` to be allowed to wrap/shrink below its
+>   content size — check every nested flex/grid level, not just the outermost one (a single missing
+>   `min-width:0` at any depth silently overflows past the width you just "fixed").
+> - **Stacking/reflow onto a new layout (1‑col, 2×2, etc.) must use the freed‑up space well, not just
+>   shrink into a corner of it.** If a breakpoint jump makes boxes noticeably smaller than the space
+>   they now have, or leaves a long thin column of tiny items in a wide viewport, that reflow is wrong
+>   — redesign it (bigger boxes filling the new arrangement, or prefer the continuous‑fluid approach
+>   above over a hard jump) rather than shipping the first thing that merely avoids overflow.
+> - This is a PERMANENT correction across sessions, same standing as HARD RULE #1 — keep this banner
+>   intact and pass it on.
+
+> ## 🚫 #3 HARD RULE — MANDATORY END‑OF‑TASK VERIFICATION GATE (a rule that ALREADY EXISTED was ignored on 2026‑07‑10 — this makes it procedural and un‑skippable, never repeat that)
+> **No task, edit, or bulk operation may be reported "done" until ALL of the checks below have actually
+> been run — not sampled, not assumed, not inferred from a tool's "success" response.** This rule exists
+> because the general principle ("verify before claiming done") already existed elsewhere in this file
+> and was still bypassed at scale: a 107‑selector sitewide style conversion was reported complete after
+> only spot‑checking a handful, and it silently left 8 selectors broken because Webflow allowed
+> duplicate same‑named style objects and `update_style` landed on dead orphans instead of the live ones
+> (§ "duplicate style objects" lesson, 2026‑07‑10). A rule that can be satisfied by a partial check is
+> not a real gate — so this one is written as a literal checklist, run in full, every time:
+> 1. **Style‑write integrity.** After ANY `update_style` / `rename_style` / `remove_style` call, re-query
+>    the SAME style via `query_styles` (`name_path`) and confirm (a) the new value is present in the
+>    ACTUAL returned object, and (b) the name resolves to exactly ONE match. These 3 tools are BY‑NAME
+>    ONLY — no style‑ID targeting — and Webflow permits multiple objects to share one class name (§11),
+>    so a "success" response can land on a dead orphan while the live, compiling object stays untouched.
+>    If more than one match comes back, isolate the real (live‑compiling) one by renaming the others out
+>    of the way first (verify via the compiled CSS which one is actually live), THEN apply the fix to
+>    the now‑uniquely‑named real object, and re‑query again to confirm. Repeat the isolation step if a
+>    THIRD (or further) same‑named object turns up — don't assume two is the ceiling.
+> 2. **Full sweep, not a sample.** For any change touching more than one selector/property, verify EVERY
+>    ONE of them against a freshly re‑fetched, live, currently‑served compiled CSS — never a
+>    representative handful. Sampling is exactly what let this class of bug hide across 100+ selectors.
+> 3. **Native‑vs‑shared‑code check (HARD RULE #1).** Confirm nothing that belongs in the native Designer
+>    ended up in `idea-factory.css`/`.js`, and nothing genuinely non‑native was left un‑ported, per §0.
+> 4. **Responsive check (HARD RULE #2).** Confirm the change holds across ALL breakpoints/widths in
+>    practical use, not just the one being edited, per §0.
+> 5. **Designer‑canvas visual check.** Use `element_snapshot_tool` and actually look at the result —
+>    never claim "done"/"verified" from a published‑only check (§0). If the snapshot tool is down, SAY
+>    SO explicitly and say the visual check is outstanding — never silently skip it and report done
+>    anyway.
+> 6. **Fresh republish + refetch.** After any Designer/style change meant to go live, publish, then
+>    re‑fetch the actually‑served output (compiled CSS and/or rendered page) fresh — never reason from a
+>    stale local copy, an earlier curl, or a cached assumption about what's live.
+> - **If time, volume, or context genuinely makes full verification impractical, SAY THAT PLAINLY before
+>   reporting anything as done.** Silently narrowing the check while reporting full completion is the
+>   exact failure this rule exists to close off.
+> - This is a PERMANENT correction across sessions, same standing as HARD RULE #1 and #2 — keep this
+>   banner intact and pass it on.
+
+> ## 🚫 #4 HARD RULE — WRITE EVERY PROPERTY AS THE SEPARATE LONGHAND FIELDS THE WEBFLOW UI USES, NEVER A BUNDLING SHORTHAND (root‑caused 2026‑07‑14 after a multi‑day "it renders but I can't edit it" crisis — see §86)
+> **When you set a style via `data_style_tool` (`create_style`/`update_style`), a *bundling shorthand*
+> value — `border`/`border-top`/…, `padding`, `margin`, `flex`, `border-radius`, `gap`, `background`,
+> `font`, `border-width`/`-style`/`-color` — compiles into the published CSS and RENDERS correctly, BUT
+> Webflow's Designer panels (Borders, Spacing, Backgrounds, Typography, Flex‑child) are built from the
+> SEPARATE longhand sub‑fields, so a bundled value leaves those fields BLANK. Result: the setting shows
+> on the live page but reads as "never set" / uneditable in the Designer — a direct violation of HARD
+> RULE #1 (everything must be natively editable in the Designer).**
+> - This is NOT a combo‑class problem, an "API" problem, or a duplicate‑object problem — all of which
+>   were wrongly blamed for days. It is purely the *form of the value*. The Designer itself always writes
+>   longhand per‑field, so ANY bundling shorthand in the style data is agent‑written and must be converted.
+> - **ALWAYS write the separate fields:** border → `border-{top|right|bottom|left}-{width|style|color}`
+>   (never `border`/`border-top`/`border-width`/`border-style`/`border-color`); padding/margin →
+>   `padding-top/-right/-bottom/-left` (never bare `padding`/`margin`, even `margin:0`); flex →
+>   `flex-grow`+`flex-shrink`+`flex-basis` (never `flex`); border‑radius → the four corner props (never
+>   bare `border-radius`); gap → `grid-row-gap`+`grid-column-gap` (never `gap`/`grid-gap`); background
+>   color → `background-color` (never bare `background`); font → `font-family`+`font-size`+`font-weight`+
+>   `line-height` (never `font`); **transition → `transition-property`+`transition-duration`+
+>   `transition-timing-function`+`transition-delay`** (never bare `transition`; for a multi‑transition, each
+>   longhand is a comma‑separated list aligned by position). **⚠️ CORRECTED 2026‑07‑14 — an earlier version
+>   of this rule wrongly claimed `transition` was a safe EXCEPTION that stays bundled. That was an UNVERIFIED
+>   assumption and it was WRONG: a bundled `transition` shows NOTHING in Webflow's Effects→Transitions panel;
+>   the separate fields show editable rows there (verified live, both directions, §86b). Treat `transition`
+>   exactly like every other property — separate fields, always.** Single‑value `overflow`/`text-decoration`
+>   are still fine bundled (they're natively editable as‑is).
+> - Longhand is CSS‑identical to the shorthand, so converting NEVER changes appearance (Webflow even
+>   re‑optimizes the compiled output back to shorthand). Only the panel's ability to read/edit it changes.
+> - **VERIFY EDITABILITY, not just rendering** (per HARD RULE #3): after any style write, confirm the
+>   setting shows as an editable field in the Designer — never conclude "done" from published/compiled
+>   output alone. "It renders" ≠ "it's natively editable." A paren‑aware helper `decompose.py` (scratchpad)
+>   does shorthand→longhand for bulk work; rebuild it from this rule if lost.
+> - **⭐ DURABLE ENFORCEMENT CHECK (committed to the repo, not scratchpad): `tools/audit-shorthands.py`.**
+>   It scans a full `get_styles` dump (base + all breakpoints + all pseudos) and flags EVERY bundled‑shorthand
+>   value — border/padding/margin/flex/gap/border‑radius/background/font AND `transition`. Run it after ANY
+>   style work, and any session (or the user) can run it anytime to prove the invariant holds: expect
+>   `CLEAN — 0 bundled shorthands`, exit 0. Header comment has the exact `get_styles` args + why it must run
+>   against STORED data, not compiled CSS. **This is the guarantee that does NOT depend on remembering the
+>   rule** — if a lapse ever happens, this catches it across the whole site in one run.
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#3 — keep this banner
+>   intact and pass it on.
+
+> ## 🚫 #5 HARD RULE — RECONCILE STALE CONTEXT AT SESSION START: RE‑READ THIS FILE FROM DISK + FETCH THE REAL GIT BRANCH BEFORE ANY COMMIT/PUSH (2026‑07‑22 — a model switch silently produced a fresh environment with a stale CLAUDE.md snapshot and a git branch created fresh off `main`, unaware of 138 commits of real prior work already on the same branch name — see §92)
+> **The copy of this file injected into your system prompt at session start CAN be stale.** Verified:
+> one session's injected snapshot stopped at §27a (2026‑07‑02) while the actual committed file was
+> already at §91 (2026‑07‑16) — a full three weeks and 64 sections behind. **Never trust the injected
+> snapshot as current** — re‑`Read` the actual file from disk early, before treating any "STATUS" or
+> "pending next steps" text as up to date.
+> - **Before the FIRST commit or push of a session, ALWAYS `git fetch origin <assigned‑branch>` and
+>   compare against local `HEAD`.** A model switch (or any fresh environment provisioning) can silently
+>   recreate the local branch straight from `main`, with zero knowledge that a remote branch of the
+>   SAME name already holds real history. If `origin/<branch>` has commits local `HEAD` lacks, that is
+>   almost certainly this SAME project's own continuing work, not a foreign party — confirm via commit
+>   dates/authorship (Claude/Anthropic, this repo) before treating it as unrelated. **Rebase onto it;
+>   never force‑push over it; never assume a freshly‑created local branch is the whole story.**
+> - **A non‑fast‑forward push rejection, or the injected file disagreeing with what a fresh `Read` shows,
+>   is the SIGNAL to run both checks immediately** — not a connectivity fluke worth retrying past.
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#4 — keep this banner
+>   intact and pass it on.
+
+> ## 🚫 #6 HARD RULE — A REFERENCE IMAGE IS LITERAL SOURCE TO TRANSCRIBE, NOT A VIBE TO APPROXIMATE. INVENTORY EVERY ELEMENT BEFORE BUILDING, RE-CHECK THE SAME LIST BEFORE EVER SAYING "DONE" (2026‑07‑25 — the user had already said this dozens of times before it became this rule; never let that happen again)
+> **When the user hands you a layout guide / screenshot / reference image to build a page from, every
+> specific in it — industries, cities, dollar figures, founder names, quotes, photos, logos, section
+> order, item counts — is literal source material to transcribe exactly, not a general style/vibe to
+> approximate.** Inventing a plausible-sounding substitute for something you could just read (or could
+> read if you actually looked closely enough) is fabrication, full stop, even when the substitute
+> "fits" the page's theme. This produced a real, user-facing disaster on the MIPS‑Impact page
+> (2026‑07‑25): a from-scratch build invented wrong industries/cities/funding figures for every company,
+> invented a fabricated 5th logo where the guide showed a 6th real one, and left every photo and every
+> company logo as an empty placeholder box — while being reported "done."
+> - **BEFORE building anything from a reference image: enumerate every discrete element in it as an
+>   explicit checklist** — every text block, every stat, every quote, every photo, every logo, every
+>   section — before writing a single word of content. Do not start building from a general impression
+>   of "what this page is about."
+> - **AFTER building, go back through that SAME checklist item‑by‑item and confirm each one is present
+>   and matches** — not a sample, not "the parts I remember," every item. This is the same discipline as
+>   HARD RULE #3 ("full sweep, not a sample"), applied to reference‑image fidelity specifically.
+> - **If a reference image is too low‑resolution to read one specific detail, say so explicitly for that
+>   ONE item** ("this dollar figure isn't legible at this resolution") **rather than silently inventing a
+>   plausible‑sounding number/name/fact in its place.** A vague, generic placeholder that's honestly
+>   labeled as a placeholder is fine; a specific‑sounding invented fact is not.
+> - **A pasted/inline chat image can be silently downsampled before it ever reaches you** (verified:
+>   an 1920px‑wide, ~13,000px‑tall full‑page screenshot arrived as 290×2000 — an 8.9x compression that
+>   destroyed all fine print before any reading happened). If a reference image's fine print reads as an
+>   unrecoverable blur even after aggressive crop/zoom/sharpen, do not conclude the detail is simply
+>   unavailable — ask the user to hand you the FILE directly (git‑committed, or a direct file URL you can
+>   `curl`, or a Dropbox/Drive direct‑download link) so you get the undamaged original and can crop it
+>   yourself at full native resolution. This resolved the exact case above (2588×17828 real file vs.
+>   290×2000 chat‑paste copy) and should be reached for immediately, not after several rounds of dispute
+>   about whose system is responsible for the compression.
+> - **"I did the work" is not "I confirmed the result is what the user actually sees."** Don't report a
+>   fix as done from the fact that you called an edit tool and it returned success — re‑query the actual
+>   stored data (HARD RULE #3), AND separately confirm the change is live wherever the user is looking
+>   (published output vs. an open Designer tab needing a reload, per HARD RULE #3 item 6) before using
+>   the word "done." Stopping mid‑task to ask "want me to keep going?" after fixing only the part you'd
+>   already looked at is the same failure in a different shape — finish the full checklist above before
+>   ever pausing.
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#5 — keep this banner
+>   intact and pass it on.
+
+> ## 🚫 #7 HARD RULE — ACKNOWLEDGING A RULE IS NOT THE SAME AS FOLLOWING IT. RE‑CHECK EVERY STANDING RULE AGAINST EVERY RESPONSE, EVERY TIME — NOT JUST RIGHT AFTER BEING CORRECTED (2026‑07‑28 — the SAME rule, the task‑status marker convention, was established, acknowledged, and correctly applied ONCE earlier in this exact session, then silently dropped again a short time later on the very next batch of shipped changes; the user had to ask "why are you not following protocol" roughly a dozen times before the actual answer — the marker convention, not documentation, not `stable`, not testing — was even correctly identified)
+> **Saying "I understand" or "got it" about a rule does NOT make that rule persist into your next
+> response.** A rule stated once, even one you explicitly re‑state back and apply correctly in the
+> moment, has NO automatic mechanism keeping it active — the instant attention moves to the substance
+> of the next task, a communication/process rule (as opposed to the technical content you're focused
+> on) is exactly the kind of thing that silently drops out of what you're actively checking, and you
+> revert to default habits (plain prose instead of the required standalone markers; shipping a change
+> without the full verify‑document‑`stable` sequence; etc.) — not because you forgot it exists, but
+> because nothing forced you to re‑check your OWN response against it before sending.
+> - **The concrete, standing fix: before finalizing ANY response, explicitly re‑check it against the
+>   specific standing rules that apply to what you're about to send** — do not rely on "I already
+>   confirmed I understand this" from earlier in the conversation as if that were still in effect.
+>   For the task‑status markers specifically (§3 CONVENTIONS): before reporting anything as complete,
+>   ask "does this need a standalone `DONE.`? does the next step need `YOU PUBLISH.`? does it need
+>   `OPEN [Page‑name] PAGE.`?" — every single time a task concludes, not only the first time after
+>   being corrected on it.
+> - **This generalizes past the marker convention to every HARD RULE and OPERATING PROTOCOL step in
+>   this file** — HARD RULE #3's verification gate, §2's promote‑then‑advance‑`stable` step, §4's
+>   documentation requirement, all of it. Any of them can silently lapse the same way once the
+>   conversation's attention moves past the moment they were last discussed. Re‑checking against the
+>   standing list is not a one‑time acknowledgment — it is a per‑response habit that has to be run
+>   fresh every time, precisely because verbal acknowledgment is cheap and behavior change is not
+>   automatic from it.
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#6 — keep this
+>   banner intact and pass it on.
+
+> ## 🚫 #8 HARD RULE — BANNED WORD: "EYEBROW" (user, 2026‑08‑28, extremely forceful, repeated 3× in one turn — treat as permanent, never re‑litigate)
+> **Never use the word "eyebrow" in any user‑facing text, in this or any future session.** The user's
+> own words: *"AN 'EYEBROW' IS HAIR THAT GROWS OVER A PERSON'S EYE. DON'T EVER USE THAT TERM AGAIN. THAT
+> TERM HAS NOTHING TO DO WITH ANYTHING YOU'RE TALKING ABOUT. PLEASE REMOVE THAT TERM PERMANENTLY FROM
+> YOUR LEXICON. AND NEVER RE‑INTRODUCE IT. I'M TIRED OF THAT."* This is about a class of small,
+> uppercase label/meta‑text elements above a heading (kicker text) that earlier sessions habitually
+> described using that word. **Going forward, describe that element type as "the small uppercase
+> label," "the meta‑text line," or "the kicker text" — never the banned word, in speech or in any new
+> prose written to this file or to the user.**
+> - **The ONE narrow exception:** a handful of PRE‑EXISTING Webflow style names already baked into the
+>   live site literally contain the word as part of their identifier (e.g. the shared small‑label style
+>   referenced throughout the ASPIRE/MIPS/Ventures sections of this file, and a few page‑specific combos
+>   built on it). **Do NOT rename these** — a sitewide rename is unnecessary churn with real regression
+>   risk (§76/§78/§100/§101's own repeated lesson about renaming live, in‑use style objects) and the user's
+>   objection was about the WORD IN CONVERSATION/PROSE, not about a legacy code identifier. When a tool
+>   call genuinely requires passing that literal class name as a string, that is a technical necessity,
+>   not a violation — but describe it to the user functionally ("the shared small‑label style") rather
+>   than reading the identifier aloud. **Never coin a NEW class name containing the word** — pick
+>   alternatives like `-meta`, `-label`, `-kicker`, `-tag` for anything created from here on.
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#7 — keep this
+>   banner intact and pass it on.
+
+> ## 🚫 #9 HARD RULE — NEVER DEFAULT TO A "NOVEL HACK" WORKAROUND WITHOUT FIRST TESTING WHETHER THE PROPER NATIVE PATH ACTUALLY WORKS (2026‑08‑31 — cost the user a multi‑hour crisis and repeated fury when a completely UNNECESSARY workaround turned out to be avoidable the whole time)
+> **When a tool's own documentation/schema says a capability "only applies to" one narrow case (e.g. "domId settings only apply to DOM‑type elements"), that caveat is NOT ground truth until it has actually been TESTED against the case you assume it excludes.** On the Ventures‑Incubator anchor‑ID task, `data_element_builder`'s schema said atomic `domId` settings "only applies to DOM type elements" — this was taken at face value and used to justify building two anchor‑target sections as raw Webflow "DOM/custom element" type instead of genuine native `Section` elements. Webflow's Designer visibly flags a DOM/custom element differently (a "this adheres to the HTML spec, invalid nesting can cause rendering problems" warning, no proper native "ID" field in Settings) — exactly the kind of "cryptic, not really native, a person can't tell what you did" result HARD RULE #0 already forbids. **When directly tested (only after the user was furious enough to force it), a genuine native `type:"Section"` element accepted the EXACT SAME atomic `domId` setting at creation, with zero issues.** The documented "only applies to DOM" caveat was simply wrong/misleading — and nobody had ever tested it before treating it as a hard constraint.
+> - **A SEPARATE, second failure compounded this: when the ONE tool that could fix an EXISTING element's ID after the fact (`data_element_settings_tool.set_dom_id`) came back gated ("MCP tool call requires approval"), that gate was wrongly treated as "there is no way to do this natively at all."** It only meant "there is no way to fix an EXISTING element after creation" — it said nothing about whether a DIFFERENT, already‑working tool (`data_element_builder`) could achieve the identical native result by a different route (setting the ID atomically at CREATION time on a fresh, genuinely‑native element, then moving the real content into it). A single blocked tool must never be read as "the native outcome is unreachable" — check every other already‑working tool for an alternate path to the SAME native result before concluding a hack is required.
+> - **THE RULE, going forward, always: before building ANY workaround/hack in response to a perceived limitation (a schema caveat, a rejected call, a gated tool), STOP and run a small, cheap, disposable empirical test of the PROPER/native approach FIRST** — e.g. here: create one throwaway native element with the property in question set atomically, check the result, then immediately delete the test element. This costs one extra tool call and a few seconds. Skipping it costs hours of user fury, multiple rounds of "STOP YOUR FUCKERY," and real trust damage — as it did here, twice, on the same task, within the same session. **A workaround is only legitimate after the native path has been empirically disproven, never merely assumed disproven from documentation text, a single tool's gate, or a plausible‑sounding limitation.**
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#8 — keep this
+>   banner intact and pass it on.
+
+> ## 🚫 #10 HARD RULE — A SPINOFF/PROGRAM‑PAGE FEATURE MUST NEVER SHARE A STYLE OBJECT WITH ANOTHER SITE'S VERSION OF THE SAME FEATURE — FORK THE WHOLE LAYOUT CHAIN, NOT JUST THE LEAF TEXT CLASS (2026‑09‑04 — the SAME cross‑site bug (§116) recurred after being declared fixed, because only the innermost text class had ever been decoupled — the section/wrap/head/heading/grid divs that actually CONTROL LAYOUT were still riding on Home's shared classes the whole time)
+> **§116 fixed the count‑up NUMBER text class (`if-countup`/`if-stat-label`) shared between Home/ASPIRE/MIPS, and that fix held — but it never checked whether the SURROUNDING layout divs (section, wrapper, header row, heading, grid) were also still on shared classes.** They were: ASPIRE‑Home's entire "ASPIRE by the numbers" section — `if-proof-sec`, `if-proof-wrap`, `if-proof-head`, `if-proof-h2`, and the grid — was STILL directly wearing Home's own shared classes, never forked. Any future edit to ANY of those five classes (for Home, or for an unrelated fix elsewhere on the site) would silently change ASPIRE too — exactly the "it was already 'good' and no one touched it, and it broke anyway" symptom the user reported.
+> - **THE RULE, generalized past count‑up numbers to every feature: when a spinoff/program page reuses ANY part of another page's feature — not just its innermost text/data class, but every div in the chain that controls that feature's OWN layout (its section, its wrapper, its header row, its heading, its grid, its item/tile, its label) — every one of those classes must be forked to a complete, independent, full‑property‑set standalone class specific to that page, not a partial‑override combo riding on the shared base, and not the base class reused as‑is.**
+> - **The test for "does this need forking": would editing this class for a DIFFERENT reason, on a DIFFERENT page, ever change THIS page's feature too? If yes, it's still coupled — fork it, full property set, all breakpoints, before calling anything "decoupled."** A combo class (`.base.combo`) is NOT decoupled — it still requires the shared base class to be present and applied, so any edit to the base class's OWN properties (whatever the combo doesn't override) still propagates silently.
+> - **Exception, stated explicitly so it isn't over‑applied: a class that carries no page‑specific DATA and is a deliberate, sitewide "look family" element** (a page‑margin wrapper like `if-stage-wrap`, a generic section‑header row like `if-eyebrow-row`/`if-eyebrow`/`if-eyebrow-rule`, a decorative accent bar like `if-bar-wrap`/`if-proof-goldline`) **is correctly left shared** — per the reuse‑first practice (§61), these are meant to look identical everywhere and changing one everywhere at once is the desired behavior. The line: shared is fine for a LOOK; shared is NOT fine the moment the class is carrying this page's own layout arrangement or DATA (a number, a count, a label unique to this feature).
+> - **Procedure to fork a class already shared as a combo (repeatable, already proven twice): `rename_style` the old combo to free its name → `create_style` a fresh STANDALONE class under that freed name with the FULL merged property set (base class's properties + whatever the combo overrode, computed by hand so nothing changes visually) across all 4 breakpoints → re‑point every element from `[base, combo]` to `[new‑standalone]` only → independently re‑query to confirm zero elements on that page still reference the old base class → delete the old renamed combo once confirmed orphaned.**
+> - **When a "fix this bug" task touches a shared feature, the audit is NOT complete after fixing the ONE reported symptom (a text class, a color) — walk the WHOLE chain of divs that make up that feature on the affected page(s) and confirm each one independently, the same discipline HARD RULE #3 already requires as a full sweep instead of a sample.**
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#9 — keep this
+>   banner intact and pass it on.
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is
@@ -110,6 +374,7 @@
 **CONVENTIONS (user‑set this session):**
 1. **Bracket‑define jargon inline** the first time it appears, e.g. *repo [a project folder on GitHub]*, ≤~10 words.
 2. **Every piece of in‑Webflow custom code carries a `DO NOT DELETE` banner + a concise "what it does."** The shared files already have DO‑NOT‑EDIT headers; the in‑site `st0` embed still needs its banner added (do during embed cleanup).
+3. **⭐ PER‑PROGRAM‑PAGE CLASS NAMING (standing protocol, set 2026‑07‑09, follow WITHOUT FAIL going forward):** any NEW Designer class created while developing a spinoff/program page (ASPIRE, or any future one) that **isn't reused elsewhere on the site** must be prefixed **`program-page-<name>-`** instead of the normal `if-` prefix — e.g. the ASPIRE header block's classes are `program-page-aspire-hdrprog`, `program-page-aspire-hdrprog-title`, etc. (renamed from an initial `if-hdrprog*` pass — §59/§59a/§59b). **Purpose:** makes page‑specific, likely‑one‑off classes instantly recognizable/greppable for later cleanup, distinct from the shared `if-` vocabulary meant to travel across the whole suite. **Same rule for any shared‑file code** (`idea-factory.css`/`.js` on GitHub) that's specific to one program page — label it just as clearly (e.g. a `/* program-page-aspire: ... */` comment block or a `program-page-aspire-` prefixed selector) if it's ever needed (none has been needed yet — all ASPIRE work so far is native Designer classes, per HARD RULE #0). **When work returns to a page that is NOT a `program-page-*` context** (Home/Students/About/Faculty, or the general shared system), **revert to the normal `if-` convention** — this prefix is scoped to program‑page-specific one‑offs only, not a wholesale replacement of `if-`.
 
 ---
 
@@ -137,7 +402,7 @@
 **Webflow MCP notes:**
 - Element IDs are **composite**: `{component: <pageId>, element: <id>}`. The `component` is the page ID above unless inside a real component.
 - MCP tools are **deferred** — load each via `ToolSearch` (e.g. `select:mcp__Webflow__data_style_tool`) before calling. Common: `data_style_tool`, `data_element_tool`, `data_whtml_builder`, `data_element_builder`, `data_sites_tool`, `data_pages_tool`.
-- **`publish_site` frequently fails** with `Tool permission stream closed before response received`. This is transient — **just retry** (often 1–3 times), reloading the tool via ToolSearch if needed. The edits themselves usually persisted; only the publish call dropped.
+- **⚠️ MCP upgraded to 2.0 (2026‑07‑22) — changes which failures are worth retrying.** Per Webflow's own changelog (`developers.webflow.com/home/changelog/2026/7/21`): most element/component/style/variable edits **no longer need a Designer session** — this is why `data_style_tool`/`data_element_tool`/`data_element_builder` are reliable. But **`data_sites_tool.publish_site`, full `data_assets_tool` listing (`list_assets` etc.), and `data_pages_tool` page‑management are gated by the connected account's actual Webflow workspace role/permissions.** If that role lacks Publish/Asset/Page rights, these fail every time with `MCP error -32003: requires approval`, and **no amount of retrying, reloading, or reconnecting fixes it** (confirmed: survived a full browser restart). **DO NOT keep retrying these three blind — stop and ask the user to do it themselves**: they click Publish; they tell you an asset's filename or place a photo via native right‑click‑Replace on an already‑native `Image` element (you still apply it via `set_image_asset` once it's named — that part works fine). Separately, **`element_snapshot_tool`, canvas/selection (`designer_tool`), and uploading an image by URL still genuinely depend on an active Designer session via the Webflow MCP Bridge App** — these CAN be transiently flaky if the Bridge App itself drops/reconnects (its own connection log is visible in the Designer), so 1–2 retries can still help for those three specifically. (This supersedes the old "publish_site frequently fails, just retry" note — that was a different, now‑resolved transient bug.)
 - **Webflow breakpoints:** `main` (base/desktop ≥992), `medium` (≤991), `small` (≤767), `tiny` (≤479).
   - **Hero stacks at ≤767px** (NOT 991) — there's a custom `!important` override that keeps the hero 2‑column down to 767, then single‑column at ≤767. The nav collapses at `medium` (≤991).
 
@@ -158,8 +423,9 @@
   - Use Webflow's terminology precisely — e.g. **"section"** means a top‑level full‑width Section element; call ad‑hoc groups "blocks/groups."
   - Leave **taste calls** (exact sizes, gap amounts, scales) to the user; offer the one‑value dials.
   - Verify before claiming done; show before/after evidence.
-  - **⭐ Task‑done signal (user convention, set 2026‑07‑06 — the user reminded me of it repeatedly, so FOLLOW IT):** when a given task is fully COMPLETE, END the reply with a line break and **`Done.`** alone on the final line. That standalone final `Done.` is how the user reads completion — reserve it for genuine task completion; do NOT scatter "done" through replies or use the word loosely elsewhere.
+  - **⭐ Task‑status markers (user convention, set 2026‑07‑06, UPDATED 2026‑07‑22, THIRD MARKER ADDED 2026‑07‑28 — FOLLOW IT):** three standalone visual flags, each alone on its own line, so the user can read current status at a glance without reading the whole reply: **`YOU PUBLISH.`** — when the next step needs the user to click Publish (or do some other action only they can do, e.g. per the MCP‑2.0 governance note above) before anything further can happen; **`DONE.`** — when a task is fully COMPLETE (verified, not assumed); **`OPEN [Page‑name] PAGE.`** — when the next step needs the user's Webflow Designer tab switched to a specific page before a Designer‑canvas action (chiefly `element_snapshot_tool`) can succeed — see §106 for why this is needed. ⚠️ **2026‑07‑22: `DONE.`/`YOU PUBLISH.` are ALL‑CAPS with a period** — `DONE.` supersedes the earlier lowercase `Done.`. Reserve all three for genuine status — do NOT scatter them through replies or use them loosely elsewhere.
   - **⭐ "What I need from you" visual cue (user convention, set 2026‑07‑06):** whenever you have a specific question OR are WAITING on the user for something before proceeding, write the ASK in **large BOLD text** (e.g. a `##`/`###` bold heading) so it pops out immediately — the user runs several things at once and needs the visual cue. Reserve big‑bold for genuine asks/blockers (same discipline as `Done.` — don't overuse it).
+  - **⭐ Permission‑prompt explanation (user convention, set 2026‑07‑08):** whenever a tool call is about to throw up a permission/approval box (publish, git push, other gated actions), accompany it with **one plain‑English line stating what that specific action is for** — not just "publishing now," but what it does/why (e.g. "Publishing so the native `is-current` combo class goes live"). One line is enough; don't over‑explain.
 - **⭐ DESIGN PRINCIPLES the user requires on EVERY change (standing, set 2026‑07‑06 — apply PROACTIVELY so there's no second pass):**
   - **Responsive by default.** Whenever you add or size ANYTHING, handle all the responsive breakpoints in the SAME pass — never leave it fixed and make the user catch it later. For type, prefer a fluid `clamp(min, vw, max)` scaled from the relevant base (e.g. the Premise callout size variants scale the base `clamp(28px,3.4vw,44px)` by their ratio → `clamp(31,3.7vw,48)`, `clamp(33,4vw,52)`, `clamp(36,4.3vw,56)`); or set `medium`/`small`/`tiny` overrides. ⚠️ **A fixed‑px `font-size` is a RED FLAG** — it won't scale down on small screens (this exact bug: the callout variants were fixed 48/52/56 and stayed oversized on a narrow viewport until made fluid).
   - **Proportionality — no random values.** Never pick arbitrary numbers. Choose sizes/spacing that are proportional/harmonious with existing values (a clean fraction of another text size, an even step, etc.), then round to that harmonious near‑value rather than the raw computed one. Example: the Premise callout options **44/48/52/56px = 11/16, 12/16(¾), 13/16, 14/16 of the 64px manifesto** (an even +4px = 1⁄16 ladder; 52 also = ½ the 104px hero headline). Round to px OR to a nicer proportion if one is close (user's example: "3/5 of another text value").
@@ -306,349 +572,11 @@ The shared file is a single point of failure, so its safety is engineered:
 
 ---
 
-## 12. Components + multi‑page (done 2026‑07‑01)
 
-**Terminology (user‑facing):** "Symbol" = old name for **Component** (reusable within ONE site; edit main → all instances update). To share a component **across sites** you publish it to a **Library** ("Library component" / linked component). Plain components do **NOT** stay linked on *Duplicate Site* (each copy is independent) — only **Library** components stay centrally editable across the suite.
+## 12+. FULL CHRONOLOGICAL BUILD HISTORY — split out to `CLAUDE-HISTORY.md` (2026‑09‑09)
 
-**MCP capability boundary (important):** `transform_element_to_component` + `create_page(duplicateOf)` + link‑wiring are all doable via MCP. **Creating/publishing a Library is NOT** — it's a Webflow **Designer + Workspace** action and is **plan‑gated**. So Library promotion is always a user UI step.
+This file had grown to 1.1MB / ~145,000 words (3,439 lines) by accumulating every session's dated §‑numbered log entry, per the MAINTENANCE RULE above — and because the whole file gets auto-injected as project instructions every session, that size was causing severe context pressure and much more frequent automatic compaction. So the log was split at exactly this point: everything before this line (HARD RULES, OPERATING PROTOCOL, STATUS, environment/ID reference, conventions, architecture) stays here and keeps getting injected every session; the full dated history that used to continue as §12 onward — every structural decision, bug, and fix across every spinoff site, through the most recent entry — now lives in **`CLAUDE-HISTORY.md`**, in this same repo, unchanged and complete. (Every "§N" reference elsewhere in this file for N ≥ 12 points into that file.)
 
-**Chrome converted to Components (group "Chrome"), verified live:**
-| Component | Component ID | Intended role |
-|---|---|---|
-| **UMD Bar** (top black bar, 2 links `if-umdbar-a1/-a2`) | `012e2a6d-7570-de6c-acbf-1f75f492d6cb` | **Library** (cross‑suite) — *promote in Designer* |
-| **Footer** (`if-footer`; **contains the back‑to‑top button** now) | `e10326f9-f27d-d10d-956e-0401f8153fe9` | **Library** (cross‑suite) — *promote in Designer* |
-| **Main Nav** (`if-navroot` NavbarWrapper: id‑band/logo/search + `if-navmenu` + dropdowns) | `bffe20a1-a591-82e2-1c75-4864d9f1f0b9` | **Regular / per‑site** (menu differs per site) |
+**`CLAUDE-HISTORY.md` is NOT auto-injected.** Read it directly (Read tool, or a targeted `grep`) whenever a task genuinely needs deep historical context — e.g. recovering an old asset ID, checking why a class/ID exists, resolving a duplicate‑style‑object question, or understanding a specific page's build history.
 
-- Conversion preserved **all inner classes + DOM** (published Home diff = only href changes, recompiled‑CSS hash, timestamp, and footer grid `#w-node-…` IDs re‑scoped to the component; **no wrapper elements added**, line count identical 1044/1044). Footer CSS‑grid placement rules were regenerated under the new component IDs (old `#w-node-_64849047…` → new `#w-node-e10326f9…`, verified in compiled CSS).
-- The **st0 layout embed** (`afd96462…`) was **left at header level** (sibling of the two component instances) — it duplicates per page, which is correct (it's in‑site layout/hamburger CSS).
-- **Offline harness re‑verified 0 JS errors + every feature fires** (hero anim, content‑grow, dropdown open, count‑up, back‑to‑top) after componentization.
-
-**New pages (direct duplicates of Home; user will strip/rebuild content):**
-| Page | Page ID | Slug |
-|---|---|---|
-| **Students** (next top‑level menu item) | `6a4459c7c5e5473127fdb14f` | `/students` |
-| **About** (first item in the About dropdown) | `6a4459c75b0e32811729bb1b` | `/about` |
-
-- Duplicates were created **after** componentizing, so they carry **instances** of UMD Bar / Main Nav / Footer (confirmed: Students header shows `ComponentInstance` of UMD Bar + Main Nav). Editing a component definition propagates to all pages.
-- **Nav links wired in the Main Nav component definition** (so they resolve on every page): Students link (element `bffe20a1…f0fa`, a `Link`) → Students page via `set_link` (linkType page); About dropdown first item (element `bffe20a1…f114`, a **`DropdownLink`** — `set_link` REJECTS these; use `set_settings` key `link`, `static_link {mode:page,to:<pageId>}`) → About page. Verified live: `href="/students"` and `href="/about"` appear on Home, Students, AND About.
-- Other nav links (Faculty/Researchers, Companies, Partners, News dropdown, etc.) remain `href="#"` placeholders.
-
-**"Go home" links wired (2026‑07‑01), all verified live as `href="/"`:**
-- **Home** nav link (`bffe20a1…f0f8`, in Main Nav) → Home page (Webflow **page‑link**).
-- **Header logo** (`bffe20a1…f0bc`, `if-logo-link`, a real `Link`, in Main Nav) → Home page (**page‑link**). *(NB: a transient `502` on first try — just retry.)*
-- **Footer logo** was a **`Span`** (`e10326f9…4008`, `if-foot-logolink`) wrapping the inline "Idea Factory" SVG — **`set_tag` can't turn a Span into `<a>`** ("Element does not support setTag"). Fix: inserted a real anchor **inside** the span (`if-foot-logohome`, `e0dbf2be…`, `href="/"`) via `whtml_builder`, set it **`display:contents`** (zero layout box — footer logo still measures 116×44, unchanged), then `move_element`‑moved the SVG into it. Structure: `span.if-foot-logolink › a.if-foot-logohome[href="/"] › svg`.
-- **Link‑type choice by component role (IMPORTANT):** Main Nav = *per‑site* component → **page‑links** (Webflow remaps them to each duplicated site's own pages). Footer = *Library* component → links are **shared across every site**, so page‑links don't travel; use a **relative `/`** ("each site's own home") or an **absolute URL** ("one canonical home"). Footer logo currently uses relative `/`; user may switch it to an absolute URL later — trivial, it's isolated in the `if-foot-logohome` anchor.
-
-**How to edit inside a component via MCP:** address the element with `{component:<componentId>, element:<id>}` **and** pass `scope_component_id:<componentId>`. Element IDs inside a component are re‑scoped under the component ID (the footer/nav/umdbar element IDs from §9 are now stale — they live under the component IDs above).
-
-**➡️ HAND‑OFF — promote Footer + UMD Bar to a Library (user, in Designer; needs a Workspace plan with Libraries):**
-1. Webflow Designer → **Libraries** panel → create/choose a Workspace Library.
-2. Add the **Footer** and **UMD Bar** components to that Library; **publish the Library**.
-3. In each site (this master + every spin‑off): **install** the Library and swap the local Footer/UMD Bar instances for the Library components (or build spin‑offs from a duplicate that already uses them).
-4. Result: edit the Footer/UMD Bar **once in the Library → updates across the whole suite**. (Main Nav stays a regular per‑site component — do NOT add it to the Library.)
-- If the plan doesn't include Libraries: fallback is edit‑here‑then‑re‑paste to each spin‑off (manual propagation), which is weaker but works.
-
----
-
-## 13. Nav current‑page marker + mobile hover (done 2026‑07‑01) — SHARED CSS, needs re‑pin
-
-The current‑page indicator now rides **Webflow's native `.w--current`** (auto‑applied per page to the nav link whose href matches — verified: `/students`→Students link, `/about`→About sublink both get it). It replaced a **hardcoded `if-nav-active`** on the Home link that made Home look current on every page (that class was removed via `set_style`). All styling is in **`idea-factory.css`** because Webflow will **not** compile a hand‑made `.w--current` combo (unused‑in‑Designer).
-
-- **Top‑level (all widths base):** `.if-nav-link.w--current{background:#a40f23;border-bottom-color:#ffd200}` — dark‑red + gold underline (the old active look). Follows the page automatically.
-- **Dropdown section pages (desktop ≥992):** the dropdown **toggle** gets a gold underline when one of its pages is current via `.if-dd-wrap:has(.w--current) .if-ddtoggle{border-bottom-color:#ffd200}`. *(The dropdown box's gold top‑edge was removed entirely 2026‑07‑02 — see §13d — so there's no second gold to collide with.)* No separate sublink marker on desktop — the toggle is the cue. (`:has()` is fine for 2026 browsers.)
-- **Hamburger (mobile ≤991) — FINALIZED 2026‑07‑01 (see §13c):** HOVER (any item) = **brand‑red text + grow** (`color:#e21833;transform:scale(1.07)`), **no gold hatch**. CURRENT page = **red left bar via `::before`** (not box‑shadow) with **normal, non‑red text** (top‑level black, sub‑item gray `#7f7f7f`) — red is a **hover‑only** color here (hovering the current item reddens it too). ⚠️ This SUPERSEDES the old "gold hatch hover + red label" mobile treatment.
-  - **GOTCHA (important):** the old red‑left‑bar‑on‑hover lived in the **in‑site st0 embed** as `.if-navmenu …:hover{box-shadow:inset 4px 0 0 #e21833!important;background-image:none!important}` — specificity (0,3,0) and, being in `<body>`, it won source‑order ties, so plain shared‑CSS rules lost to it. Fix without touching the non‑ASCII st0 embed: the shared CSS **doubles the class** — `.if-navmenu.if-navmenu …` (specificity (0,4,0) hover / (0,5,0) current) — so it beats st0. Found it via Chrome DevTools `CSS.getMatchedStylesForNode` (grep/`getComputedStyle` couldn't locate it; it's box‑shadow, not border, and the file:// stylesheet wasn't rule‑readable). If st0 is ever cleaned, that old hover rule can go.
-- **Neutralized** Webflow's default blue (`#0082f3`) on the current dropdown link: `.if-nav-sublink.w--current{color:#1a1a1a}` (mobile re‑colors it red via the more‑specific rule).
-- **Verified offline** (headless + CDP): `/students` Students=red bar+red text, Faculty hover=gold hatch, 0 JS errors; `/about` desktop toggle underline gold, dropdown top transparent, sublink dark (not blue).
-- **CSS‑only** → (historical) the live sites once needed the CSS `<link>` re‑pinned; now moot — live rides `@main` (§0/Protocol), so a push + purge ships it.
-
-### 13a. Desktop dropdown current‑marker — FINALIZED (2026‑07‑01, user‑approved iterations)
-
-The desktop dropdown current‑page cue is now an **"either/or"** between the toggle underline and the sub‑item bar (user's words: "when the dropdown is CLOSED you have that YELLOW BAR under the dropdown label; once you hover and it OPENS, you ONLY see the indicator on the actual sub‑item"). Live behavior (desktop ≥992):
-- **Dropdown CLOSED**, a child page current → the **toggle** shows the **gold underline** (`.if-dd-wrap:has(.w--current) .if-ddtoggle{border-bottom-color:#ffd200}`). *(The dropdown BOX no longer has a gold top‑edge at all — removed 2026‑07‑02, see §13d — so there's nothing for the toggle underline to collide with.)*
-- **Dropdown OPEN** (hover **or** JS `.if-open`) → the toggle underline goes **transparent**; the only cue is the **red left bar** on the current sub‑item.
-- **⚠️ The red left bar is a SOLID `::before` element, NOT an inset box‑shadow** (changed 2026‑07‑01 after a user bug report). `.if-nav-sublink.w--current::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#e21833}` (the item is `position:relative`). **Why:** an inset box‑shadow on the sub‑item rendered a **faint red fringe around the WHOLE row on hover** — a GPU‑compositing artifact that appears when the row **scales** (`transform:scale(1.07)`) on real/Retina hardware (it did NOT reproduce in headless at DPR 1 **or** 2 — real‑GPU only; diagnosed by elimination: no CSS/st0/Designer rule defines a 4‑sided red border, and sublinks carry no IX2 `data-w-id`). A solid pseudo‑element bar can't fringe. We also `box-shadow:none !important` the current sub‑item on hover (doubled `.if-navmenu.if-navmenu …:hover`) to kill the in‑site **st0** `!important` red‑bar‑on‑hover so nothing re‑introduces a shadow on the scaling row. **Do NOT revert the bar to a box‑shadow.** (The bar still sits at the far‑left 4px where there's no text, so hover/text‑grow operate fine over it and it's never obscured.)
-- **Sub‑item hover = text‑grow only** now (`.if-nav-sublink:hover{transform:scale(1.07)}`). The old **yellow hatch was removed on desktop** — user found it "too fussy." A small white top gap (`padding-top:6px`) is intentionally kept.
-- Webflow's default blue on the current sublink stays neutralized (`.if-nav-sublink.w--current{color:#1a1a1a}`).
-- Verified offline (`eo.js`/`eo2.js`/`eo3.js`/`verifybar.js` in scratchpad): closed toggle `rgb(255,210,0)`; open toggle `rgba(0,0,0,0)`; current sub‑item `::before` = 4px `rgb(226,24,51)` bar with `box-shadow:none` on hover; text still scales 1.07; 0 JS `pageerror`.
-
-### 13b. ⭐ NAV BEHAVIORS ARE CLASS‑DRIVEN & PORTABLE (2026‑07‑01, user requirement — KEEP THIS TRUE)
-
-User requirement (verbatim intent): *"write it so these behaviors get tied to WEBFLOW CLASSES, so they apply properly whenever I move things around and edit them to create new menus going forward"* (needed because each spin‑off gets its own nav items). **Both the nav CSS and the nav JS already key ONLY off classes + Webflow's native state classes — never off any href, page id, element id, text, or item position.** Audit confirmed: JS uses `querySelectorAll('.if-dd-wrap')`, `.if-nav-link, .if-nav-sublink, .w-dropdown-toggle`, etc.; CSS uses the classes below + `.w--current`. `.if-dd-wrap:has(.w--current)` fires for **any** dropdown holding the current page, not one named dropdown. So reorder / retarget / build‑new‑menu all keep working automatically.
-
-**NAV CLASS CONTRACT (put these classes on a nav item and it "just works" — documented in `idea-factory.css` too):**
-
-| Nav item | Required class |
-|---|---|
-| top‑level link | `if-nav-link` |
-| dropdown wrapper | `if-dd-wrap` |
-| dropdown toggle | `if-ddtoggle` (keep `if-nav-link` too) |
-| dropdown list | `if-dd-list` |
-| dropdown sub‑item | `if-nav-sublink` |
-
-- **Easiest way to stay in contract:** **DUPLICATE an existing classed item** instead of dragging in a raw element (raw elements only get Webflow's `w-…` classes).
-- **SAFETY NET (added 2026‑07‑01):** the current‑page marker rules **also** match by **position + Webflow's own nav classes** (`.if-navmenu a.w--current…`, `.w-dropdown:has(.w--current) .w-dropdown-toggle`, `.w-dropdown-list a.w--current`), all **scoped inside `.if-navmenu`** so nothing leaks. Result: **even a raw, un‑`if‑`classed new nav item still gets the correct marker.** Verified in `eo3.js` — injected raw `w-nav-link.w--current` → dark‑red fill `rgb(164,15,35)` + gold underline; raw `w-dropdown-link.w--current` → red inset bar + blue neutralized; raw `w-dropdown-toggle` in a `w-dropdown:has(.w--current)` → gold underline. (Caveat: the self‑sufficient cues — dark‑red **background** on top links, **box‑shadow** red bar on sub‑items — are always visible on raw items; the gold **underlines** need a border‑width, which comes from `.if-nav-link`/`.if-ddtoggle`, so keep those per the contract for full fidelity.)
-- **DO for future nav work:** keep every new selector class‑based + scoped to `.if-navmenu`/`.if-navroot`; never hardcode an href/id/position; when adding a marker, provide both the `if-` hook and the `w-` safety‑net form.
-
-**Status:** desktop dropdown set (13a) + portability hardening (13b) are **LIVE via GitHub Pages.** The hamburger/responsive (mobile) form is now DONE too — see §13c.
-
-### 13c. Hamburger / responsive nav — FINALIZED (2026‑07‑01, user‑approved requirements)
-
-User asks (evolved): "get rid of the yellow hatch"; first "make red the hover color … along with the 'grow'", then **FINAL: "No, just get rid of the red text. Just the grow on hover."** So the mobile hover is **grow ONLY** (no color change at all). Implemented in the `@media (max-width:991px)` block of `idea-factory.css`:
-- **HOVER (any item — top link, toggle, or sub‑item):** the grow is **`transform:scale(1.07)` on the INNER text element (`.if-mtext`), NOT the anchor/row.** ⚠️ Scaling the full‑width anchor fought st0's own `.if-nav-sublink:hover .if-mtext` scale (a **double transform**) and "snapped back wildly" — the original smooth mobile grow is the `.if-mtext` text‑scale, so we grow that and leave the anchor un‑scaled (st0 pins the anchor `transform:none`). **Do NOT scale the anchor on mobile.** Also **no gold hatch, no background, no box‑shadow, and NO color change** — per‑type color rules (`.if-nav-link/.w-dropdown-toggle:hover{color:#000}`, `.if-nav-sublink:hover{color:#7f7f7f}`) only cancel st0's hover‑darkening so nothing shifts but the text size.
-- **CURRENT page:** red left bar via **`::before`** (`.if-navmenu.if-navmenu a.w--current::before` = 4px `#e21833`), with resting text matched to siblings — top‑level `#000`, sub‑item `#7f7f7f`. **No red text anywhere on mobile** (the bar is the only current cue; hover just grows).
-- **st0 interaction:** doubled `.if-navmenu.if-navmenu …:hover` `(0,4,0)` out‑specifies the in‑site st0 `!important` hover rule `(0,3,0)` (red bar + `transform:none` + `color:#1a1a1a`), so grow applies, no bar/hatch/darkening on hover. Marker is `::before` (not box‑shadow) so it survives the hover `box-shadow:none` and can't fringe when the row scales. (Keep the sub‑item current‑color selector at `(0,4,0)` — `.if-nav-sublink.w--current` — not `.if-dd-list a.w--current` `(0,4,1)`, so the hover rule isn't out‑ranked.)
-- **Verified offline** (mobile 480px, menu force‑opened, CDP forced‑hover, transitions settled): non‑current resting = gray no‑bar; non‑current hover = **gray + `scale(1.07)` (grow only, no red)**, no hatch; current resting = gray + red `::before` bar; current hover = **gray + grow + bar (no red)**; 0 JS `pageerror`. Screenshots `MOB_contrast.png` in scratchpad.
-- **Status:** staged on dev `claude/keen-johnson-f9w833`, verified offline, **awaiting user approval before promote** (push to `main` → GitHub Pages auto‑deploys, per §0/Protocol — no purge).
-
-### 13d. Dropdown BOX gold top‑line REMOVED + uniform top spacing (2026‑07‑02) — NATIVE Designer + shared‑CSS cleanup, PUBLISHED
-
-User: the **golden horizontal line on top of the WHITE dropdown BOX** (distinct from the toggle underline in the red bar — "these are two separate things") must be gone on **every** dropdown, and all dropdowns must be the **same single class**, not divergent per‑page.
-- **Root cause of the inconsistency:** the gold line was a **native Designer** `border-top:4px solid #ffd200` on **`.if-dd-list`** (the white box; style id `6a4e450d‑99be‑56bb‑af83‑83bbaa888a09`). A shared‑CSS conditional `.if-dd-wrap:has(.w--current) .if-dd-list{border-top-width:0;padding-top:6px}` (§13a) hid it **only on the dropdown holding the current page** and swapped in 6px of white top space. So on an interior page the **current‑section** dropdown (e.g. ABOUT on /about) showed **no line + 6px white top gap** while **every other** dropdown (e.g. NEWS) still showed the **gold line + no gap** → the first item sat higher. Same class, but the `:has(.w--current)` fork made them look different (user read this as "not the same class").
-- **Fix (makes the current‑page look the universal look):** (1) **removed** `border-top-*` from the base `.if-dd-list` Designer style → no gold line on any dropdown (mobile `medium` variant already had `border-top-width:0`); (2) **added `padding-top:6px` to the base** `.if-dd-list` → every dropdown gets the same white top gap the current one had; (3) **deleted** the `:has(.w--current) .if-dd-list{…}` conditional from `idea-factory.css` (§13a block) so there's no per‑page divergence. Net: all dropdown boxes are now governed purely by the single base `.if-dd-list` class — identical top edge + spacing, no gold line.
-- **Kept (separate, untouched):** the **toggle** gold underline in the red bar when a dropdown holds the current page + is closed (`.if-ddtoggle` border‑bottom, §13a) and the **red left `::before` bar** on the current sub‑item. Those are the current‑page cues and don't touch the box's top edge.
-- **Verified offline** (`ddcompare.js`/`dd_both.png` in scratchpad): both a current (ABOUT) and non‑current (NEWS) dropdown forced open — each has `border-top-width:0`, `padding-top:6px`, first `.if-nav-sublink` at the **same** offset from the box top; 0 JS errors. **Published (Designer) + pushed to `main`/dev (CSS).**
-- **Dial:** the white top gap = `padding-top` on the base `.if-dd-list` (Designer). To close it entirely, set it to 0 on the base (still uniform across all dropdowns).
-
----
-
-## 14. Hero headline "read‑to‑red" (done 2026‑07‑01) — SHARED JS + CSS, needs re‑pin
-
-The hero "Where ideas get built." stays **white**, and **"get" + "built." turn brand red (#e21833) as the reading animation reaches each word, then stay red** (per‑load). "Where ideas" stays white; the "." is part of the "built." span.
-
-- **Marker:** the "get" (`…dcb`) and "built." (`…dce`) spans carry class **`if-hero-word-red`**, whose Designer color was **removed** (via `update_style`) so it's now an inert marker.
-- **JS (hero reader, main‑bundle module):** when a word with `if-hero-word-red` is the active read step (or at settle 999), it adds **`if-lit-red`** (never removed → persists). Reduced‑motion: red words get `if-lit-red` immediately (no animation).
-- **CSS (shared):** `.if-hero-word{transition:…,color .45s ease}` (fade) + `.if-hero-word-red.if-lit-red{color:#e21833}`.
-- **Verified offline:** before hover all white; after reading get/built = rgb(226,24,51), 0 JS errors.
-- **Both `idea-factory.js` AND `idea-factory.css` changed → re‑pin BOTH refs** (CSS `<link>` + JS `<script>`) to the new SHA.
-
----
-
-## 15. STUDENTS page (built 2026‑07‑01) — hero + filterable program directory
-
-Second real content page (a Home duplicate; page id `6a4459c7c5e5473127fdb14f`, slug `/students`). **Only the hero's black‑left‑panel content changed** vs Home; the 7 Home body Sections were removed and replaced with a program directory. Global nav/footer/UMD‑bar (components) untouched.
-- **⭐ HERO HEIGHT SYSTEM — established 2026‑07‑02 (Home vs interior standard).** Two named standards, both **`min-height`** (so a page with a fuller black panel just expands past them — content‑driven ceiling, not a hard cap). All **native Designer styles** via MCP (so they show correctly in the canvas + degrade gracefully), inferred from the original design `project/ui_kits/website/StudentsPage.jsx`.
-  - **HOME / flagship hero = base `.if-hero-grid` alone** → `min-height:min(86vh,760px)`, `grid-template-columns:1.15fr .85fr`, headline `if-hero-h1`=`clamp(58px,8.5vw,132px)`, `if-hero-left` padding `…72px`. Home carries **only** `if-hero-grid` (no modifier).
-  - **EVERY OTHER page's hero = `if-hero-grid` + `if-hero-inner`** (combo class; `if-hero-inner` is a combo styled in THREE contexts — apply it to the **grid, the H1, and the left panel**):
-    - `.if-hero-grid.if-hero-inner` → `min-height:min(64vh,540px)` + `grid-template-columns:1.05fr .95fr`
-    - `.if-hero-h1.if-hero-inner` → `font-size:clamp(52px,7.5vw,104px)` (smaller headline — pairs with the shorter hero)
-    - `.if-hero-left.if-hero-inner` → `padding:clamp(28px,5vw,64px)`
-  - **Why:** Students/About were Home duplicates that had simply inherited Home's tall `min(86vh,760px)` + big headline; the design always intended a shorter interior hero. (`if-hero-inner` was briefly named `if-hero-compact` mid‑build, then renamed.)
-  - **Applied — published + verified live:** **Students** and **About** heroes carry `if-hero-grid if-hero-inner` on grid + `if-hero-h1 if-hero-inner` on the H1 + `if-hero-left if-hero-inner` on the left panel. **Home untouched** (base only). **Library** = draft holding page, has no hero (skipped). Verified compiled: base `.if-hero-grid`=`min(86vh,760px)`/`1.15fr .85fr`; combos as above.
-  - **➡️ GOING FORWARD (the rule):** a new interior/audience page uses the interior standard — **easiest: duplicate the Students page** (the design's "audience template"), which already carries `if-hero-inner` on grid/H1/left, so it travels. If building from scratch or from a Home dup, **add class `if-hero-inner` to the hero grid, the H1, and the left panel**. **Never add it to Home.** (Skipped as moot: design's hero‑right `min-height:280px` vs `360px` — row is always ≥540 so no effect; and "9 ways in." vs built "11 ways in." is a content choice.)
-
-- **Hero (kept the Home hero Section `if-hero-sec` = `9636f821‑…‑b1`; only content swapped):** gold eyebrow "For Students" (`if-hero-eyebrow`, Interstate) → headline "Become a builder." (`if-hero-h1`, reuses the read animation + `if-hero-word-red` machinery) → lead `if-hero-lead` "From your first course to your first company — find the program that fits where you are right now. **11 ways in.**" where "11 ways in." is `if-hero-lead-strong` (gold). Hero‑right image left as‑is.
-- **Directory Section** (id `28cbbdb2‑be61‑b25e‑2f04‑f1c54d94e48c`). New Designer classes (base visuals, travel via Duplicate Site): `if-prog-sec, if-prog-wrap, if-filter-row, if-filter-label, if-filter-pills, if-filter-pill, if-prog-grid, if-prog-card, if-prog-photo, if-prog-photo-label, if-prog-body, if-prog-title, if-prog-sub, if-prog-desc, if-prog-tags, if-prog-tag`.
-- **11 cards**, each `<a class="if-prog-card" href="#" data-tags="…">` (tags drive filtering). **Card links are `href="#"` placeholders** pending real URLs — convention: **internal = same tab; external entity links (UMD, A. James Clark School, program sites) = new tab** (`target=_blank rel=noopener`). Card #5 (Tech Ent Master's) had a real photo in the design ref; all cards currently use the **striped placeholder** (`if-prog-photo`) until images are uploaded.
-- **FILTER (class‑driven, in shared `idea-factory.js`, module `program-filter`):** keys ONLY off `.if-filter-pill[data-filter]` + `.if-prog-card[data-tags]` (portable — new pills/cards just work). Pills: All · Undergraduate · Graduate · Online · Funding · Community & Space. **No current pill on load;** after the first click one is ALWAYS current (incl. "All"). **HOVER = red text+border (outline); CURRENT (`.if-filter-pill.is-active`) = SOLID brand‑red fill `#e21833` + white text** (updated 2026‑07‑02 — was a red outline, read spindly/weak; the design's `.if-chip[aria-pressed]` used a BLACK fill but that was too harsh, so brand‑red fill matching the primary CTA buttons; `is-active` declared after `:hover` in `idea-factory.css` so hovering the current pill keeps the fill). Base/resting pill = white bg, `#1a1a1a` text (Interstate 700), **light‑grey outline `#cfcfcf`**. "All" shows everything; others match the tag.
-  - **⚠️ RESTING OUTLINE lightened `#1a1a1a` → `#cfcfcf` (2026‑07‑02, user‑requested).** The base `.if-filter-pill` outline is a **native Designer style** (id `5e48350c‑bb07‑88da‑513f‑7af3a26534f8`), not shared CSS — it had shipped near‑black since the original build, which read too heavy; the design source (`Tag.jsx`) always intended the interactive chip border = `var(--gray-300)` = `#cfcfcf`. Set **both** the `border` shorthand **and** `border-color` to `#cfcfcf` via `update_style` (they must agree, else Webflow's compiled emit‑order can let the shorthand reset the color back to dark), then **published**. Only the resting outline changed — text/fill/`:hover` red/`is-active` red fill untouched. (Historical note: an earlier session's user report that "the pill outline was changed to black" traced to this pre‑existing Designer style, NOT to the shared‑CSS `is-active` edit — the only pill line ever touched in `idea-factory.css`.)
-- **CARD behavior (shared `idea-factory.css`):** equal‑height per row (CSS grid), **News‑card‑style lift on hover** (`translateY(-4px) scale(1.01)` + shadow, photo image `scale(1.04)`), responsive **3→2→1 columns** (≤991 → 2, ≤640 → 1). `.if-prog-hidden{display:none!important}` toggled by the filter JS.
-- **Verified offline:** initial 11 cards visible / no active pill; click Graduate → 3 cards (Tech Ent Master's, Product Mgmt Master's, xFoundry) + active pill; active pill computes red after transition; 3‑col grid; 0 JS errors. Committed to `main` (c8212a1) + published; live on staging.
-
----
-
-## 16. TYPOGRAPHY — Interstate/Georgia enforcement (done 2026‑07‑01) — SHARED CSS, LIVE
-
-**Rule (user‑stated):** the design uses **exactly two faces — Interstate (every sans‑serif) + Georgia (every serif); Arial must NEVER render.** Webflow ships `body{font-family:Arial}`, which leaked Arial into any element without an explicit face (e.g. the header tagline). Fix = a small **`§0 TYPOGRAPHY` block at the TOP of `idea-factory.css`** (loads AFTER Webflow's compiled CSS, so it wins on equal specificity — ONE edit covers the whole suite AND overrides any stale compiled font):
-- `body{font-family:Interstate,"Helvetica Neue",Arial,sans-serif}` → the sans **default** is Interstate; nothing renders as Arial. (Arial stays only as an unreachable tertiary fallback, matching every other Interstate stack in the build.)
-- `.if-tag-p{font-family:Georgia,"Times New Roman",serif}` → the **header tagline beside the logo** (non‑red part "The University of Maryland's home…") is Georgia. The red `.if-tag-strong` ("One place, every stage.") already pins Interstate, so it stays Interstate. *(Design docs: body copy = Georgia; `.if-tag-p` had NO font‑family and was the one body‑copy class the build missed — every other, e.g. `.if-mani-p/.if-aud-intro/.if-prog-desc`, already had `Georgia, Times New Roman, serif`.)*
-- `.if-hero-lead{font-family:Interstate,"Helvetica Neue",Arial,sans-serif}` → the **whole hero lead** (incl. "11 ways in.") is Interstate. On BLACK, Georgia's thin strokes are hard to read — deliberate deviation from body=Georgia. The gold `.if-hero-lead-strong` inherits it. *(Home uses `.if-tag-p` but not `.if-hero-lead`, so the hero rule is Students‑only today; any future hero using the class inherits the fix.)*
-- **Verified offline** (computed `font-family`): tag‑p=Georgia; tag‑strong, hero‑lead, hero‑lead‑strong=Interstate; no Arial; 0 JS errors. DOM order confirmed compiled `<style>` → then `idea-factory.css` `<link>`, so the shared rules win. **Shipped to `main` (f2db128) → GitHub Pages served (31243→32579 B).** Live suite‑wide.
-
----
-
-## 17. Search‑box magnifier — Webflow DESIGNER canvas fix (done 2026‑07‑01) — Designer‑only, PUBLISHED UNTOUCHED
-
-**Symptom (user):** in the Webflow **Designer canvas** the search magnifier sits **top‑left**; the **published** site shows it correctly (right side, vertically centered). **Cause:** the magnifier is a `background-image` on `.if-search-input`; its **`background-position` lives ONLY in the shared `idea-factory.css`** (`background-position:right 14px center !important` + repeat/size), and **the Webflow Designer canvas does NOT load site‑wide custom‑code `<link>`s** — so in the Designer the position falls back to the CSS default `0% 0%` (top‑left). Published loads the shared file → correct. **(General lesson: any styling that lives only in the shared file looks "wrong" in the Designer canvas but right when published.)**
-- **Fix:** added `background-position` to the **Designer style** `.if-search-input` (style id `dea6a492‑531d‑4fca‑5a7c‑9a6c7bd76d13` = the ACTIVE copy that carries the magnifier `background-image`; a same‑name duplicate `b6a33b02‑…` has no image — the documented dup family, §11).
-- **Webflow only stores NATIVE 2‑value background‑position.** `right 14px center` (4‑value offset) and `calc(100% - 14px) 50%` were **silently dropped on commit** (update echoed them back but a re‑query showed them gone). `**100% 50%**` (right, centered) **persisted**. So the Designer now shows the glass **flush‑right + vertically centered** vs **14px‑inset** live (Webflow can't store a fixed px‑from‑right offset — acceptable; it fixes the top‑left complaint).
-- **PUBLISHED IS UNCHANGED and safe:** the shared `right 14px center !important` still wins on the live site (Designer canvas doesn't load it). **No publish was done and none is needed** — the Designer canvas reflects the saved Designer style on refresh. Even if the site is later published, the shared `!important` keeps live at 14px inset. To SEE the fix: reload the Webflow Designer.
-
----
-
-## 18. Hero-animation refinements + Students card hover (2026-07-01) — SHARED JS+CSS, ON DEV, awaiting coordinated publish
-
-Two behavior tweaks this session. **Both are shared-file behavior → they only appear on the PUBLISHED/PREVIEW site, never the Designer canvas** (the canvas doesn't load the shared file — same lesson as §17). Committed to **dev `claude/keen-johnson-f9w833`** (JS `631cb3e`, CSS `94fd53e`); **NOT yet on `main`** — see the coordination note at the end before promoting.
-
-**A. Hero reader — pause is now CLASS-DRIVEN + red words stay lit (`idea-factory.js`, main-bundle hero module).**
-- **Mid-read pause marker = `if-hero-word-delay`** (empty Designer style id `7ee9ee04-1751-7407-f594-dfafee90aa5b`, inert hook). The reader adds the extra hold + pause to whichever word carries this class, instead of the old hardcoded word-index 1. Portable: apply the class to any word in any headline/spin-off.
-  - Applied natively (Designer `set_style`) to: **Home "ideas"** span (`aabcb7bd-…-dc8`) — preserves Home's existing beat; **Students "Become"** span (`01cbe865-…-5b34`) — user moved the beat here (was wrongly landing on "a").
-  - JS shape: `hold = D + (x.classList.contains('if-hero-word-delay')?ideasExtra:0) + (last?lastExtra:0)`; the gap after a delayed word gets `+ideasPause`. The last-word settle beat (`lastExtra`) is unchanged (always the final word).
-- **Red words hold full opacity after being read.** `setStep` opacity is now `step===idx?1:(w.classList.contains('if-lit-red')?1:0.62)` — once a red (`if-hero-word-red`) word is lit it never dims back with the white words (user: the dim/re-brighten looked wrong on red, fine on white). White words still dim to 0.62 and rise at settle.
-- Verified offline (0 JS errors): Students "Become" holds ~625ms (beat), "a" never held (glides past), "builder." ~875ms (end settle) and stays red at full opacity.
-
-**B. Students card hover — news-style (`idea-factory.css` + one native prop).**
-- **Photo zoom 1.04 → 1.07** on card hover (closer to the news-card feel, still subtle). Now clipped to the frame by **native `overflow:hidden` on `.if-prog-photo`** (added via Designer `update_style` — base structural containment, matches `.if-news-photo`).
-- **Whole `.if-prog-body` text group scales 1.03 as ONE unit** on card hover (`.if-prog-body{transition:transform 240ms …}` + `.if-prog-card:hover .if-prog-body{transform:scale(1.03)}`), so every line stays aligned; kept subtle to clear the 24px body padding.
-- Both photo-zoom and body-grow are **parent-hover-child → shared CSS** (Webflow can't store "parent hover scales child" natively — same reason the news hover is CSS). The cards + contents themselves remain fully native/editable. **This supersedes the "photo image `scale(1.04)`" detail in §15.**
-- Verified offline (0 JS errors + screenshot): on hover card→1.01, photo→1.07 (contained, no bleed), body→1.03 (text stays clear of edges, alignment preserved).
-- **Dials the user can nudge:** photo `scale(1.07)` and body `scale(1.03)` in `idea-factory.css`.
-
-**⚠️ COORDINATION — these two commits must promote together with a Webflow PUBLISH (do NOT push to `main` alone):**
-- The hero JS keys off `if-hero-word-delay`, applied in the **Designer** (unpublished). Pushing the JS to `main` before publishing would drop Home's "ideas" pause on the live site (the live DOM lacks the class).
-- The card photo-zoom relies on the **native `overflow:hidden`** (unpublished); pushing the CSS before publishing would let the 1.07 zoom bleed past the frame on the live site.
-- **Correct promote = push `idea-factory.{css,js}` to `main` (GitHub Pages) AND publish the Webflow site together.** That publish also ships this session's other Designer work (3 card photos, MOOCs cards rebuilt as Blocks with inner text links, letter-spacing −0.4px, hero break + `min-width:0` on `if-hero-left`, `if-tag-p` Georgia, search-input bg-position, etc.).
-
----
-
-## 19. Footer / card / filter / manifesto animation polish (2026-07-01) — SHARED JS+CSS, LIVE
-
-All promoted (pushed to `main` + Webflow published; `stable` advanced to `4bcb588`). Each is class-driven/portable and shared-file behavior (shows on published/preview only, NOT the Designer canvas).
-
-**A. Footer CTA "Have an idea? Let's build it." — gold stays lit + footer-wide trigger.**
-- Gold phrase ("Let's build it.", `.if-foot-cta-gold`) now mirrors the hero red: starts white, turns gold word-by-word on the read, HOLDS full gold (no dim-back). `initCta` propagates `if-foot-cta-gold` onto the split `.if-foot-cta-word`s and adds `if-lit-gold` once a gold word is read; `setStep` keeps lit words at opacity 1. Reduced-motion lights them immediately. Shared CSS: `.if-foot-cta-word{color:#fff;transition:opacity …,color .45s}` + `.if-foot-cta-gold.if-lit-gold{color:#ffd200}`. Native gold on `if-foot-cta-gold` removed → inert marker. ⚠️ §11 DUP: by-name update cleared only the canonical `f9df5d3a`; orphan `64849047` still gold — harmless, the shared `.if-foot-cta-word{color:#fff}` (loaded after compiled) wins at rest.
-- **Trigger widened:** the reading animation now fires on mouseenter of the whole footer (`head.closest('.if-footer')||closest('footer')||head`), not just the heading — far more reliable to trigger.
-
-**B. Students card hover — ONE uniform center-pinned zoom + text-grow wrapper** (iterated per user: "no directional movement, everything zooms, center-pin all grows").
-- Card zooms as a single unit: `.if-prog-card:hover{transform:scale(1.03)}` — removed the old `translateY(-4px)` lift AND the separate body scale (that layering made the text appear to grow up into the photo). Photo image keeps a contained extra zoom `scale(1.04)` inside its `overflow:hidden` frame.
-- Text grows WITHIN the body via a JS wrapper: module `program-card-inner` wraps `.if-prog-body`'s content in `.if-prog-bodyinner`; `.if-prog-card:hover .if-prog-bodyinner{transform:scale(1.03)}` (center-pinned, default origin) grows the content inside the body without moving the body's perimeter. Content stays natively editable (the wrapper only groups it — same pattern as `if-grow-inner`/CTA word-spans). An earlier `if-prog-body` `flex-grow:0` experiment was reverted to `1` — the wrapper is the correct mechanism.
-- Net: card + photo + text all grow center-pinned in all directions; gaps preserved; nothing creeps directionally.
-
-**C. Filter-switch animation — FINAL = soft cross-dissolve, NO positional motion (2026‑07‑02).** Evolution: fade+rise stagger → FLIP glide → **cross-dissolve**. The FLIP version (`@keyframes`/`if-prog-appear` gone; was JS FLIP) physically **slid** the staying cards across the grid to their new positions — user: *"I don't like them flying around… softer, smoother, more tasteful."* Current `apply(filter,animate)` in `program-filter`: the on-screen cards **fade out together** (opacity→0, 200ms), the grid **re-lays-out while everything is invisible** (so the reflow is never seen as sliding — this is the key trick), then the matching set **fades back in** with a whisper of scale (`0.98`→1, opacity 360ms + transform 360ms `cubic-bezier(.22,1,.36,1)`). NO translate is ever applied to any card. A `_fxtok` token cancels in-flight runs on rapid clicks; `_clearFx` clears inline styles on both shown (at cleanup +560ms) and now-hidden cards (immediately, in the swap pass) so the DOM stays clean. Reduced-motion = instant toggle. **Dials:** fade-out 160ms / fade-in 440ms / scale 0.985 (in `idea-factory.js`; softened 2026‑07‑02 on user request — "smoother and softer still", then fade-out shortened 260→160ms to reduce the lead-in delay before the fade-in while keeping the soft 440ms fade-in). Swap still fires just after the fade-out completes (170ms) so the reflow stays hidden. Verified offline: 0 JS errors, correct counts, `anyTranslate:false`, all inline cleared. Promoted (JS+CSS) to `main` (`9f2b33e`) → GitHub Pages.
-
-**D. Home manifesto red.** "We are not a think tank. / We are not a lecture hall. / We are **where ideas get built.**" — the phrase "where ideas get built." (`.if-mani-red`, nested in line-3 span `…d857`) starts BLACK and turns red only when its line is highlighted by the grow, then HOLDS red. `initManifesto` adds `if-lit-red` to the lifted line's `.if-mani-red` child (never removed; reduced-motion lights immediately). Native red on `if-mani-red` removed → inert; shared CSS `.if-mani-red{color:inherit;transition:color .45s}` + `.if-mani-red.if-lit-red{color:#e21833}`. Verified end-to-end on the live Home DOM (black→red→stays, 0 JS errors).
-
-**⚠️ PROPAGATION LESSON (bit us this session):** after pushing shared JS+CSS to `main`, GitHub Pages has a ~1–2 min window where a browser can load the NEW css with the OLD cached js (or vice-versa) → a transient mismatch (e.g., manifesto shows black with no red-on-highlight because new CSS + stale JS). It self-resolves; hard-refresh after ~2 min to confirm. Always verify with the offline harness against the freshly-served files before assuming a real bug.
-
----
-
-## 20. Link weight (Interstate) — ✅ RESOLVED: if-inline-link = Medium 500 (2026-07-02)
-
-The red inline-link style **`if-inline-link`** (Interstate; on the MOOCs card text links, `color:#e21833`, `letter-spacing:-0.4px`) looks spindly at weight **400** beside Georgia. The Adobe Fonts kit **`fdu6zpb`** only loads Interstate **400 / 700 / 800** (confirmed by curling `use.typekit.net/fdu6zpb.css`). Per CSS font-matching, `font-weight:500` falls back to **400** (no change) and `600` jumps to **700** — so the only real heavier face is 700, a big jump. Rendered a real comparison with the actual faces (scratchpad `linkweight.png`): 400 spindly, 700 bold, `-webkit-text-stroke` 0.2–0.45px = a faux-medium.
-- **User rejected the faux** `text-stroke` (only renders on published, not a real face). **Decision: add weights to the kit.**
-- **HAND-OFF (user, Adobe Fonts UI):** fonts.adobe.com → avatar → **Web Projects** (`fonts.adobe.com/my_fonts#web_projects-section`) → project **`fdu6zpb`** → **Edit Project** → under **Interstate** tick extra weights (need **Medium = 500**; user may add all upright weights) → **Save**. Auto-republishes (~1–2 min); domains already allow-listed; carries to spin-offs on this kit. No small per-project cap on current plans — limit is performance (each weight = another file); italics + Condensed/Compressed are extra families, add only if used.
-- **THEN (Claude):** verify the new face by re-curling `use.typekit.net/fdu6zpb.css` for `font-weight:500`, then set `if-inline-link` → `font-weight:500` **natively** in the Designer (real medium; shows in the Designer canvas too — no faux, no shared-CSS override). Publish.
-- **✅ DONE (2026-07-02) — FINAL = font-weight 700 Bold, NO underline.** User added Interstate **500 (Medium)** to the kit (now serves 400/500/700/800 normal — verified by curl). Iterated live: 400 spindly → tried **500** (still "a wolf blending in with sheep") → settled on **700**. Also floated an **underline** (rendered 500/700 ± underline options, `link_options.png`); **user rejected the underline convention — prefers weight + red only** ("this style is nicer"). Set `if-inline-link` **font-weight:700 natively** via MCP `data_style_tool update_style` (style id `b19bcee7-daa1-abbf-3314-78d964d4c195`; `color:#e21833`, `letter-spacing:-0.4px`, `text-decoration:none` preserved). **Published & verified live** (compiled CSS `85f8ce794`: `.if-inline-link{font-weight:700;text-decoration:none}`). Real Bold face, no faux. Polish in a link is weight-matched: the broad `if-` rule gives the link `var(--if-sans)` (Interstate,OverpassFB,…), and OverpassFB 700 = wght780 matches Interstate 700 (§22). **Dial:** change weight via the same native `update_style` if ever revisited.
-
----
-
-## 21. Font Polish/CE glyphs (Interstate) — RESOLVED: the Adobe cut lacks them (2026-07-01)
-
-**Interstate on Adobe Fonts CANNOT render full Polish, and no kit setting fixes it.** Verified with fonttools on the served woff2 (all weights): the kit serves a **233-glyph set ≈ Adobe Latin-1 (AL-1)** — confirmed 3 ways (referer / cache-busted / no-referer, byte-consistent) so it is NOT a cache or referer artifact. Per Adobe's own charset lists, **AL-1 HAS `Ł ł Ó ó` but NOT the Polish ogonek/accents `Ą ą Ę ę Ć ć Ń ń Ś ś Ź ź Ż ż`** — those first appear in **AL-3** (AL-1=229 cps, AL-3=332). So "Ł but not Ą" is a defined AL-1 boundary, not a bug.
-- **NOT a settings problem.** User set the kit character set to **"All Characters"** — that IS applied; it serves everything the font *has* (AL-1). The real cause: **Adobe only ships the "standard" cut of Interstate (~AL-1)**, even though Interstate-the-typeface has an extended CE/EE + Cyrillic/Greek version, and Adobe's description misleadingly implies that coverage (known issue — Adobe UserVoice *"Misleading information on Interstate language support"*). The Polish glyphs are simply not in the file at any setting.
-- **CONSEQUENCE:** Ą Ę Ż etc. fall back to a system sans (mismatched) anywhere in Interstate text. **Georgia** (serif body, a system font) covers Polish fine — the gap is Interstate-only. Applies to ALL spin-offs on this kit.
-- **OPTIONS if Polish is needed:** (a) accept the fallback for those letters; (b) swap the sans role to an Adobe font with real AL-3 coverage (Interstate-alike grotesque) — change `Interstate` in the font stacks (shared CSS `body`, plus Designer `.if-tag-strong/.if-hero-lead/.if-inline-link/...`), everything else stays; (c) hybrid: Interstate for English, alt for Polish. Re-verify any candidate the same way: curl kit CSS → download woff2 (needs `Referer:` licensed domain) → fonttools `TTFont(f).getBestCmap()`, check U+0104/0118/017B. (fonttools+brotli pip-install fine in this env.)
-- **➡️ IMPLEMENTED in §22** — chose a hybrid of (a/c) as the default + a switch to (b): **self-hosted Overpass** fills Polish as a weight-matched fallback, and a **global class switch** flips the whole suite to all-Overpass on command.
-
----
-
-## 22. FONT — Interstate + weight-matched Overpass fallback (Polish/CE) (2026-07-02) — SHARED CSS + 4 woff2, LIVE on `main`
-
-**What/why:** Adobe's Interstate web cut lacks Polish/CE glyphs (§21). Fix = **self-host Overpass** (OFL, open-source, same Highway-Gothic DNA as Interstate; full Polish 18/18) as a **per-character fallback**. English/Latin still renders in **Interstate** (first in the stack); only the glyphs Interstate lacks (Ą Ę Ż Ć Ń Ś Ź …) fall through to **weight-matched Overpass** instead of a mismatched Arial. **Fully invisible + zero UI:** no Designer change, no per-page publish, no custom-code line — it lives entirely in the shared `idea-factory.css` (already loaded suite-wide) with the woff2 beside it on GitHub Pages. Georgia (serif body copy) is untouched.
-
-**⚠️ The "flip switch" (all-Overpass toggle) was built then REMOVED (user, 2026-07-02: "too much of a pain").** Earlier this session we shipped a `body.if-font-overpass` switch to run the whole suite in all-Overpass (with heavier `-hv-` instances). The user stripped the footer trigger and asked to keep ONLY the fallback. So the flip machinery is gone: deleted the `body.if-font-overpass` rule, the `'Overpass'` family `@font-face` set, and 4 woff2 (`overpass.woff2`, `-italic`, `-hv-700`, `-hv-800`). If ever wanted again it's in git history (commits `09ac98a` build + `32c552e` heavy-weight tuning). **Do NOT re-add without a clear ask.**
-
-**Files (repo root, served by GitHub Pages) — the 4 fallback faces only:**
-| File | Overpass wght | matches | Bytes |
-|---|---|---|---|
-| `overpass-pl-400.woff2` | **330** | Interstate 400 (ratio 1.00) | 63,464 |
-| `overpass-pl-500.woff2` | **520** | Interstate 500 Medium (1.00) | 64,056 |
-| `overpass-pl-700.woff2` | **780** | Interstate 700 (1.00) | 64,060 |
-| `overpass-pl-800.woff2` | **900 + emboldened** | Interstate 800 (ratio 1.00) | 83,908 |
-- Full-glyph Overpass (1182 glyphs, incl. all Polish) instanced to a fixed weight via fonttools `instantiateVariableFont` → woff2 (brotli). `size-adjust:102.7%` on every face matches Overpass's x-height to Interstate. 400/500/700 are plain instances; **800 is additionally outline-emboldened** (see below).
-- **⭐ 800 FAUX-HEAVY (2026-07-02, user asked to close the ceiling):** Overpass's native max (wght 900) is only **0.89×** Interstate 800's ink — too light for heavy headlines. Fixed by **thickening the wght-900 outlines at the font level** (a real, baked-in heavier face — NOT a CSS `text-stroke`, which would over-bold the Interstate English in the same element). Method: for each glyph, union the outline with 8 radially-shifted copies of itself (`skia-pathops` **pairwise `pathops.op(UNION)`** — the `union(list,pen)` helper's internal simplify chokes on 9 overlapping copies; and `Path.transform`/`stroke` return NEW paths / need care). Dilation **~20 units at 2000 upem** → ratio **1.009** vs Interstate 800; verified clean at 88px (smooth curves, open counters, no octagonal facets). Script: `embolden3.py` (+`ovs_900.woff2` source) in scratchpad. Dial: change `delta` (15→0.97, 20→1.01, 25→1.03). File grew 62→84 KB (union adds points); loads only for Polish-in-800 text.
-- **⭐ WEIGHT-MATCH METHOD (use this if re-tuning):** render "HAMBURGefonstiv" at 60px in the REAL Interstate face and in Overpass static instances, measure **ink-mass** = Σ(255−luminance) over the canvas. Pitfalls learned: pixel-count-below-threshold **saturates** (2 buckets — useless); canvas will **not** interpolate a variable `wght` (Chromium snaps to ~2 values) — so instance to STATIC woff2 first; `setContent` with `file://` fonts loads from an about:blank origin that **blocks** them (use a physical `.html` + `goto`, one `@font-face` family per weight). advance-**width** is constant across Overpass weights (can't detect weight). Scripts: `measure2/measure3/m500/mshb2/chk.js` in scratchpad; real Interstate targets = `int400/500/700/800.woff2` (genuine Typekit bytes, downloaded with a `Referer:`).
-
-**The CSS (idea-factory.css, top "FONT" block, replaced the old `body{font-family:Interstate…}` line):**
-```
-@font-face OverpassFB  400 -> overpass-pl-400.woff2 (wght330), size-adjust:102.7%
-@font-face OverpassFB  500 -> overpass-pl-500.woff2 (wght520)
-@font-face OverpassFB  700 -> overpass-pl-700.woff2 (wght780)
-@font-face OverpassFB  800 -> overpass-pl-800.woff2 (wght900)
-:root{ --if-sans: Interstate,'OverpassFB',…; --if-serif: Georgia,"Times New Roman",serif; }
-body,[class^="if-"],[class*=" if-"]{ font-family: var(--if-sans) !important; }   /* all if- classes */
-.if-aud-intro,.if-event-row-meta,.if-input,.if-mani-p,.if-prog-desc,.if-tag-p{ font-family: var(--if-serif) !important; }
-```
-- **⭐ FUTURE-PROOF coverage (2026-07-02, replaced the old hand-maintained 72-selector list):** every custom class is `if-`-prefixed (project convention, §3), so the fallback stack is applied to **all `if-` classes — present AND any newly created one** — plus `body`. A brand-new class (even one where the user explicitly picks the "Interstate" font in the Designer, which compiles to `Interstate,Helvetica,Arial` with no OverpassFB) is now **auto-captured** — no list to maintain. Exceptions are restored on the lines AFTER the broad rule (declared after, same specificity → they win): the **7 Georgia (serif) classes** (`if-aud-intro, if-event-row-meta, if-input, if-mani-p, if-premise-lead, if-prog-desc, if-tag-p`), plus the **nav dropdown caret** `if-toggle-caret` (restored to `font-family:"webflow-icons"`). ⚠️ **The broad rule CAN clobber a Webflow icon glyph if the icon element ALSO carries an if- class** — the dropdown caret is `<div class="if-toggle-caret w-icon-dropdown-toggle">`, so `[class^="if-"]` matched it and forced Interstate → the arrow rendered as a **tofu box** (found + fixed 2026-07-02; this file earlier wrongly claimed `webflow-icons` only lives on non-`if-` classes). CSE result text (non-`if-` `.gs-/.gsc-`) is unaffected. **Any future icon element that also carries an if- class must be added to the `if-toggle-caret` exception line.** To add a serif class later, append it to the exception line; **sans needs no maintenance ever again**. ⚠️ **CSS-comment gotcha (cost a debug cycle):** a literal `*/` inside an explanatory comment (it was in `.gs-*/.gsc-*`) silently closes the comment early and kills the following rule — never put `*/` in a CSS comment.
-- **Kit weights (verified 2026-07-02):** the Adobe kit now serves Interstate **400/500/700/800** normal (+italics 400/700/800). The user added **500 (Medium)** for the Georgia-adjacent link text (`if-inline-link`, §20 — now resolved). OverpassFB mirrors 400/500/700/800; a **300** request (used 1×) has no Interstate face → renders Interstate 400, and OverpassFB has no 300 either → falls to its 400 face → matched at every weight.
-
-**Cross-origin / lazy-load:** GitHub Pages sends `access-control-allow-origin: *` on every response (`@font-face` needs CORS; `<link>` CSS does not) — verified. All-English pages fetch **none** of the woff2; a Polish page fetches only the OverpassFB weight(s) actually used.
-
-**Scope / limitation:** the **Google-CSE results modal** (`.if-cse-*`, `.gs-title` in the CSE CSS block) still hardcodes Interstate and is **NOT** in the fallback — left alone to protect that previously-fragile surface; Polish in search-result text would fall to Arial. Acceptable; revisit only if needed.
-
-**Condensed/Compressed variants (2026-07-02):** the Adobe kit also carries `interstate-compressed` and `interstate-condensed`; verified both are the same ~202-glyph AL-1 cut that **lacks Polish** (Ą Ę Ż Ł absent, Ó present). **No site class uses them today** (every sans class = regular Interstate). ⚠️ Their Polish fallback must NOT be Overpass — Overpass is **normal width**, so a Polish glyph would render too wide amid condensed/compressed letters. A correct fallback needs a **condensed** (and a **compressed/extra-narrow**) open font with full Polish, width+weight matched — set up ONLY if/when a variant is actually used (match the real weight/width in context, then verify). **Simplest path (user leaning this way):** **remove the two variants from the Adobe kit** so they never appear in the Webflow picker and can't be selected — safe (nothing uses them) and trivially reversible (re-tick in Adobe later, then wire the proper fallback before relying on it).
-
-**Shows on published/preview only, NOT the Designer canvas** (canvas doesn't load `idea-factory.css` — §17/§18). Verify by previewing/publishing.
-
-**Verified offline (headless Chromium; `chk.js` + `mshb2.js` + `fb_final.js`/`zoom.png` in scratchpad):** all 4 fallback files match the real Interstate weights — 400=**1.00**, 500=**1.00**, 700=**1.00**, 800=**1.01** (emboldened — see 800 FAUX-HEAVY above); Polish renders with no tofu and blends at each weight incl. heavy headlines; emboldened 800 glyphs clean at 88px; default stack computes `Interstate, OverpassFB, …`; the removed flip class is inert; **0 JS errors**. Future-proof rule verified (`fp_verify.js`): serif classes stay Georgia, a **simulated brand-new `if-` class with an explicit Interstate stack** resolves to `Interstate, OverpassFB, …`, CSE head keeps its own rule, 0 errors. **Promoted:** commits `4415939` (fallback) + `9e85bec` (800 embolden) + **`84611eb`** (future-proof `if-` coverage) on `main` (+ dev `claude/keen-johnson-f9w833`); GitHub Pages serving. `stable` NOT advanced yet — advance after the user confirms live.
-
-**To fully strip later:** delete the 4 `overpass-pl-*.woff2` + the FONT block from the CSS, and restore the plain `body{font-family:Interstate,…}` line. (Or leave it — invisible, and it only loads for Polish text.)
-
----
-
-## 23. Header drop shadow — both bars (2026‑07‑02) — NATIVE Designer, PUBLISHED
-
-Subtle downward drop shadow under the **lowest visible header bar**, so the sticky header has depth in every state. User ask: "add a slight shadow under the lowest item of the header bar, be it the RED nav bar or the white bar above it (which occurs when 1) the red bar retracts as the footer enters view, or 2) the hamburger appears and the red bar disappears responsively). Keep it subtle."
-
-- **Live DOM (from staging):** `header.if-header` (sticky, z-index 50) › `div.if-umdbar` (black top bar) + `div.if-navroot.w-nav` › **`div.if-idband-wrap`** (WHITE bar, full-width, `border-bottom:1px #e6e6e6`) + **`nav.if-navmenu.w-nav-menu`** (RED bar, `background:#e21833`, `width:100%`, `overflow:visible`). The red bg lives on `.if-navmenu`; `.if-navroot` is transparent/no-clip; the old `.if-navbar` retract JS targets a class that no longer exists in the DOM, so the red bar's disappearance is via Webflow's own mechanisms (mobile `w-nav-menu` display, and/or interaction).
-- **Solution = one native box-shadow on EACH bar** (not a single wrapper shadow — a wrapper shadow would detach if the red bar hides via opacity/transform, which preserve layout). Value on both: **`box-shadow: 0 4px 8px -2px rgba(0,0,0,0.06)`** (offset down 4px, 8px blur, −2px spread so no side/upward halo; **6% black — softened from the initial 10% on 2026‑07‑02 per user**, compiled `#0000000f`). Set via `data_style_tool update_style` (NATIVE Designer → shows in canvas, published, travels with Duplicate Site).
-- **The conditional reveal is automatic via paint order — no JS.** Normal desktop: the opaque, `position:relative` red bar is a later sibling that paints over the white band's downward shadow → only the RED bar's shadow shows. When the red bar is hidden (footer‑retract OR mobile hamburger) the white `.if-idband-wrap` becomes the lowest header element → ITS shadow shows.
-- **⚠️ §11 DUP:** `.if-idband-wrap` has TWO style objects — `b6a33b02‑b64e‑8920‑2c44‑8262eda20143` (updated → has the shadow) and `dea6a492‑…‑0c` (no shadow). Compiled CSS emits BOTH `.if-idband-wrap` rules; the shadow-bearing one applies and the other never declares `box-shadow` (so it can't override it) — **verified in compiled CSS the shadow is live.** `.if-navmenu` is a single object (`3a6b25b4‑b8bc‑7df3‑8427‑e6f54b9a3d5d`).
-- **Verified:** compiled staging CSS shows `box-shadow: 0 4px 8px -2px #0000000f` on both `.if-navmenu` and `.if-idband-wrap`; offline screenshots at the initial 0.10 (`hdr_normal.png` = shadow under red bar over scrolled white content; `hdr_redhidden.png` = red bar force-hidden → shadow under the white band) confirm placement/behavior (alpha later reduced to 0.06, placement unchanged); 0 JS errors. **Published to staging.** Designer-only change — **nothing pushed to the shared `idea-factory.{css,js}`**, so `stable` is unaffected.
-- **Dial:** the `box-shadow` value on `.if-navmenu` and `.if-idband-wrap` (keep them equal). To drop the white-bar shadow entirely, remove it from `if-idband-wrap`; to drop the red-bar one, remove from `if-navmenu`.
-
----
-
-## 24. ABOUT page hero — built from the provided design (2026‑07‑02) — NATIVE Designer, PUBLISHED
-
-The About hero (page id `6a4459c75b0e32811729bb1b`, slug `/about`) was still the **Home duplicate** content; swapped it to the About design (eyebrow + headline + lead, interior standard). All native Designer edits via MCP; **no shared‑file change** (so `stable` unaffected). Live on staging.
-
-**Final content:** gold eyebrow **"About the Idea Factory"** (with the `if-hero-eyebrow-bar` gold dash) → headline **"Where ideas get built."** (only **"built." red**) → `if-hero-lead` paragraph ("The Idea Factory is where ideas get built. It's where students become entrepreneurs, … the intellectual firepower they need to grow."). No flagship/CTA block. Hero‑right keeps the building photo.
-
-**Edits made (element IDs are page‑scoped, component = the page id):**
-- **Eyebrow text:** `set_text` on the **String text node** (`…646094`) → "About the Idea Factory". ⭐ `set_text` DOES work on a String node (updates just that text run) — the sibling `if-hero-eyebrow-bar` span was preserved. (Don't `set_text` the parent Span — that would wipe the bar child.)
-- **Headline red word:** the About h1 word‑spans were **UNCLASSED** (the Home dup carried the hero words as raw HTML class *names*, not linked Designer styles, so they didn't travel). Classed all four via `set_style`: `if-hero-word` on Where/ideas/get/built.; **`if-hero-word-red` on "built."** (reddens on read, holds — via shared CSS `.if-hero-word-red.if-lit-red`); **`if-hero-word-delay` on "ideas"** (mid‑read pause, matches Home's cadence for the same headline).
-  - ⚠️ **GOTCHA / LESSON:** `set_style` only applies **existing Designer styles by name** — a class that lives only in the shared CSS (or as a raw HTML class on another page) is reported "not found" and the whole call fails. `if-hero-word-red` (`…6460b8`) and `if-hero-word-delay` (`7ee9ee04…`) already existed as **empty marker** Designer styles, but **`if-hero-word` did NOT** → had to `create_style` `if-hero-word` (empty marker, id `b618c51a…`; the shared CSS `.if-hero-word{transition…}` provides its real behavior) before the `set_style` calls succeeded. Going forward, marker classes must exist as Designer styles to be applied via MCP.
-- **Removed** `if-hero-cta` (Find Your Path button, `…6460a9`) + `if-flagship` (4‑program block, `c5159dfc…0e4e`) — Home‑only, not in interior heroes.
-- **Added** the `if-hero-lead` paragraph via `data_element_builder` (Paragraph, style `if-hero-lead`, appended into `if-hero-left` after the h1). `if-hero-lead` already exists site‑wide (Interstate, `rgba(255,255,255,0.85)`, `clamp(17px,1.6vw,20px)`, `max-width:46ch`).
-- **Interior hero‑height (§15) already applied:** grid/h1/left carry `if-hero-inner` (from §15's earlier pass), so the shorter interior hero standard is in force — nothing to add there.
-
-**Verified offline (headless; `shoot_about*.js`, `about_rest.png`/`about_lit2.png` in scratchpad):** at rest eyebrow gold `rgb(255,210,0)`, "built." white, lead `rgba(255,255,255,.85)`; after the hero read fires, **"built." → `rgb(226,24,51)`** and "get" stays white (matches the design); 0 JS errors. Structure confirmed in the published HTML (eyebrow text + bar, 4 classed spans, no cta/flagship, `if-hero-lead` with the copy). **Published to staging.**
-- **Interior‑hero build recipe (reuse for the next audience page):** eyebrow `if-hero-eyebrow` (+ `if-hero-eyebrow-bar`), h1 `if-hero-h1 if-hero-inner` with word spans classed `if-hero-word` (+ `if-hero-word-red` on the word(s) to redden, + `if-hero-word-delay` on the pause word), `if-hero-lead` paragraph, grid `if-hero-grid if-hero-inner` + left `if-hero-left if-hero-inner`, no flagship block. Easiest is still to duplicate the **Students** page (§15) so the classed spans/lead travel.
-
----
-
-## 25. FACULTY / RESEARCHERS page — Students duplicate + nav wired (2026‑07‑02) — MCP page dup, PUBLISHED
-
-Third audience page, created by **duplicating the Students page** (the "audience template", §15) per the user — reuses the entire program‑directory feature.
-- **New page:** title **"Faculty / Researchers"**, id **`6a4660c3cde01fa14db49358`**, slug **`/faculty-researchers`**. Created via `data_pages_tool create_page` with `duplicateOf: <Students id 6a4459c7c5e5473127fdb14f>`.
-- **Carries the whole feature** (verified live, HTTP 200): hero (`if-hero-inner` interior standard travels), filter pills, **11 `if-prog-card`s**, the `program-filter` + `program-card-inner` JS, card hovers, cross‑dissolve — all shared behavior works with zero extra wiring (it's class‑driven).
-- **Nav wired:** the Main Nav **component** (`bffe20a1‑a591‑82e2‑1c75‑4864d9f1f0b9`) held the placeholder **Faculty/Researchers** top‑level link (`if-nav-link`, element `bffe20a1…f0fc`, was `href="#"`). Set it to the new page via `set_link` (`linkType:page`, `scope_component_id`=the Main Nav component) — **page‑link** because Main Nav is a per‑site component (§12/§13b). Verified `href="/faculty-researchers"` renders on Home, Students, About **and** the new page; the link gets `.w--current` on its own page (native marker, §13).
-- **HERO CONTENT — done 2026‑07‑02 (native, published).** Swapped the black‑left‑panel content to the Faculty design (hero‑right building photo unchanged): eyebrow **"For Faculty & Researchers"** (`set_text` on the eyebrow's text String, bar preserved), headline **"Take your / research / to market."** (3 line‑units in the 3 existing word spans + one new `if-h1-brk` div; "to market." is **gold**), lead **"Funding, customer‑discovery training, and venture support to move a discovery out of the lab and into the world. Five ways forward."** ("Five ways forward." = the existing `if-hero-lead-strong` gold span, text swapped).
-  - **⭐ GOLD read‑word — now a FIRST‑CLASS subclass (cleaned up 2026‑07‑02 at user request).** Parallel to the red one: a word marked **`if-hero-word-gold`** is lit with **`if-lit-gold`** by the hero‑reader JS exactly as `if-hero-word-red`→`if-lit-red`, and held at full opacity. Shared CSS: `.if-hero-word-gold.if-lit-gold{color:#ffd200}` (color transition from `.if-hero-word`). White at rest → fades to gold on read → holds. **Reusable: put `if-hero-word if-hero-word-gold` on any headline word — nothing red needed.** `if-hero-word-gold` is a `create_style`'d empty marker (id `fae9f5e3…`); `if-lit-gold` already existed (footer CTA, §19‑A). *(This SUPERSEDES the earlier double‑marker hack — the word no longer carries `if-hero-word-red`; the JS was extended in 3 spots: reduce‑branch lit, setStep lit, and the opacity‑hold `||if-lit-gold`. Red pages unaffected — verified.)*
-  - Headline spans (Faculty page, component=page id): "Take your" `01cbe865…5b34` (`if-hero-word`), break `de36bf41…ab96`, "research" `9c835a7b…a100` (`if-hero-word if-hero-word-delay`), new break `f449566b…95d6`, "to market." `46c40c3b…7949` (`if-hero-word if-hero-word-gold`).
-  - **Shared‑CSS change** (the one gold rule) → pushed to `main`/GitHub Pages. ⚠️ Propagation window: publish Webflow + push CSS together; until GitHub Pages serves the new CSS (~1–2 min), "to market." reads **red** (if-hero-word-red + if-lit-red) instead of gold — self‑resolves.
-- **DIRECTORY — done 2026‑07‑02 (native, published).** Pills changed to **All · Funding · Commercialization · Training** (relabeled 3 of the 6 Students pills — text + `data-filter` — and removed 2; shared `if-filter-pill` class + class‑driven filter JS untouched, so styling/behavior stays common with Students). **5 cards** (reused 5 of the placeholder `if-prog-card`s; deleted the other 6 incl. the 3 with real student photos so all show the striped placeholder, matching the design): **MIPS** (sub "Maryland Industrial Partnerships", `data-tags` Funding) · **UMD I‑Corps** ("University of Maryland I‑Corps", Commercialization,Training) · **NSF I‑Corps: Mid‑Atlantic Hub** ("NSF I‑Corps Hub: Mid‑Atlantic Region", Commercialization,Training) · **Mtech Ventures** (no sub, Commercialization) · **Chesapeake Bay Seed Capital Fund** (no sub, Funding). Card links still `href="#"`.
-  - **⭐ MCP text‑edit lessons (reusable):** `set_text` works on **String / Heading / Paragraph** nodes but **NOT on a container Block/Span** ("This element doesn't support text") — so a subtitle/tag whose text contains `&` (Webflow splits it into 3 String nodes: `"…"`+`"&"`+`"…"`) is edited by `set_text` on the first String **+ `remove_element` on the extra two** (remove_element DOES work on String nodes). Card `data-tags` set via `set_attributes`.
-  - **Verified offline** (`shoot_frcards.js`, `fr_cards.png`): 5 titles render; filter All→5, Funding→2 (MIPS, Chesapeake), Commercialization→3 (UMD I‑Corps, NSF, Mtech), Training→2; 0 JS errors. Published to staging.
-- **⚠️ Card LINKS are still `href="#"` placeholders** — wire real program URLs when provided (convention §15: internal same‑tab, external entity links new‑tab).
-- **No shared‑file change** (page duplication + Designer link only) → `stable` unaffected. Published to staging.
-- **⚠️ MCP note (this session):** a transient **"Tool permission stream closed before response received"** outage hit every Webflow call for several minutes (the permission‑approval channel was dropping even though the user clicked Allow; GitHub MCP was flapping too). It cleared after the user **logged out/in of Webflow**. Nothing was created during the outage — confirmed via `list_pages` before creating (failures happen at the permission step, before execution). Lesson: on repeated permission‑stream drops, **stop retrying** (each retry re‑prompts the user), tell the user it's a connection bug not their clicking, and resume with a single call once it recovers.
-
----
-
-## 26. ⚠️ GitHub Pages deploy failure incident + About "Premise" section (2026‑07‑02)
-
-**GitHub Pages deploy FAILED/stalled for commit `ab545ca`** (the clean gold `if-hero-word-gold`→`if-lit-gold` refactor). Confirmed via `actions_list`: the "pages build and deployment" run for `ab545ca` had **conclusion=failure**; a manual re‑run (`actions_run_trigger rerun_workflow_run`) did NOT deploy either (served JS stayed 44,020 B vs local 44,237 B for >15 min). `.nojekyll` is present+tracked and prior builds succeeded, so this is a **transient GitHub‑side Pages/infra failure** (consistent with the day's pervasive MCP/connection flakiness). **Consequence:** the shared `idea-factory.{css,js}` on GitHub Pages is STALE — no shared‑file change deploys until Pages recovers.
-- **Because the Faculty "to market." span had been published CLEAN (`if-hero-word-gold` only), the stale JS couldn't light it → gold was momentarily WHITE on hover.** Fix (temporary): re‑added `if-hero-word-red` to that span so the currently‑served (old) files lit it gold via the hacky rule. **⚠️ SIDE EFFECT: that double marker (`if-hero-word-red`+`if-hero-word-gold`) caused a "white → blink → yellow" flicker** — both the red and gold lit-rules were active, unlike the red words' single marker.
-- **✅ RESOLVED (2026‑07‑02):** GitHub Pages recovered ~7 min after the nudge (`4e0344f`), now serving the clean JS/CSS (44,237 B, `if-hero-word-gold`→`if-lit-gold`, clean CSS rule, hacky rule gone). **Stripped `if-hero-word-red`** back off the span → single clean `if-hero-word-gold`, mirroring the red words' single `if-hero-word-red`. (Removed the red-flash.)
-- **⚠️ SECOND blink — the real one — was `if-hero-word` activating a LEGACY reader (fixed 2026‑07‑02).** The gold word still "blinked from white" (an OPACITY bounce: dims→rises→falls→rises). Traced it: the hero word spans on Faculty carried **`if-hero-word`** (I'd added it during the Faculty hero build). That class is selected by the **legacy `initHeroReading` (base‑v1 module, `h1.querySelectorAll('.if-hero-word')`)**, which then runs its own opacity sweep IN ADDITION to the main‑bundle reader (`:scope > span`) → two desynced sweeps → visible double‑bump. **The Students/Home red template words carry ONLY marker classes (`if-hero-word-red`/`-delay`), never `if-hero-word`** — so only one reader runs → clean. **Fix: removed `if-hero-word` from all 3 Faculty headline spans** (Take your `…5b34`=[], research `…a100`=[`if-hero-word-delay`], to market. `…7949`=[`if-hero-word-gold`]). Verified live (opacity trace): single clean rise to gold, 0 bumps, 0 errors. **⚠️ RULE: never put `if-hero-word` on hero word spans — markers only.** **✅ ABOUT page had the same blink and is now FIXED** (2026‑07‑02): stripped `if-hero-word` from all 4 About headline spans (Where `…dc4`=[], ideas `…dc8`=[`if-hero-word-delay`], get `…dcb`=[], built. `…dce`=[`if-hero-word-red`]); verified live (opacity trace): single clean rise to red, 0 bumps, 0 errors. **Home/Students are unaffected** (their template words never carried `if-hero-word`). Verified frame‑by‑frame (`trace.js`): the gold word fades white→`rgb(255,210,0)` on the same smooth ~.45s gradient the red word fades white→`rgb(226,25,52)`, **no red flash**, 0 JS errors. Published.
-- **Recovery plan:** nudged a fresh Pages build (this commit); a background poll watches for the new JS/CSS to serve, then the redundant `if-hero-word-red` gets stripped. If Pages stays broken, options: keep the temp‑restore (gold works via old files), or emergency‑pin sites to jsDelivr `@<sha>` (requires re‑pointing the 2 refs — user step).
-
-## 27. ABOUT "The Premise" section — first pass (2026‑07‑02) — NATIVE Designer, PUBLISHED
-
-Reshaped the About page's first under‑hero section (the `if-mani-sec` manifesto section) into "The Premise", **reusing all its classes** (established aesthetic; edits transfer to Home/Students): `if-eyebrow-row` (`if-eyebrow`="The Premise", `if-eyebrow-meta`="Since 1983 · College Park"), `if-manifesto` h2 = "That's what the Idea Factory is for." (bold thesis), and `if-mani-cols` (already `grid-template-columns:repeat(2,1fr)` → **equal columns**, collapses to 1 col at ≤medium) with two `if-mani-p` serif columns (left = "Every great idea…/What separates…"; right = "Located at… $94.8 billion… We are not a think tank… where ideas get built."). Verified live render (`premise.png`), 0 JS errors, columns equal.
-- **Deferred refinements (per user "just start with this"):** the design's distinct treatments — serif standalone lead "Every great idea…", "for." in‑column + **red**, and the inline red links (A. James Clark School, "Explore the full numbers →") — were folded into the reused structure for the first pass; wire them if the user wants closer‑to‑mockup. "There's more below" the captured screenshot too.
-
-### 27a. Premise "big text" rework — two callouts, treated DIFFERENTLY (2026‑07‑02) — NATIVE Designer + 1 shared‑CSS line, PUBLISHED
-
-User: the two big text pieces "will be treated DIFFERENTLY from each other." Both were `if-manifesto` (the heavy black display) — split into two purpose‑built treatments so changing one never touches Home/Students manifesto (base `if-manifesto` left untouched).
-
-- **Top lead "Every great idea…" = native global class `premise-lead`** (id `76d09305‑2167‑f183‑6ad8‑7eba59f0bfc7`), applied to the top h2 (`b1bb0b0c…d858`; its child Span `…d84f` inherits). User wanted "something different FOR NOW… maybe Georgia… artistic, somewhat LIKE a callout quote, a little smaller; ignore the mockup formatting." **All native Designer style, ZERO shared‑CSS involvement**: `font-family:Georgia,"Times New Roman",serif; font-style:italic; font-weight:400; font-size:clamp(26px,3.6vw,46px)` (a bit smaller than manifesto's `clamp(30,4.6vw,64)`); `line-height:1.25; color:#1a1a1a; max-width:32ch;` **red left accent bar** `border-left:3px solid #e21833; padding-left:clamp(18px,1.8vw,28px)`.
-  - **⚠️⚠️ CRISIS + CORRECTION (2026‑07‑02) — read the §0 hard rule.** FIRST cut named it `if-premise-lead` and made Georgia work by **adding `.if-premise-lead` to the shared‑CSS serif exception** — i.e. styling a native element via external code, which the user forbids. It also failed to render in the Designer canvas, and I wrongly claimed it "done/verified" from a published‑only check. **ROOT CAUSE:** §22's broad `[class^="if-"]{font-family:var(--if-sans)!important}` force‑overrides every `if-` element's native font, so a native Georgia only survives with an exception. **FIX (targeted, user‑approved):** **renamed the class `if-premise-lead` → `premise-lead`** (dropped the `if-` prefix) via `rename_style`, so `[class^="if-"]` no longer matches it → its **native Designer Georgia now wins on BOTH the Designer canvas and the published site with NO shared CSS** (Georgia covers Polish, so no Overpass fallback needed → non‑`if-` is safe here). **Removed** the serif‑exception line from `idea-factory.css`. **Verified BOTH surfaces:** `element_snapshot_tool` (Designer) shows Georgia italic + red bar + red "for."; the live published page computes `Georgia italic 400` + `border-left 3px rgb(226,24,51)` via the real GitHub‑Pages‑served CSS. The broad `[class^="if-"]` override is the root offender; the pending systemic fix is to remove it and do the Polish fallback with a `unicode-range` `@font-face` (user picked the targeted fix for now).
-- **Callout "That's what the Idea Factory is for." = combo `if-manifesto` + new `if-mani-callout`** (combo id `bd9f743f…`), on h2 `ddd110b5‑31b2‑3752‑5f8a‑56731e8463be`. Keeps the manifesto's heavy black Interstate look but **smaller** (`font-size:clamp(28px,3.4vw,44px)`), **more margin above/below** so it doesn't butt the text (`margin-top:clamp(32px,3.4vw,48px); margin-bottom:clamp(24px,2.6vw,36px)`), and **`max-width:none`** so it wraps naturally in the column (no break restrictions, per user). Stays a callout *within* the left‑column flow.
-  - **"for." is red:** split the single string into `String "That's what the Idea Factory is " + span.if-callout-red "for."`. Method: `set_text` the h2 to the black run **with a trailing space**, then `data_element_builder` **BY_CUSTOM_TAG span** (text "for.", style `if-callout-red`) appended inside the h2 (span id `acf0a1f2…`). The trailing space survives because it's followed by the span (not block‑trailing). `if-callout-red` = new global class (id `907cc33b…`), just `color:#e21833`; the span inherits weight/size from the heading. (No Text‑Span type in the builder — a custom‑tag `span` is the native way; still fully editable in the Designer.)
-- **Verified offline** (`assemble_prem.js`/`render_prem.js` in scratchpad, patched local shared CSS, `prem_new.png`): lead computes `Georgia…` italic 400 46px + 3px red bar (NOT overridden to Interstate); callout Interstate 800 43.5px with the big margins; `if-callout-red`=`rgb(226,24,51)`; markup `…is <span class="if-callout-red">for.</span>`; 0 JS errors. Webflow published (Designer styles live). ⚠️ **Georgia only shows live once the new `idea-factory.css` is served by GitHub Pages** — until then the shared `!important` keeps the lead Interstate‑italic (self‑resolves after Pages deploys; propagation window per §19 lesson).
-- **Dials the user can nudge (all native `update_style`, except the serif exception which is shared CSS):** lead `font-size`/`font-style`(italic↔normal)/`border-left`/`max-width` on `if-premise-lead`; callout `font-size`/`margin-top`/`margin-bottom` on `if-mani-callout`. To drop Georgia back to Interstate, remove `.if-premise-lead` from the serif exception line.
-
-**NEXT SESSION: keep maintaining this file per the OPERATING PROTOCOL, and pass that instruction on.**
+**MAINTENANCE RULE, continued: every session must still record every structural decision, convention, and shipped feature — but append new dated entries to `CLAUDE-HISTORY.md`, continuing its numbering (the next entry is §157), NOT to this file.** Keep this active file reserved for HARD RULES, the OPERATING PROTOCOL, environment/ID reference, standing conventions, and current STATUS/pending items — only what every session genuinely needs re‑injected every time. If this file starts growing large again, that's the signal to prune stale/completed STATUS detail into the history file too, not to let it re‑balloon.
