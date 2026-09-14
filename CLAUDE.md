@@ -171,6 +171,37 @@
 >   never force‑push over it; never assume a freshly‑created local branch is the whole story.**
 > - **A non‑fast‑forward push rejection, or the injected file disagreeing with what a fresh `Read` shows,
 >   is the SIGNAL to run both checks immediately** — not a connectivity fluke worth retrying past.
+> - **⚠️ 2026‑09‑14 — THIS EXACT FAILURE RECURRED, WORSE, AND COST HOURS OF THE USER'S TIME SORTING IT
+>   OUT WITH ME LIVE. Never again — READ THIS BLOCK THE MOMENT CLAUDE.md LOOKS SHORT/OLD OR A GIT HOOK
+>   WARNS ABOUT UNPUSHED COMMITS.** A mid‑session environment restart silently reset the local checkout
+>   to `main`'s tip. `main` and this project's real dev branch (`claude/keen-johnson-f9w833`) had **been
+>   diverged since 2026‑07‑06** (commit `55bd2d5`) with ZERO shared history added on either side since —
+>   `main` had grown **139 of its own commits directly editing the shared `idea-factory.css`/`.js`**
+>   (unrelated hover‑effect/Formstack work, nothing to do with whatever the dev branch was doing), while
+>   the dev branch had grown **376 commits** including this entire file and `CLAUDE-HISTORY.md`. Neither
+>   side has the other's work — this is NOT the "freshly‑created local branch off main" case §92 already
+>   covered, it's two REAL, independently‑long‑lived lines that were never reconciled.
+>   - **Diagnose fast, in this order:** `git status` (must be clean before anything below) → `git fetch
+>     origin main <assigned‑branch>` → if `git rev-parse --is-shallow-repository` says `true`, also
+>     `git fetch --unshallow origin` (a shallow clone makes `git merge-base` falsely report "no common
+>     ancestor" between two branches that really do share one further back) → `git merge-base
+>     --is-ancestor origin/<assigned‑branch> HEAD` (or vice‑versa) to see if this is a trivial
+>     fast‑forward gap or a real divergence.
+>   - **If `git status` is clean (no uncommitted work of your own) and local `HEAD` doesn't match
+>     `origin/<assigned‑branch>`: `git reset --hard origin/<assigned‑branch>` is SAFE** — it only
+>     recovers your own already‑pushed work that the restart had hidden from you; a clean tree has
+>     nothing unique to lose. This is different from force‑pushing — you are moving your LOCAL pointer
+>     to match the REAL remote, not overwriting the remote with anything.
+>   - **NEVER merge, rebase, or push either branch's version of the shared `idea-factory.css`/`.js` over
+>     the other's, on your own initiative, once you've found a real divergence like this.** The user has
+>     explicitly stated (2026‑09‑14): keeping these two in sync is YOUR bookkeeping to manage correctly
+>     and quietly — it must never surface as a decision dumped on them mid‑task, and it must never be
+>     "solved" by silently merging without being asked. If you find this exact divergence again, note it
+>     here (update the date/commit‑counts if they've changed) and keep working on your own dev branch —
+>     do not block other work on it, do not ask the user to adjudicate it, and do not touch `main`.
+>   - **A stop‑hook or similar reporting "N unpushed commits" can be this same false alarm** — it may be
+>     counting commits unique to a wrongly‑checked‑out local `HEAD` versus your real upstream, not actual
+>     uncommitted new work. Check `HEAD` against `origin/<assigned‑branch>` before reacting to it.
 > - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#4 — keep this banner
 >   intact and pass it on.
 
