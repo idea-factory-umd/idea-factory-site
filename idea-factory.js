@@ -1979,47 +1979,9 @@ try {
 /* botnav-accent-scroll moved to the consolidated 'botnav-accent-scroll' module (ifScrollEngine)
    above, right after hero-countup-easeout. */
 
-/* ===== module: hero-h1-autofit (marker class .if-hero-autofit) =====
-   Same technique as header-name-fit above (measurement-based, resize-only, proportional
-   shrink to a floor) applied to a hero H1 whose text content can vary in length per page/site
-   (e.g. program names of very different lengths) and must never overflow its column, at any
-   breakpoint, for any content - without a hand-picked per-instance font-size or coefficient.
-   Native line breaks the Designer author places inside the heading (manual break elements) are
-   never touched - this module only ever reads/writes font-size. Resets to the NATIVE
-   Designer-set font-size on every run (so it's fully reversible and never grows past the
-   author's intended max), then shrinks in small steps only if the current content genuinely
-   overflows its own box at that size. */
-try {
-(function(){
-  var FLOOR_RATIO = 0.5;
-  var STEP = 0.02;
-
-  function fitOne(el){
-    el.style.fontSize = ''; // reset to native Designer value every run
-    var base = parseFloat(getComputedStyle(el).fontSize);
-    if (!base) return;
-    function tooTight(){ return el.scrollWidth > el.clientWidth + 1; }
-    var factor = 1, guard = 0;
-    while (tooTight() && (factor - STEP) >= FLOOR_RATIO && guard < 60) {
-      factor -= STEP;
-      el.style.fontSize = (base * factor) + 'px';
-      guard++;
-    }
-  }
-
-  function fitAll(){
-    document.querySelectorAll('.program-page-cbscf-home-hero-h1, .program-page-cbscf-impact-hero-h1, .program-page-cbscf-apply-hero-h1').forEach(fitOne);
-  }
-
-  var raf = null;
-  function onR(){ if (raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(fitAll); }
-  function init(){
-    fitAll();
-    window.addEventListener('resize', onR, {passive:true});
-    if (document.fonts && document.fonts.ready && document.fonts.ready.then) document.fonts.ready.then(fitAll);
-  }
-  if (document.readyState !== 'loading') init(); else document.addEventListener('DOMContentLoaded', init);
-})();
-} catch (_e) { try { console && console.warn && console.warn('[idea-factory] hero-h1-autofit error:', _e); } catch (_) {} }
+/* hero-h1-autofit: NOT here by design. CBSCF's hero-H1 auto-fit is a page-scoped fix (only
+   3 CBSCF pages use it) and lives as a native HTML Embed element on each of those 3 pages
+   instead of in this shared file, so it can never affect any other site/page. See
+   CLAUDE-HISTORY.md for the full writeup. */
 } /* end window.__ifEngine load guard */
 
