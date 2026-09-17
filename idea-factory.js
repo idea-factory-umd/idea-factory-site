@@ -1423,6 +1423,73 @@ try {
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] dd-anchor-spy error:', _e); } catch (_) {} }
 
+/* ===== module: navlink-goto-spy (current-section marker for a flat top-level nav using
+   "#goto:<id>" anchors) =====
+   Some sites' main nav (CBSCF, UMD I-Corps, ...) point their in-page section items at
+   "<page>#goto:<id>" instead of a plain "#<id>", because the same shared nav Component is
+   instanced across multiple pages of that site and needs to jump to another page's section when
+   clicked from elsewhere (handled by the cross-page-anchor-scroll module above). Webflow's own
+   native current-page scrollspy (the "links" feature built into webflow.js itself) only ever
+   recognizes a same-page hash matching /^#[a-zA-Z0-9_-]+$/ - the colon in "#goto:" disqualifies
+   these links from it structurally, on every page, always - confirmed by direct inspection of
+   webflow.js: it is not a missing style or a missing class, native scrollspy simply never sees
+   these links at all. ASPIRE's nav shows the native highlight correctly only because it is a
+   single page and its links happen to already be plain same-page "#id" hrefs, so native scrollspy
+   covers it with zero custom code. This module closes that gap for a flat (non-dropdown) nav the
+   same way dd-anchor-spy above already does for Ventures' "Incubator" dropdown: toggle Webflow's
+   OWN real .w--current class (already styled sitewide, already what native scrollspy would apply)
+   based on actual scroll position, so a #goto: nav item behaves identically to a plain-hash one
+   whenever the browser is actually on the page that item's link targets - and stays untouched
+   (left to native handling) on every other page. Class/attribute-driven only - portable to any
+   future flat nav with the same shape, not hardcoded to one site. */
+try {
+(function(){
+  function init(){
+    var menus=document.querySelectorAll('.if-navmenu');
+    menus.forEach(function(menu){
+      var links=[].slice.call(menu.querySelectorAll('a.if-nav-link[href*="#goto:"]'));
+      if(links.length<2)return;
+      var groups={};
+      links.forEach(function(a){
+        var href=a.getAttribute('href')||'';
+        var hashIdx=href.indexOf('#goto:');
+        if(hashIdx<0)return;
+        var base=href.slice(0,hashIdx)||location.pathname;
+        var id=href.slice(hashIdx+6);
+        if(!id)return;
+        (groups[base]=groups[base]||[]).push({link:a,id:id});
+      });
+      Object.keys(groups).forEach(function(base){
+        if(base!==location.pathname)return; // these items target a different page - leave to native handling
+        var items=[];
+        groups[base].forEach(function(g){
+          var target=document.getElementById(g.id);
+          if(target)items.push({link:g.link,target:target});
+        });
+        if(items.length<2)return;
+        var header=document.querySelector('.if-header');
+        ifScrollEngine.add({
+          read:function(){
+            var headerH=header?header.getBoundingClientRect().height:0;
+            var line=headerH+12,tops=[],i;
+            for(i=0;i<items.length;i++){tops.push(items[i].target.getBoundingClientRect().top);}
+            return {line:line,tops:tops};
+          },
+          write:function(m){
+            if(!m)return;
+            var cur=0,i;
+            for(i=0;i<items.length;i++){if(m.tops[i]<=m.line)cur=i;}
+            for(i=0;i<items.length;i++){items[i].link.classList.toggle('w--current',i===cur);}
+          }
+        });
+      });
+    });
+    ifScrollEngine.kick();
+  }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] navlink-goto-spy error:', _e); } catch (_) {} }
+
 /* module: hero-countup-easeout — was one specific instance (MIPS-Impact hero "41:1" stat) that
    needed a different feel than the shared .if-countup (ease-in-cubic, slow start / abrupt stop):
    ease-out-quad instead, for a quicker pickup and a gentle deceleration into the final value.
