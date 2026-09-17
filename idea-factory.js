@@ -1396,17 +1396,15 @@ try {
       ifScrollEngine.add({
         read:function(){
           var headerH=header?header.getBoundingClientRect().height:0;
-          /* +24 (0 on CBSCF/Ventures pages) must match the "cross-page-anchor-scroll" module's
-             own goTo() landing offset EXACTLY - these links are #goto:<id> anchors, so that's
-             the offset a click actually lands them at; +12 on top is the same "just past the
-             landing point" buffer walk-spy/jumpnav-spy/walkcopy-spy all already use. Getting
-             this wrong (e.g. the +12-only value first shipped here) reads the just-clicked
-             target as NOT yet reached at the exact moment it lands, so the PRECEDING item
-             wrongly stays current - confirmed live 2026-09-10 (click Eligibility, marker stuck
-             on What You Get, on Ventures-Incubator). CBSCF's gap was zeroed out 2026-09-17, then
-             Ventures the same day since it shares this exact mechanism - kept in sync here. */
-          var gap=/^\/(cbscf|ventures)-/.test(location.pathname)?0:24;
-          var line=headerH+gap+12,tops=[],i;
+          /* must match the "cross-page-anchor-scroll" module's own goTo() landing offset
+             EXACTLY - these links are #goto:<id> anchors, so that's the offset a click
+             actually lands them at; +12 on top is the same "just past the landing point"
+             buffer walk-spy/jumpnav-spy/walkcopy-spy all already use. Getting this wrong
+             (e.g. the +12-only value first shipped here) reads the just-clicked target as
+             NOT yet reached at the exact moment it lands, so the PRECEDING item wrongly
+             stays current - confirmed live 2026-09-10 (click Eligibility, marker stuck on
+             What You Get, on Ventures-Incubator). Landing gap removed sitewide 2026-09-17. */
+          var line=headerH+12,tops=[],i;
           for(i=0;i<items.length;i++){tops.push(items[i].isBase?-1:items[i].target.getBoundingClientRect().top);}
           return {line:line,tops:tops};
         },
@@ -1774,12 +1772,7 @@ try {
     if (!tgt) return false;
     var hdr = document.querySelector('.if-header') || document.querySelector('header');
     var h = hdr ? hdr.offsetHeight : 0;
-    /* CBSCF + Ventures only: land flush against the header (no gap) - fixes a 24px reveal of
-       the preceding section reported on CBSCF's #goto: links (2026-09-17), then explicitly
-       extended to Ventures the same day since it uses the identical mechanism. Every other
-       site's links through this same shared function keep the original 24px gap unchanged. */
-    var gap = /^\/(cbscf|ventures)-/.test(location.pathname) ? 0 : 24;
-    var toY = Math.max(0, tgt.getBoundingClientRect().top + window.pageYOffset - h - gap);
+    var toY = Math.max(0, tgt.getBoundingClientRect().top + window.pageYOffset - h);
     if (reduced) { window.scrollTo(0, toY); } else { animate(toY); }
     return true;
   }
