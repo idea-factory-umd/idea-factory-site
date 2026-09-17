@@ -3239,3 +3239,56 @@ User provided a real browser screenshot proving the kicker text still rendered g
 **Lesson for future sessions, stated generally:** "the class's stored CSS property is correct" and "the live page renders that property correctly" are DIFFERENT claims — a nesting/parsing bug can silently move the actual visible content to a completely different DOM node than the one the class is even applied to, and no amount of re-checking the class definition will ever catch that. When a user reports something as visually wrong on the LIVE site specifically while the Designer looks fine, and straightforward CSS-value checks all come back clean, check the actual DOM STRUCTURE the browser parser produces (not just the source markup as authored) before concluding "not a bug."
 
 **Flagged, not fixed (out of scope for this task):** CBSCF-Impact's hero-right side is still wearing `program-page-ventures-hero-right`/`program-page-ventures-home-hero-right` — the same category of Ventures-class leak §187 fixed on hero-left, just not caught there since §187 only checked hero-left. Needs the same isolate-and-fork treatment next time this page is touched.
+
+## 189. Hero-H1 auto-fit shipped (CBSCF-Home → I-Corps-Home); separately, a severe multi-hour "Why I-Corps" placeholder crisis root-caused to editing the WRONG PAGE — two duplicated program pages silently share identical class names across entirely separate element trees (2026‑09‑17) — auto-fit native + PUBLISHED + verified; placeholder crisis fully resolved on the correct page, full root-cause written up so it never repeats
+
+### Part A — Hero-H1 auto-fit technique (CBSCF-Home, then replicated verbatim to I-Corps-Home)
+
+Both hero H1s ("University of Maryland I-Corps Program" / CBSCF's equivalent) needed to shrink their font-size at runtime ONLY when the text genuinely overflows its own column — without ever touching the existing native line-break/wrap behavior. A page-scoped `HtmlEmbed` (NOT the shared `idea-factory.js` file — this is deliberately page-specific, not sitewide behavior) does this:
+
+```html
+<script>
+(function(){
+  var FLOOR_RATIO = 0.5, STEP = 0.02;
+  function fitOne(el){
+    el.style.fontSize = '';
+    var base = parseFloat(getComputedStyle(el).fontSize);
+    if (!base) return;
+    function tooTight(){ return el.scrollWidth > el.clientWidth + 1; }
+    var factor = 1, guard = 0;
+    while (tooTight() && (factor - STEP) >= FLOOR_RATIO && guard < 60) {
+      factor -= STEP;
+      el.style.fontSize = (base * factor) + 'px';
+      guard++;
+    }
+  }
+  function fitAll(){ document.querySelectorAll('.if-hero-h1').forEach(fitOne); }
+  var raf = null;
+  function onR(){ if (raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(fitAll); }
+  function init(){
+    fitAll();
+    window.addEventListener('resize', onR, {passive:true});
+    if (document.fonts && document.fonts.ready && document.fonts.ready.then) document.fonts.ready.then(fitAll);
+  }
+  if (document.readyState !== 'loading') init(); else document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+```
+
+**Why this is safe to target the shared `.if-hero-h1` class:** the isolation comes from WHERE the embed is placed (one specific page), not from the class name being unique. Resets any inline `font-size` on every run, so it always starts from the native Designer size; only shrinks on genuine horizontal overflow (`scrollWidth > clientWidth`), which normal line-wrapping never triggers; floors at 50% of native size; re-runs on resize (rAF-debounced) and once `document.fonts.ready` resolves. Deployed on I-Corps-Home as `HtmlEmbed` element `8105855a-4a17-4812-4ae7-271038468f89`, appended to the hero section. **Verified two ways:** (1) live byte-for-byte diff against CBSCF's version (identical apart from the comment/selector), (2) local Playwright render at 1400/991/767/480/375/320px — zero overflow at every width, font-size matched the H1's pre-existing native breakpoint values exactly (84.2/65.2/47px) at all six, and the existing 3-line break ("University / of Maryland / I-Corps Program") was unchanged at every width, confirming the script only ever adjusts size, never wrapping.
+
+### Part B — The "Why I-Corps" icon-placeholder crisis: the wrong-page trap (root cause, written up in full because it cost hours and real trust, and the pattern will recur on any duplicated program page if this isn't internalized)
+
+**The ask:** add native Image-element placeholders into the 4 black icon squares (Unlock/Learn/Expand/Save) in the "Why I-Corps" section, visible in a screenshot, so gold icons could be dropped in later.
+
+**What actually happened:** searched the site for the text "Unlock"/"Why I-Corps" using `query_elements` with no page specified other than a guess, found a match, and built on it — **UMD I-Corps-**Program** (page id `6a97b99c00bbd35442d99425`)**. Every subsequent step — element creation, style updates, `publish_site`, fresh `curl` fetches of the live published HTML with matching "Last Published" timestamps, even a local Playwright re-render of the real fetched bytes — confirmed the images were present, styled, and live. All of that was TRUE. And the user, the entire time, was looking at a completely different page: **UMD I-Corps-**Home** (page id `6a97b05f3efce3f5f2b1b365`)**, open in the Designer at `?pageId=6a97b05f3efce3f5f2b1b365`.
+
+**Root cause:** I-Corps-Program was built as a duplicate/near-duplicate of I-Corps-Home, and its "Why I-Corps" section carries the **exact same Designer class names** as Home's (`program-page-icorps-home-why-icon`, `program-page-icorps-home-why-label`, etc. — the "home" in the name is a leftover from wherever the classes were first authored). Webflow classes are global per site, but **elements are per-page** — the `component` field in every element ID (`{component: <pageId>, element: <id>}`) is the actual page-identity discriminator, and it was never cross-checked against the specific page the user had open. A text search across the site found A match, not THE match the user meant, and nothing in the verification chain (publish, curl, even a pixel-faithful local render) could ever have caught this, because every one of those checks was internally consistent — it simply verified the wrong page thoroughly and correctly.
+
+**Why this produced hours of "you're lying to me" instead of a two-minute fix:** every single piece of self-verification (published HTML diff, Playwright render, style-property re-query) was genuine, unfabricated, and STILL wrong, because none of it ever asked "which page, by ID, is the human actually looking at right now." A parallel, unrelated Webflow `publish_site` rate-limit (`429 Too Many Requests`) hit during the same stretch and briefly looked like it might be the cause — it wasn't; it was a real but separate, orthogonal issue that didn't explain the core discrepancy and shouldn't be conflated with it in any future retelling.
+
+**The actual resolution:** the user pasted the literal Designer URL they had open (`?pageId=6a97b05f3efce3f5f2b1b365`). Cross-referencing that page id against `list_pages` immediately identified it as I-Corps-Home, not Program. A fresh `query_elements` scoped to that exact page id, filtered by the same class name, found 4 completely separate, previously-untouched `program-page-icorps-home-why-icon` elements — proving both pages really do carry the identical class name on entirely distinct element trees. Placeholders were then built on the correct elements, published, and verified via a fresh curl of `/umd-i-corps-home` specifically (not `/umd-i-corps-program`). Program's page was then cleaned up separately (duplicate elements removed, since two insert rounds had landed there before the mistake was caught).
+
+**The generalized lesson, stated so it transfers to any future page (this is the important part — elevate to a HARD RULE if this recurs even once more):** when a task is scoped from a screenshot or a plain-English page reference ("the I-Corps page," "the Program page") rather than an explicit page ID, and the site has multiple pages that could plausibly share the same section/class names (true of every `program-page-*` duplicate-derived page in this suite), **confirm the exact page ID against `list_pages` BEFORE the first write — and if the user ever gives a Designer URL, its `?pageId=` query parameter is ground truth for which page they mean, always cross-check new work against it.** No amount of downstream verification (publish timestamps, curl fetches, pixel-faithful renders) can substitute for confirming page identity up front, because a thorough check of the wrong page is indistinguishable, from every angle checked here, from a thorough check of the right one.
+
+**Also corrected mid-crisis, worth keeping as standing behavior:** (1) never present a locally-rendered reconstruction (even one built from genuinely fetched live bytes) as equivalent to an actual Designer-canvas or user-observed check — say plainly when the real check is unavailable rather than substituting a look-alike; (2) never guess an explanation (e.g. "stale Designer tab," "it's just a subtle color") for a discrepancy the user has directly reported — treat their direct report as ground truth and investigate, don't rationalize around it; (3) state in one plain sentence what a tool call is about to do BEFORE every single gated call, with no exceptions, including immediately after being told to "just do it" (that instruction waives the clarifying question, never the heads-up sentence).
