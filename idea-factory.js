@@ -1423,65 +1423,70 @@ try {
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] dd-anchor-spy error:', _e); } catch (_) {} }
 
-/* ===== module: navlink-goto-spy (current-section marker for a flat top-level nav using
+/* ===== module: navlink-goto-spy (current-section marker for any flat nav bar using
    "#goto:<id>" anchors) =====
-   Some sites' main nav (CBSCF, UMD I-Corps, ...) point their in-page section items at
-   "<page>#goto:<id>" instead of a plain "#<id>", because the same shared nav Component is
-   instanced across multiple pages of that site and needs to jump to another page's section when
-   clicked from elsewhere (handled by the cross-page-anchor-scroll module above). Webflow's own
-   native current-page scrollspy (the "links" feature built into webflow.js itself) only ever
-   recognizes a same-page hash matching /^#[a-zA-Z0-9_-]+$/ - the colon in "#goto:" disqualifies
-   these links from it structurally, on every page, always - confirmed by direct inspection of
-   webflow.js: it is not a missing style or a missing class, native scrollspy simply never sees
-   these links at all. ASPIRE's nav shows the native highlight correctly only because it is a
-   single page and its links happen to already be plain same-page "#id" hrefs, so native scrollspy
-   covers it with zero custom code. This module closes that gap for a flat (non-dropdown) nav the
-   same way dd-anchor-spy above already does for Ventures' "Incubator" dropdown: toggle Webflow's
-   OWN real .w--current class (already styled sitewide, already what native scrollspy would apply)
-   based on actual scroll position, so a #goto: nav item behaves identically to a plain-hash one
-   whenever the browser is actually on the page that item's link targets - and stays untouched
-   (left to native handling) on every other page. Class/attribute-driven only - portable to any
-   future flat nav with the same shape, not hardcoded to one site. */
+   Some sites' nav bars (CBSCF's main .if-navmenu AND its separate bottom "jump back" bar,
+   UMD I-Corps, ...) point their in-page section items at "<page>#goto:<id>" instead of a plain
+   "#<id>", because the same shared Component is instanced across multiple pages of that site and
+   needs to jump to another page's section when clicked from elsewhere (handled by the
+   cross-page-anchor-scroll module above). Webflow's own native current-page scrollspy (the
+   "links" feature built into webflow.js itself) only ever recognizes a same-page hash matching
+   /^#[a-zA-Z0-9_-]+$/ - the colon in "#goto:" disqualifies these links from it structurally, on
+   every page, always - confirmed by direct inspection of webflow.js: it is not a missing style or
+   a missing class, native scrollspy simply never sees these links at all. ASPIRE's nav shows the
+   native highlight correctly only because it is a single page and its links happen to already be
+   plain same-page "#id" hrefs, so native scrollspy covers it with zero custom code.
+   This module closes that gap the same way dd-anchor-spy above already does for Ventures'
+   dropdown: toggle Webflow's OWN real .w--current class (already styled sitewide, already what
+   native scrollspy would apply) based on actual scroll position. It is deliberately NOT scoped to
+   any one class/selector (a first cut that only matched .if-navmenu a.if-nav-link silently missed
+   CBSCF's separate program-page-cbscf-botnav-sec bar entirely) - instead it finds every #goto:
+   link on the page, groups siblings by their shared parent element (however that bar is classed),
+   and - matching dd-anchor-spy's isBase handling - also folds in a same-parent bare same-page link
+   (e.g. a "<Site> Home" item with no hash) as the group's default/base state. A group only tracks
+   once 2+ of its items resolve to real, on-this-page elements, so it is a no-op everywhere else -
+   portable to any future nav/bar with the same shape, on any site, without naming it. */
 try {
 (function(){
   function init(){
-    var menus=document.querySelectorAll('.if-navmenu');
-    menus.forEach(function(menu){
-      var links=[].slice.call(menu.querySelectorAll('a.if-nav-link[href*="#goto:"]'));
-      if(links.length<2)return;
-      var groups={};
-      links.forEach(function(a){
+    var gotoLinks=[].slice.call(document.querySelectorAll('a[href*="#goto:"]'));
+    var parents=[];
+    gotoLinks.forEach(function(a){
+      var p=a.parentElement;
+      if(p&&parents.indexOf(p)<0)parents.push(p);
+    });
+    parents.forEach(function(parent){
+      var anchors=[].slice.call(parent.children).filter(function(c){return c.tagName==='A'&&c.hasAttribute('href');});
+      var items=[];
+      anchors.forEach(function(a){
         var href=a.getAttribute('href')||'';
-        var hashIdx=href.indexOf('#goto:');
-        if(hashIdx<0)return;
-        var base=href.slice(0,hashIdx)||location.pathname;
-        var id=href.slice(hashIdx+6);
-        if(!id)return;
-        (groups[base]=groups[base]||[]).push({link:a,id:id});
+        var gi=href.indexOf('#goto:');
+        if(gi>=0){
+          var base=href.slice(0,gi)||location.pathname;
+          if(base!==location.pathname)return; // targets a different page - leave to native handling
+          var id=href.slice(gi+6);
+          var target=id?document.getElementById(id):null;
+          if(target)items.push({link:a,target:target,isBase:false});
+        } else if(href.indexOf('#')<0 && href===location.pathname){
+          items.push({link:a,target:document.body,isBase:true});
+        }
       });
-      Object.keys(groups).forEach(function(base){
-        if(base!==location.pathname)return; // these items target a different page - leave to native handling
-        var items=[];
-        groups[base].forEach(function(g){
-          var target=document.getElementById(g.id);
-          if(target)items.push({link:g.link,target:target});
-        });
-        if(items.length<2)return;
-        var header=document.querySelector('.if-header');
-        ifScrollEngine.add({
-          read:function(){
-            var headerH=header?header.getBoundingClientRect().height:0;
-            var line=headerH+12,tops=[],i;
-            for(i=0;i<items.length;i++){tops.push(items[i].target.getBoundingClientRect().top);}
-            return {line:line,tops:tops};
-          },
-          write:function(m){
-            if(!m)return;
-            var cur=0,i;
-            for(i=0;i<items.length;i++){if(m.tops[i]<=m.line)cur=i;}
-            for(i=0;i<items.length;i++){items[i].link.classList.toggle('w--current',i===cur);}
-          }
-        });
+      if(items.length<2)return;
+      var header=document.querySelector('.if-header');
+      ifScrollEngine.add({
+        read:function(){
+          var headerH=header?header.getBoundingClientRect().height:0;
+          var line=headerH+12,tops=[],i;
+          for(i=0;i<items.length;i++){tops.push(items[i].isBase?-1:items[i].target.getBoundingClientRect().top);}
+          return {line:line,tops:tops};
+        },
+        write:function(m){
+          if(!m)return;
+          var cur=0,i;
+          for(i=0;i<items.length;i++){if(items[i].isBase)cur=i;}
+          for(i=0;i<items.length;i++){if(!items[i].isBase&&m.tops[i]<=m.line)cur=i;}
+          for(i=0;i<items.length;i++){items[i].link.classList.toggle('w--current',i===cur);}
+        }
       });
     });
     ifScrollEngine.kick();
