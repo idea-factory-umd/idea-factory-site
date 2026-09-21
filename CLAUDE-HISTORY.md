@@ -3487,3 +3487,13 @@ Both hero H1s ("University of Maryland I-Corps Program" / CBSCF's equivalent) ne
 **Same-day correction — the fill class was wrongly applied to the 2 already-correct photos too:** user caught that `icorps-impact-cardimg` had been applied uniformly to all 6 images, including Pathotrak's and Error Corp's, which had no style before and were presumably already displaying correctly on their own — forcing `object-fit:cover` onto them changed their crop, altering something that wasn't broken. Rather than revert those two, user asked to fix the box's *aspect ratio* instead so all 6 crop consistently and correctly together. Changed `program-page-icorps-impact-cardphoto` from a fixed `height:180px` to `aspect-ratio:1/0.618` — the exact golden-ratio value already used by `program-page-icorps-stg-photo`, the established "correct" reference pattern for photo boxes elsewhere on this same page. Published, verified live: compiled CSS confirms `aspect-ratio:1/.618` with `height` removed.
 
 **Verified:** re-fetched the live page fresh (`Last Published` 21 seconds old) and read the actual served HTML directly — confirms zero occurrences of `program-page-cbscf-botnav-sec` anywhere on the page (reference fully gone), and the bottom nav row now reads as 11 plain `<a class="program-page-icorps-home-botnav-link">` items start to finish: "UMD I-Corps Home" (self-link, `w--current`) through "Start I-Corps Prep" (external, `target="_blank"`), with nothing visually or structurally distinct in between.
+
+## 205. I-Corps-Impact spotlight title font-size converted from clamp() to a plain px value (2026‑09‑21) — native Designer only, PUBLISHED, verified against live compiled CSS
+
+**Ask:** user couldn't edit `icorps-impact-spottitle`'s (the "InventWood" heading) font-size in the Designer — the Style panel's Size field showed `0px` and Font showed blank/"Select...".
+
+**Diagnosis:** not corruption — `font-size` was a `clamp(24px, 2.8vw, 32px)` fluid-type expression (this project's own standing convention for responsive type), which Webflow's simple numeric Size input cannot parse or display, so it shows 0/blank even though the stored value is complete and correct (`font-family:Interstate`, `font-weight:800`, `line-height:100%` were all present and fine).
+
+**Fix:** converted `font-size` from the `clamp()` expression to a plain fixed `28px` (the clamp's own midpoint, so nothing jumped visually) — trading fluid viewport-based scaling for direct Designer editability, per explicit user preference for a plainly editable field over fluid type on this element.
+
+**Verified:** published, re-fetched `/umd-i-corps-impact` fresh — compiled CSS confirms `.icorps-impact-spottitle{font-size:28px}`, a plain value with no `clamp()`.
