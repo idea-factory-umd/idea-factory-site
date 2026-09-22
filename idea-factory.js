@@ -1428,6 +1428,42 @@ try {
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] dd-anchor-spy error:', _e); } catch (_) {} }
 
+/* ===== module: dd-toggle-navlink (make a dropdown toggle's label actually navigate) =====
+   Some dropdown toggles' label IS a genuine link to its own page (.if-navlink-text[href]
+   inside .if-ddtoggle) - e.g. UMD I-Corps' "Schedule"/"Program" nav items, Ventures-
+   Incubator's "Incubator" item (the one dd-anchor-spy above already corrects the CURRENT-
+   marking for). The href is genuinely there in the data and Webflow's OWN native current-page
+   detection already treats it as a real link - but clicking it never actually navigates:
+   Webflow's native DropdownToggle intercepts every click within it to open/close the list,
+   consuming the click before the nested anchor's default action can fire. Confirmed
+   empirically (2026-09-22) with a real headless click test against the live page: the
+   dropdown opened (list display none -> block), the URL never changed.
+   Fix: on click of the LABEL LINK ITSELF (not the whole toggle - so clicking the caret still
+   only opens/closes, exactly as before), navigate to its own href directly via
+   window.location. Purely additive: never calls preventDefault/stopPropagation, so Webflow's
+   own open/close click handling and hover-to-open both keep firing exactly as before (the
+   list may flash open for an instant before the page unloads - harmless). Only elements that
+   already carry a real href are touched (`.if-navlink-text[href]`), so a purely-decorative,
+   non-navigable toggle label (e.g. a bare "Programs" with no href) is never affected. Keyed on
+   the class contract only, same as dd-anchor-spy - fixes every current and future dropdown
+   with this shape sitewide, not one hardcoded page. */
+try {
+(function(){
+  function init(){
+    var links=document.querySelectorAll('.if-ddtoggle .if-navlink-text[href]');
+    links.forEach(function(a){
+      if(a.__ifddnav)return;
+      a.__ifddnav=true;
+      a.addEventListener('click',function(){
+        var href=a.getAttribute('href');
+        if(href)window.location.href=href;
+      });
+    });
+  }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] dd-toggle-navlink error:', _e); } catch (_) {} }
+
 /* ===== module: navlink-goto-spy (current-section marker for any flat nav bar using
    "#goto:<id>" anchors) =====
    Some sites' nav bars (CBSCF's main .if-navmenu AND its separate bottom "jump back" bar,
