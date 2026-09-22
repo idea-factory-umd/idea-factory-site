@@ -706,3 +706,11 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
    spinoff's current-link weight can never touch another's). */
 .program-page-ventures-botnav-link.w--current{font-weight:700;}
 .program-page-cbscf-botnav-link.w--current{font-weight:700;}
+
+/* I-Corps news card hover: text grows within the box in addition to the box growing
+   (matching if-nfeat/if-news-cardtext and if-nrow/if-nrowtext elsewhere on the site).
+   Parent-hover-child, so it can't be a native Webflow pseudo - box-level hover/transition
+   and the text wrapper's own transition/transform-origin are native (set directly in the
+   Designer on program-page-icorps-home-news-card / -news-body); only this cross-element
+   rule needs to live here. Shared by I-Corps-Home and I-Corps-News (same class names). */
+.program-page-icorps-home-news-card:hover .program-page-icorps-home-news-body{transform:scale(1.05);will-change:transform;}
