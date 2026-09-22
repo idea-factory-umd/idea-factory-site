@@ -83,6 +83,12 @@ panel and this rule are actually about, and it's the only place a clamp()'s lite
 MIN argument or a not-yet-converted rem value is visible as authored — compiled CSS
 can fold/reorder values in ways that make them harder to parse reliably.
 
+NOTE: text on buttons is a standing, sitewide exception to the floor (explicit user
+sign-off, 2026-09-22 — CLAUDE-HISTORY.md §207/§208). Any style whose name contains
+"btn" (case-insensitive) is reported separately as exempt, not as a violation, and
+does not block a CLEAN result. Plain body/label/paragraph text is NOT covered by this
+exception and must still meet the floor.
+
 NOTE: this only checks the `font-size` property itself. A bundled `font` shorthand
 (e.g. "italic bold 12px/1.5 Arial") that embeds a sub-16px size is a SEPARATE problem
 covered by audit-shorthands.py (HARD RULE #4 — bundled shorthand must be split into
@@ -94,6 +100,15 @@ import json, sys, re, collections
 # The standing floor (CLAUDE.md HARD RULE #12b): nothing ships below this without the
 # user's explicit, individual sign-off.
 FLOOR_PX = 16.0
+
+# Text on buttons is a standing, sitewide exception to the floor (user's explicit,
+# general sign-off, 2026-09-22 — see CLAUDE-HISTORY.md §207/§208: "TEXT ON BUTTONS IS
+# A SPECIAL CASE"). A style name containing "btn" (case-insensitive) is treated as
+# button text and reported separately, not as a violation. This is a name heuristic,
+# not a tag/role lookup the style dump exposes — if it ever mis-tags something that
+# is NOT actually button text, fix the false positive by hand rather than loosening
+# this pattern sitewide.
+BUTTON_NAME_RE = re.compile(r'btn', re.IGNORECASE)
 
 # ---- value -> px resolution --------------------------------------------------------
 
@@ -207,8 +222,9 @@ def main():
     data = json.load(open(sys.argv[1]))
     styles = []; walk(data, styles)
 
-    violations = []   # confirmed: resolved px < FLOOR_PX
-    unresolved = []   # couldn't confidently resolve to a px floor at all
+    violations = []      # confirmed: resolved px < FLOOR_PX, NOT button text
+    unresolved = []       # couldn't confidently resolve to a px floor at all
+    button_exempt = []    # resolved px < FLOOR_PX but name looks like button text -> exempt
 
     for st in styles:
         for ctx, props in bags(st):
@@ -219,13 +235,22 @@ def main():
             if px is None:
                 unresolved.append((st["name"], st.get("id", "?"), ctx, raw, method))
             elif px < FLOOR_PX:
-                violations.append((st["name"], st.get("id", "?"), ctx, raw, px, method))
+                entry = (st["name"], st.get("id", "?"), ctx, raw, px, method)
+                if BUTTON_NAME_RE.search(st["name"]):
+                    button_exempt.append(entry)
+                else:
+                    violations.append(entry)
 
     print(f"styles scanned: {len(styles)}")
 
     if not violations and not unresolved:
-        print(f"CLEAN — 0 font-size values below {FLOOR_PX:g}px. "
-              f"Every font-size on the site resolves to >= {FLOOR_PX:g}px.")
+        print(f"CLEAN — 0 font-size values below {FLOOR_PX:g}px outside the button-text "
+              f"exception. Every non-button font-size on the site resolves to >= {FLOOR_PX:g}px.")
+        if button_exempt:
+            print(f"({len(button_exempt)} button-text value(s) under {FLOOR_PX:g}px, "
+                  f"exempt per standing user sign-off — see CLAUDE-HISTORY.md §207/§208):")
+            for name, sid, ctx, raw, px, method in button_exempt:
+                print(f"   {name}  [{ctx}]  font-size: {raw}   -> {px:.2f}px  ({method})   (id {sid})")
         sys.exit(0)
 
     if violations:
