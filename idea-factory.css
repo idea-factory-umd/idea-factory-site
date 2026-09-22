@@ -713,4 +713,4 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
    and the text wrapper's own transition/transform-origin are native (set directly in the
    Designer on program-page-icorps-home-news-card / -news-body); only this cross-element
    rule needs to live here. Shared by I-Corps-Home and I-Corps-News (same class names). */
-.program-page-icorps-home-news-card:hover .program-page-icorps-home-news-body{transform:scale(1.05);will-change:transform;}
+.program-page-icorps-home-news-card:hover .program-page-icorps-home-news-body{transform:scale(1.03);will-change:transform;}
