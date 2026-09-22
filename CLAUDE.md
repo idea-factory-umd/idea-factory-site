@@ -335,6 +335,14 @@
 > - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#12 — keep this
 >   banner intact and pass it on.
 
+> ## 🚫 #14 HARD RULE — WHEN A LINK NEEDS TO JUMP TO A SECTION, PUT THE ID ON THE REAL HEADING. NEVER BUILD A FAKE, INVISIBLE PLACEHOLDER ELEMENT JUST TO HOLD THE ID (2026‑09‑22 — found on I‑Corps‑Resources: 3 "jump to this section" links each pointed at an empty, invisible element sitting in front of the real heading, instead of the heading itself. This is the exact same mistake already written down once before, on Ventures‑Incubator (HARD RULE #9) — that fix was never checked against the rest of the site, so the same mistake sat here, undetected, the whole time.)
+> **THE RULE:** when you need a link that jumps down to a section of the page, put the ID directly on the real element you're jumping to (usually its heading) — every element in the Designer has its own ID field for this ("For in‑page linking"), so this always works on a real element. Never insert an extra, empty, invisible element next to the heading just to hold the ID. If you find one of these already built on a page, that's the bug — delete the empty element and move its ID onto the real heading instead.
+> - **Why this keeps happening:** the tool used to build this site has a line of its own documentation claiming that an ID can only be set this way on certain "technical" placeholder elements, not on ordinary ones. That's wrong — it was already proven wrong once, on Ventures‑Incubator — but each new session reads that same misleading line and falls for it again unless it actually tries setting the ID on the real element first.
+> - **Also: a link like this needs to land BELOW the red bar at the top of the page, not underneath it.** This site already has a built‑in way to make a jump‑link do that correctly (it's used on the "Find Your Path" link on the homepage) — turn it on for any new jump‑link by adding the attribute `data-smooth-scroll` to that link, rather than leaving it to the browser's plain default jump, which will land the heading hidden behind the red bar.
+> - **Also: don't wave away something you don't understand as "just how the editor displays things."** If you find something odd on a page — an empty element, a leftover box, anything you can't explain — check whether it matches a mistake already written down in this file before deciding it's harmless. Getting this wrong here is what let this exact bug sit unfixed even after it was already caught once.
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#13 — keep this
+>   banner intact and pass it on.
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is
