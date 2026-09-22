@@ -887,6 +887,10 @@ try {
    a page-exclusive class distinct from Ventures-Home's statsband-num despite the identical
    numbers) added 2026-09-10, same day - confirmed single-match style objects and page-exclusive
    via query_styles/live grep before wiring.
+   I-Corps-Impact's own 8 stat numbers (program-page-icorps-impact-statnum) added 2026-09-22,
+   restyled to match MIPS-Impact's stats-value treatment (fixed 80/60/54/54px steps, gold
+   divider, flex-row layout) per direct user instruction - confirmed single-match style
+   object via query_styles before wiring, same discipline as every entry above.
    Any FUTURE page wanting this effect just needs its own number class added to this one
    selector list - no Designer-side change required. Before adding a new one, verify (a) it
    doesn't already exist on some other page under a similar-looking name (this file has bitten
@@ -895,7 +899,7 @@ try {
 try {
 (function(){
   var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var els = document.querySelectorAll('.if-countup, .program-page-mips-impact-glance-value, .program-page-mips-impact-stats-value, .program-page-aspire-numbers-countup, .program-page-mips-impact-num, .program-page-ventures-statsband-num, .program-page-ventures-impact-bigstat, .program-page-ventures-impact-statnum');
+  var els = document.querySelectorAll('.if-countup, .program-page-mips-impact-glance-value, .program-page-mips-impact-stats-value, .program-page-aspire-numbers-countup, .program-page-mips-impact-num, .program-page-ventures-statsband-num, .program-page-ventures-impact-bigstat, .program-page-ventures-impact-statnum, .program-page-icorps-impact-statnum');
   els.forEach(function(el){
     if(el.__ifcu) return; el.__ifcu = 1;
     var value = el.getAttribute('data-value') || el.textContent.trim();
