@@ -3497,3 +3497,21 @@ Both hero H1s ("University of Maryland I-Corps Program" / CBSCF's equivalent) ne
 **Fix:** converted `font-size` from the `clamp()` expression to a plain fixed `28px` (the clamp's own midpoint, so nothing jumped visually) — trading fluid viewport-based scaling for direct Designer editability, per explicit user preference for a plainly editable field over fluid type on this element.
 
 **Verified:** published, re-fetched `/umd-i-corps-impact` fresh — compiled CSS confirms `.icorps-impact-spottitle{font-size:28px}`, a plain value with no `clamp()`.
+
+## 206. I-Corps-Schedule's "I-Corps Prep" + "Regional I-Corps Cohorts" content split out of one undifferentiated wrapper into two proper top-level sections, matching the layout guide (2026‑09‑22) — native Designer only, PUBLISHED, verified against fresh live HTML
+
+**Ask:** the I-Corps Prep and Regional I-Corps Cohorts content on I-Corps-Schedule was sitting inside a single oversized wrapper instead of discrete sections like the rest of the site (the same class of issue §200 fixed on the other 7 I-Corps subpages, but this one had been rebuilt since and regressed back into one block) — user asked for it split into proper native sections and styled to match `schedule_guide.png`.
+
+**Fix:** re-fetched the live element tree for the affected region fresh (the user had manually edited it since the last read, so nothing was assumed stale), identified the element IDs for the "I-Corps Prep" heading onward, and split the block into its own top-level `<section class="program-page-icorps-home-sec-white">` standing between "How to get started" and "I-Corps Info Sessions" — matching the guide's **72px section padding**. A duplicate `id="regional-i-corps-cohorts"` (two elements carrying the same anchor ID after the split) was found and resolved down to one, on the correct section.
+
+**Verified (this session, independently re-checked against fresh live data, not just trusting the prior claim):** fetched `/umd-i-corps-schedule` fresh — exactly **one** `id="regional-i-corps-cohorts"` in the live HTML, and the "I-Corps Prep" `<h2>` now opens inside its own `<section>` tag (not a shared wrapper). Final section order confirmed: Which I-Corps is right for me? → How to get started → I-Corps Prep → Regional I-Corps Cohorts → I-Corps Info Sessions.
+
+## 207. Sitewide 16px font-size floor: 7 violations found and fixed on I-Corps-Schedule; durable audit script (`tools/audit-font-sizes.py`) commissioned to catch this class of bug automatically going forward (2026‑09‑22) — native Designer only, PUBLISHED, verified against live compiled CSS
+
+**Why:** HARD RULE #12b (no body text ships below the 16px floor without explicit user sign-off) depends on each session remembering to check manually while building — exactly the kind of thing that slips. A full font-size audit of the I-Corps-Schedule/Program/Home text classes found 7 already-shipped violations, all between 13–15px: `program-page-icorps-home-btn-red` (buttons, 14px), `program-page-icorps-schedule-noteboxtext` (15px), `-cohortdeadline` (14px), `-datepill` (13px), `-cohortnote` (13px), `-cohortbtn` (13px), `-downloadsline` (14px). Everything else on the audited pages was already compliant (headings 64px, body text 16–19px).
+
+**Fix:** all 7 classes raised to `16px` directly in the Designer (native style edit, no shared-CSS override).
+
+**Verified:** fetched `/umd-i-corps-schedule` fresh (`Last Published` seconds old at check time) and pulled the actual live compiled CSS — confirmed all 7 classes read `font-size:16px` in the served stylesheet, not just the stored API value.
+
+**Durable prevention:** commissioned `tools/audit-font-sizes.py`, mirroring the existing `tools/audit-shorthands.py` (same invocation pattern: takes a `get_styles` JSON dump path, walks base + every breakpoint + every pseudo, flags any resolved `font-size` under 16px). Run it after any style work, same discipline as the shorthand auditor, to catch this class of regression sitewide instead of relying on a session noticing by hand.
