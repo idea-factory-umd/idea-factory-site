@@ -1098,7 +1098,8 @@ try {
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] syn-moment error:', _e); } catch (_) {} }
 
 /* ===== module: about-goldbars (scroll-width, like the Hero gold bar) =====
-   The stage-photo gold bars (.if-stg-goldbar) and the synthesis gold bar (.if-syn-goldbar)
+   The stage-photo gold bars (.if-stg-goldbar), the synthesis gold bar (.if-syn-goldbar),
+   and the I-Corps-Home hero photo gold bar (.program-page-icorps-hero-goldbar)
    grow in width 30%->90% as they scroll into view, matching .if-hero-goldbar.
    PERF: previously wrote element.style.width on every scroll frame - width is a
    layout-affecting property, so that forced a real synchronous layout recalculation
@@ -1110,7 +1111,7 @@ try {
    correctly on its own private listener; only the wiring changed here). */
 try {
 (function(){
-  function init(){var bars=document.querySelectorAll('.if-stg-goldbar, .if-syn-goldbar');if(!bars.length)return;
+  function init(){var bars=document.querySelectorAll('.if-stg-goldbar, .if-syn-goldbar, .program-page-icorps-hero-goldbar');if(!bars.length)return;
     var MIN=30,MAX=90,i;
     for(i=0;i<bars.length;i++){var _bar=bars[i];var _max=_bar.classList.contains('if-syn-goldbar')?60:MAX;_bar.style.width=_max+'%';_bar.style.transformOrigin='left center';}
     ifScrollEngine.add({
