@@ -3637,3 +3637,11 @@ Both hero H1s ("University of Maryland I-Corps Program" / CBSCF's equivalent) ne
 **A verification scare, resolved (same pattern as §214's):** the first post-publish fetch still showed the OLD white class despite the style-write itself returning success. Re-queried the element's actual stored data directly (not the published HTML) and confirmed the grey class WAS genuinely saved — meaning this was a publish/CDN propagation race (fetching a fraction of a second after publish, before Webflow's own origin finished rebuilding), not a failed write or a dead/duplicate style object. A second fetch moments later showed the correct grey class live. Documented here so a future session recognizes this exact "success response, stale immediate fetch" shape as a timing artifact worth a short re-check, not an automatic re-edit.
 
 **Verified:** live HTML now shows `<section class="program-page-icorps-impact-sec-grey">` immediately wrapping the `id="customer-discovery-videos"` heading; exactly one such id exists on the page (no duplicate/orphan section).
+
+## 218. I-Corps-Resources: the 3 "jump to section" links (Course Materials / Customer Discovery Videos / Additional Maryland Startup Resources) now grow slightly on hover (2026‑09‑23) — native Designer only, PUBLISHED, verified against live compiled CSS
+
+**Ask:** these 3 links gave no hover feedback at all.
+
+**Fix:** confirmed all 3 share one class, `program-page-icorps-resources-jumplink` (no page-specific data, a pure look utility — correctly left as one shared class, not forked). Added `display:inline-block` + longhand `transition-property/-duration/-timing-function/-delay` (HARD RULE #4 — never a bundled `transition` shorthand) to the base, and a `hover` pseudo `transform:scale(1.05)` — same scale already used and user-approved for the News/Home inline links and the Resources page's 36 resource links earlier this session.
+
+**Verified:** published (waited past the publish/CDN-fetch race documented in §217 before checking, rather than repeating that scare); fresh live compiled CSS shows `.program-page-icorps-resources-jumplink{...transition:transform .22s cubic-bezier(.22,1,.36,1)...}` and `.program-page-icorps-resources-jumplink:hover{transform:scale(1.05)}`.
