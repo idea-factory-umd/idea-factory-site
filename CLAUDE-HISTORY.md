@@ -3627,3 +3627,13 @@ Both hero H1s ("University of Maryland I-Corps Program" / CBSCF's equivalent) ne
 **Fix:** re-pointed exactly 3 elements from `program-page-icorps-home-sec-white` to `program-page-icorps-impact-sec-grey` (first-section-after-hero, I-Corps Prep, I-Corps Info Sessions). Left "Regional I-Corps Cohorts" and the two component-based sections ("I-Corps Options Section," "I-Corps How To Get Started Section" — not named by the user, different content type, out of scope) untouched.
 
 **Verified:** published; fresh (cache-MISS-confirmed) live HTML shows the exact sequence intended — grey, [2 untouched components], grey ("I-Corps Prep," heading text re-confirmed live), white (`id="regional-i-corps-cohorts"`, confirmed unchanged), grey (`id="i-corps-info-sessions"`, confirmed changed) — 3 grey/3 white occurrences total on the page, matching the 3 edits made and nothing more.
+
+## 217. I-Corps-Resources: "Customer Discovery Videos" section given the same established grey background (2026‑09‑23) — native Designer only, reused existing class, PUBLISHED, verified against fresh live HTML
+
+**Ask:** give this one section the same light-grey background used on I-Corps-Impact/Schedule.
+
+**Found the real section, not the jump-nav label:** the page has two occurrences of this text — the all-caps jump-to-section link ("CUSTOMER DISCOVERY VIDEOS ↓") and the actual `<h2 id="customer-discovery-videos" class="if-manifesto">` section heading. Walked up from the real heading (matched by its own unique `id` attribute, not by guessing position) to its top-level `<section>` ancestor — `program-page-icorps-home-sec-white` — and re-pointed it to the same `program-page-icorps-impact-sec-grey` class reused on §216.
+
+**A verification scare, resolved (same pattern as §214's):** the first post-publish fetch still showed the OLD white class despite the style-write itself returning success. Re-queried the element's actual stored data directly (not the published HTML) and confirmed the grey class WAS genuinely saved — meaning this was a publish/CDN propagation race (fetching a fraction of a second after publish, before Webflow's own origin finished rebuilding), not a failed write or a dead/duplicate style object. A second fetch moments later showed the correct grey class live. Documented here so a future session recognizes this exact "success response, stale immediate fetch" shape as a timing artifact worth a short re-check, not an automatic re-edit.
+
+**Verified:** live HTML now shows `<section class="program-page-icorps-impact-sec-grey">` immediately wrapping the `id="customer-discovery-videos"` heading; exactly one such id exists on the page (no duplicate/orphan section).
