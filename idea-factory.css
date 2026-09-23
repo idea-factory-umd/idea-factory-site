@@ -720,5 +720,5 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
    can't be a native Webflow pseudo - the card's own lift/shadow/gold-hatch hover and the inner
    wrapper's transition/transform-origin are both native (set directly in the Designer on
    program-page-icorps-mentors-rescard / icorps-mentors-cta-inner); only this cross-element
-   rule needs to live here. User-set ratio (103%) - card itself set to scale(1.02) natively. */
-.program-page-icorps-mentors-rescard:hover .icorps-mentors-cta-inner{transform:scale(1.03);will-change:transform;}
+   rule needs to live here. User-set ratio (102%) - card itself set to scale(1.02) natively. */
+.program-page-icorps-mentors-rescard:hover .icorps-mentors-cta-inner{transform:scale(1.02);will-change:transform;}
