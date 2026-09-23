@@ -3669,3 +3669,11 @@ Both hero H1s ("University of Maryland I-Corps Program" / CBSCF's equivalent) ne
 **Fix:** added the transition longhands (HARD RULE #4) and a native hover pseudo — `background-color:#e6c200; transform:scale(1.03)` — matching the corrected §219 model exactly (established gold-hover token + the single-layer scale factor, no text-wrap span).
 
 **Verified:** published; fresh live HTML shows `icorps-home-btn-gold` exactly 2 times (both target buttons, no unexpected extra instances on this page). Live compiled CSS confirms `.icorps-home-btn-gold:hover{background-color:#e6c200;transform:scale(1.03)}`. Note: this class is a shared look utility, so if it's also used on other I-Corps pages, this same (previously-missing) hover now applies there too — consistent with how every other shared button class on this site already behaves.
+
+## 221. I-Corps-Schedule: the WHEN/TIME/WHERE row label class renamed and its font-size fixed to the 16px floor (2026‑09‑23) — native Designer only, PUBLISHED, verified against live HTML + compiled CSS
+
+**Ask:** user caught this in the Designer directly — the label was 12px (later found already partially corrected to 14px by the time this was actioned, still under the floor) and its class name, `program-page-icorps-schedule-infometalabel`, was long enough to overflow and become unclickable in the Designer's class-selector panel.
+
+**Fix:** two independent corrections applied together since already touching the class: (1) `rename_style` → `icorps-schedule-infometalabel`, dropping the redundant `program-page-` prefix per the corrected naming convention (CLAUDE.md §3 item 3, corrected same day — see that entry for the full rationale); (2) `font-size` 14px→16px.
+
+**Verified:** re-queried the renamed style directly — exactly one match, confirming no duplicate-object risk (HARD RULE #3). Published; fresh live HTML shows the old class name with 0 occurrences and the new one exactly 3 times (WHEN/TIME/WHERE, all present). Live compiled CSS confirms `.icorps-schedule-infometalabel{...font-size:16px;...}`.
