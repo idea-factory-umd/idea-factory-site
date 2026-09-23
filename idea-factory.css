@@ -390,6 +390,7 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 .program-page-ventures-hours-box-btn:hover .program-page-ventures-hours-box-btn-textwrap{transform:scale(1.04)}
 .program-page-ventures-impact-more-cell-link:hover .program-page-ventures-impact-more-cell-textwrap{transform:scale(1.06)}
 .program-page-cbscf-impact-more2-cell-link:hover .program-page-cbscf-impact-more2-cell-textwrap{transform:scale(1.06)}
+.icorps-schedule-cohortbtn:hover .icorps-schedule-btn-textwrap,.icorps-schedule-btn-gold2:hover .icorps-schedule-btn-textwrap{transform:scale(1.04)}
 
 /* ===== NAV CURRENT-PAGE MARKERS + ROLLOVERS — CLASS-DRIVEN & PORTABLE =====
    These rules key ONLY off: (a) the site nav container (.if-navmenu / .if-navroot),
