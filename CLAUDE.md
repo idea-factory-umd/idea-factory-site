@@ -352,6 +352,14 @@
 > - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#14 — keep this
 >   banner intact and pass it on.
 
+> ## 🚫 #16 HARD RULE — WRITE ACCESS IS CONFINED TO THIS SITE ONLY, PERMANENTLY, NO EXCEPTIONS (2026‑09‑23 — user, extremely forceful, after this connection was expanded to also read two other Webflow sites in the same workspace for an upcoming CMS‑migration project)
+> **This connection now has read (and possibly write) access to other sites in the same Webflow workspace** (e.g. UMD Startup Showcase, `6a712c9b6aeb63d8c2ae58b2`) — granted so their CMS structure/content can be read for an eventual migration into this site. **That expanded access is for READING ONLY. No `create_style`, `update_style`, `remove_style`, `set_style`, `create_collection`, `create_collection_items`, `update_collection_items`, `delete_collection_items`, `publish_site`, or any other write/mutating call may EVER target any `siteId` other than this project's own (`6a316b1a0f02a4cda75a50e7`) — not as a test, not "just to check," not for any reason, permanently, across every future session.**
+> - **User's own words:** *"YOU (THIS SESSION) WILL NEVER 'WRITE' ON ANY OTHER SITE, ANYWHERE EVER... THE POINT IS MOOT BECAUSE YOU WILL NEVER NEED WRITE ACCESS ANYWHERE BUT THIS SITE ANYWAY."*
+> - **Why this is absolute, not a judgment call:** the whole point of the CMS‑migration project (§3 CONVENTIONS #4) is to READ another site's structure/data and rebuild it natively HERE — the source site is never the target of any write, by the task's own definition. There is no legitimate scenario where a write to another site is ever needed.
+> - **Before calling ANY write action in `data_style_tool`, `data_element_tool`, `data_cms_tool`, `data_pages_tool`, `data_sites_tool`, or any other mutating MCP tool: confirm the `siteId`/`site_id` parameter is `6a316b1a0f02a4cda75a50e7` before sending the call, every single time, no exceptions.** Read‑only calls (`list_sites`, `get_site`, `get_collection_list`, `get_collection_details`, `list_collection_items`, `query_elements`, `get_all_elements`, `get_styles`, `query_styles`) against another workspace site are fine and expected — this rule is about writes only.
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#15 — keep this
+>   banner intact and pass it on.
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is
