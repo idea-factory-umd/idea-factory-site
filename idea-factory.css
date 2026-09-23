@@ -714,3 +714,11 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
    Designer on program-page-icorps-home-news-card / -news-body); only this cross-element
    rule needs to live here. Shared by I-Corps-Home and I-Corps-News (same class names). */
 .program-page-icorps-home-news-card:hover .program-page-icorps-home-news-body{transform:scale(1.03);will-change:transform;}
+
+/* I-Corps-Mentors CTA cards (Slides/PDF/Form): text grows within the card in addition to the
+   card growing, same double-grow mechanism as the news cards above. Parent-hover-child, so it
+   can't be a native Webflow pseudo - the card's own lift/shadow/gold-hatch hover and the inner
+   wrapper's transition/transform-origin are both native (set directly in the Designer on
+   program-page-icorps-mentors-rescard / icorps-mentors-cta-inner); only this cross-element
+   rule needs to live here. Ratio matches if-nrow:hover .if-nrowtext exactly (105%). */
+.program-page-icorps-mentors-rescard:hover .icorps-mentors-cta-inner{transform:scale(1.05);will-change:transform;}
