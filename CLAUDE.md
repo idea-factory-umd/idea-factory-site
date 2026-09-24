@@ -388,6 +388,45 @@
 > - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#16 — keep this
 >   banner intact and pass it on.
 
+> ## 🚫 #18 HARD RULE — THE SHARED `idea-factory.css`/`.js` REFERENCE IS PERMANENT ON SPUN‑OFF SITES. NEVER RENAME/REMOVE A SELECTOR, CLASS, ATTRIBUTE, OR ID THE SHARED FILE MATCHES AGAINST — THAT WOULD REQUIRE "RE‑LINKING" ON PAGES WE CAN NEVER TOUCH AGAIN (2026‑09‑24 — user, direct, after a scroll‑jank fix to the shared file — confirmed the mechanism, then drew this permanent line)
+> **Confirmed by the user directly (2026‑09‑24): every already‑spun‑off site (everything except CBSCF
+> and UMD I‑Corps, as of this writing) still loads `idea-factory.css`/`.js` from this repo's SAME
+> GitHub Pages URL — "that never changed and will never change."** A spun‑off site is NOT
+> MCP‑connected (HARD RULE #16) and its Designer is permanently out of reach — so whatever selectors,
+> class names, attribute names, and element IDs its ALREADY‑PLACED elements carry (frozen at the
+> moment it was duplicated, or added since by hand in its own Designer) are exactly what the shared
+> file must keep matching, forever, with no ability for us to go fix the other side.
+> - **THE LINE, precisely — user's own words: "If you create new items or in the code remote code for
+>   them or change the names of remote coding pieces applied to these pages in [a] way [that] requires
+>   a 're‑linking' or re‑referencing on those pages themselves — that's would be a problem because
+>   they're spun off."** Concretely:
+>   - **NEVER rename or remove a class name / CSS selector / data‑attribute name / element ID that
+>     existing shared code currently matches against** (e.g. `.if-navmenu`, `.if-backtotop`,
+>     `.if-id-band`, `data-scroll-gap`, `data-smooth-scroll`, any `.if-…`/`program-page-…` selector a
+>     `querySelector`/`querySelectorAll`/CSS rule keys off). A spun‑off page's own elements still carry
+>     the OLD name — a rename silently breaks them with zero way for us to fix it after the fact; only
+>     the user, by hand, in that site's own Designer, could — and per this same conversation, making
+>     that a recurring manual chore is explicitly NOT acceptable ("I don't want to make that an ongoing
+>     practice. That cannot happen on an ongoing practice.").
+>   - **Adding brand‑NEW selectors/classes/JS is safe** — nothing on an already‑duplicated page
+>     references a name that didn't exist yet, so new code sits inert until/unless someone deliberately
+>     applies it on that site's own Designer. This is just HARD RULE #17's existing scope (new
+>     page‑specific work stays page‑scoped) — it was never in question.
+>   - **Changing the INTERNAL BEHAVIOR/logic of existing shared code is safe, as long as every selector/
+>     class/attribute/ID it hooks into stays byte‑identical.** The 2026‑09‑24 scroll‑jank fix
+>     (`ifResizeEngine`, consolidating 17 independent `resize` listeners into one coordinated dispatcher
+>     — see CLAUDE‑HISTORY.md) is the validated reference example: it added one new internally‑used
+>     object name and changed 17 call sites from `window.addEventListener('resize', fn, …)` to
+>     `ifResizeEngine.add(fn)` — same `fn` reference every time — without touching a single
+>     `querySelector`, class string, or attribute name anywhere. Confirmed safe under this rule.
+> - **Before ANY edit to the shared `idea-factory.css`/`.js`, explicitly check: does this rename or
+>   remove any selector/class/attribute/ID the CURRENT code already matches against?** If yes — stop;
+>   that needs the user's explicit sign‑off first, since it cannot be cleanly reversed on the spun‑off
+>   side by us. If the change is purely internal (new names, new logic, same existing hooks) — safe,
+>   proceed per this file's normal verification discipline (HARD RULE #3).
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#17 — keep this
+>   banner intact and pass it on.
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is
