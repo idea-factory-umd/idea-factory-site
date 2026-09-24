@@ -363,6 +363,31 @@
 > - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#15 — keep this
 >   banner intact and pass it on.
 
+> ## 🚫 #17 HARD RULE — ALL NEW CODE/STYLES ARE SEGREGATED PER SUB‑SITE, GOING FORWARD, EVEN IF THAT MEANS DUPLICATING THEM (2026‑09‑24 — user, explicit standing instruction, worried about cross‑site cascade once the sub‑sites are split apart into independent Duplicate‑Site copies)
+> **Any CSS/JS or Designer style you write from 2026‑09‑24 onward must be scoped to the ONE sub‑site it
+> serves, never added to anything shared across sub‑sites — no exceptions, regardless of where it's
+> housed (a class in the Webflow Designer, or code in this repo's shared `idea-factory.css`/`.js`).**
+> - **If the same behavior is needed on two or more sub‑sites, DUPLICATE the style/script once per
+>   sub‑site rather than writing it once and sharing it.** A little repeated code is the entire point —
+>   it's the price of making each sub‑site's failure mode local instead of sitewide.
+> - **Why:** these sub‑sites will eventually be split apart (each duplicated into its own independent
+>   Webflow site). Shared code is exactly what lets an edit made by one group, for one sub‑site, silently
+>   cascade and break every other sub‑site in the array — the opposite of what independent sites need.
+> - **Name every new sub‑site‑scoped class or script starting with that sub‑site's own name**, so its
+>   scope is obvious on sight (e.g. `icorps-team-…`, `cbscf-…`, `aspire-…`, `mips-…`, `ventures-…`) — this
+>   is the SAME naming instinct already standing in §3 CONVENTIONS #3 for per‑program‑page Designer
+>   classes; this rule extends it to cover JS/behavior code too, not just Designer classes.
+> - **Scope of this rule: GOING FORWARD, not retroactive.** This does not, by itself, mandate ripping
+>   the existing shared `idea-factory.css`/`.js` (§4–§7's "Model B" architecture) apart — that
+>   infrastructure stays as-is unless/until the user explicitly asks for a retroactive migration. New
+>   work simply never adds to it, or to any other shared surface, again.
+> - **Where a genuinely new "sub‑site behavior" needs code that Webflow can't do natively (the same
+>   category HARD RULE #1 already carves out for the shared file):** add it as a page‑ or
+>   component‑scoped HTML Embed living only on that sub‑site's own page(s)/component(s) — never appended
+>   to the shared file, even as an isolated `try/catch` module.
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#16 — keep this
+>   banner intact and pass it on.
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is
