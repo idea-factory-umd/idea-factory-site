@@ -2122,5 +2122,40 @@ try {
    3 CBSCF pages use it) and lives as a native HTML Embed element on each of those 3 pages
    instead of in this shared file, so it can never affect any other site/page. See
    CLAUDE-HISTORY.md for the full writeup. */
+
+/* ===== module: idea-factory-hero-h1-autofit =====
+   Different case from the CBSCF note above: these 4 classes are ALREADY Idea-Factory-only
+   (if-hero-h1's combo + 3 page-specific classes), so this sits safely in the shared file the
+   same way the hero-reading-highlight module above already keys off .if-hero-h1 - it is
+   inert on every other site, which never applies these class names to anything.
+   Shrinks a hero H1 at runtime ONLY when its own manual line (forced by white-space:nowrap +
+   the if-h1-brk break-divs, or a single unbroken line on Companies/Partners) genuinely
+   overflows its column - never a fixed viewport-width fade. Native per-breakpoint font-size
+   stays the ceiling; this only steps it down when the real rendered line is too wide. */
+try {
+(function(){
+  var SELECTOR = '.if-hero-h1, .home-hero-h1-final, .companies-hero-h1, .partners-hero-h1';
+  var FLOOR_RATIO = 0.5, STEP = 0.02;
+  function fitOne(el){
+    el.style.fontSize = '';
+    var base = parseFloat(getComputedStyle(el).fontSize);
+    if (!base) return;
+    function tooTight(){ return el.scrollWidth > el.clientWidth + 1; }
+    var factor = 1, guard = 0;
+    while (tooTight() && (factor - STEP) >= FLOOR_RATIO && guard < 60) {
+      factor -= STEP;
+      el.style.fontSize = (base * factor) + 'px';
+      guard++;
+    }
+  }
+  function fitAll(){ document.querySelectorAll(SELECTOR).forEach(fitOne); }
+  function init(){
+    fitAll();
+    ifResizeEngine.add(fitAll);
+    if (document.fonts && document.fonts.ready && document.fonts.ready.then) document.fonts.ready.then(fitAll);
+  }
+  if (document.readyState !== 'loading') init(); else document.addEventListener('DOMContentLoaded', init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] hero-h1-autofit error:', _e); } catch (_) {} }
 } /* end window.__ifEngine load guard */
 
