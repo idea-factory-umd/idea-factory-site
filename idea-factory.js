@@ -142,6 +142,16 @@ try {
   function ready(fn){ if(document.readyState!=="loading") fn(); else document.addEventListener("DOMContentLoaded", fn); }
 
   /* ---- 1. HERO reading highlight ----------------------------------------
+     ⚠️ FOUND DEAD 2026-09-27: on every page checked (Home/Faculty/Students/About), the
+     word-spans render as if-hero-word-delay/-red/-gold ALONE, never combined with the bare
+     if-hero-word this function's own selector requires - so `words` is always empty and this
+     has produced zero visible effect for a while, independent of anything in this session.
+     Home's own reveal was re-established as a small self-contained page-scoped HtmlEmbed
+     (keys off `:scope > span`, no class-fix needed) per the user's explicit request - see
+     CLAUDE-HISTORY.md. This legacy copy is left exactly as-is, unfixed, since Faculty/
+     Students/About's reveal wasn't in scope for that request; fixing it sitewide (either add
+     the missing if-hero-word class in the Designer to every word-span, or broaden this
+     function the same way) is a separate follow-up, not done here.
      Markup: <h1 class="if-hero-h1"> <span class="if-hero-word">…</span> … </h1>
      On first hover the spotlight sweeps word-by-word, then all rise to full. */
   function initHeroReading(){
