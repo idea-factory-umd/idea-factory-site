@@ -142,16 +142,21 @@ try {
   function ready(fn){ if(document.readyState!=="loading") fn(); else document.addEventListener("DOMContentLoaded", fn); }
 
   /* ---- 1. HERO reading highlight ----------------------------------------
-     ⚠️ FOUND DEAD 2026-09-27: on every page checked (Home/Faculty/Students/About), the
-     word-spans render as if-hero-word-delay/-red/-gold ALONE, never combined with the bare
-     if-hero-word this function's own selector requires - so `words` is always empty and this
-     has produced zero visible effect for a while, independent of anything in this session.
-     Home's own reveal was re-established as a small self-contained page-scoped HtmlEmbed
-     (keys off `:scope > span`, no class-fix needed) per the user's explicit request - see
-     CLAUDE-HISTORY.md. This legacy copy is left exactly as-is, unfixed, since Faculty/
-     Students/About's reveal wasn't in scope for that request; fixing it sitewide (either add
-     the missing if-hero-word class in the Designer to every word-span, or broaden this
-     function the same way) is a separate follow-up, not done here.
+     ⚠️ THIS COPY IS STALE 2026-09-27 - do not judge "is the reveal alive" from reading this
+     block. `main` (the branch actually served live, per HARD RULE #5's standing divergence)
+     has a materially more advanced version of this same function: it self-heals by adding
+     `if-hero-word` via `words.forEach(w=>w.classList.add('if-hero-word'))` instead of requiring
+     the Designer to pre-apply it (so it is NOT dead there, unlike a naive read of THIS copy's
+     selector would suggest), handles if-lit-red/if-lit-gold (color, not just opacity), and was
+     tuned yesterday (2026-09-26, commits 7f27f20/63c58c6/72ed31a on main): D=180, gap=40,
+     ideasExtra=260 (halved from 520), lastExtra=640, ideasPause=110 (a halving to 55 was tried
+     then reverted as "the wrong knob"), workPause=150 (a fixed extra beat before the final
+     settle). Per HARD RULE #5 this file's own dev-branch copy is never merged from main - this
+     comment exists purely so a future session reads the CORRECT current values here instead of
+     rediscovering them from main's git log again. Home's own reveal is a self-contained
+     page-scoped HtmlEmbed built to match main's exact current logic (see CLAUDE-HISTORY.md);
+     Faculty/Students/About still run whatever their own pages' embeds/Designer classes give
+     them, unaudited as part of this fix.
      Markup: <h1 class="if-hero-h1"> <span class="if-hero-word">…</span> … </h1>
      On first hover the spotlight sweeps word-by-word, then all rise to full. */
   function initHeroReading(){
