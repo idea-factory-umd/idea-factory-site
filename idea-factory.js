@@ -931,6 +931,10 @@ try {
    restyled to match MIPS-Impact's stats-value treatment (fixed 80/60/54/54px steps, gold
    divider, flex-row layout) per direct user instruction - confirmed single-match style
    object via query_styles before wiring, same discipline as every entry above.
+   The Building's 3 facts-band numbers (building-stat-num - 62K+/5/20+) added 2026-09-28,
+   same discipline: confirmed single-match style object, page-exclusive class name, before
+   wiring. Its regex-based prefix/digits/suffix parser needs no changes to handle "62K+"/
+   "5"/"20+" - it already generalizes to any prefix+digits+suffix combination.
    Any FUTURE page wanting this effect just needs its own number class added to this one
    selector list - no Designer-side change required. Before adding a new one, verify (a) it
    doesn't already exist on some other page under a similar-looking name (this file has bitten
@@ -939,7 +943,7 @@ try {
 try {
 (function(){
   var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var els = document.querySelectorAll('.if-countup, .program-page-mips-impact-glance-value, .program-page-mips-impact-stats-value, .program-page-aspire-numbers-countup, .program-page-mips-impact-num, .program-page-ventures-statsband-num, .program-page-ventures-impact-bigstat, .program-page-ventures-impact-statnum, .program-page-icorps-impact-statnum');
+  var els = document.querySelectorAll('.if-countup, .program-page-mips-impact-glance-value, .program-page-mips-impact-stats-value, .program-page-aspire-numbers-countup, .program-page-mips-impact-num, .program-page-ventures-statsband-num, .program-page-ventures-impact-bigstat, .program-page-ventures-impact-statnum, .program-page-icorps-impact-statnum, .building-stat-num');
   els.forEach(function(el){
     if(el.__ifcu) return; el.__ifcu = 1;
     var value = el.getAttribute('data-value') || el.textContent.trim();
