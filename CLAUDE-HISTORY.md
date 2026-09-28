@@ -4032,3 +4032,35 @@ All 8 published and confirmed live. No native Designer style object was edited t
 **Verified live (HARD RULE #3, items 1/2/6):** published the site; re‑fetched the actually‑served `/the-building` HTML fresh (not a cached/earlier copy) and confirmed the exact markup above is what's live. **Outstanding, disclosed honestly rather than skipped (HARD RULE #3 item 5):** `element_snapshot_tool` timed out twice in a row on this element — most likely because the Designer wasn't open to The Building page in this session — so the Designer‑canvas visual confirmation is the one check not yet completed; the live‑HTML verification above stands in the interim, and a Designer‑canvas check should be done next time that page is open there.
 
 **Standing takeaway for future sessions:** most of this "sitewide inconsistency" had already been fixed in an earlier part of this same session (the 2026‑09‑27 hero‑guide‑matching pass, tasks covering Students/Partners/Faculty‑Researchers/Events/Directions/Contact/Companies/Impact, plus a later "ideasExtra timing" pass) — by the time this specific audit ran, only one page's markup had actually been missed. Always verify defect claims page‑by‑page against the live embed/markup rather than assuming the user's general impression maps 1:1 onto every named page.
+
+---
+
+## 240. Idea Factory — §239's audit was itself incomplete: "word‑by‑word" means one span per LITERAL word, not per bundled phrase — corrected on all 8 pages + The Building's own fix (2026‑09‑28) — PUBLISHED, live‑verified in full
+
+**What §239 got wrong:** §239 verified that every non‑model hero page had the same sweep *mechanism* (timing constants, opacity steps, color‑lit handling) as the model, and verified each page had ≥2 `<span>` "words" — and incorrectly treated that as satisfying "word‑by‑word." The model (Home) wraps every individual printed word in its own span — `<span>Where</span><span>ideas</span><span>get</span><span>built.</span>` — four real words, four sweep steps. Every other page instead bundled its entire lead phrase into ONE span (`<span>Idea Factory </span>`, `<span>Tap university </span>`, `<span>Mentor, advise, </span>`, `<span>Sign up for </span>`) plus one span for the accent word — so hovering only produced a 2‑step highlight (whole phrase, then accent word), never a true sweep across each real word. **The Building fix documented in §239 repeated this exact same error**: "E. A. Fernandez" was wrapped as ONE span instead of one span per word — the very defect that section was supposed to correct.
+
+**User's clarifying rule, applied throughout this fix:** punctuation stays attached to the word it follows (comma or period included with the preceding token, not split off) — e.g. "Mentor," and "advise," each stay whole, "E." and "A." each stay whole, "firepower." and "collaborate." each stay whole.
+
+**Fix — every bundled lead‑phrase span split at each word boundary into its own span, text preserved character‑for‑character (the inter‑word space attached as a trailing space on the preceding word, so concatenating the new spans reproduces the original string exactly), single‑word accent spans left untouched, no script changes anywhere:**
+- **The Building:** `"E. A. Fernandez"` → 3 spans (`"E. "` / `"A. "` / `"Fernandez"`); its 2‑word accent `"IDEA Factory"` → 2 spans, BOTH carrying `building-h1-gold` (script is N‑word‑generic, no code change needed — it already loops `:scope > span` regardless of count).
+- **Events / Contact / Impact / News:** `"Idea Factory "` → `"Idea "` + `"Factory "` (accent word `"Events"`/`"Staff"`/`"Impact"`/`"News"` already single‑word, untouched).
+- **Companies:** `"Tap university "` → `"Tap "` + `"university "` (accent `"firepower."` untouched).
+- **Partners:** `"Mentor, advise, "` → `"Mentor, "` + `"advise, "` (accent `"collaborate."` untouched).
+- **Updates:** `"Sign up for "` → `"Sign "` + `"up "` + `"for "` (accent `"updates"` untouched).
+- **Directions:** confirmed to need NO change — its lead phrase (`"Find "`) was already a single real word.
+
+**A real mid‑fix mistake, caught before publishing:** on Updates, the anchor passed to `data_element_builder` was the plain‑text STRING node's id, not its wrapping `<span>`'s id — `creation_position:"before"` therefore inserted the 3 new word‑spans as children NESTED INSIDE the old span (siblings of its text node) rather than as siblings of the span itself at the H1 level. Caught immediately by the standard verify‑before‑delete check (HARD RULE #13 discipline — query the result before removing anything): the 3 new spans showed up one level too deep. Removed the 3 misplaced spans, re‑inserted anchored to the actual span id, re‑verified correct placement, only then removed the old wrapper span. No data was lost since the removal of the old span was never batched with the (already‑wrong) insert.
+
+**Verified live, full sweep not a sample (HARD RULE #3 item 2):** published, then re‑fetched all 8 pages' actually‑served HTML fresh (a first fetch attempt raced the async publish job and read stale content — caught by comparing `get_site`'s `lastPublished` timestamp against the fetch time, refetched after publish genuinely completed). Every one of the 8 pages' hero H1 markup confirmed live with the correct one‑span‑per‑word structure, exact text preserved, zero leftover duplicate nodes:
+```
+the-building: <span>E. </span><span>A. </span><span>Fernandez</span>[break]<span class="building-h1-gold">IDEA </span><span class="building-h1-gold">Factory</span>
+events:       <span>Idea </span><span>Factory </span><span class="if-hero-word-gold">Events</span>
+contact:      <span>Idea </span><span>Factory </span><span class="if-hero-word-gold">Staff</span>
+companies:    <span>Tap </span><span>university </span>[break]<span class="if-hero-word-red">firepower.</span>
+partners:     <span>Mentor, </span><span>advise, </span>[break]<span class="if-hero-word-red">collaborate.</span>
+impact:       <span>Idea </span><span>Factory </span><span class="if-hero-word-gold">Impact</span>
+news:         <span>Idea </span><span>Factory </span><span class="if-news-hero-h1-gold">News</span>
+updates:      <span>Sign </span><span>up </span><span>for </span><span class="if-updates-hero-h1-gold">updates</span>
+```
+
+**Standing correction to §239's own takeaway:** "the sweep mechanism is present and byte‑identical to the model" is NOT sufficient evidence that "word‑by‑word" is satisfied. The literal test is: does the span count equal the literal word count of the printed heading (with punctuation glued to its preceding word)? Count it explicitly against the actual printed text every time — never infer it from the script being correct, since the script is generic to however many spans exist and says nothing about whether the markup was segmented at every real word boundary.
