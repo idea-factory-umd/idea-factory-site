@@ -935,6 +935,8 @@ try {
    same discipline: confirmed single-match style object, page-exclusive class name, before
    wiring. Its regex-based prefix/digits/suffix parser needs no changes to handle "62K+"/
    "5"/"20+" - it already generalizes to any prefix+digits+suffix combination.
+   Impact page's "Education Impact" 7-number grid (if-impact-edu-num) added 2026-09-28,
+   same discipline - single-match, page-exclusive class; no parser changes needed.
    Any FUTURE page wanting this effect just needs its own number class added to this one
    selector list - no Designer-side change required. Before adding a new one, verify (a) it
    doesn't already exist on some other page under a similar-looking name (this file has bitten
@@ -943,7 +945,7 @@ try {
 try {
 (function(){
   var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var els = document.querySelectorAll('.if-countup, .program-page-mips-impact-glance-value, .program-page-mips-impact-stats-value, .program-page-aspire-numbers-countup, .program-page-mips-impact-num, .program-page-ventures-statsband-num, .program-page-ventures-impact-bigstat, .program-page-ventures-impact-statnum, .program-page-icorps-impact-statnum, .building-stat-num');
+  var els = document.querySelectorAll('.if-countup, .program-page-mips-impact-glance-value, .program-page-mips-impact-stats-value, .program-page-aspire-numbers-countup, .program-page-mips-impact-num, .program-page-ventures-statsband-num, .program-page-ventures-impact-bigstat, .program-page-ventures-impact-statnum, .program-page-icorps-impact-statnum, .building-stat-num, .if-impact-edu-num');
   els.forEach(function(el){
     if(el.__ifcu) return; el.__ifcu = 1;
     var value = el.getAttribute('data-value') || el.textContent.trim();
