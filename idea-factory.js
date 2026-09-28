@@ -924,7 +924,7 @@ try {
 try {
 (function(){
   var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var els = document.querySelectorAll('.if-countup, .program-page-mips-impact-glance-value, .program-page-mips-impact-stats-value, .program-page-aspire-numbers-countup, .program-page-mips-impact-num, .program-page-ventures-statsband-num, .program-page-ventures-impact-bigstat, .program-page-ventures-impact-statnum, .program-page-icorps-impact-statnum, .building-stat-num');
+  var els = document.querySelectorAll('.if-countup, .program-page-mips-impact-glance-value, .program-page-mips-impact-stats-value, .program-page-aspire-numbers-countup, .program-page-mips-impact-num, .program-page-ventures-statsband-num, .program-page-ventures-impact-bigstat, .program-page-ventures-impact-statnum, .program-page-icorps-impact-statnum, .building-stat-num, .if-impact-edu-num');
   els.forEach(function(el){
     if(el.__ifcu) return; el.__ifcu = 1;
     var value = el.getAttribute('data-value') || el.textContent.trim();
