@@ -4465,3 +4465,15 @@ User: *"I DO NOT want to use the 'double grow' because they'll push into each ot
 **Fix:** `building-item-body` was already correctly outside `if-` scope, so no rename was needed (unlike the two prior serif conversions this session) — just added `font-family:Georgia,"Times New Roman",serif` directly. Touched no other property.
 
 **Verified live:** published; fresh cache-busted fetch showed a new compiled-CSS hash with `.building-item-body{color:#1a1a1a;font-family:Georgia,Times New Roman,serif;font-size:16px;font-weight:400;line-height:1.6}` — the pre-existing color/size/weight/line-height all confirmed unchanged alongside the new font.
+
+---
+
+## 268. Contact page — removed the border-bottom that faked an underline on staff links (2026‑09‑30, same session)
+
+**Ask:** "In the body portion, many links have underlines under them — we don't use that on this site. Just the color change to red is the font indicator." Clarified: not `text-decoration:underline` — a `border-bottom` on the link creating the same visual look.
+
+**Found by searching every `if-contact-*` class (26 total, the page's own link/text classes) for a border-bottom:** only `if-contact-stafflink` had one (`border-bottom-style:solid;border-bottom-width:2px;border-bottom-color:#ffd200`, plus a coupled `padding-bottom:1px` giving the fake line clearance from the text) — every other Contact-page link class (`if-contact-sidebar-link`, `-sidebar-link-red`, `-staffphone`, `-box-link`) already has no border and `text-decoration-line:none`, matching the site's real convention (color alone).
+
+**Fix:** removed `border-bottom-style`/`-width`/`-color` and the now-purposeless `padding-bottom` from `if-contact-stafflink`. Left `color:#e21833`, `font-family`, `font-size`, `font-weight`, `line-height`, `text-decoration-line:none`, and `display:inline-block` untouched.
+
+**Verified live:** published; fresh cache-busted fetch showed a new compiled-CSS hash with `.if-contact-stafflink{color:#e21833;font-family:Interstate,Helvetica Neue,Arial,sans-serif;font-size:16px;font-weight:700;line-height:1.3;text-decoration-line:none;display:inline-block}` — no border-bottom present — and confirmed the class is genuinely referenced in the live page markup.
