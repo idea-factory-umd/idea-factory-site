@@ -4487,3 +4487,22 @@ User: *"I DO NOT want to use the 'double grow' because they'll push into each ot
 **Fix:** `building-donor-name` (the one class shared by all founding-donor links) — `text-decoration:underline` → `none`; added hover pseudo `color:#ffd200` (the site's Maryland Gold token). Left `color:#ffffff`, `font-size:17px`, `font-weight:700`, and the responsive `flex-basis` overrides (31%/48%/100% across breakpoints) untouched.
 
 **Verified live:** published; fresh cache-busted fetch showed a new compiled-CSS hash with `.building-donor-name{color:#fff;flex:0 0 31%;min-width:220px;font-size:17px;font-weight:700;text-decoration:none}` and `.building-donor-name:hover{color:#ffd200}` — underline gone, gold hover present, base properties otherwise identical to before.
+
+---
+
+## 270. Minor page — 4 sans-serif body-text blocks switched to serif; caught + fixed a mid-task rename collision (2026‑09‑30, same session)
+
+**Ask, from 3 screenshots:** the top intro ("The Minor gives you the working knowledge...", "The Minor is run by the Idea Factory..."), the 3 numbered-step body copy ("Any time of year, from any major...", "You'll be notified...", "Admission and advising..."), the right-column advising-panel line ("The advising worksheet is the only step..."), and the closing contact-section line ("Admission and advising for the Minor is handled by the Idea Factory's Learning and Development Team...").
+
+**Root cause matched exactly, again:** the site's TRUE shared `if-mani-p` class is already `font-family:Georgia,"Times New Roman",serif` — but this page's own copies, auto-duplicated by Webflow as `if-mani-p 2` (2 elements, the top intro) and `if-mani-p 3` (3 elements, the step body copy), were missing font-family entirely, so the broad sans override caught them.
+
+**⚠️ Mid-task error, caught before publishing:** renaming `if-mani-p 3` to `program-page-minor-step-body` failed with "already exists" — that name was already taken by an unrelated, pre-existing flex-wrapper div (holds each step's heading+paragraph pair). The rename silently did NOT happen, but the immediately-following `update_style` call (aimed at the name I'd assumed now existed) landed on that wrapper instead and added `font-family` to it by mistake. Caught immediately by checking the two results together; removed the stray `font-family` from the wrapper (confirmed back to `display:flex;flex-direction:column;flex-grow:1;flex-shrink:1;flex-basis:0%;grid-row-gap:6px`, its exact original state) and re-ran the rename with a truly unique name, `program-page-minor-stepcopy`.
+
+**Final fix, 4 classes:**
+- `if-mani-p 2` → renamed `program-page-minor-mani-p`, `font-family:Georgia,"Times New Roman",serif` added.
+- `if-mani-p 3` → renamed `program-page-minor-stepcopy` (not `-step-body`, per the collision above), same font-family added.
+- `program-page-minor-side-text 2` — already page-scoped, no rename needed, font-family added directly.
+- `program-page-minor-contact-body 2` — already page-scoped, no rename needed, font-family added directly.
+- **Deliberately excluded:** `program-page-minor-body 2` (2 instances, "You earn the Minor by completing five courses..." / "If you're enrolled in the Southern Management Leadership Program...") — not shown in any of the 3 screenshots, left untouched.
+
+**Verified live:** published; fresh cache-busted fetch showed a new compiled-CSS hash with all 4 target classes rendering `font-family: Georgia, Times New Roman, serif`; the wrapper class `program-page-minor-step-body` confirmed back to zero font-family properties (exactly its pre-existing state); zero remaining references to the old `if-mani-p` name anywhere in the page; element counts matched (2× `program-page-minor-mani-p`, 3× `program-page-minor-stepcopy`).
