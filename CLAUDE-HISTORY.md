@@ -4443,3 +4443,13 @@ User: *"I DO NOT want to use the 'double grow' because they'll push into each ot
 **Fix, matching the exact §256 precedent (same site, same session):** `rename_style` took both classes out of `if-` scope (`if-courses-intro`→`courses-intro`, `if-courses-desc`→`courses-desc`) so the shared broad `[class^="if-"]{font-family:var(--if-sans)!important}` rule no longer reaches them — never patched as a new exception to that rule, per HARD RULE #1. Then set `font-family:Georgia,"Times New Roman",serif` (the site's established default serif stack) on both.
 
 **Verified live:** published; fresh cache-busted fetch showed a new compiled-CSS hash with zero remaining references to either old class name and the expected element counts (1 intro, 25 desc) on the new names; compiled CSS confirms both render `font-family: Georgia, Times New Roman, serif`.
+
+---
+
+## 266. Entrepreneurship Courses page — intro paragraph reverted to sans-serif + enlarged; caught and fixed an update_style side-effect that dropped max-width (2026‑09‑30, same session, immediately after §265)
+
+**Correction:** the intro paragraph (`courses-intro`) was one of the two just switched to serif in §265 — user pointed at it specifically and asked to make THIS one sans-serif again, at a larger size. `font-family` set back to `"Interstate","Helvetica Neue",Arial,sans-serif`; `font-size` raised 18px→20px.
+
+**⚠️ Caught mid-task: that same `update_style` call silently dropped the class's existing `max-width:860px`** — a re-query immediately after showed it missing from the stored object, even though the call only listed `font-family`/`font-size` in `properties` (this tool call, when passed 2 properties at once here, did not merely add/update as expected — unclear if it's specific to this call or a general risk; flagging for future sessions to verify a style's OTHER properties are intact after any multi-property `update_style`, not just that the intended ones landed). Restored `max-width:860px` in an immediate follow-up call, re-verified present.
+
+**Verified live:** published; fresh cache-busted fetch showed a new compiled-CSS hash with `.courses-intro{color:#222;max-width:860px;margin-top:0;margin-bottom:0;font-family:Interstate,Helvetica Neue,Arial,sans-serif;font-size:20px;line-height:1.6}` — all three (sans-serif, 20px, max-width) confirmed present together.
