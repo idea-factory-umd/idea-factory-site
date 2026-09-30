@@ -4506,3 +4506,16 @@ User: *"I DO NOT want to use the 'double grow' because they'll push into each ot
 - **Deliberately excluded:** `program-page-minor-body 2` (2 instances, "You earn the Minor by completing five courses..." / "If you're enrolled in the Southern Management Leadership Program...") — not shown in any of the 3 screenshots, left untouched.
 
 **Verified live:** published; fresh cache-busted fetch showed a new compiled-CSS hash with all 4 target classes rendering `font-family: Georgia, Times New Roman, serif`; the wrapper class `program-page-minor-step-body` confirmed back to zero font-family properties (exactly its pre-existing state); zero remaining references to the old `if-mani-p` name anywhere in the page; element counts matched (2× `program-page-minor-mani-p`, 3× `program-page-minor-stepcopy`).
+
+---
+
+## 271. Minor page — 2 more sans-serif body-text blocks switched to serif ("Already enrolled?" line, "Blueprint-stage" caption) (2026‑09‑30, same session, immediately after §270)
+
+**Two more screenshotted blocks:** the plain dark "Already enrolled?  " text preceding the red "Request your approved plan" link, and the full caption "The Minor is a **Blueprint**-stage program in the Idea Factory ecosystem, where you learn to think like a builder."
+
+**Classes involved:**
+- `program-page-minor-enroll-altlink 2` — the paragraph wrapping BOTH "Already enrolled?  " (plain text) and the nested `program-page-minor-planlink` red link. Font-family Georgia serif added to the paragraph.
+- **`program-page-minor-planlink` explicitly pinned to the sans stack** (`"Interstate","Helvetica Neue",Arial,sans-serif`) in the same pass — it previously had no font-family of its own (inherited), so serif-izing its parent would have silently pulled the red link into serif too, changing something never asked for. Pinning it keeps the link's look identical to before.
+- `program-page-minor-fits-caption 2` — the full caption paragraph, font-family Georgia serif added. Its bold "Blueprint" is a separate inner span (`program-page-minor-fits-caption-em 2`) with no font-family of its own, so it correctly inherits the new serif from its parent — no separate touch needed there.
+
+**Verified live:** published; fresh cache-busted fetch showed a new compiled-CSS hash with `.program-page-minor-enroll-altlink-2` and `.program-page-minor-fits-caption-2` both rendering Georgia serif, while `.program-page-minor-planlink` explicitly shows the sans stack — confirming the link's font stayed exactly as before despite its parent's font-family change.
