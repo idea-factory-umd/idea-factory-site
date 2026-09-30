@@ -4544,3 +4544,40 @@ User: *"I DO NOT want to use the 'double grow' because they'll push into each ot
 **This entry:** user then asked for the 4 social icons (`if-social-box`, X/LinkedIn/Facebook/Instagram) to also open in a new tab, matching `Give ››`'s existing behavior. Used `data_element_settings_tool.set_settings` (`key:"link"`, `static_link:{mode:"url", to:<unchanged existing URL>, open_in_new_tab:true}`) on all 4, inside the Footer component definition (`scope_component_id`) — same destination URLs preserved, only the new-tab flag added.
 
 **Verified live:** published; fresh cache-busted fetch of Home's footer confirmed `target="_blank"` now present on all 4 (`x.com/mtechumd`, `linkedin.com/company/10550318`, `facebook.com/mtechumd`, `instagram.com/mtechumd`), URLs unchanged.
+
+---
+
+## 274. PENDING TASK RECORDED — "OBFF" (Office of Business, Finance, and Facilities) page, full spec + layout guide saved, NOT YET BUILT (2026‑09‑30, same session)
+
+**Status: NOT STARTED.** The user handed off a complete build spec for a future task, explicitly to be picked up only when they say "build OBFF" (or equivalent) — could be minutes or days later. This entry exists so no part of the hand-off has to be re-explained. **Do not build this page until the user explicitly asks.**
+
+**⚠️ THIS BUILDS AS ONE SINGLE PAGE, NEVER SIX SEPARATE PAGES — user re-confirmed this explicitly, twice, mid-hand-off.** The PDF layout guide has 6 pages, but that is a PDF-authoring artifact only: page 1 of the PDF is a plain index (not a real screen at all), and pages 2–6 of the PDF are **the exact same live page**, screenshotted 5 times over with a different one of its 5 tabs selected each time — purely so a human reviewer could see every tab's content (and every accordion on it, forced open) without needing to click through the real interactive page. Do NOT read "6 PDF pages" as "6 site pages," and do NOT build 5 separate pages/URLs for the 5 tabs. The real deliverable is **one Webflow page** with **one native Tabs element** (5 tab panes) — switching tabs never navigates anywhere; it only changes which content shows and updates `location.hash` on the same URL. This is stated plainly in the spec itself ("This is ONE page. The tabs switch which content is shown; they do not go to different pages.") and is being called out here a second time, in its own clearly-flagged line, specifically because the user asked for explicit reconfirmation that this was understood and recorded.
+
+**Files saved to the repo (not just this history entry) so a future session has the originals, not just a transcription:**
+- `project/layout-guides/obff/obff-page-layout-guide.pdf` — the 6-page visual layout guide (page 1 = index; pages 2-6 = the same page with each of the 5 tabs selected and all its accordions forced open for visibility, plus yellow/red annotation bands that are NOT part of the real design). Confirmed readable and understood in full — see summary below.
+- `project/layout-guides/obff/obff-page-spec-and-links.txt` — the complete text prompt verbatim, including the full 58-link inventory by tab/accordion. **This is the authoritative, complete spec — read that file in full before starting the build; the summary below is an index into it, not a replacement for it.**
+
+**What this page is, in brief:** ONE new page — Office of Business, Finance, and Facilities (OBFF) — for Idea Factory/REFI staff and students, replacing the old `mtech.umd.edu/obff` page. Standard site header + a black hero band (gold eyebrow "Idea Factory / REFI Staff and Students", white H1 "Office of Business, Finance, and Facilities", a row of 5 tabs, a red accent bar along the bottom-right ~38% width) + a white content area whose content swaps per selected tab + standard site footer.
+
+**The 5 tabs (URL-fragment addressable, one page, no navigation):**
+1. Purchasing → `#staff-purchasing` (default) — no accordions, plain content, "Purpose:" (red bold) intro + bulleted list with bold run-in labels and a couple of lettered sub-bullets.
+2. Travel → `#staff-travel` — 3 accordions (Concur Directions / Policies / Dos and Donts of Travel), "Purpose:" intro.
+3. HR Employment & Onboarding → `#staff-hr` — 7 accordions (I–VII: New Hire General Info, Benefits, Payroll, Time and Absence, Leave, Required Trainings, Tuition Remission), "Purpose:" intro.
+4. Elevate → `#staff-elevate` — no accordions, no "Purpose:" line, just a heading + 2 links.
+5. Professional Development → `#staff-development` — 2 accordions (I. UMD Resources, II. External Resources), italic (not red-labeled) intro paragraph.
+
+**Mechanism:** native Webflow Tabs/show-hide + a small script reading/writing `location.hash` on load and on tab click (default to Purchasing if no hash), `aria-current`/`aria-selected` for accessibility. Accordions: native, all start CLOSED, multiple can be open at once, title row = bold black text + a 30px square 2px-black-border "+" button that fills black with a white "−" when open; thin gray rule between accordions, heavy black rule above the first. Use `<button aria-expanded>` per accordion header.
+
+**Content styling:** body text = site's serif body font (~17px/1.65 line-height/~78ch max width, same "default serif" pattern applied repeatedly elsewhere this session); accordion sub-headings (e.g. "AIRFARE:", "LODGING:") = Interstate heavy uppercase wide-tracking black; bulleted lists with occasional lettered (a/b/c) sub-lists; bold run-in labels (e.g. "Purchasing Email:"); links/emails = site red, underlined.
+
+**Already applied to the text (do not redo):** "Mtech"→"Idea Factory" throughout; no `mtech.umd.edu` links remain in this page's body (none existed to begin with); email addresses (incl. `mtech_purchasing@umd.edu`) are real working inboxes, kept exactly as-is.
+
+**Assets:** none. No images, no uploads — every linked document (PDF job aids, forms, Box files) is hosted externally (other UMD offices / State of Maryland) and simply linked.
+
+**⚠️ CMS note, explicit and important:** an OLD CMS collection existed for this page on the prior mtech.umd.edu site, tied to a "changeover" from several years ago — that content is archaic and must NOT be carried over, referenced, or revived in any way. **No new CMS collection is used for this page either** — it's 100% static native Webflow elements (Tabs + Accordions), per HARD RULE #1.
+
+**Page URL:** TBD by the Idea Factory team (likely `/obff`, matching the old address) + needs a 301 redirect from `mtech.umd.edu/obff` set up (outside Webflow/MCP's own reach — a DNS/redirect-service task for whoever administers that domain).
+
+**⭐ Direct connection to existing work, already in place:** the Footer component's bottom-right link **"Idea Factory / REFI Staff and Students ››"** (`if-foot-link hide`, currently a hidden, unset `#` placeholder — see §272/§273's footer-link audit) is **exactly** the link meant to open this OBFF page once built, landing on its Purchasing tab by default. When this page is eventually built and its real URL is confirmed, come back and wire up that exact footer link (and un-hide it) — don't treat it as a separate task; it's the entry point this page is being built for.
+
+**Full 58-link inventory, tab structure, and every word of the original instructions are in `obff-page-spec-and-links.txt` — read that file directly when starting the build, don't rely on this summary alone.**
