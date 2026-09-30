@@ -4341,3 +4341,13 @@ Confirmed fixed by checking `get_site` immediately after: both `customDomains[].
 **Final layout state (after all the back-and-forth): plain CSS Grid, unchanged from the original build** — `if-seedfund-hero-grid` (`display:grid; grid-template-columns:4fr 3fr` at main/medium, `1fr` at small), hero-left and hero-right as ordinary grid items, no flex/absolute properties on either. The Flexbox and `position:absolute` experiments were fully reverted once the real cause was found; grid was never actually the problem, per the user's own correction ("this changes everything").
 
 **⭐ Standing lesson, elevated because this cost hours and a great deal of the user's patience: when a "the two things don't line up" visual bug survives a CSS/DOM fix that is mathematically/structurally guaranteed to be correct (verified via matching bounding boxes AND rendered pixels in a real browser engine), STOP iterating on layout code and check whether the IMAGE ASSET ITSELF has the defect baked into its own pixels.** A `getBoundingClientRect()` comparison — even one done against a genuinely, fully-loaded real photo — proves the BOX is correct; it says nothing about whether the image's own visible content fills that box edge-to-edge. Any time a "line/border doesn't reach the edge of a photo" complaint persists across structurally-unrelated layout fixes, sample the actual image file's edge pixels (a quick Pillow/PIL brightness scan, as done here) before touching CSS again.
+
+---
+
+## 258. Impact Seed Fund hero photo — right edge now aligned exactly to the nav bar's GIVE button (2026‑09‑30, immediately after §257)
+
+**Ask:** the photo's right edge should horizontally align with the red menu bar's gold "GIVE" button right edge (`.if-give-btn-solid`, inside the shared Main Nav Component — read via `scope_component_id`, never edited, per HARD RULE #10's Component carve-out).
+
+**Measured, not guessed:** rendered the live page in headless Chromium and compared `getBoundingClientRect()` of both elements at 1440px and 992px. Found a consistent, exact 16px gap (photo extending 16px further right than GIVE at both widths) — and GIVE's own right-inset turned out to already be `calc(40px + max(0px, (100vw-1240px)/2))` (40px minimum gutter vs. hero-left's 24px, same 1240px-frame scaling term). Changed `if-seedfund-hero-right`'s `padding-right` from `calc(24px + …)` to `calc(40px + …)` — a 16px shift, derived from the real measured gap, not an estimate.
+
+**Verified live:** published, fetched fresh with cache-busting, confirmed the compiled `padding-right: calc(40px + max(0px, 50vw - 620px))`, then re-rendered with the real cropped photo and re-measured: `giveRight === photoRight` exactly (1300px at 1440, 952px at 992) — true equality, not merely "close."
