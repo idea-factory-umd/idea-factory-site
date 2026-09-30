@@ -4453,3 +4453,15 @@ User: *"I DO NOT want to use the 'double grow' because they'll push into each ot
 **⚠️ Caught mid-task: that same `update_style` call silently dropped the class's existing `max-width:860px`** — a re-query immediately after showed it missing from the stored object, even though the call only listed `font-family`/`font-size` in `properties` (this tool call, when passed 2 properties at once here, did not merely add/update as expected — unclear if it's specific to this call or a general risk; flagging for future sessions to verify a style's OTHER properties are intact after any multi-property `update_style`, not just that the intended ones landed). Restored `max-width:860px` in an immediate follow-up call, re-verified present.
 
 **Verified live:** published; fresh cache-busted fetch showed a new compiled-CSS hash with `.courses-intro{color:#222;max-width:860px;margin-top:0;margin-bottom:0;font-family:Interstate,Helvetica Neue,Arial,sans-serif;font-size:20px;line-height:1.6}` — all three (sans-serif, 20px, max-width) confirmed present together.
+
+---
+
+## 267. The Building page — body-text paragraphs switched to the default Georgia serif (2026‑09‑30, same session)
+
+**Ask:** "Make the plain/'body text' in the white main content area on this page the default serif font."
+
+**Scoped to the correct class only:** of 16 Paragraph elements on the page, only `building-item-body` (14 instances — color `#1a1a1a`, 16px, weight 400, no existing font-family) is plain flowing body copy in the white content area. Excluded: `if-hero-lead` (the hero's own lead paragraph, black-background section, shared `if-` class) and `building-donor-intro` (white text on a dark section background — not the white content area).
+
+**Fix:** `building-item-body` was already correctly outside `if-` scope, so no rename was needed (unlike the two prior serif conversions this session) — just added `font-family:Georgia,"Times New Roman",serif` directly. Touched no other property.
+
+**Verified live:** published; fresh cache-busted fetch showed a new compiled-CSS hash with `.building-item-body{color:#1a1a1a;font-family:Georgia,Times New Roman,serif;font-size:16px;font-weight:400;line-height:1.6}` — the pre-existing color/size/weight/line-height all confirmed unchanged alongside the new font.
