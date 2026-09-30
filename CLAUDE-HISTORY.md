@@ -4431,3 +4431,15 @@ User: *"I DO NOT want to use the 'double grow' because they'll push into each ot
 **Mechanism:** wrapped each pill's text in a native `<span class="if-grow-inner">` (the site's existing, already-shared single-layer content-grow utility — reused as-is, not forked, since applying it alone with no combo is exactly its intended use, per §3's "reuse established styles" convention) via `move_element`, verified structure. Hover colors: `if-courses-toggle-pill` (shared base) got `hover{background-color:#262626}`; the `is-active` combo got its own `hover{background-color:#f2c200}`, which wins for the active/gold pill via ordinary CSS specificity (2 classes > 1). The existing page-scoped embed (from §263's Graduate-width fix) was extended with `.if-courses-toggle-pill:hover .if-grow-inner{transform:scale(1.035)}` — one rule covers both pills since they share the base class.
 
 **Verified live** after a stale-cache retry (first fetch showed the pre-change markup despite a real publish; a second fetch after a longer wait showed a new compiled-CSS hash with both spans present and both hover rules compiled correctly: `.if-courses-toggle-pill:hover{background-color:#262626}` and `.if-courses-toggle-pill.is-active:hover{background-color:#f2c200}`).
+
+---
+
+## 265. Entrepreneurship Courses page — body-text paragraphs switched to the default Georgia serif, via HARD RULE #1's rename-out-of-scope fix (2026‑09‑30, same session)
+
+**Ask:** "Make all the plain/'body text' in the main white content area on the 'Courses' page into the default serif font."
+
+**Scoped correctly to actual prose only:** of the 3 paragraph classes on this page, `if-courses-intro` (18px, regular) and `if-courses-desc` (16px, regular — 25 instances, one per course) are genuine body copy. `if-courses-code` (14px, weight 800, red, uppercase, letter-spaced — the course-code label like "ENES100") is a bold label, not body text, and was correctly left sans/untouched.
+
+**Fix, matching the exact §256 precedent (same site, same session):** `rename_style` took both classes out of `if-` scope (`if-courses-intro`→`courses-intro`, `if-courses-desc`→`courses-desc`) so the shared broad `[class^="if-"]{font-family:var(--if-sans)!important}` rule no longer reaches them — never patched as a new exception to that rule, per HARD RULE #1. Then set `font-family:Georgia,"Times New Roman",serif` (the site's established default serif stack) on both.
+
+**Verified live:** published; fresh cache-busted fetch showed a new compiled-CSS hash with zero remaining references to either old class name and the expected element counts (1 intro, 25 desc) on the new names; compiled CSS confirms both render `font-family: Georgia, Times New Roman, serif`.
