@@ -4534,3 +4534,13 @@ User: *"I DO NOT want to use the 'double grow' because they'll push into each ot
 - Both new links left with Webflow's default placeholder href (`#`, no `link` setting configured) — the same convention this component already uses for other not-yet-assigned footer links (e.g., "Timeline") — ready for the user to set the real destination via the Designer's own Link Settings panel.
 
 **Verified live** (Footer is one shared Component — publishing once updates every page): fresh cache-busted fetch of Home showed `<a href="#" class="if-foot-umd-link w-inline-block">University of Maryland</a>` inside the wordmark span, and `© 2026 <a href="#" class="if-foot-copyright-link">University of Maryland</a>` at the bottom; compiled CSS confirms both classes' hover/active/visited rules are byte-identical to their base rule — nothing changes in any interactive state, matching the requirement exactly.
+
+---
+
+## 273. Footer component — 4 social media links (X, LinkedIn, Facebook, Instagram) set to open in a new tab (2026‑09‑30, same session, after a full footer-link audit)
+
+**Context:** user asked for a full audit of every footer hyperlink (URL, relative/absolute, working/broken, text match, same-tab/new-tab). Full-audit findings: all real links resolve (200), 3 are intentionally hidden/unset placeholders (Archives, Timeline, "Idea Factory / REFI Staff and Students" — user confirmed these stay as-is for now, to be filled in later), no label/destination mismatches, and — discovered via a live re-fetch mid-conversation — the user had, in the interim, filled in both new §272 link placeholders (UMD wordmark logo + copyright "University of Maryland") to `https://umd.edu/`, opening in a new tab, directly via the Designer's own Link Settings panel (external, unprompted confirmation that the native-link setup from §272 works exactly as intended).
+
+**This entry:** user then asked for the 4 social icons (`if-social-box`, X/LinkedIn/Facebook/Instagram) to also open in a new tab, matching `Give ››`'s existing behavior. Used `data_element_settings_tool.set_settings` (`key:"link"`, `static_link:{mode:"url", to:<unchanged existing URL>, open_in_new_tab:true}`) on all 4, inside the Footer component definition (`scope_component_id`) — same destination URLs preserved, only the new-tab flag added.
+
+**Verified live:** published; fresh cache-busted fetch of Home's footer confirmed `target="_blank"` now present on all 4 (`x.com/mtechumd`, `linkedin.com/company/10550318`, `facebook.com/mtechumd`, `instagram.com/mtechumd`), URLs unchanged.
