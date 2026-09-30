@@ -4477,3 +4477,13 @@ User: *"I DO NOT want to use the 'double grow' because they'll push into each ot
 **Fix:** removed `border-bottom-style`/`-width`/`-color` and the now-purposeless `padding-bottom` from `if-contact-stafflink`. Left `color:#e21833`, `font-family`, `font-size`, `font-weight`, `line-height`, `text-decoration-line:none`, and `display:inline-block` untouched.
 
 **Verified live:** published; fresh cache-busted fetch showed a new compiled-CSS hash with `.if-contact-stafflink{color:#e21833;font-family:Interstate,Helvetica Neue,Arial,sans-serif;font-size:16px;font-weight:700;line-height:1.3;text-decoration-line:none;display:inline-block}` — no border-bottom present — and confirmed the class is genuinely referenced in the live page markup.
+
+---
+
+## 269. The Building page — Donor Recognition founding-donor links: removed underline, added gold hover (2026‑09‑30, same session)
+
+**Ask:** remove the underline from the founding-donor links in the black "Donor Recognition" section, make them turn gold on hover.
+
+**Fix:** `building-donor-name` (the one class shared by all founding-donor links) — `text-decoration:underline` → `none`; added hover pseudo `color:#ffd200` (the site's Maryland Gold token). Left `color:#ffffff`, `font-size:17px`, `font-weight:700`, and the responsive `flex-basis` overrides (31%/48%/100% across breakpoints) untouched.
+
+**Verified live:** published; fresh cache-busted fetch showed a new compiled-CSS hash with `.building-donor-name{color:#fff;flex:0 0 31%;min-width:220px;font-size:17px;font-weight:700;text-decoration:none}` and `.building-donor-name:hover{color:#ffd200}` — underline gone, gold hover present, base properties otherwise identical to before.
