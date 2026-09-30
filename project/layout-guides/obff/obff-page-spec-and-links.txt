@@ -15,9 +15,11 @@ It replaces the old Mtech page at https://www.mtech.umd.edu/obff.
 The site footer's bottom-right link "Idea Factory / REFI Staff and
 Students ››" opens this page (on its Purchasing tab).
 
-Reference: obff-page-layout-guide.pdf (in this same folder). Page 1 is an
-index. Pages 2 to 6 each show the SAME page with a different tab selected
-and every accordion on that tab opened.
+Reference: the 6-page visual layout guide PDF (kept at its Dropbox source,
+not in this repo, per housekeeping policy — see CLAUDE.md/CLAUDE-HISTORY.md):
+https://www.dropbox.com/scl/fi/crze1ikyljaj9sdxdwz2h/Idea-Factory-site-OBFF-page-layout-guide.pdf?rlkey=jc25ywygm8k0u3h3f3x5axxg4&st=eeut2aj8&dl=0
+Page 1 is an index. Pages 2 to 6 each show the SAME page with a different
+tab selected and every accordion on that tab opened.
 
 HOW TO READ THE PDF
 -------------------
