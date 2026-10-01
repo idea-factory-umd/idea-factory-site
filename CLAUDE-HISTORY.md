@@ -4861,6 +4861,7 @@ The uniform ~19px gap found at 375px width (§E above) initially looked exactly 
 4. **§D:** on every page using `.if-stage-wrap` inside a non‑hero content section, check whether that section's OWN class also carries its own `padding-top` stacking with `.if-stage-wrap`'s 56px — if so, zero the section's own `padding-top` (never touch `.if-stage-wrap` itself), scoping the override to a page‑specific combo/standalone class, never the shared base class.
 5. **§F:** before "fixing" any residual small gap at `tiny` width, rule out deliberate fluid header‑content sizing first, per §F's method, before touching anything.
 6. Re‑verify live, on the real production domain (not just `.webflow.io`), at all four breakpoints, before reporting done — and watch for CDN publish‑propagation lag (§C's own note) when iterating.
+7. **⭐ Added after §I's correction: test a SEQUENCE of same-page anchor clicks in ONE continuous browser session (no reload between them), including at least one backward jump (a click to a section ABOVE the previous one), not just a single click from a fresh page load.** Even on a site with no `.w-dropdown` at all, Webflow's own native "link to page section" click-scroll can compute its destination using the mobile menu's still-open height and animate toward a now-stale target over ~2 seconds while the menu closes — a bug that a single fresh-load click can never surface, since the very first same-page click in a given scenario can look correct (or even be masked entirely by an incidental host-mismatch full reload) while every click after it lands severely wrong. If this reproduces, the fix is the same capture-phase-intercept pattern as §C/§I's code block (reusable near-verbatim): preventDefault + stopPropagation + stopImmediatePropagation, close the menu yourself, then scroll using the target's own `scroll-margin-top`.
 
 ### H. Applied to CBSCF (2026‑10‑01, same session) — RESOLVED, and a genuinely different bug shape than Ventures' — read this before assuming any other spinoff will match Ventures' exact fault pattern
 
@@ -4882,3 +4883,78 @@ Same checklist (§G), same shared nav architecture confirmed first (`if-header`/
 - Visual screenshot check (not just numbers) on the Funding anchor at tablet width — confirmed clean, flush, no overlap.
 
 **Status: CBSCF's Nav Alignment Crisis equivalent is CLOSED, all 4 breakpoints, all 3 pages.** Next spinoff to audit: whichever the user names next, starting fresh from §G's checklist — do not assume it will look like either Ventures' or CBSCF's specific fault pattern going in.
+
+**⚠️ CORRECTION (same session, minutes later) — this status was premature. See §I below: the verification above only ever tested a SINGLE same-page click from a freshly-loaded page, every time. A real, severe bug (Webflow's own native click-scroll using a stale pre-close menu height) was still live and only surfaced when the user tested a SEQUENCE of same-page clicks without reloading, exactly as a real visitor browsing the page would. §I's fix resolves it and is now verified against that exact scenario. Read §I before treating this section's "CLOSED" as the full picture.**
+
+### I. ⚠️ CORRECTION to §H's "CLOSED" status — a second, more severe bug only surfaces across a SEQUENCE of same-page clicks, not a single fresh-load click (2026‑10‑01, same session, minutes after §H was written)
+
+**§H was reported to the user as fully resolved. It was not.** The user replied with a screenshot (tablet width, navigating to the Overview anchor) showing the entire hero + facts band still visible above the heading — landing wildly wrong — and, after an initial (wrong) hypothesis that this was a stale-cache/browser issue was offered and rejected, said: *"No. Stop gaslighting. This happens when navigating from the same page with anchor tags."* That correction was exactly right and pointed at the real gap.
+
+**The methodology gap:** every verification in §H (and, in hindsight, in §C/§E for Ventures too) tested a single same-page anchor click from a freshly-loaded page — a new browser context every time. None of them tested what a real visitor actually does: click one nav anchor, then click ANOTHER, then another, without ever reloading. Testing that exact sequence (team → overview (backward) → portfolio → funding → overview again, one continuous session, no reload) reproduced the bug immediately and severely: the first click landed correctly, every click after it landed hundreds to well over a thousand pixels off, in both directions, by inconsistent amounts.
+
+**Root cause (confirmed empirically, not assumed — same discipline as §C):**
+- CBSCF's nav links carry no `data-smooth-scroll`/`if-smooth-scroll` marker, so none of our own shared JS (`idea-factory.js`'s capture-phase smooth-scroll module) ever touches these clicks. Setting `location.hash` directly via JS (bypassing the click entirely) landed instantly and correctly — proving native browser fragment navigation and `scroll-margin-top` were never the problem.
+- A real click on the nav link, however, triggers a ~2-second, eased (cubic in-out) animated scroll — confirmed via `window.Webflow` being present on the page, i.e. this is **Webflow's own built-in "link to page section" runtime**, not anything in our code. Frame-by-frame tracing (sampled every `requestAnimationFrame`) showed the mobile menu's own close transition (`max-height` 450ms, open height ~478px → 0) starting in the SAME tick as the click, while Webflow's animated scroll — started at the same moment — climbs toward a destination computed BEFORE the menu finished closing. The landed position was short of the correct target by almost exactly the menu's open height (478px short on a 6102px scroll, confirmed twice).
+- In other words: Webflow's own click handler reads the layout (including the still-open, tall mobile menu) once at click time, then spends ~2 seconds animating toward that now-stale number while our own `nav-toggle-js` shrinks the header out from under it. This is the same family of bug as §C (Webflow's own runtime fighting our custom menu-close), just manifesting as a bad animated-scroll distance instead of a dropdown re-navigation, and it required its own fresh diagnosis rather than assuming §C's exact mechanism applied unchanged.
+- A same-origin vs. cross-origin red herring was ruled out along the way: because CBSCF's nav links are hardcoded to the apex domain (`https://cbscf.umd.edu/...`) while a test session loaded via `www.`, the very first click in that scenario was coincidentally a full cross-host reload (fresh native load, always correct) — masking the bug on "click 1" specifically. Loading directly via the apex domain (matching the links' own host) removed that artifact and showed the bug on the very first in-page click too — confirmed via Performance API entry counts and a `window.__marker` surviving every click (zero full reloads; every click is a genuine same-document navigation).
+
+**Fix (page-scoped HTML Embed, CBSCF-Home only, element id `0f168b79-a27a-bb70-e7c8-1462d7418c96`, appended as the last child of Body) — same structural pattern as §C's fix, reused deliberately for consistency, with no dropdown/transitionend dependency needed since `.if-header` is `position:fixed` (confirmed via compiled CSS) so the target's real document position never actually depends on the menu's open/closed state:**
+
+```js
+<!-- DO NOT DELETE — page-scoped to CBSCF-Home only. Fixes a Webflow-native-runtime bug: when
+     a same-page nav anchor (Overview/Funding/Criteria/Industries/Portfolio/Team) is clicked while
+     the mobile hamburger menu (.if-navmenu.if-navmenu-js.is-nav-open) is open, Webflow's own
+     built-in "link to page section" smooth-scroll computes its destination using the menu's
+     current (open, ~400-480px tall) height, then animates toward that stale target over ~2s while
+     our own nav-toggle-js closes the menu in the same tick -- landing hundreds of px short/long of
+     the real target. Intercepts the click ahead of Webflow's own handler (capture phase on
+     document, matching the pattern already used in idea-factory.js's own smooth-scroll module),
+     closes the menu immediately, and scrolls to the correct position itself using each target's
+     own (already-correct, static) scroll-margin-top -- so it does not depend on the menu's
+     open/close CSS transition at all. -->
+<script>
+try {
+(function(){
+  function scrollToTarget(target){
+    var smt = parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
+    var top = target.getBoundingClientRect().top + window.pageYOffset - smt;
+    window.scrollTo(0, Math.max(0, Math.round(top)));
+  }
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a[href]');
+    if(!a) return;
+    var menu = a.closest('.if-navmenu.if-navmenu-js');
+    if(!menu || !menu.classList.contains('is-nav-open')) return;
+    var url;
+    try { url = new URL(a.getAttribute('href') || '', location.href); } catch(_e){ return; }
+    if(url.origin !== location.origin || url.pathname !== location.pathname || !url.hash) return;
+    var target = document.getElementById(url.hash.slice(1));
+    if(!target) return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    history.pushState(null, '', url.pathname + url.hash);
+    var btn = document.querySelector('.if-navbtn.if-navbtn-js');
+    menu.classList.remove('is-nav-open');
+    if(btn){ btn.classList.remove('w--open'); btn.setAttribute('aria-expanded','false'); }
+    scrollToTarget(target);
+    setTimeout(function(){ scrollToTarget(target); }, 250);
+  }, true);
+})();
+} catch (e) { try { console && console.warn && console.warn('[cbscf-home] mobile-anchor-scroll error:', e); } catch (_) {} }
+</script>
+```
+
+The `url.origin !== location.origin` guard deliberately leaves the (already-correct, native) cross-host reload path untouched — it only activates once the click is a genuine same-document navigation.
+
+**Verified live (published to both `cbscf.umd.edu` and `www.cbscf.umd.edu`), after confirming via a distinctive-string `curl` that the new code was actually served (not a stale cache read):**
+- **The exact failing scenario, repeated:** 3 sequences of same-page clicks in one continuous session (no reload), including backward jumps (team→overview, portfolio→funding→overview, criteria→industries→team→funding) — at tablet (850px) **all 9 clicks landed within ±0.5px**; at phone (375px) **all 9 landed at a uniform ~18.3–18.8px gap**, matching §F's already-documented fluid-header residual exactly (not drifting or compounding across repeated clicks) — zero console errors either width.
+- **Regression: fresh load with `#funding` already in the URL (no click at all)** — still correct (`gap≈-0.3px`), confirming the native/fresh-load path (§H's own original fix) is untouched.
+- **Regression: a cross-page nav link (Impact) clicked from the open mobile menu** — still navigates normally to `/cbscf-impact`, menu correctly reset on the new page; our guard's `url.pathname !== location.pathname` check correctly lets this fall through untouched.
+- **Regression: desktop width (1280px), single click, no mobile menu involved at all** — initially looked broken (~539px gap) on a 1.5s-wait test, but frame-tracing showed Webflow's OWN animated scroll (same mechanism, unrelated to our fix since the mobile menu's `is-nav-open` state never applies at desktop) simply takes ~2–3 seconds to fully settle; re-tested with a 3.2s wait and it lands correctly (`gap≈20px`, then `gap≈-0.1px` on a second click). **This is a pre-existing, independent characteristic of Webflow's own native scroll animation's settle time, not something our fix touches or needs to fix — noted here only so a future session doesn't mistake a too-short test wait for a desktop regression.**
+
+**Mtech Ventures re-checked against this exact same-session-sequential-click scenario (§C's original fix had the identical untested gap) and found to ALREADY be robust — no fix needed there:** 4 clicks in one continuous session on Ventures-Incubator (What-you-get → Eligibility → What-you-get → Eligibility, via the dropdown, no reload between any of them) landed within ±0.15px at tablet and at a consistent ~18px §F-residual at phone, every time, no drift. §C's original fix (full `doClose()` + `stopPropagation`/`stopImmediatePropagation` + its own scroll calculation) happened to already be sequence-safe even though it was never explicitly tested that way before now.
+
+**⭐ Reusable principle, added to §G's checklist below: a same-page anchor fix is not verified until it's tested across a SEQUENCE of clicks in one continuous session (including at least one backward jump), not just a single click from a fresh page load.** A single-click-from-fresh-load test can pass cleanly while a real, severe bug sits one click away — exactly what happened here.
+
+**Status: CBSCF's Nav Alignment Crisis, including this second bug, is now genuinely CLOSED, verified against the sequential-click scenario specifically, all 4 breakpoints, all 3 pages. Ventures re-verified clean against the same scenario, no changes needed.**
