@@ -95,6 +95,17 @@
 >    of the way first (verify via the compiled CSS which one is actually live), THEN apply the fix to
 >    the now‑uniquely‑named real object, and re‑query again to confirm. Repeat the isolation step if a
 >    THIRD (or further) same‑named object turns up — don't assume two is the ceiling.
+>    - **⚠️ Added 2026‑10‑01, found on UMD I‑Corps: `query_styles`'s `name_path` search can surface
+>      same‑named styles belonging to a COMPLETELY DIFFERENT SITE, not just a same‑site duplicate.**
+>      A `query_styles` call made with `siteId` set to I‑Corps, searching for a CBSCF‑only class name
+>      (`program-page-cbscf…`) and an I‑Corps‑only class name (`icorps-schedule…`) in the SAME session,
+>      returned real CBSCF‑named results even though the call's `siteId` was I‑Corps — almost certainly a
+>      cross‑site search‑cache artifact from earlier `query_styles` calls against CBSCF in the same tool
+>      session, not a real data leak (writes scoped by explicit `siteId` continued to verifiably land on
+>      the correct site throughout). **When working across more than one spin‑off in a single session,
+>      do not trust `query_styles` name‑path results at face value** — cross‑check anything surprising
+>      against the live, currently‑served compiled CSS for the specific site in question (the same
+>      discipline item 2 below already requires) before treating a found style as real for that site.
 > 2. **Full sweep, not a sample.** For any change touching more than one selector/property, verify EVERY
 >    ONE of them against a freshly re‑fetched, live, currently‑served compiled CSS — never a
 >    representative handful. Sampling is exactly what let this class of bug hide across 100+ selectors.
