@@ -4709,4 +4709,113 @@ Asked to add "a slight grow on hover" to the ASPIRE Program's Contact section em
 3. **The real, decisive check: compare `element.boundingBox()` (or a raw pixel screenshot of just that element) before vs. after hovering.** For a `display:inline` element with a broken transform, the box size is **byte-identical** before/after despite the computed style "changing." For a working transform, the box visibly grows by exactly the scale factor (confirmed after the fix: 133.6×20px → 140.3×21px at `scale(1.05)`, and 133.6×20 → 160.3×24 at `scale(1.2)` — both match the scale factor to the pixel).
 4. **Fix: add `display:inline-block` to the element's own class.** No other property needed changing. Republished, re-ran the identical bounding-box-diff test, confirmed the size actually changes now.
 
+---
+
+## §276. Mtech Ventures — REUSABLE PLAYBOOK: nav/header responsive-alignment bugs, desktop → tablet, full chain (2026‑10‑01, same session) — **⭐ READ THIS FIRST ON ANY OTHER SPINOFF SHOWING SIMILAR SYMPTOMS, per the user's explicit request to document this for reuse before going further**
+
+This entry documents, end‑to‑end, every nav/header alignment bug found and fixed on Mtech Ventures while working breakpoint‑by‑breakpoint from desktop down (per the user's own stated process: fix desktop fully, confirm it, then move to Tablet, then Phone‑Horizontal, then Phone‑Vertical, never touching an already‑confirmed‑good breakpoint). **Every other spinoff sharing this same nav architecture (`if-header`/`if-navmenu`/`if-navbtn-js`, the whole `if-` shared‑behavior suite) should be assumed to have the SAME latent bugs until checked** — the mechanism is identical because the shared JS/CSS is identical; only the per‑page class names and exact pixel numbers differ per site/page.
+
+### A. Desktop: sitewide 1px gap between the header and the page content
+
+**Symptom:** on every page, a 1px sliver of visible gap between the bottom of the sticky header and the top of the page's hero/content section, at desktop width (≥992px / Webflow `main` breakpoint).
+
+**Root cause:** each page's hero/top section has a fixed `margin-top` (in px) meant to exactly equal the sticky header's real rendered height, so content sits flush beneath it. The stored value (180px) was 1px more than the header's actual rendered height (179px measured fresh via Playwright), leaving a 1px gap.
+
+**Fix:** `update_style` on every affected section class, `breakpoint_id:"main"`, `margin-top` 180px → 179px. On Mtech Ventures this touched **7 classes**: `if-hero-sec`, `program-page-ventures-impact-hero-sec`, `program-page-ventures-incubator-hero-sec`, `program-page-ventures-companies-sec`, `program-page-ventures-contact-sec`, `program-page-ventures-faq-sec`, `program-page-ventures-hours-hero`.
+
+**Verification method (reuse this):** fresh Playwright load of the LIVE production page (never the `.webflow.io` subdomain alone — must include real custom domains, see §C below on publishing), `document.querySelector('.if-header').getBoundingClientRect()` vs the page's first content-section sibling's `getBoundingClientRect()`, compute `gap = nextSectionTop - headerBottom`, confirm `gap≈0` on every page. Do this for ALL pages on the site, not a sample (HARD RULE #3) — a per‑page margin‑top value is exactly the kind of thing that's easy to apply to most pages and silently miss a few.
+
+### B. Tablet: the SAME gap bug recurs, independently, because of a missed responsive step — not a new bug class
+
+**Symptom:** moving down to the Tablet breakpoint (Webflow `medium`, 768–991px), the SAME visible gap reappeared, but **only on some pages** (Companies, Contact, FAQ, and "UMD Entrepreneur Office Hours" on Mtech Ventures) — not on Home/Impact/Incubator/Apply/Calendar/Resources. User's own framing, which is the right way to think about this bug class generally: *"When the red nav bar is there (desktop), everything lines up. When that goes away (responsive smaller views), things start messing up."* — i.e. the header's own rendered height is NOT constant across breakpoints (the full horizontal nav row collapses into just a hamburger button at `medium` and below, so the header gets visibly shorter), and any section whose header‑clearance `margin-top` is only ever set for the `main` breakpoint will be WRONG at every smaller breakpoint once the header's real height changes.
+
+**Root cause, precisely:** 3 of the 7 classes above (`if-hero-sec`, `…-impact-hero-sec`, `…-incubator-hero-sec`) had ALREADY received per‑breakpoint `margin-top` overrides at `medium`/`small`/`tiny` in an earlier pass (a prior "hamburger-nav-gap task", done before this specific investigation). The other 4 (`…-companies-sec`, `…-contact-sec`, `…-faq-sec`, `…-hours-hero`) were created/touched only with the `main`‑breakpoint value and never got the smaller‑breakpoint overrides — so they stayed stuck at the desktop number (179px) even once the header shrank to ~129px at `medium`, leaving a ~49px gap specifically on those 4 pages.
+
+**Fix:** measure the header's REAL rendered height fresh at each breakpoint (never reuse an old number from memory — HARD RULE #19; a Main Nav component can be stripped/reinserted between sessions, changing real heights) via Playwright at representative widths inside each Webflow breakpoint range (e.g. 991/850/768 for `medium`). Then copy the EXACT already‑proven‑correct per‑breakpoint `margin-top` values from the 3 working classes onto the lagging ones — **this is a pure consistency fix, zero new design judgment, just closing a gap in breakpoint coverage.** On Mtech Ventures: `medium`→130px, `small`→140px, `tiny`→137px, applied to all 4 lagging classes.
+
+**Verification method:** re‑run the exact same gap‑measurement script from §A, now at tablet widths too, across ALL pages — confirm every page now reads the same (near‑zero) gap, not just the 4 that were fixed.
+
+**⭐ Generalized lesson for every other spinoff:** before declaring ANY breakpoint "done" for this gap, check EVERY page's hero/section class for ALL FOUR breakpoints (`main`/`medium`/`small`/`tiny`), not just the ones that happen to already match a sibling page. A class created later than the others (a newer page) is the most likely to have been missed.
+
+### C. Tablet/mobile: same‑page dropdown‑anchor links land in the wrong place — the hard one, fully reusable fix below
+
+**Symptom (user's own description, worth preserving verbatim for pattern‑matching on other spinoffs):** *"Links that are loaded to ANCHOR TAG links have far greater alignment problems. They tuck far up behind the nav menu rather than their top sitting flush against the bottom of that component… 'What you get' and 'Eligibility' navigate to DIFFERENT places depending on what page one is on when clicking on those menu links… when navigated to from the page that section is ON [same‑page click] it lands wrong. When navigating to it from outside pages [cross‑page click/direct load] it arrives at the correct place."* Concretely: at the Tablet/mobile hamburger breakpoint, clicking a dropdown sub‑link that points at a `#hash` on the SAME page you're currently on (e.g. the "Incubator" dropdown's "What You Get"/"Eligibility" items on Ventures‑Incubator) lands scrolled to the wrong position — the target heading ends up hidden behind the header, with unrelated lower content showing instead. The IDENTICAL link, clicked from a DIFFERENT page (a real page load with the hash already in the URL), lands correctly.
+
+**This is NOT the same bug as §A/§B** — it is unrelated to the static `margin-top` header‑clearance value, and the CSS (`scroll-margin-top` on the anchor TARGET elements) was independently verified to already be 100% correct and IDENTICAL on both the working and broken link (confirmed via `query_styles`, values `179px`/`129px`/`139px`/`136px` across all 4 breakpoints, matching exactly). **Do not waste time re‑checking `scroll-margin-top` values if you hit this bug elsewhere — that part is almost certainly already fine; the bug is behavioral/JS, not a stored CSS value.**
+
+**Why the two navigation paths differ:** a cross‑page load (or a fresh page load with `#hash` already in the URL) triggers the browser's native "scroll to fragment" exactly once, against the FINAL, already‑settled page layout — nothing else is happening on the page at that moment, so it lands correctly using `scroll-margin-top`. A same‑page click happens WHILE the mobile hamburger menu is still open (you had to open it to see/click the dropdown link in the first place), and several things fire in a cascade from that one click, each of which can independently corrupt the result:
+
+1. **Webflow's own NATIVE dropdown‑widget runtime** (the `.w-dropdown`/`.w-dropdown-toggle`/`.w-dropdown-list` classes — this is Webflow's own platform JS, NOT anything in `idea-factory.js`, and it cannot be read or edited via MCP) **independently re‑triggers its own navigation/scroll handling on a click inside the dropdown list, regardless of `event.preventDefault()` having been called on the original click.** This was proven empirically: a capture‑phase `document` listener confirmed `e.defaultPrevented === true` immediately after calling `preventDefault()`, yet a `framenavigated` event (Playwright‑observable) to the hash URL still fired anyway, and the broken scroll behavior was completely unaffected by preventDefault alone. **The only way to stop this is `event.stopPropagation()` (and `stopImmediatePropagation()` for safety) on an EARLY listener — attached on `document` in the CAPTURE phase (the 3rd `addEventListener` argument `true`) — so the click never reaches whatever internal listener Webflow's own runtime has attached.** (How to empirically confirm this on a NEW spinoff: add a capture‑phase `document` click listener, log `e.defaultPrevented` right after calling `preventDefault()` in your own earlier‑firing handler, and watch for a `framenavigated`/URL‑change event in Playwright despite `defaultPrevented===true`. If you see the navigation still happen, this is the same root cause.)
+2. **A second‑order consequence of using `stopPropagation()`:** our OWN shared `nav-toggle-js` module (in `idea-factory.js`) closes the mobile menu via a plain bubble‑phase listener attached directly to `.if-navmenu` (`menu.addEventListener('click', function(e){ if(e.target.closest('a')) setOpen(false); })`). Stopping propagation early (step 1) ALSO prevents this existing listener from ever running — **meaning the menu silently stops closing on link‑click once you add the fix for #1, a new regression the fix itself introduces.** The corrective code must therefore close the menu ITSELF explicitly (toggle `is-nav-open` off the menu, `w--open`/`aria-expanded` off the button) rather than relying on the pre‑existing mechanism.
+3. **Something (most likely residual timing effects of Webflow's own widget, possibly compounded by an apparent scroll‑anchoring‑like drift observed during debugging) can still transiently re‑open the menu and/or re‑drift the scroll position shortly after the corrective scroll is applied.** The robust fix re‑asserts BOTH the closed state and the corrective scroll a second time after a short additional delay (200ms), as a defensive "final word" — this was added after observing, via fine‑grained Playwright traces logging `scrollY` on every native `scroll` event, that a single corrective `window.scrollTo()` call could visually "win" for one frame and then silently get overridden back toward the broken value on the very next frame.
+
+**Debugging method that actually worked (reuse this sequence, in order, on any future spinoff with this symptom — each step below was necessary to isolate the actual cause; skipping ahead based on a plausible‑sounding theory wasted significant time in this session):**
+1. Reproduce headlessly first: Playwright, load the page at a representative tablet width (e.g. 850px), click `.if-navbtn.if-navbtn-js` (open menu), click the real sub‑link by its `href*="#the-id"` selector, wait ~1.2s, then read `document.getElementById('the-id').getBoundingClientRect()` vs `.if-header`'s — confirm the bug reproduces outside of any human/browser‑specific flakiness.
+2. Isolate the CSS: programmatically set `location.hash` directly (no click, no menu involvement) and confirm it lands correctly — this proves `scroll-margin-top` itself is fine and the bug is purely behavioral/timing, saving you from re‑auditing CSS that's already correct.
+3. Trace `window.scrollY` on every native `'scroll'` event (`document.addEventListener('scroll', fn, true)`) from the moment of click through +1.2s — this reveals WHETHER the final value is a clean one‑shot jump (fix working) or a continuous multi‑hundred‑millisecond drift (fix not actually winning, something is still fighting it every frame).
+4. Trace event‑propagation phase‑by‑phase (`window` capture → `document` capture → anchor target → `document` bubble → `window` bubble), each logging `e.defaultPrevented`, to find exactly where propagation silently stops being observed further up the chain — this is what revealed Webflow's own widget must be intercepting the event somewhere the custom code's own listeners don't reach, and confirmed preventDefault alone was insufle.
+5. Once `stopPropagation` was added, re‑screenshot the FINAL settled state (not just read numeric `scrollY`) — this is what caught that the menu had stopped closing (regression #2 above): the numbers can look locally plausible while a screenshot immediately shows the mobile menu still covering the whole viewport.
+
+**The exact, final, working code (verified live, both links, screenshot‑confirmed, regression‑checked against a different‑page dropdown link and against desktop) — copy this nearly verbatim onto any other spinoff hitting this exact symptom, adjusting only the per‑page element IDs it targets implicitly (it has none hardcoded — it is keyed purely off the shared `if-navmenu`/`if-navbtn-js`/`is-nav-open` class contract, so it is already portable to any page on any site using this same nav pattern):**
+
+```html
+<!-- DO NOT DELETE — page-scoped, per CLAUDE.md HARD RULE #17. Fixes same-page dropdown-link landing position at the tablet/mobile hamburger-menu breakpoint. Root causes: (1) Webflow's own native dropdown-widget runtime independently re-triggers navigation on these clicks regardless of preventDefault on the original event, so the click must be fully intercepted (stopPropagation) before that runtime ever sees it; (2) once intercepted that way, this code also blocks our OWN shared nav-toggle-js module's bubble listener that normally closes the mobile menu on a link click — so this code must close the menu itself rather than relying on that; (3) something (Webflow's own widget and/or a scroll-restore side effect) can still re-open/re-scroll shortly after, so the close + corrective scroll are re-asserted once more after a short delay as a defensive final pass. -->
+<script>
+try {
+(function(){
+  function scrollToTarget(target){
+    var smt = parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
+    var top = target.getBoundingClientRect().top + window.pageYOffset - smt;
+    window.scrollTo(0, Math.max(0, Math.round(top)));
+  }
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a[href]');
+    if(!a) return;
+    var menu = a.closest('.if-navmenu.if-navmenu-js');
+    if(!menu || !menu.classList.contains('is-nav-open')) return;
+    var url;
+    try { url = new URL(a.getAttribute('href') || '', location.href); } catch(_e){ return; }
+    if(url.origin !== location.origin || url.pathname !== location.pathname || !url.hash) return;
+    var target = document.getElementById(url.hash.slice(1));
+    if(!target) return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    history.pushState(null, '', url.pathname + url.hash);
+    var btn = document.querySelector('.if-navbtn.if-navbtn-js');
+    var html = document.documentElement;
+    var prevAnchor = html.style.overflowAnchor;
+    html.style.overflowAnchor = 'none';
+    function doClose(){
+      menu.classList.remove('is-nav-open');
+      if(btn){ btn.classList.remove('w--open'); btn.setAttribute('aria-expanded','false'); }
+    }
+    doClose();
+    var done = false;
+    function finish(){
+      if(done) return; done = true;
+      menu.removeEventListener('transitionend', onEnd);
+      doClose();
+      scrollToTarget(target);
+      setTimeout(function(){ doClose(); scrollToTarget(target); html.style.overflowAnchor = prevAnchor; }, 200);
+    }
+    function onEnd(ev){ if(ev.target === menu && ev.propertyName === 'max-height') finish(); }
+    menu.addEventListener('transitionend', onEnd);
+    setTimeout(finish, 600);
+  }, true);
+})();
+} catch (e) { try { console && console.warn && console.warn('[PAGE-SLUG] mobile-anchor-scroll error:', e); } catch (_) {} }
+</script>
+```
+
+**Where this lives, and why (per HARD RULE #17 — all new code segregated per sub‑site):** deployed as a **page‑scoped HTML Embed** (via `data_element_builder` → `type:"HtmlEmbed"` → `set_settings` with `key:"code"`), appended to the page's `<body>` root, **NOT added to the shared `idea-factory.js`** — even though the bug and fix are fully generic/portable, because this specific symptom currently only occurs on pages whose own nav dropdown happens to contain same‑page hash sub‑items (on Mtech Ventures, only Ventures‑Incubator qualifies: its "Incubator" dropdown has 2 same‑page anchors, "What You Get"/"Eligibility"; its "Programs" dropdown's items are either external sites or separate pages with no hash, so they're unaffected and don't need this). **When replicating this fix on another spinoff, first identify which of ITS OWN pages have a dropdown whose sub‑items include a same‑page `#hash` link (check each `.if-dd-list`'s `a.if-nav-sublink[href]` values against the current page's own URL) — only those pages need the embed.**
+
+**Publishing note that cost real time this session — always do this when iterating on a live JS fix:** `publish_site` can take several seconds to actually propagate to the live custom domain even after the API call returns success; a Playwright test run IMMEDIATELY after publishing can silently hit a stale edge‑cached version and make a genuinely‑fixed deploy look like it did nothing. **After every publish during this kind of iterative JS debugging, `curl` the live page fresh and `grep` for a distinctive string unique to the version you just deployed (e.g. part of a comment or a log string) before trusting a Playwright re‑test's result** — this caught at least one false "the fix didn't work" moment that was actually just cache lag.
+
+**Regression checks run before considering this closed (repeat these on every other spinoff too):** (a) a DIFFERENT dropdown sub‑link pointing at a separate page (no hash) still navigates normally when clicked from inside the open mobile menu — confirmed, unaffected, because the fix explicitly bails (`if(!url.hash) return`) before doing anything for non‑hash links; (b) desktop width is completely unaffected — confirmed, because at desktop the hamburger button is never used so `is-nav-open` is never true, and the fix's very first real check (`!menu.classList.contains('is-nav-open')`) bails immediately.
+
+### D. Status as of this entry
+
+Desktop (`main`) and Tablet (`medium`) breakpoints are now confirmed correct on Mtech Ventures for: the header‑clearance gap (§A/§B, all 10 pages) and the same‑page dropdown‑anchor landing bug (§C, both affected links on Ventures‑Incubator). **Phone‑Horizontal (`small`, 480–767px) and Phone‑Vertical (`tiny`, ≤479px) have NOT yet been audited** — per the user's explicit plan, these are next, working down one breakpoint at a time, never touching a breakpoint already confirmed correct. Given §B's lesson (the gap bug can recur per‑breakpoint even after being fixed at a different breakpoint) and §C's root cause (same‑page dropdown anchors only exist on Ventures‑Incubator currently, but the underlying Webflow‑widget‑intercepts‑the‑click behavior is a property of the shared nav markup itself, not of any one breakpoint), **both bug classes should be explicitly re‑checked at `small` and `tiny` too, not assumed fixed just because `main`/`medium` are clean.**
+
 **Standing rule going forward: before shipping ANY new hover effect that uses `transform` (scale, rotate, translate, etc.) on an element that isn't already a Block/Section/inline-block/Button, check its `display` value first (or just add `display:inline-block` defensively) — and verify success via an actual before/after bounding-box or pixel measurement in a real browser, never via `getComputedStyle`/`query_styles`/compiled-CSS text alone.** Those checks only prove the rule was written and matched; they do not prove it renders.
