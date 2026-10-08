@@ -471,6 +471,13 @@
 > - **THE RULE: every time corrective evidence is shown — a screenshot, a side-by-side, a "this is still wrong" — stop, discard whatever was previously concluded about the cause, and re-derive the diagnosis from scratch by actually comparing the full current evidence against the full current reference (every line, every element, not just the part that matched the last theory).** If the new look doesn't reproduce the same explanation as before, the explanation was wrong or incomplete — that is the signal to dig further, not to restate the same fix with a minor tweak.
 > - **A tool-call rejection/denial is information, not noise to retry past.** Resubmitting the identical action after it was just denied, without the approach changing, teaches nothing and reads (correctly) as not listening. A denial means stop and get an explicit instruction before trying again — never fire the same call a second time on the assumption it'll go through this time.
 > - **Explaining the mechanism of a mistake is not the same as fixing it, and is not what's owed in the moment a fix is wrong.** When told directly "I don't want explanations, I want fixes" — stop narrating process and produce the corrected, verified result.
+> - **⭐ MANDATORY FORMAT, added 2026‑10‑08 after prose alone (this same rule, stated once) failed to hold within the same session it was written in: before claiming ANY fix matches a reference, or responding to being shown that something is still wrong, write out this exact three-line block FIRST, filled in for real, before the next tool call or claim of "done":**
+>   ```
+>   REFERENCE SHOWS (every relevant detail, not just the one already suspected):
+>   CURRENT STATE SHOWS (every relevant detail, checked fresh, not carried over from a prior turn):
+>   DIFFERENCES (every mismatch between the two lines above, not just the first one found):
+>   ```
+>   **This is a required, visible output, not an internal mental step** — a described preference ("look carefully") has already proven not to survive contact with the next message; a literal block that has to be written out, every time, in the response itself, is harder to silently skip than an intention is. If the DIFFERENCES line only restates what was already concluded last turn, that is itself the signal the comparison wasn't actually redone — go back and look again before proceeding.
 > - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#21 — keep this
 >   banner intact and pass it on.
 
