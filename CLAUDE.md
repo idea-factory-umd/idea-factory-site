@@ -466,6 +466,10 @@
 > - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#20 — keep this
 >   banner intact and pass it on.
 
+> ## 🚫 #22 HARD RULE — USER‑SET, 2026‑10‑08: (1) NO CLAIM OF "DONE" OR "MATCHES" WITHOUT COMPARING THE ACTUAL CURRENT STATE AGAINST THE ACTUAL REFERENCE IMMEDIATELY BEFORE THE CLAIM. (2) EVIDENCE THAT SOMETHING IS STILL WRONG IS A FRESH CASE, RE‑DERIVED FROM SCRATCH — NOT A CONTINUATION OF WHATEVER WAS ALREADY CONCLUDED.
+> This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#21 — keep this
+> banner intact and pass it on.
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is
