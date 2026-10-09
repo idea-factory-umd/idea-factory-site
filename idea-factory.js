@@ -1273,17 +1273,29 @@ try {
    via transform:scaleX() instead, which is compositor-only and never touches layout.
    transform-origin:left keeps it anchored/growing from the left edge exactly like the
    old width-based version did. Migrated onto ifScrollEngine (was already RAF-gated
-   correctly on its own private listener; only the wiring changed here). */
+   correctly on its own private listener; only the wiring changed here).
+   2026-10-09 READ/WRITE SEPARATION FIX (About scroll-choppiness audit): write() used to call
+   getBoundingClientRect() on every bar itself - a measurement taken mid-write(), after any other
+   effect's write() earlier in the same frame may have already changed styles, forcing a synchronous
+   layout recalculation. Moved every getBoundingClientRect() into read() (returned as one rects[]
+   array alongside vh); write() now only consumes that already-measured data. Same p/w/scaleX math,
+   same values - no visual/behavioral change. */
 try {
 (function(){
   function init(){var bars=document.querySelectorAll('.if-stg-goldbar, .if-syn-goldbar, .program-page-icorps-hero-goldbar');if(!bars.length)return;
     var MIN=30,MAX=90,i;
     for(i=0;i<bars.length;i++){var _bar=bars[i];var _max=_bar.classList.contains('if-syn-goldbar')?60:MAX;_bar.style.width=_max+'%';_bar.style.transformOrigin='left center';}
     ifScrollEngine.add({
-      read: function(){ return window.innerHeight||document.documentElement.clientHeight; },
-      write: function(vh){
+      read: function(){
+        var vh=window.innerHeight||document.documentElement.clientHeight;
+        var rects=[],k;
+        for(k=0;k<bars.length;k++){ var rr=bars[k].getBoundingClientRect(); rects.push({top:rr.top, height:rr.height}); }
+        return {vh:vh, rects:rects};
+      },
+      write: function(m){
+        if(!m) return;
         var j;
-        for(j=0;j<bars.length;j++){var _b=bars[j];var r=_b.getBoundingClientRect();var p=(vh-r.top)/(vh+r.height);if(p<0)p=0;if(p>1)p=1;var mx=_b.classList.contains('if-syn-goldbar')?60:MAX;var w=MIN+(mx-MIN)*p;_b.style.transform='scaleX('+(w/mx)+')';}
+        for(j=0;j<bars.length;j++){var _b=bars[j];var r=m.rects[j];var p=(m.vh-r.top)/(m.vh+r.height);if(p<0)p=0;if(p>1)p=1;var mx=_b.classList.contains('if-syn-goldbar')?60:MAX;var w=MIN+(mx-MIN)*p;_b.style.transform='scaleX('+(w/mx)+')';}
       }
     });
     ifScrollEngine.kick();
