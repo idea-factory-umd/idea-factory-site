@@ -1332,7 +1332,17 @@ try {
    Also widens the walk anchors' data-scroll-gap so a stage jump clears the pinned bar. Class-driven.
    Migrated onto ifScrollEngine - both scroll and resize now drive the same read/write pair
    (the engine treats both triggers identically), so the pin geometry + gap sync always run
-   together instead of via two separately-named handlers. */
+   together instead of via two separately-named handlers.
+   2026-10-09 READ/WRITE SEPARATION FIX (About scroll-choppiness audit): write() used to call
+   syncGap() unconditionally, which internally re-read bar.offsetHeight/innerHeight (via active())
+   AFTER write() had already applied pin()/unpin()/bar.style.top styles earlier in the same call -
+   a forced synchronous layout recalculation, every frame. And syncGap() rewrote data-scroll-gap on
+   every item on every call regardless of whether the value changed. Fixed: read() already computes
+   isActive + barH (unchanged) - now also returns gap (isActive?barH:0) computed from THAT same data,
+   no extra read. write() calls the new applyGap(m.gap), which only touches the DOM when the value
+   differs from a remembered lastGap. active()/headerH() themselves are untouched and still only
+   ever called from read() (pin()'s own internal headerH() call is a separate, pre-existing,
+   unrequested case - left as-is, out of scope here). No visual/behavioral change. */
 try {
 (function(){
   function init(){
@@ -1340,13 +1350,17 @@ try {
     var stop=document.querySelector('.if-syn-hero');
     var header=document.querySelector('.if-header');
     if(!bar||!stop||bar.__ifwalk)return;bar.__ifwalk=1;
-    var spacer=null,stuck=false;
+    var spacer=null,stuck=false,lastGap=null;
     function active(){var bh=bar.offsetHeight,vh=window.innerHeight||document.documentElement.clientHeight;return bh>0&&bh<vh*0.5;}
     function headerH(){return header?Math.round(header.getBoundingClientRect().height):0;}
     /* gap = bar height so a clicked stage lands FLUSH under the pinned bar (no white strip of the
-       preceding section showing); 0 when the bar can't pin. (walk-spy reads this for its threshold.) */
-    function syncGap(){var items=bar.querySelectorAll('.if-walk-item'),g=active()?bar.offsetHeight:0,i;
-      for(i=0;i<items.length;i++)items[i].setAttribute('data-scroll-gap',g);}
+       preceding section showing); 0 when the bar can't pin. (walk-spy reads this for its threshold.)
+       Takes the already-read value from read() below - never measures anything itself. */
+    function applyGap(g){
+      if(g===lastGap) return; lastGap=g;
+      var items=bar.querySelectorAll('.if-walk-item'),i;
+      for(i=0;i<items.length;i++)items[i].setAttribute('data-scroll-gap',g);
+    }
     function unpin(){if(!stuck)return;stuck=false;
       bar.style.position='';bar.style.top='';bar.style.left='';bar.style.width='';bar.style.zIndex='';
       if(spacer&&spacer.parentNode)spacer.parentNode.removeChild(spacer);spacer=null;}
@@ -1369,20 +1383,19 @@ try {
            currently holding the flow space. */
         var barH = bar.offsetHeight;
         var synTop = stop.getBoundingClientRect().top;
-        return {isActive:isActive, hb:headerH(), barRect:barRect, spacerRect:spacerRect, barH:barH, synTop:synTop};
+        return {isActive:isActive, hb:headerH(), barRect:barRect, spacerRect:spacerRect, barH:barH, synTop:synTop, gap: isActive?barH:0};
       },
       write: function(m){
         if(!m) return;
-        if(!m.isActive){ unpin(); syncGap(); return; }
+        if(!m.isActive){ unpin(); applyGap(m.gap); return; }
         if(!stuck && m.barRect && m.barRect.top<=m.hb) pin(m.barRect);
         if(stuck){
           bar.style.top=((m.synTop<m.hb+m.barH)?Math.round(m.synTop-m.barH):m.hb)+'px';
           if(m.spacerRect && m.spacerRect.top>=m.hb) unpin();
         }
-        syncGap();
+        applyGap(m.gap);
       }
     });
-    syncGap();
     ifScrollEngine.kick();
   }
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
