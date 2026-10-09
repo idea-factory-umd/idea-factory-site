@@ -1039,7 +1039,17 @@ try {
        scroll-up, re-arms only once the section scrolls fully out of view), but the very
        last ~1s of "catch-up" easing after you stop scrolling is gone (it now tracks scroll
        position exactly, every frame, rather than easing toward it). This is a real, minor,
-       intentional visual difference - flagged rather than silently absorbed. */
+       intentional visual difference - flagged rather than silently absorbed.
+   2026-10-09 JANK FIX (Home page scroll-choppiness audit, .if-sm-box section): the image
+   half of this effect had no completion guard - unlike the text half (txtLocked), it kept
+   writing the identical transform to both images and re-toggling will-change on EVERY
+   scroll frame for the rest of the page, long after peak reached 1 and nothing was left to
+   animate. Fixed by only running the image write when `peak` has changed since the last
+   frame (new var imgLastPeak, replacing the never-used imgSettled); same final visual
+   state and same re-arm-on-scroll-up behavior, it just stops touching the DOM once
+   settled. Also stopped rewriting the identical will-change value every frame during the
+   text's own brief active-animation window (new var txtWCSet) - written once per state
+   change instead of once per frame. No visual/behavioral change intended. */
 try {
 (function(){
   var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -1050,8 +1060,8 @@ try {
       var txt=sec.querySelector('.if-stage-text');
       var imgs=sec.querySelectorAll('.if-stage-photo-pos, .if-stage-photo');
       var smooth=function(x){return x*x*x*(x*(x*6-15)+10);};
-      var txtLocked=false;
-      var MIN=1.0,MAX=1.16,peak=0,imgSettled=false;
+      var txtLocked=false, txtWCSet=false;
+      var MIN=1.0,MAX=1.16,peak=0,imgLastPeak=-1;
       ifScrollEngine.add({
         read: function(){
           var rect=sec.getBoundingClientRect(),vh=window.innerHeight||document.documentElement.clientHeight;
@@ -1065,7 +1075,7 @@ try {
             var over=72,tt=0.65,shift;
             if(p<tt)shift=-amp+(amp+over)*smooth(p/tt);else shift=over*(1-smooth((p-tt)/(1-tt)));
             var sc=1+0.06*smooth(p);
-            if(p>0 && p<1) txt.style.willChange='transform,opacity';
+            if(p>0 && p<1 && !txtWCSet){ txt.style.willChange='transform,opacity'; txtWCSet=true; }
             txt.style.transform='translateY('+shift.toFixed(1)+'px) scale('+sc.toFixed(4)+')';
             txt.style.opacity=(p*p).toFixed(3);
             if(p>=1){txtLocked=true;txt.style.transform='translateY(0px) scale(1.06)';txt.style.opacity='1';txt.style.willChange='auto';}
@@ -1073,10 +1083,13 @@ try {
           if(imgs && imgs.length){
             var p2=Math.max(0,Math.min(1,(m.vh*0.88-m.top)/(m.vh*0.88-m.vh*0.16)));
             if(m.top>=m.vh){ peak=0; } else if(p2>peak){ peak=p2; }
-            var eased=1-Math.pow(1-peak,3), cur=MIN+(MAX-MIN)*eased;
-            var animating = peak>0 && peak<1;
-            var tf='translateZ(0) scale('+cur.toFixed(4)+')';
-            for(var i=0;i<imgs.length;i++){ if(animating) imgs[i].style.willChange='transform'; imgs[i].style.transform=tf; if(!animating) imgs[i].style.willChange='auto'; }
+            if(peak!==imgLastPeak){
+              var eased=1-Math.pow(1-peak,3), cur=MIN+(MAX-MIN)*eased;
+              var animating = peak>0 && peak<1;
+              var tf='translateZ(0) scale('+cur.toFixed(4)+')';
+              for(var i=0;i<imgs.length;i++){ if(animating) imgs[i].style.willChange='transform'; imgs[i].style.transform=tf; if(!animating) imgs[i].style.willChange='auto'; }
+              imgLastPeak=peak;
+            }
           }
         }
       });
