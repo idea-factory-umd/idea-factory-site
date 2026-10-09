@@ -575,6 +575,11 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 .card2-nrow{transition:box-shadow 320ms cubic-bezier(0.22,1,0.36,1),transform 320ms cubic-bezier(0.34,1.55,0.42,1);}
 .card2-nrow:hover{transform:scale(1.035);box-shadow:0 12px 32px rgba(0,0,0,0.16);position:relative;z-index:2;will-change:transform,box-shadow;}
 .card2-nrow:hover .if-nrowtext{transform:scale(1.05);will-change:transform;}
+/* Library-page News Card1 row — forked onto library-nrow-c1 after moving the per-item border off the old if-ncard/if-nrow names, 2026-10-09 */
+.library-nrow-c1:hover .if-news-photo .if-news-photo-fg{transform:scale(1.11);will-change:transform;}
+.library-nrow-c1{transition:box-shadow 320ms cubic-bezier(0.22,1,0.36,1),transform 320ms cubic-bezier(0.34,1.55,0.42,1);}
+.library-nrow-c1:hover{transform:scale(1.035);box-shadow:0 12px 32px rgba(0,0,0,0.16);position:relative;z-index:2;will-change:transform,box-shadow;}
+.library-nrow-c1:hover .if-nrowtext{transform:scale(1.05);will-change:transform;}
 .program-page-mips-projects-round-card:hover .program-page-mips-projects-round-top,.program-page-mips-projects-round-card:hover .program-page-mips-projects-round-num{transform:scale(1.05);}.if-foot-cta-word{transition:opacity 0.28s cubic-bezier(0.22,1,0.36,1),color .45s ease;color:#fff;}.if-foot-cta-gold.if-lit-gold{color:#ffd200;}.if-foot-cta-head.cta-settling .if-foot-cta-word{transition-duration:2.4s;transition-timing-function:ease-out;}@media screen and (min-width:992px){.if-navmenu{max-height:64px;transition:max-height .4s cubic-bezier(.4,0,.2,1),opacity .4s cubic-bezier(.4,0,.2,1);}.if-navmenu.if-nav-tucked{max-height:0;opacity:0;overflow:hidden;pointer-events:none;}.if-nav-companion,.program-page-mips-apply-walkcopy-sec{max-height:64px;transition:max-height .4s cubic-bezier(.4,0,.2,1),opacity .4s cubic-bezier(.4,0,.2,1),padding-top .4s cubic-bezier(.4,0,.2,1),padding-bottom .4s cubic-bezier(.4,0,.2,1);}.if-nav-companion.if-nav-tucked,.program-page-mips-apply-walkcopy-sec.if-nav-tucked{max-height:0;padding-top:0;padding-bottom:0;opacity:0;overflow:hidden;pointer-events:none;}}.if-botnav-hide{display:none!important;}
 
 /* GOLD hero read-word — a first-class parallel to the red one. A word marked if-hero-word-gold is
