@@ -200,6 +200,127 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
    will-change dynamically for whichever image/text elements it actually finds. */
 
 /* ============================================================
+   3b. STAGE/SYN scroll-driven animation (native CSS, 2026-10-09)
+   ============================================================
+   Native replacement for the stage-parallax (Home .if-sm-box) and syn-moment (About .if-syn-hero)
+   JS scroll effects, for browsers supporting animation-timeline:view() - see idea-factory.js's
+   CSS.supports('animation-timeline: view()') gate in both modules: when true, this block drives the
+   visible zoom/drift entirely on the compositor (zero main-thread JS per scroll frame); the JS module
+   only wires the .if-scrollhold hold/re-arm observers below. When unsupported, this whole block is
+   inert (@supports) and the JS module's original per-frame path runs exactly as before.
+
+   RANGE MATH (calibrated + verified empirically, see CLAUDE-HISTORY.md): a BARE length in
+   animation-range-start/-end (no named range keyword) is measured as raw scroll-distance past the
+   timeline's cover-0% point (= the point the subject's leading edge first touches the viewport,
+   i.e. section top = 100vh), in the given unit. A `vh` length is therefore HEIGHT-INDEPENDENT (same
+   result regardless of the section's own height) and scales automatically with real runtime viewport
+   height - confirmed empirically across H=300/600/900px at fixed vh, and across vh=700/900 at fixed
+   H, matching target crossing points (section top = 88%/16% of viewport for Home, 90%/20% for About)
+   to within ~1-2px every time. So: start = calc((100-88)vh) = calc(12vh), end = calc((100-16)vh) =
+   calc(84vh) for Home; calc(10vh)/calc(80vh) for About. One rule each, no per-breakpoint tuning
+   needed despite .if-sm-box/.if-syn-hero's own min-height differing by breakpoint.
+
+   KEYFRAMES: sampled directly from the JS math (idea-factory.js stage-parallax/syn-moment) at 5%
+   steps of raw progress p (0-1, linear across the animation-range above, matching the JS p exactly):
+     text:  shift(p) = p<tt ? -amp+(amp+over)*smooth(p/tt) : over*(1-smooth((p-tt)/(1-tt)))
+            scale(p) = 1 + K*smooth(p);  opacity(p) = p*p;  smooth(x)=x^3(x(6x-15)+10)
+     photo: scale(p) = MIN + (MAX-MIN)*(1-(1-p)^3), MIN=1.0 MAX=1.16 - a single shared 0%->100%
+            keyframe pair with a sampled `linear()` easing reproduces this exactly (one shared
+            easing curve works for photo since it animates only one property; text needs explicit
+            per-stop sampling since translateY/scale/opacity each move non-uniformly with p).
+
+   HOLD/RE-ARM: matches the JS peak-ratchet (peak only ever increases, except resetting to 0 once
+   top>=vh) without any per-frame JS: idea-factory.js adds .if-scrollhold to the section once it
+   crosses its end point (via an IntersectionObserver whose rootMargin bottom shrinks the detection
+   zone to exactly the end-point line) and removes it only once the section is entirely below the
+   viewport again (a second, default-viewport IntersectionObserver, filtered to the "top>0" case so
+   scrolling past the BOTTOM of the section doesn't also clear it). While held, animation:none plus
+   the exact 100%-keyframe values below freeze the look - no jump, since the values are identical. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .if-stage-photo-pos, .if-stage-photo, .if-syn-bg {
+      animation-name: if-photo-zoom-kf;
+      animation-duration: 1s;
+      animation-fill-mode: both;
+      animation-timing-function: linear(0.0000, 0.1426, 0.2710, 0.3859, 0.4880, 0.5781, 0.6570, 0.7254, 0.7840, 0.8336, 0.8750, 0.9089, 0.9360, 0.9571, 0.9730, 0.9844, 0.9920, 0.9966, 0.9990, 0.9999, 1.0000);
+    }
+    @keyframes if-photo-zoom-kf { from { transform: scale(1.0); } to { transform: scale(1.16); } }
+
+    .if-sm-box { view-timeline-name: --if-sm-tl; view-timeline-axis: block; }
+    .if-stage-photo-pos, .if-stage-photo, .if-stage-text {
+      animation-timeline: --if-sm-tl;
+      animation-range-start: calc(12vh);
+      animation-range-end: calc(84vh);
+    }
+    .if-stage-text { animation-name: if-sm-text-kf; animation-duration: 1s; animation-fill-mode: both; }
+    @keyframes if-sm-text-kf {
+      0% { transform: translateY(-250.0px) scale(1.0000); opacity: 0.000; }
+      5% { transform: translateY(-248.7px) scale(1.0001); opacity: 0.003; }
+      10% { transform: translateY(-240.8px) scale(1.0005); opacity: 0.010; }
+      15% { transform: translateY(-222.9px) scale(1.0016); opacity: 0.022; }
+      20% { transform: translateY(-194.2px) scale(1.0035); opacity: 0.040; }
+      25% { transform: translateY(-156.2px) scale(1.0062); opacity: 0.063; }
+      30% { transform: translateY(-112.1px) scale(1.0098); opacity: 0.090; }
+      35% { transform: translateY(-65.9px) scale(1.0141); opacity: 0.122; }
+      40% { transform: translateY(-21.8px) scale(1.0190); opacity: 0.160; }
+      45% { transform: translateY(16.2px) scale(1.0244); opacity: 0.203; }
+      50% { transform: translateY(44.9px) scale(1.0300); opacity: 0.250; }
+      55% { transform: translateY(62.8px) scale(1.0356); opacity: 0.303; }
+      60% { transform: translateY(70.7px) scale(1.0410); opacity: 0.360; }
+      65% { transform: translateY(72.0px) scale(1.0459); opacity: 0.423; }
+      70% { transform: translateY(70.3px) scale(1.0502); opacity: 0.490; }
+      75% { transform: translateY(61.6px) scale(1.0538); opacity: 0.563; }
+      80% { transform: translateY(45.5px) scale(1.0565); opacity: 0.640; }
+      85% { transform: translateY(26.5px) scale(1.0584); opacity: 0.722; }
+      90% { transform: translateY(10.4px) scale(1.0595); opacity: 0.810; }
+      95% { transform: translateY(1.7px) scale(1.0599); opacity: 0.902; }
+      100% { transform: translateY(0.0px) scale(1.0600); opacity: 1.000; }
+    }
+
+    .if-syn-hero { view-timeline-name: --if-syn-tl; view-timeline-axis: block; }
+    .if-syn-bg, .if-syn-inner {
+      animation-timeline: --if-syn-tl;
+      animation-range-start: calc(10vh);
+      animation-range-end: calc(80vh);
+    }
+    .if-syn-inner {
+      animation-name: if-syn-text-kf; animation-duration: 1s; animation-fill-mode: both;
+      transform-origin: left center; /* matches the one-time JS-set origin on the fallback path */
+    }
+    @keyframes if-syn-text-kf {
+      0% { transform: translateY(-200.0px) scale(1.0000); opacity: 0.000; }
+      5% { transform: translateY(-199.1px) scale(1.0001); opacity: 0.003; }
+      10% { transform: translateY(-193.8px) scale(1.0004); opacity: 0.010; }
+      15% { transform: translateY(-181.4px) scale(1.0013); opacity: 0.022; }
+      20% { transform: translateY(-161.5px) scale(1.0029); opacity: 0.040; }
+      25% { transform: translateY(-134.7px) scale(1.0052); opacity: 0.063; }
+      30% { transform: translateY(-103.1px) scale(1.0082); opacity: 0.090; }
+      35% { transform: translateY(-69.2px) scale(1.0118); opacity: 0.122; }
+      40% { transform: translateY(-35.8px) scale(1.0159); opacity: 0.160; }
+      45% { transform: translateY(-5.9px) scale(1.0203); opacity: 0.203; }
+      50% { transform: translateY(18.3px) scale(1.0250); opacity: 0.250; }
+      55% { transform: translateY(35.3px) scale(1.0297); opacity: 0.303; }
+      60% { transform: translateY(44.6px) scale(1.0341); opacity: 0.360; }
+      65% { transform: translateY(47.8px) scale(1.0382); opacity: 0.423; }
+      70% { transform: translateY(47.9px) scale(1.0418); opacity: 0.490; }
+      75% { transform: translateY(44.5px) scale(1.0448); opacity: 0.563; }
+      80% { transform: translateY(34.8px) scale(1.0471); opacity: 0.640; }
+      85% { transform: translateY(21.2px) scale(1.0487); opacity: 0.722; }
+      90% { transform: translateY(8.6px) scale(1.0496); opacity: 0.810; }
+      95% { transform: translateY(1.4px) scale(1.0499); opacity: 0.902; }
+      100% { transform: translateY(0.0px) scale(1.0500); opacity: 1.000; }
+    }
+
+    /* hold/lock once each band passes its end point - see header note above */
+    .if-sm-box.if-scrollhold .if-stage-photo-pos,
+    .if-sm-box.if-scrollhold .if-stage-photo { animation: none; transform: scale(1.16); }
+    .if-sm-box.if-scrollhold .if-stage-text { animation: none; transform: translateY(0.0px) scale(1.0600); opacity: 1; }
+    .if-syn-hero.if-scrollhold .if-syn-bg { animation: none; transform: scale(1.16); }
+    .if-syn-hero.if-scrollhold .if-syn-inner { animation: none; transform: translateY(0.0px) scale(1.0500); opacity: 1; }
+  }
+}
+
+/* ============================================================
    4. NEWS photo hover-zoom  (CSS only — image-agnostic)
    In Webflow use normal Image elements: put overflow:hidden on the
    image's WRAPPER and class the wrapper `.if-news-photo`.
