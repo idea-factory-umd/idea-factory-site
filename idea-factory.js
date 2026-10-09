@@ -1109,7 +1109,21 @@ try {
    IntersectionObservers that toggle .if-scrollhold on the section, reproducing the peak-ratchet's
    hold/re-arm behavior (CSS's own animation-range would otherwise reverse on scroll-up, which the
    JS path never did) without any per-frame work. Where the browser does NOT support
-   animation-timeline:view(), the original JS path below runs completely unchanged (fallback). */
+   animation-timeline:view(), the original JS path below runs completely unchanged (fallback).
+   2026-10-09 HOLD/RE-ARM COMPOSITING FIX (part 4, same-day follow-up): the cssAnim branch above had
+   no will-change management at all. While the CSS animation is actively running, the browser
+   auto-promotes the photo/text to their own compositor layer on its own - but the moment
+   .if-scrollhold's IntersectionObserver fires (often while the section is still fully on screen) it
+   sets animation:none, and with nothing telling the browser the element will keep changing, Chrome
+   immediately tears the layer down and re-rasters the full-width photo straight into the page's main
+   layer in one heavy step - a visible hitch, repeating on every re-arm. Fixed the same way the JS
+   fallback path below already handles it: one more IntersectionObserver (identical rootMargin '100%
+   0px' as the fallback's own, so the layer is pre-armed about a viewport before the section arrives
+   and stays armed a viewport after it leaves) sets will-change:transform on the photo AND headline
+   elements while the section is anywhere near the viewport, clearing it ('') otherwise - this spans
+   the .if-scrollhold switch itself, so the layer is never torn down while the band is on screen.
+   Nothing in the CSS hold rules (idea-factory.css, same @supports block) sets will-change, so there's
+   no conflict to override. Animation keyframes/ranges/easing/hold/re-arm values are all untouched. */
 try {
 (function(){
   var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -1119,6 +1133,13 @@ try {
     if(!reduce){
       var cssAnim=!!(window.CSS && CSS.supports && CSS.supports('animation-timeline: view()'));
       if(cssAnim){
+        var wcEls=sec.querySelectorAll('.if-stage-photo-pos, .if-stage-photo, .if-stage-text');
+        if(wcEls.length){
+          new IntersectionObserver(function(entries){
+            var on=entries[entries.length-1].isIntersecting;
+            for(var k=0;k<wcEls.length;k++){ wcEls[k].style.willChange = on ? 'transform' : ''; }
+          }, {rootMargin:'100% 0px'}).observe(sec);
+        }
         new IntersectionObserver(function(entries){
           if(entries[entries.length-1].isIntersecting) sec.classList.add('if-scrollhold');
         }, {rootMargin:'0px 0px -84% 0px'}).observe(sec);
@@ -1204,7 +1225,15 @@ try {
    will-change observer and writes NO per-frame inline transform/opacity - idea-factory.css's own
    @supports block drives the visible zoom/drift natively; this module only wires the two
    .if-scrollhold hold/re-arm IntersectionObservers. Otherwise the original JS path below runs
-   unchanged (fallback). */
+   unchanged (fallback).
+   2026-10-09 HOLD/RE-ARM COMPOSITING FIX (part 4): identical fix to stage-parallax's own note of the
+   same date (above) - the cssAnim branch here had no will-change management, so the .if-scrollhold
+   switch (animation:none) de-composited the photo/text and re-rasterized them into the main layer in
+   one heavy step, a visible hitch. Fixed the same way: one more IntersectionObserver (rootMargin
+   '100% 0px', matching the fallback's own pattern below) sets will-change:transform on .if-syn-bg and
+   .if-syn-inner while the section is anywhere near the viewport and clears it ('') otherwise, spanning
+   the .if-scrollhold switch so the layer is never torn down while the band is on screen. Nothing in
+   the CSS hold rules sets will-change, so there's no conflict. Keyframes/ranges/hold/re-arm untouched. */
 try {
 (function(){
   var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -1212,6 +1241,13 @@ try {
     var sec=document.querySelector('.if-syn-hero');if(!sec||sec.__ifsyn)return;sec.__ifsyn=1;if(reduce)return;
     var cssAnim=!!(window.CSS && CSS.supports && CSS.supports('animation-timeline: view()'));
     if(cssAnim){
+      var wcEls=sec.querySelectorAll('.if-syn-bg, .if-syn-inner');
+      if(wcEls.length){
+        new IntersectionObserver(function(entries){
+          var on=entries[entries.length-1].isIntersecting;
+          for(var k=0;k<wcEls.length;k++){ wcEls[k].style.willChange = on ? 'transform' : ''; }
+        }, {rootMargin:'100% 0px'}).observe(sec);
+      }
       new IntersectionObserver(function(entries){
         if(entries[entries.length-1].isIntersecting) sec.classList.add('if-scrollhold');
       }, {rootMargin:'0px 0px -80% 0px'}).observe(sec);
