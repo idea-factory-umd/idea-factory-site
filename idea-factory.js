@@ -1049,7 +1049,20 @@ try {
    state and same re-arm-on-scroll-up behavior, it just stops touching the DOM once
    settled. Also stopped rewriting the identical will-change value every frame during the
    text's own brief active-animation window (new var txtWCSet) - written once per state
-   change instead of once per frame. No visual/behavioral change intended. */
+   change instead of once per frame. No visual/behavioral change intended.
+   2026-10-09 LAYER/RASTER FIX (Home scroll-choppiness audit, part 2): the image transform
+   was `translateZ(0) scale(x)` - the translateZ(0) hack forces a full-size composited GPU
+   layer for the photo for the entire life of the page, not just while the zoom is active.
+   And will-change was toggled 'transform'<->'auto' right at the moments the zoom starts/
+   finishes/re-arms - each toggle forces Chrome to tear down and re-rasterize that large
+   photo layer, a hitch landing exactly at the section's scroll-edges. Fixed: transform is
+   now plain `scale(x)` (no translateZ); will-change is no longer touched from write() at
+   all - instead a single IntersectionObserver (rootMargin '100% 0px', so the layer is
+   pre-armed about a viewport before the section arrives and stays armed a viewport after
+   it leaves) sets will-change:transform on the images while the section is anywhere near
+   the viewport and clears it ('') otherwise. imgLastPeak's completion guard above is
+   unchanged - this only touches the transform string and the will-change mechanism. No
+   visual/behavioral change intended. */
 try {
 (function(){
   var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -1062,6 +1075,12 @@ try {
       var smooth=function(x){return x*x*x*(x*(x*6-15)+10);};
       var txtLocked=false, txtWCSet=false;
       var MIN=1.0,MAX=1.16,peak=0,imgLastPeak=-1;
+      if(imgs && imgs.length){
+        new IntersectionObserver(function(entries){
+          var on=entries[entries.length-1].isIntersecting;
+          for(var k=0;k<imgs.length;k++){ imgs[k].style.willChange = on ? 'transform' : ''; }
+        }, {rootMargin:'100% 0px'}).observe(sec);
+      }
       ifScrollEngine.add({
         read: function(){
           var rect=sec.getBoundingClientRect(),vh=window.innerHeight||document.documentElement.clientHeight;
@@ -1085,9 +1104,8 @@ try {
             if(m.top>=m.vh){ peak=0; } else if(p2>peak){ peak=p2; }
             if(peak!==imgLastPeak){
               var eased=1-Math.pow(1-peak,3), cur=MIN+(MAX-MIN)*eased;
-              var animating = peak>0 && peak<1;
-              var tf='translateZ(0) scale('+cur.toFixed(4)+')';
-              for(var i=0;i<imgs.length;i++){ if(animating) imgs[i].style.willChange='transform'; imgs[i].style.transform=tf; if(!animating) imgs[i].style.willChange='auto'; }
+              var tf='scale('+cur.toFixed(4)+')';
+              for(var i=0;i<imgs.length;i++){ imgs[i].style.transform=tf; }
               imgLastPeak=peak;
             }
           }
@@ -1105,7 +1123,23 @@ try {
    (.if-syn-bg) zooms 1.0->1.16 on scroll. The .if-syn-hero section already clips
    (overflow:hidden). Independent of the Home stage-parallax module (left untouched).
    Migrated onto ifScrollEngine; same B3/B4 fixes as stage-parallax above (will-change
-   only while animating; direct scroll-to-scale mapping, no persistent lerp loop). */
+   only while animating; direct scroll-to-scale mapping, no persistent lerp loop).
+   2026-10-09 JANK FIX + LAYER/RASTER FIX (ported from the Home stage-parallax fixes of
+   the same date, applied here at direct user request): this module's image half never
+   had stage-parallax's completion guard - unlike txt (txtLocked), it kept recomputing
+   and writing the identical transform on EVERY scroll frame for the rest of the page,
+   long after peak reached 1. Fixed the same way: only write when `peak` has changed
+   since the last frame (new var imgLastPeak). Separately, the transform was
+   `translateZ(0) scale(x)` (translateZ(0) forces a permanent full-size composited GPU
+   layer for the photo for the page's whole life) and will-change was toggled
+   'transform'<->'auto' right at the zoom's start/finish/re-arm (each toggle forces a
+   re-rasterize of that large layer - a hitch at the section's scroll-edges). Fixed:
+   transform is now plain `scale(x)`; will-change is no longer touched from write() at
+   all - a single IntersectionObserver (rootMargin '100% 0px', pre-arming the layer about
+   a viewport before the section arrives and keeping it armed a viewport after it leaves)
+   sets will-change:transform while the section is anywhere near the viewport and clears
+   it ('') otherwise. txt/txtLocked, the peak ratchet, easing math, and reduced-motion
+   handling are all unchanged. No visual/behavioral change intended. */
 try {
 (function(){
   var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -1114,8 +1148,14 @@ try {
     var txt=sec.querySelector('.if-syn-inner'),img=sec.querySelector('.if-syn-bg');
     var smooth=function(x){return x*x*x*(x*(x*6-15)+10);};
     var txtLocked=false;
-    var MIN=1.0,MAX=1.16,peak=0;
+    var MIN=1.0,MAX=1.16,peak=0,imgLastPeak=-1;
     if(txt)txt.style.transformOrigin='left center';
+    if(img){
+      new IntersectionObserver(function(entries){
+        var on=entries[entries.length-1].isIntersecting;
+        img.style.willChange = on ? 'transform' : '';
+      }, {rootMargin:'100% 0px'}).observe(sec);
+    }
     ifScrollEngine.add({
       read: function(){ var rect=sec.getBoundingClientRect(),vh=window.innerHeight||document.documentElement.clientHeight; return {top:rect.top, vh:vh}; },
       write: function(m){
@@ -1132,10 +1172,11 @@ try {
         if(img){
           var p2=Math.max(0,Math.min(1,(m.vh*0.9-m.top)/(m.vh*0.9-m.vh*0.2)));
           if(m.top>=m.vh){ peak=0; } else if(p2>peak){ peak=p2; }
-          var eased=1-Math.pow(1-peak,3), cur=MIN+(MAX-MIN)*eased;
-          var animating = peak>0 && peak<1;
-          img.style.willChange = animating ? 'transform' : 'auto';
-          img.style.transform='translateZ(0) scale('+cur.toFixed(4)+')';
+          if(peak!==imgLastPeak){
+            var eased=1-Math.pow(1-peak,3), cur=MIN+(MAX-MIN)*eased;
+            img.style.transform='scale('+cur.toFixed(4)+')';
+            imgLastPeak=peak;
+          }
         }
       }
     });
