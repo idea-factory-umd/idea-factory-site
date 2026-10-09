@@ -1085,7 +1085,16 @@ try {
    it leaves) sets will-change:transform on the images while the section is anywhere near
    the viewport and clears it ('') otherwise. imgLastPeak's completion guard above is
    unchanged - this only touches the transform string and the will-change mechanism. No
-   visual/behavioral change intended. */
+   visual/behavioral change intended.
+   2026-10-09 CSS SCROLL-DRIVEN ANIMATION (jank fix, part 3): where the browser supports
+   `animation-timeline: view()`, idea-factory.css's own @supports(animation-timeline:view()) block
+   (see its header comment there) now drives this section's zoom/drift natively on the compositor -
+   zero main-thread JS per scroll frame. This module then registers NO scroll-engine effect and NO
+   will-change observer and writes NO per-frame inline transform/opacity; it only wires two
+   IntersectionObservers that toggle .if-scrollhold on the section, reproducing the peak-ratchet's
+   hold/re-arm behavior (CSS's own animation-range would otherwise reverse on scroll-up, which the
+   JS path never did) without any per-frame work. Where the browser does NOT support
+   animation-timeline:view(), the original JS path below runs completely unchanged (fallback). */
 try {
 (function(){
   var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -1093,6 +1102,16 @@ try {
   if(sec && !sec.__ifsm){
     sec.__ifsm=1;
     if(!reduce){
+      var cssAnim=!!(window.CSS && CSS.supports && CSS.supports('animation-timeline: view()'));
+      if(cssAnim){
+        new IntersectionObserver(function(entries){
+          if(entries[entries.length-1].isIntersecting) sec.classList.add('if-scrollhold');
+        }, {rootMargin:'0px 0px -84% 0px'}).observe(sec);
+        new IntersectionObserver(function(entries){
+          var e=entries[entries.length-1];
+          if(!e.isIntersecting && e.boundingClientRect.top>0) sec.classList.remove('if-scrollhold');
+        }).observe(sec);
+      } else {
       var txt=sec.querySelector('.if-stage-text');
       var imgs=sec.querySelectorAll('.if-stage-photo-pos, .if-stage-photo');
       var smooth=function(x){return x*x*x*(x*(x*6-15)+10);};
@@ -1135,6 +1154,7 @@ try {
         }
       });
       ifScrollEngine.kick();
+      }
     }
   }
 })();
@@ -1162,12 +1182,30 @@ try {
    a viewport before the section arrives and keeping it armed a viewport after it leaves)
    sets will-change:transform while the section is anywhere near the viewport and clears
    it ('') otherwise. txt/txtLocked, the peak ratchet, easing math, and reduced-motion
-   handling are all unchanged. No visual/behavioral change intended. */
+   handling are all unchanged. No visual/behavioral change intended.
+   2026-10-09 CSS SCROLL-DRIVEN ANIMATION: see stage-parallax's note of the same date (above this
+   module's own JANK FIX note) - identical mechanism, ported here. When
+   CSS.supports('animation-timeline: view()'), this module registers NO scroll-engine effect and NO
+   will-change observer and writes NO per-frame inline transform/opacity - idea-factory.css's own
+   @supports block drives the visible zoom/drift natively; this module only wires the two
+   .if-scrollhold hold/re-arm IntersectionObservers. Otherwise the original JS path below runs
+   unchanged (fallback). */
 try {
 (function(){
   var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   function init(){
     var sec=document.querySelector('.if-syn-hero');if(!sec||sec.__ifsyn)return;sec.__ifsyn=1;if(reduce)return;
+    var cssAnim=!!(window.CSS && CSS.supports && CSS.supports('animation-timeline: view()'));
+    if(cssAnim){
+      new IntersectionObserver(function(entries){
+        if(entries[entries.length-1].isIntersecting) sec.classList.add('if-scrollhold');
+      }, {rootMargin:'0px 0px -80% 0px'}).observe(sec);
+      new IntersectionObserver(function(entries){
+        var e=entries[entries.length-1];
+        if(!e.isIntersecting && e.boundingClientRect.top>0) sec.classList.remove('if-scrollhold');
+      }).observe(sec);
+      return;
+    }
     var txt=sec.querySelector('.if-syn-inner'),img=sec.querySelector('.if-syn-bg');
     var smooth=function(x){return x*x*x*(x*(x*6-15)+10);};
     var txtLocked=false;
