@@ -567,7 +567,7 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 /* Library-page News Card2 (external variant) — forked hover parity with if-ncard/if-nfeat/if-nrow, 2026-10-09 */
 .card2-feat-photo .if-news-photo-fg{transition:transform 720ms cubic-bezier(0.16,1,0.3,1);}
 .card2-nfeat:hover .card2-feat-photo .if-news-photo-fg{transform:scale(1.11);will-change:transform;}
-.card2-nfeat{transition:box-shadow 320ms cubic-bezier(0.22,1,0.36,1),transform 320ms cubic-bezier(0.34,1.55,0.42,1);}
+.card2-nfeat{overflow:hidden;transition:box-shadow 320ms cubic-bezier(0.22,1,0.36,1),transform 320ms cubic-bezier(0.34,1.55,0.42,1);}
 .card2-nfeat:hover{transform:scale(1.035);box-shadow:0 12px 32px rgba(0,0,0,0.16);position:relative;z-index:2;will-change:transform,box-shadow;}
 .card2-nfeat:hover .if-news-cardtext{transform:scale(1.05);will-change:transform;}
 .card2-thumb-photo .if-news-photo-fg{transition:transform 720ms cubic-bezier(0.16,1,0.3,1);}
