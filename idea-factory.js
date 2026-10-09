@@ -2195,5 +2195,64 @@ try {
   if (document.readyState !== 'loading') init(); else document.addEventListener('DOMContentLoaded', init);
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] hero-h1-autofit error:', _e); } catch (_) {} }
+
+/* ===== module: news-photo-sizes (oversized responsive-image fix) =====
+   Webflow writes these <img>s with a full srcset of pre-generated widths but no `sizes`
+   override, so the browser falls back to the implicit default (100vw) - it has no way to know
+   these photos only ever render inside a fixed-size card, so on a Retina screen it downloads/
+   decodes a srcset candidate several times larger than what's ever displayed, and because
+   these images are loading="lazy", that oversized decode/raster lands mid-scroll (the reported
+   "choppy scrolling" symptom). This measures each image's OWN actual rendered CSS width (never
+   hardcoded - every card variant and breakpoint renders a different width) and writes that back
+   as an explicit `sizes` value in px, so the browser's existing srcset picks a correctly-sized
+   candidate instead.
+   Both layers of the site's "double-photo" technique (a blurred, scaled .if-news-photo-bg
+   sitting behind a sharp object-fit:contain .if-news-photo-fg, same src/srcset on both) are
+   covered by the SAME selector and measured independently - since both are absolute, inset:0,
+   width:100%/height:100% of one shared parent box, they always resolve to the identical
+   rendered width, so they naturally end up sharing one sizes value (and therefore one cached
+   download) without any special pairing logic.
+   Covers two distinct features, both confirmed to use this exact blur+contain pattern
+   (2026-10-09):
+     - .if-news-photo-bg / .if-news-photo-fg - the Library-built "1 big feature + 3 row items"
+       CMS news card (both its internal-source and external-source variants: if-feat-photo/
+       if-news-thumb for the internal cards, card2-feat-photo/card2-thumb-photo for the
+       external ones) - identical on the Library page (where it was built) and the Home page
+       (a direct, unmodified paste of the same classes), so one fix covers both automatically.
+     - .program-page-icorps-home-news-photo-bg / .program-page-icorps-home-news-photo-img -
+       the "Idea Factory-news-component" (a genuine Webflow Component, instanced on both Home
+       and the News page) - built from the same markup pattern as UMD I-Corps' own news card,
+       hence the class names; fixing it here also fixes I-Corps' copy, since both load this same
+       shared file (user-confirmed acceptable - not a reason to go touch I-Corps).
+   Any FUTURE instance of this same blur+contain pattern just needs its own two classes added to
+   SELECTOR below - no Designer-side change required, same approach as count-up's list above.
+   Strict read-then-write: every image is measured first, into a plain array, before anything is
+   written - never interleaved, so a write can never skew a later read's layout. Images measuring
+   0 width (hidden - e.g. the CMS conditional-visibility variant not shown for a given item) are
+   skipped outright; they get corrected automatically on the first resize after they become
+   visible, if that ever happens. Re-measures and re-writes on every ifResizeEngine firing, since
+   the row-thumb width itself steps at breakpoints (120 / 99.1 / 88 / 88px) and the big-feature
+   width is a % of its column. */
+try {
+(function(){
+  var SELECTOR = '.if-news-photo-bg, .if-news-photo-fg, .program-page-icorps-home-news-photo-bg, .program-page-icorps-home-news-photo-img';
+  function sync(){
+    var els = document.querySelectorAll(SELECTOR);
+    var plans = [];
+    for(var i=0;i<els.length;i++){
+      var r = els[i].getBoundingClientRect();
+      if(r.width > 0) plans.push({ el: els[i], width: Math.ceil(r.width) });
+    }
+    for(var j=0;j<plans.length;j++){
+      plans[j].el.setAttribute('sizes', plans[j].width + 'px');
+    }
+  }
+  function init(){
+    sync();
+    ifResizeEngine.add(sync);
+  }
+  if(document.readyState!=='loading') init(); else document.addEventListener('DOMContentLoaded', init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] news-photo-sizes error:', _e); } catch (_) {} }
 } /* end window.__ifEngine load guard */
 
