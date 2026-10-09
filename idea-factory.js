@@ -2180,9 +2180,15 @@ try {
    written - never interleaved, so a write can never skew a later read's layout. Images measuring
    0 width (hidden - e.g. the CMS conditional-visibility variant not shown for a given item) are
    skipped outright; they get corrected automatically on the first resize after they become
-   visible, if that ever happens. Re-measures and re-writes on every ifResizeEngine firing, since
+   visible, if that ever happens. Re-measures on every ifResizeEngine firing, since
    the row-thumb width itself steps at breakpoints (120 / 99.1 / 88 / 88px) and the big-feature
-   width is a % of its column. */
+   width is a % of its column - but only WRITES when the computed value actually differs from
+   the sizes already on the element. Without that guard, a mobile browser's address bar
+   collapsing/expanding mid-scroll fires `resize` repeatedly with no real width change, and
+   writing `sizes` (even to an identical value) makes the browser re-run its srcset source-
+   selection every time - exactly the kind of mid-scroll work this whole fix exists to
+   eliminate. getAttribute() here is a plain string read, not a layout read, so checking it
+   inside the write loop doesn't reopen the read/write separation above. */
 try {
 (function(){
   var SELECTOR = '.if-news-photo-bg, .if-news-photo-fg, .program-page-icorps-home-news-photo-bg, .program-page-icorps-home-news-photo-img';
@@ -2194,7 +2200,8 @@ try {
       if(r.width > 0) plans.push({ el: els[i], width: Math.ceil(r.width) });
     }
     for(var j=0;j<plans.length;j++){
-      plans[j].el.setAttribute('sizes', plans[j].width + 'px');
+      var val = plans[j].width + 'px';
+      if(plans[j].el.getAttribute('sizes') !== val) plans[j].el.setAttribute('sizes', val);
     }
   }
   function init(){
