@@ -305,7 +305,44 @@ try {
 
 /* ===== module: main-bundle ===== */
 try {
-(function(){function init(){var ws=document.querySelectorAll('.if-dd-wrap');ws.forEach(function(w){var t=w.querySelector('.w-dropdown-toggle');if(!t||t.__ifb)return;t.__ifb=1;t.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();ws.forEach(function(o){if(o!==w)o.classList.remove('if-open');});w.classList.toggle('if-open');});});document.addEventListener('click',function(e){ws.forEach(function(w){if(!w.contains(e.target))w.classList.remove('if-open');});});}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){function hero(){var h1=document.querySelector('.if-hero-h1');if(!h1||h1.__ifhero)return;var words=h1.querySelectorAll(':scope > span');if(!words.length)return;h1.__ifhero=1;words.forEach(function(w){w.classList.add('if-hero-word');});var sec=h1.closest('section')||h1.parentElement;var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);var started=reduce;if(reduce){words.forEach(function(w){if(w.classList.contains('if-hero-word-red'))w.classList.add('if-lit-red');if(w.classList.contains('if-hero-word-gold'))w.classList.add('if-lit-gold');});}function setStep(step){words.forEach(function(w,idx){w.style.opacity=(step===999)?1:(step===idx?1:((w.classList.contains('if-lit-red')||w.classList.contains('if-lit-gold'))?1:0.62));if((step===idx||step===999)&&w.classList.contains('if-hero-word-red'))w.classList.add('if-lit-red');if((step===idx||step===999)&&w.classList.contains('if-hero-word-gold'))w.classList.add('if-lit-gold');});}function start(){if(started)return;started=true;var D=180,gap=40,ideasExtra=520,lastExtra=640,ideasPause=110,workPause=150;var seq=[];words.forEach(function(x,w){seq.push({step:w,hold:D+(x.classList.contains('if-hero-word-delay')?ideasExtra:0)+(w===words.length-1?lastExtra:0)});if(w<words.length-1)seq.push({step:-1,hold:gap+(x.classList.contains('if-hero-word-delay')?ideasPause:0)});});seq.push({step:-1,hold:workPause});seq.push({step:999,hold:0});var k=0;function run(){var s=seq[k];if(s.step===999)h1.classList.add('hero-settling');setStep(s.step);k++;if(k<seq.length)setTimeout(run,s.hold);}setTimeout(run,140);}sec.addEventListener('mouseenter',start);sec.addEventListener('touchstart',start,{passive:true});}if(document.readyState!=='loading')hero();else document.addEventListener('DOMContentLoaded',hero);})();(function(){var reduced=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);function ease(t){return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}var rafId=null;function animate(toY){if(rafId)cancelAnimationFrame(rafId);var startY=window.pageYOffset,dist=toY-startY;if(Math.abs(dist)<2){window.scrollTo(0,toY);return;}var dur=Math.min(820,Math.max(430,Math.abs(dist)*0.28)),t0=null;function step(ts){if(t0==null)t0=ts;var p=Math.min(1,(ts-t0)/dur);window.scrollTo(0,Math.round(startY+dist*ease(p)));if(p<1){rafId=requestAnimationFrame(step);}else{rafId=null;}}rafId=requestAnimationFrame(step);}function dest(a){var href=a.getAttribute('href');if(!href||href.charAt(0)!=='#'||href.length<2)return null;var tgt=document.getElementById(href.slice(1));if(!tgt)return null;var sel=a.getAttribute('data-scroll-target');if(!sel&&href==='#audience')sel='.if-eyebrow';var m=sel?(tgt.querySelector(sel)||document.querySelector(sel)||tgt):tgt;var g=parseInt(a.getAttribute('data-scroll-gap'),10);if(isNaN(g))g=(href==='#audience')?50:24;var hdr=document.querySelector('.if-header')||document.querySelector('header');var h=hdr?hdr.offsetHeight:0;return Math.max(0,m.getBoundingClientRect().top+window.pageYOffset-h-g);}document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a.if-smooth-scroll,a[data-smooth-scroll],a[href="#audience"]');if(!a)return;var toY=dest(a);if(toY===null)return;e.preventDefault();e.stopImmediatePropagation();if(reduced){window.scrollTo(0,toY);}else{animate(toY);}},true);})();(function(){function init(){var bar=document.querySelector('.if-hero-goldbar');if(!bar)return;var MIN=30,MAX=90;bar.style.width=MAX+'%';bar.style.transformOrigin='left center';ifScrollEngine.add({read:function(){var r=bar.getBoundingClientRect();var vh=window.innerHeight||document.documentElement.clientHeight;return{vh:vh,top:r.top,h:r.height};},write:function(m){if(!m)return;var p=(m.vh-m.top)/(m.vh+m.h);if(p<0)p=0;if(p>1)p=1;bar.style.transform='scaleX('+((MIN+(MAX-MIN)*p)/MAX)+')';}});ifScrollEngine.kick();}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){function init(){var bar=document.querySelector('.if-foot-accent');if(!bar)return;var MAXFRAC=0.60;
+(function(){function init(){var ws=document.querySelectorAll('.if-dd-wrap');ws.forEach(function(w){var t=w.querySelector('.w-dropdown-toggle');if(!t||t.__ifb)return;t.__ifb=1;t.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();ws.forEach(function(o){if(o!==w)o.classList.remove('if-open');});w.classList.toggle('if-open');});});document.addEventListener('click',function(e){ws.forEach(function(w){if(!w.contains(e.target))w.classList.remove('if-open');});});}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){function hero(){var h1=document.querySelector('.if-hero-h1');if(!h1||h1.__ifhero)return;var words=h1.querySelectorAll(':scope > span');if(!words.length)return;h1.__ifhero=1;words.forEach(function(w){w.classList.add('if-hero-word');});var sec=h1.closest('section')||h1.parentElement;var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);var started=reduce;if(reduce){words.forEach(function(w){if(w.classList.contains('if-hero-word-red'))w.classList.add('if-lit-red');if(w.classList.contains('if-hero-word-gold'))w.classList.add('if-lit-gold');});}function setStep(step){words.forEach(function(w,idx){w.style.opacity=(step===999)?1:(step===idx?1:((w.classList.contains('if-lit-red')||w.classList.contains('if-lit-gold'))?1:0.62));if((step===idx||step===999)&&w.classList.contains('if-hero-word-red'))w.classList.add('if-lit-red');if((step===idx||step===999)&&w.classList.contains('if-hero-word-gold'))w.classList.add('if-lit-gold');});}function start(){if(started)return;started=true;var D=180,gap=40,ideasExtra=520,lastExtra=640,ideasPause=110,workPause=150;var seq=[];words.forEach(function(x,w){seq.push({step:w,hold:D+(x.classList.contains('if-hero-word-delay')?ideasExtra:0)+(w===words.length-1?lastExtra:0)});if(w<words.length-1)seq.push({step:-1,hold:gap+(x.classList.contains('if-hero-word-delay')?ideasPause:0)});});seq.push({step:-1,hold:workPause});seq.push({step:999,hold:0});var k=0;function run(){var s=seq[k];if(s.step===999)h1.classList.add('hero-settling');setStep(s.step);k++;if(k<seq.length)setTimeout(run,s.hold);}setTimeout(run,140);}sec.addEventListener('mouseenter',start);sec.addEventListener('touchstart',start,{passive:true});}if(document.readyState!=='loading')hero();else document.addEventListener('DOMContentLoaded',hero);})();(function(){var reduced=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);function ease(t){return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}var rafId=null;function animate(toY){if(rafId)cancelAnimationFrame(rafId);var startY=window.pageYOffset,dist=toY-startY;if(Math.abs(dist)<2){window.scrollTo(0,toY);return;}var dur=Math.min(820,Math.max(430,Math.abs(dist)*0.28)),t0=null;function step(ts){if(t0==null)t0=ts;var p=Math.min(1,(ts-t0)/dur);window.scrollTo(0,Math.round(startY+dist*ease(p)));if(p<1){rafId=requestAnimationFrame(step);}else{rafId=null;}}rafId=requestAnimationFrame(step);}function dest(a){var href=a.getAttribute('href');if(!href||href.charAt(0)!=='#'||href.length<2)return null;var tgt=document.getElementById(href.slice(1));if(!tgt)return null;var sel=a.getAttribute('data-scroll-target');if(!sel&&href==='#audience')sel='.if-eyebrow';var m=sel?(tgt.querySelector(sel)||document.querySelector(sel)||tgt):tgt;var g=parseInt(a.getAttribute('data-scroll-gap'),10);if(isNaN(g))g=(href==='#audience')?50:24;var hdr=document.querySelector('.if-header')||document.querySelector('header');var h=hdr?hdr.offsetHeight:0;return Math.max(0,m.getBoundingClientRect().top+window.pageYOffset-h-g);}document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a.if-smooth-scroll,a[data-smooth-scroll],a[href="#audience"]');if(!a)return;var toY=dest(a);if(toY===null)return;e.preventDefault();e.stopImmediatePropagation();if(reduced){window.scrollTo(0,toY);}else{animate(toY);}},true);})();/* 2026-10-10 SCROLL-DRIVEN BARS (fix #2): .if-hero-goldbar sits inside .if-hero-right, which has
+   overflow:hidden (needed to clip the hero photo underneath - unrelated to this bar, can't be
+   changed). Chrome treats the nearest overflow:hidden ancestor as the candidate scroll container
+   for a view() timeline regardless of whether it ever actually scrolls - tested directly (see
+   idea-factory.css's "3c. SCROLL-DRIVEN BARS" note): the CSS approach that works for the OTHER gold
+   bars (.if-stg-goldbar, whose own wrapper chain has no overflow:hidden) freezes this one at a
+   single stuck value instead of tracking real page scroll. So this bar stays on JS even when
+   CSS.supports('animation-timeline: view()') is true - but it's no longer unconditional, per-frame
+   work for the bar's whole page life: an IntersectionObserver (rootMargin '100% 0px') now gates
+   read()/write() to a no-op (read() returns null, which write()'s existing guard already turns into
+   a no-op) whenever the bar is more than about a viewport from the screen, and write() also skips
+   re-computing/re-writing the transform when the rounded scaleX hasn't changed since the last
+   frame - zero measure, zero write, both off-screen and once settled at either end. */
+(function(){function init(){var bar=document.querySelector('.if-hero-goldbar');if(!bar)return;var MIN=30,MAX=90;bar.style.width=MAX+'%';bar.style.transformOrigin='left center';
+  var near=true, lastSx=null;
+  new IntersectionObserver(function(entries){ near=entries[entries.length-1].isIntersecting; }, {rootMargin:'100% 0px'}).observe(bar);
+  ifScrollEngine.add({read:function(){if(!near)return null;var r=bar.getBoundingClientRect();var vh=window.innerHeight||document.documentElement.clientHeight;return{vh:vh,top:r.top,h:r.height};},write:function(m){if(!m)return;var p=(m.vh-m.top)/(m.vh+m.h);if(p<0)p=0;if(p>1)p=1;var sx=(MIN+(MAX-MIN)*p)/MAX;if(sx===lastSx)return;lastSx=sx;bar.style.transform='scaleX('+sx+')';}});ifScrollEngine.kick();
+}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();
+/* 2026-10-10 SCROLL-DRIVEN BARS (fix #2, REVISED same day): first built as a CSS view()-timeline +
+   compositor translateX strip (matching the gold-bar technique below), but confirmed via direct
+   testing to exhibit a genuine, reproducible Chrome rendering discrepancy: the strip's computed
+   transform depends on scroll HISTORY, not just current scroll position - e.g. landing on the
+   page's max scroll (reaching animation-fill-mode:both's "finished" state) and then scrolling back
+   up partway reads a noticeably DIFFERENT (too-large) value than reaching that same scroll
+   position directly from above, specifically on this cross-element pattern (view-timeline-name on
+   the bar, animation-timeline + a custom-property-driven animation-range-end on a child strip) -
+   NOT reproduced on the self-referencing gold-bar pattern below (same element declares the
+   timeline and animates), and not reproduced in an isolated minimal test page either, so the exact
+   browser-engine trigger was left unexplained rather than risk shipping a subtle, hard-to-detect
+   bug for a "no visual change" task. Falls back to the sanctioned JS path instead (per this task's
+   own "if a bar's mapping truly can't be reproduced exactly in CSS, keep it on JS but make it do
+   zero work while off-screen" clause): this module ALWAYS runs its JS write, but is
+   IntersectionObserver-gated (near-viewport only, matching the hero gold bar's own pattern above)
+   and skips the style write entirely when the computed value hasn't changed since the last frame -
+   so it still does genuinely zero work while the footer is off-screen (the task's #1 named
+   complaint - "even while the footer is off-screen and the value is just 0"), even though it no
+   longer moves fully onto the compositor. */
+(function(){function init(){var bar=document.querySelector('.if-foot-accent');if(!bar)return;var MAXFRAC=0.60;
     /* PERF: previously read document.documentElement.scrollHeight on every scroll frame - that
        flushes layout for the WHOLE document, every frame, while scrolling. Document height only
        ever changes on resize/content-load, never mid-scroll, so it's measured once here and
@@ -315,7 +352,10 @@ try {
     function remeasure(){cache.w=bar.offsetWidth||bar.getBoundingClientRect().width;var vh=window.innerHeight||document.documentElement.clientHeight;cache.scrollMax=Math.max(1,(document.documentElement.scrollHeight||document.body.scrollHeight||0)-vh);}
     remeasure();
     ifResizeEngine.add(remeasure);window.addEventListener('load',remeasure);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(remeasure);
-    ifScrollEngine.add({read:function(){var rect=bar.getBoundingClientRect();var vh=window.innerHeight||document.documentElement.clientHeight;var scrolled=window.pageYOffset||document.documentElement.scrollTop||0;return{vh:vh,top:rect.top,scrolled:scrolled};},write:function(m){if(!m)return;var otop=m.top+m.scrolled;var finalTop=otop-cache.scrollMax;var denom=m.vh-finalTop;var p=denom>0?(m.vh-m.top)/denom:1;if(p<0)p=0;if(p>1)p=1;bar.style.backgroundPosition=(p*MAXFRAC*cache.w)+'px 0px';}});ifScrollEngine.kick();}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();/* manifesto-lift moved to the consolidated 'manifesto-lift' module (ifScrollEngine) below. *//* stage parallax+zoom moved to the consolidated 'stage-parallax' module (ifScrollEngine) below. */(function(){function init(){var els=document.querySelectorAll('.if-hover-grow');els.forEach(function(el){if(el.__ifg)return;el.__ifg=1;if(el.querySelector(':scope > .if-hover-grow-t'))return;var s=document.createElement('span');s.className='if-hover-grow-t';while(el.firstChild){s.appendChild(el.firstChild);}el.appendChild(s);});}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){var CX='164d3383cc05e4249';var loaded=false,ready=false,rendered=false,pending=null;var overlay,headEl,loadEl;function buildOverlay(){if(overlay)return;overlay=document.createElement('div');overlay.className='if-cse-overlay';overlay.innerHTML='<div class="if-cse-modal"><button class="if-cse-close" type="button" aria-label="Close search">×</button><div class="if-cse-head"></div><div class="if-cse-loading">Searching…</div><div id="if-cse-results"></div></div>';document.body.appendChild(overlay);headEl=overlay.querySelector('.if-cse-head');loadEl=overlay.querySelector('.if-cse-loading');overlay.addEventListener('mousedown',function(e){if(e.target===overlay)closeOverlay();});overlay.querySelector('.if-cse-close').addEventListener('click',closeOverlay);}function openOverlay(q){buildOverlay();headEl.textContent='Results for “'+q+'”';loadEl.style.display='block';overlay.classList.add('if-open');document.documentElement.style.overflow='hidden';}function closeOverlay(){if(overlay){overlay.classList.remove('if-open');document.documentElement.style.overflow='';}}document.addEventListener('keydown',function(e){if((e.key==='Escape'||e.keyCode===27)&&overlay&&overlay.classList.contains('if-open'))closeOverlay();});function onReady(){ready=true;render();if(pending){exec(pending);pending=null;}}function render(){if(rendered)return;if(!(window.google&&google.search&&google.search.cse&&google.search.cse.element))return;google.search.cse.element.render({div:'if-cse-results',tag:'searchresults-only',gname:'ifcse'});rendered=true;}function exec(q){render();var el=window.google&&google.search&&google.search.cse&&google.search.cse.element.getElement('ifcse');if(el){el.execute(q);if(loadEl)loadEl.style.display='none';}else{pending=q;}}function ensureCse(){if(loaded)return;loaded=true;window.__gcse={parsetags:'explicit',callback:onReady};var s=document.createElement('script');s.async=true;s.src='https://cse.google.com/cse.js?cx='+CX;document.head.appendChild(s);}function doSearch(q){q=(q||'').trim();if(!q)return;openOverlay(q);if(ready){exec(q);}else{pending=q;ensureCse();}}function wireBox(box){if(!box||box.__ifsearch)return;box.__ifsearch=1;var input;if(box.tagName==='INPUT'){input=box;}else{var ph=box.querySelector('.if-search-ph');input=document.createElement('input');input.type='search';input.className='if-search-realinput';input.setAttribute('placeholder',ph&&ph.textContent.trim()?ph.textContent.trim():'Search');if(ph)ph.style.display='none';box.appendChild(input);box.addEventListener('click',function(){input.focus();});}input.addEventListener('keydown',function(e){if(e.key==='Enter'||e.keyCode===13){e.preventDefault();doSearch(input.value);}});}function init(){var b=document.querySelectorAll('.if-search-input, .if-msearch');for(var i=0;i<b.length;i++)wireBox(b[i]);}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);function initCta(){var head=document.querySelector('.if-foot-cta-head');if(!head||head.__ifcta)return;var phrases=head.querySelectorAll(':scope > span');if(!phrases.length)return;head.__ifcta=1;var words=[],line1=0;phrases.forEach(function(ph,pi){var gold=ph.classList.contains('if-foot-cta-gold');var parts=ph.textContent.split(/(\s+)/);ph.textContent='';parts.forEach(function(tok){if(tok==='')return;if(/^\s+$/.test(tok)){ph.appendChild(document.createTextNode(tok));}else{var w=document.createElement('span');w.className=gold?'if-foot-cta-word if-foot-cta-gold':'if-foot-cta-word';w.textContent=tok;ph.appendChild(w);words.push(w);}});if(pi===0)line1=words.length;});if(!words.length)return;if(reduce){words.forEach(function(w){if(w.classList.contains('if-foot-cta-gold'))w.classList.add('if-lit-gold');});return;}var played=false,N=words.length,lineEnd=line1-1,last=N-1;function setStep(step){for(var i=0;i<N;i++){var w=words[i];w.style.opacity=(step===999)?1:(step===i?1:(w.classList.contains('if-lit-gold')?1:0.62));if((step===i||step===999)&&w.classList.contains('if-foot-cta-gold'))w.classList.add('if-lit-gold');}}function run(){var D=180,gap=40,ideasExtra=520,lastExtra=640,ideasPause=110,workPause=150;var seq=[];for(var w=0;w<N;w++){seq.push({step:w,hold:D+(w===lineEnd?ideasExtra:0)+(w===last?lastExtra:0)});if(w<last)seq.push({step:-1,hold:gap+(w===lineEnd?ideasPause:0)});}seq.push({step:-1,hold:workPause});seq.push({step:999,hold:0});var k=0;function tick(){var s=seq[k];if(s.step===999)head.classList.add('cta-settling');setStep(s.step);k++;if(k<seq.length)setTimeout(tick,s.hold);}tick();}var trig=head.closest('.if-footer')||head.closest('footer')||head;function onEnter(){if(played)return;played=true;trig.removeEventListener('mouseenter',onEnter);run();}trig.addEventListener('mouseenter',onEnter);}if(document.readyState!=='loading')initCta();else document.addEventListener('DOMContentLoaded',initCta);})();(function(){function init(){var menu=document.querySelector('.if-navmenu'),footer=document.querySelector('.if-footer');if(!menu||!footer||menu.__ifTuck)return;menu.__ifTuck=1;var companions=document.querySelectorAll('.if-nav-companion, .program-page-mips-apply-walkcopy-sec');var shortPage=false;function setTucked(on){menu.classList.toggle('if-nav-tucked',on);companions.forEach(function(c){c.classList.toggle('if-nav-tucked',on);});}function footerVisibleNow(){var r=footer.getBoundingClientRect();var vh=window.innerHeight||document.documentElement.clientHeight;return r.top<vh&&r.bottom>0;}function measure(){var vh=window.innerHeight||document.documentElement.clientHeight;var hdr=document.querySelector('.if-header')||menu;var scrollY=window.pageYOffset||document.documentElement.scrollTop||0;var dist=(footer.getBoundingClientRect().top+scrollY)-hdr.offsetHeight;var wasShort=shortPage;shortPage=dist<vh;if(shortPage){setTucked(false);}else if(wasShort){setTucked(footerVisibleNow());}}measure();ifResizeEngine.add(measure);window.addEventListener('load',measure);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measure);setTimeout(measure,500);setTimeout(measure,1500);var io=new IntersectionObserver(function(es){es.forEach(function(e){if(shortPage)return;setTucked(e.isIntersecting);});});io.observe(footer);}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){function init(){var menu=document.querySelector('.if-navmenu');var secs=document.querySelectorAll('[class*="-botnav-sec"]');if(!secs.length)return;secs.forEach(function(sec){if(sec.__ifBotnavHide)return;sec.__ifBotnavHide=1;function measure(){sec.classList.remove('if-botnav-hide');var vh=window.innerHeight||document.documentElement.clientHeight;var hdr=document.querySelector('.if-header')||menu||sec;var scrollY=window.pageYOffset||document.documentElement.scrollTop||0;var dist=(sec.getBoundingClientRect().top+scrollY)-hdr.offsetHeight;sec.classList.toggle('if-botnav-hide',dist<vh);}measure();ifResizeEngine.add(measure);window.addEventListener('load',measure);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measure);setTimeout(measure,500);setTimeout(measure,1500);});}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();
+    var near=true,lastBg=null;
+    new IntersectionObserver(function(entries){ near=entries[entries.length-1].isIntersecting; }, {rootMargin:'100% 0px'}).observe(bar);
+    ifScrollEngine.add({read:function(){if(!near)return null;var rect=bar.getBoundingClientRect();var vh=window.innerHeight||document.documentElement.clientHeight;var scrolled=window.pageYOffset||document.documentElement.scrollTop||0;return{vh:vh,top:rect.top,scrolled:scrolled};},write:function(m){if(!m)return;var otop=m.top+m.scrolled;var finalTop=otop-cache.scrollMax;var denom=m.vh-finalTop;var p=denom>0?(m.vh-m.top)/denom:1;if(p<0)p=0;if(p>1)p=1;var bg=p*MAXFRAC*cache.w;if(bg===lastBg)return;lastBg=bg;bar.style.backgroundPosition=bg+'px 0px';}});ifScrollEngine.kick();
+}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();/* manifesto-lift moved to the consolidated 'manifesto-lift' module (ifScrollEngine) below. *//* stage parallax+zoom moved to the consolidated 'stage-parallax' module (ifScrollEngine) below. */(function(){function init(){var els=document.querySelectorAll('.if-hover-grow');els.forEach(function(el){if(el.__ifg)return;el.__ifg=1;if(el.querySelector(':scope > .if-hover-grow-t'))return;var s=document.createElement('span');s.className='if-hover-grow-t';while(el.firstChild){s.appendChild(el.firstChild);}el.appendChild(s);});}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){var CX='164d3383cc05e4249';var loaded=false,ready=false,rendered=false,pending=null;var overlay,headEl,loadEl;function buildOverlay(){if(overlay)return;overlay=document.createElement('div');overlay.className='if-cse-overlay';overlay.innerHTML='<div class="if-cse-modal"><button class="if-cse-close" type="button" aria-label="Close search">×</button><div class="if-cse-head"></div><div class="if-cse-loading">Searching…</div><div id="if-cse-results"></div></div>';document.body.appendChild(overlay);headEl=overlay.querySelector('.if-cse-head');loadEl=overlay.querySelector('.if-cse-loading');overlay.addEventListener('mousedown',function(e){if(e.target===overlay)closeOverlay();});overlay.querySelector('.if-cse-close').addEventListener('click',closeOverlay);}function openOverlay(q){buildOverlay();headEl.textContent='Results for “'+q+'”';loadEl.style.display='block';overlay.classList.add('if-open');document.documentElement.style.overflow='hidden';}function closeOverlay(){if(overlay){overlay.classList.remove('if-open');document.documentElement.style.overflow='';}}document.addEventListener('keydown',function(e){if((e.key==='Escape'||e.keyCode===27)&&overlay&&overlay.classList.contains('if-open'))closeOverlay();});function onReady(){ready=true;render();if(pending){exec(pending);pending=null;}}function render(){if(rendered)return;if(!(window.google&&google.search&&google.search.cse&&google.search.cse.element))return;google.search.cse.element.render({div:'if-cse-results',tag:'searchresults-only',gname:'ifcse'});rendered=true;}function exec(q){render();var el=window.google&&google.search&&google.search.cse&&google.search.cse.element.getElement('ifcse');if(el){el.execute(q);if(loadEl)loadEl.style.display='none';}else{pending=q;}}function ensureCse(){if(loaded)return;loaded=true;window.__gcse={parsetags:'explicit',callback:onReady};var s=document.createElement('script');s.async=true;s.src='https://cse.google.com/cse.js?cx='+CX;document.head.appendChild(s);}function doSearch(q){q=(q||'').trim();if(!q)return;openOverlay(q);if(ready){exec(q);}else{pending=q;ensureCse();}}function wireBox(box){if(!box||box.__ifsearch)return;box.__ifsearch=1;var input;if(box.tagName==='INPUT'){input=box;}else{var ph=box.querySelector('.if-search-ph');input=document.createElement('input');input.type='search';input.className='if-search-realinput';input.setAttribute('placeholder',ph&&ph.textContent.trim()?ph.textContent.trim():'Search');if(ph)ph.style.display='none';box.appendChild(input);box.addEventListener('click',function(){input.focus();});}input.addEventListener('keydown',function(e){if(e.key==='Enter'||e.keyCode===13){e.preventDefault();doSearch(input.value);}});}function init(){var b=document.querySelectorAll('.if-search-input, .if-msearch');for(var i=0;i<b.length;i++)wireBox(b[i]);}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);function initCta(){var head=document.querySelector('.if-foot-cta-head');if(!head||head.__ifcta)return;var phrases=head.querySelectorAll(':scope > span');if(!phrases.length)return;head.__ifcta=1;var words=[],line1=0;phrases.forEach(function(ph,pi){var gold=ph.classList.contains('if-foot-cta-gold');var parts=ph.textContent.split(/(\s+)/);ph.textContent='';parts.forEach(function(tok){if(tok==='')return;if(/^\s+$/.test(tok)){ph.appendChild(document.createTextNode(tok));}else{var w=document.createElement('span');w.className=gold?'if-foot-cta-word if-foot-cta-gold':'if-foot-cta-word';w.textContent=tok;ph.appendChild(w);words.push(w);}});if(pi===0)line1=words.length;});if(!words.length)return;if(reduce){words.forEach(function(w){if(w.classList.contains('if-foot-cta-gold'))w.classList.add('if-lit-gold');});return;}var played=false,N=words.length,lineEnd=line1-1,last=N-1;function setStep(step){for(var i=0;i<N;i++){var w=words[i];w.style.opacity=(step===999)?1:(step===i?1:(w.classList.contains('if-lit-gold')?1:0.62));if((step===i||step===999)&&w.classList.contains('if-foot-cta-gold'))w.classList.add('if-lit-gold');}}function run(){var D=180,gap=40,ideasExtra=520,lastExtra=640,ideasPause=110,workPause=150;var seq=[];for(var w=0;w<N;w++){seq.push({step:w,hold:D+(w===lineEnd?ideasExtra:0)+(w===last?lastExtra:0)});if(w<last)seq.push({step:-1,hold:gap+(w===lineEnd?ideasPause:0)});}seq.push({step:-1,hold:workPause});seq.push({step:999,hold:0});var k=0;function tick(){var s=seq[k];if(s.step===999)head.classList.add('cta-settling');setStep(s.step);k++;if(k<seq.length)setTimeout(tick,s.hold);}tick();}var trig=head.closest('.if-footer')||head.closest('footer')||head;function onEnter(){if(played)return;played=true;trig.removeEventListener('mouseenter',onEnter);run();}trig.addEventListener('mouseenter',onEnter);}if(document.readyState!=='loading')initCta();else document.addEventListener('DOMContentLoaded',initCta);})();(function(){function init(){var menu=document.querySelector('.if-navmenu'),footer=document.querySelector('.if-footer');if(!menu||!footer||menu.__ifTuck)return;menu.__ifTuck=1;var companions=document.querySelectorAll('.if-nav-companion, .program-page-mips-apply-walkcopy-sec');var shortPage=false;function setTucked(on){menu.classList.toggle('if-nav-tucked',on);companions.forEach(function(c){c.classList.toggle('if-nav-tucked',on);});}function footerVisibleNow(){var r=footer.getBoundingClientRect();var vh=window.innerHeight||document.documentElement.clientHeight;return r.top<vh&&r.bottom>0;}function measure(){var vh=window.innerHeight||document.documentElement.clientHeight;var hdr=document.querySelector('.if-header')||menu;var scrollY=window.pageYOffset||document.documentElement.scrollTop||0;var dist=(footer.getBoundingClientRect().top+scrollY)-hdr.offsetHeight;var wasShort=shortPage;shortPage=dist<vh;if(shortPage){setTucked(false);}else if(wasShort){setTucked(footerVisibleNow());}}measure();ifResizeEngine.add(measure);window.addEventListener('load',measure);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measure);setTimeout(measure,500);setTimeout(measure,1500);var io=new IntersectionObserver(function(es){es.forEach(function(e){if(shortPage)return;setTucked(e.isIntersecting);});});io.observe(footer);}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();(function(){function init(){var menu=document.querySelector('.if-navmenu');var secs=document.querySelectorAll('[class*="-botnav-sec"]');if(!secs.length)return;secs.forEach(function(sec){if(sec.__ifBotnavHide)return;sec.__ifBotnavHide=1;function measure(){sec.classList.remove('if-botnav-hide');var vh=window.innerHeight||document.documentElement.clientHeight;var hdr=document.querySelector('.if-header')||menu||sec;var scrollY=window.pageYOffset||document.documentElement.scrollTop||0;var dist=(sec.getBoundingClientRect().top+scrollY)-hdr.offsetHeight;sec.classList.toggle('if-botnav-hide',dist<vh);}measure();ifResizeEngine.add(measure);window.addEventListener('load',measure);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measure);setTimeout(measure,500);setTimeout(measure,1500);});}if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);})();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] main-bundle error:', _e); } catch (_) {} }
 
 /* ===== module: cse-placement =====
@@ -1315,25 +1355,105 @@ try {
    effect's write() earlier in the same frame may have already changed styles, forcing a synchronous
    layout recalculation. Moved every getBoundingClientRect() into read() (returned as one rects[]
    array alongside vh); write() now only consumes that already-measured data. Same p/w/scaleX math,
-   same values - no visual/behavioral change. */
+   same values - no visual/behavioral change.
+   2026-10-10 SCROLL-DRIVEN BARS (fix #2): where CSS.supports('animation-timeline: view()') is true,
+   idea-factory.css's own @supports block (see its "3c. SCROLL-DRIVEN BARS" header note) now drives
+   .if-stg-goldbar's 30%->90% grow natively on the compositor - for THAT bar only, this module
+   registers NO ifScrollEngine effect and writes NO per-frame transform.
+   ⚠️ .if-syn-goldbar and .program-page-icorps-hero-goldbar stay on JS even when CSS.supports(...) is
+   true - each sits inside an overflow:hidden photo-clip wrapper (.if-syn-hero / the I-Corps-Home
+   hero photo frame) that Chrome treats as the view() timeline's scroll container regardless of
+   whether it ever actually scrolls, freezing the animation at a single stuck value (confirmed
+   empirically, same root cause as .if-hero-goldbar's own note in main-bundle, above). Mitigation
+   instead of CSS: an IntersectionObserver per bar (rootMargin '100% 0px') gates read() to a no-op
+   (returns null) whenever that specific bar is more than about a viewport from the screen, and
+   write() skips re-writing the transform when the rounded scaleX hasn't changed since the last
+   frame for that bar - zero measure, zero write, per bar, both off-screen and once settled. */
 try {
 (function(){
-  function init(){var bars=document.querySelectorAll('.if-stg-goldbar, .if-syn-goldbar, .program-page-icorps-hero-goldbar');if(!bars.length)return;
-    var MIN=30,MAX=90,i;
-    for(i=0;i<bars.length;i++){var _bar=bars[i];var _max=_bar.classList.contains('if-syn-goldbar')?60:MAX;_bar.style.width=_max+'%';_bar.style.transformOrigin='left center';}
-    ifScrollEngine.add({
-      read: function(){
-        var vh=window.innerHeight||document.documentElement.clientHeight;
-        var rects=[],k;
-        for(k=0;k<bars.length;k++){ var rr=bars[k].getBoundingClientRect(); rects.push({top:rr.top, height:rr.height}); }
-        return {vh:vh, rects:rects};
-      },
-      write: function(m){
-        if(!m) return;
-        var j;
-        for(j=0;j<bars.length;j++){var _b=bars[j];var r=m.rects[j];var p=(m.vh-r.top)/(m.vh+r.height);if(p<0)p=0;if(p>1)p=1;var mx=_b.classList.contains('if-syn-goldbar')?60:MAX;var w=MIN+(mx-MIN)*p;_b.style.transform='scaleX('+(w/mx)+')';}
+  /* Not every .if-stg-goldbar instance can use the CSS path either - some sit inside their own
+     page's overflow:hidden photo wrapper (same root cause as .if-hero-goldbar/.if-syn-goldbar/the
+     I-Corps-Home hero bar, see this module's header note), some don't, varying PER INSTANCE PER
+     PAGE (confirmed empirically: 2026-10-10 - MIPS and ASPIRE both have one blocked .if-stg-goldbar
+     instance and one clear one on the same page). So each instance is checked for a blocking
+     ancestor at init and routed individually; a blocked instance gets data-if-gb-js, which
+     idea-factory.css uses to turn its (otherwise-stuck) CSS animation off so this module's own
+     inline-style write can take effect cleanly instead.
+     2026-10-10, SAME-DAY ADDENDUM: a SECOND, distinct blocking condition found on the Ventures
+     Impact page - all 4 of its .if-stg-goldbar instances sit inside a position:sticky photo column
+     (.program-page-ventures-impact-spot-photocol, a "sticky photo, scrolling text" layout). While
+     that column is actively stuck in the viewport, the bar's visual on-screen position genuinely
+     stops changing (confirmed via a direct getBoundingClientRect() read, frozen for the whole
+     sticky-active range) - but Chrome's view() timeline does NOT freeze along with it; it kept
+     computing an ever-increasing progress as if the bar were still moving normally, so the CSS
+     animation would visibly keep growing the bar while its sticky container sits still on screen.
+     Confirmed via direct testing (not assumed): the pure JS per-frame reader (reading the SAME
+     live, currently-stuck rect every frame) correctly reproduces the frozen-while-stuck visual
+     behavior; the CSS path does not. So this check now also treats position:sticky as blocking,
+     exactly like overflow:hidden/clip above - both route an instance to the JS fallback. */
+  function hasHiddenAncestor(el){
+    var cur=el.parentElement;
+    while(cur && cur!==document.body){ var cs=getComputedStyle(cur); if(cs.overflow==='hidden'||cs.overflow==='clip'||cs.position==='sticky')return true; cur=cur.parentElement; }
+    return false;
+  }
+  function init(){
+    var stgBars=document.querySelectorAll('.if-stg-goldbar');
+    var cssBars=[], jsBars=[], i;
+    for(i=0;i<stgBars.length;i++){
+      if(hasHiddenAncestor(stgBars[i])){ stgBars[i].setAttribute('data-if-gb-js',''); jsBars.push(stgBars[i]); }
+      else cssBars.push(stgBars[i]);
+    }
+    var otherJsBars=document.querySelectorAll('.if-syn-goldbar, .program-page-icorps-hero-goldbar');
+    for(i=0;i<otherJsBars.length;i++) jsBars.push(otherJsBars[i]);
+    var MIN=30,MAX=90;
+    for(i=0;i<cssBars.length;i++){ cssBars[i].style.width=MAX+'%'; cssBars[i].style.transformOrigin='left center'; }
+    for(i=0;i<jsBars.length;i++){ var _mx=jsBars[i].classList.contains('if-syn-goldbar')?60:MAX; jsBars[i].style.width=_mx+'%'; jsBars[i].style.transformOrigin='left center'; }
+    var cssAnim=!!(window.CSS && CSS.supports && CSS.supports('animation-timeline: view()'));
+
+    // .if-stg-goldbar: CSS handles it when supported; only this group falls back to JS otherwise.
+    if(cssBars.length && !cssAnim){
+      ifScrollEngine.add({
+        read: function(){
+          var vh=window.innerHeight||document.documentElement.clientHeight;
+          var rects=[],k;
+          for(k=0;k<cssBars.length;k++){ var rr=cssBars[k].getBoundingClientRect(); rects.push({top:rr.top, height:rr.height}); }
+          return {vh:vh, rects:rects};
+        },
+        write: function(m){
+          if(!m) return;
+          for(var j=0;j<cssBars.length;j++){var r=m.rects[j];var p=(m.vh-r.top)/(m.vh+r.height);if(p<0)p=0;if(p>1)p=1;cssBars[j].style.transform='scaleX('+(MIN+(MAX-MIN)*p)/MAX+')';}
+        }
+      });
+    }
+
+    // .if-syn-goldbar / .program-page-icorps-hero-goldbar: always JS (CSS can't track these - see
+    // header note), but IntersectionObserver-gated so each does zero work off-screen.
+    if(jsBars.length){
+      var nears=[], lastW=[];
+      for(i=0;i<jsBars.length;i++){
+        nears.push(true); lastW.push(null);
+        (function(idx){
+          new IntersectionObserver(function(entries){ nears[idx]=entries[entries.length-1].isIntersecting; }, {rootMargin:'100% 0px'}).observe(jsBars[idx]);
+        })(i);
       }
-    });
+      ifScrollEngine.add({
+        read: function(){
+          var vh=window.innerHeight||document.documentElement.clientHeight;
+          var rects=[],k;
+          for(k=0;k<jsBars.length;k++){ if(!nears[k]){ rects.push(null); continue; } var rr=jsBars[k].getBoundingClientRect(); rects.push({top:rr.top, height:rr.height}); }
+          return {vh:vh, rects:rects};
+        },
+        write: function(m){
+          if(!m) return;
+          for(var j=0;j<jsBars.length;j++){
+            var r=m.rects[j]; if(!r) continue;
+            var _b=jsBars[j];var p=(m.vh-r.top)/(m.vh+r.height);if(p<0)p=0;if(p>1)p=1;var mx=_b.classList.contains('if-syn-goldbar')?60:MAX;var w=(MIN+(mx-MIN)*p)/mx;
+            if(w===lastW[j])continue; lastW[j]=w;
+            _b.style.transform='scaleX('+w+')';
+          }
+        }
+      });
+    }
     ifScrollEngine.kick();
   }
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
@@ -1818,7 +1938,15 @@ try {
    PERF: previously read document.documentElement.scrollHeight on every scroll frame (the same
    bug .if-foot-accent had, above) - that flushes layout for the whole document, every frame,
    while scrolling. Document height only ever changes on resize/content-load, never mid-scroll,
-   so it's measured once per bar and cached, refreshed only on resize/load/fonts.ready. */
+   so it's measured once per bar and cached, refreshed only on resize/load/fonts.ready.
+   2026-10-10 SCROLL-DRIVEN BARS (fix #2, REVISED same day): identical mechanism to the footer's
+   own if-foot-accent fix of the same date (see its header note in main-bundle) - first built as a
+   CSS view()-timeline + compositor strip, then reverted to this IntersectionObserver-gated,
+   skip-if-unchanged JS path after direct testing confirmed the CSS strip technique has a
+   reproducible scroll-history-dependent rendering discrepancy on this cross-element pattern (full
+   explanation in the footer module's own header note, main-bundle). This module always runs its
+   JS write now, but only while a bar is near the viewport, and only when the computed value has
+   actually changed - so it still does zero work while a spinoff's bottom-nav bar is off-screen. */
 try {
 (function(){
   function initBar(bar){
@@ -1829,9 +1957,11 @@ try {
     function remeasure(){cache.w=bar.offsetWidth||bar.getBoundingClientRect().width;var vh=window.innerHeight||document.documentElement.clientHeight;cache.scrollMax=Math.max(1,(document.documentElement.scrollHeight||document.body.scrollHeight||0)-vh);}
     remeasure();
     ifResizeEngine.add(remeasure);window.addEventListener('load',remeasure);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(remeasure);
+    var near=true,lastBg=null;
+    new IntersectionObserver(function(entries){ near=entries[entries.length-1].isIntersecting; }, {rootMargin:'100% 0px'}).observe(bar);
     ifScrollEngine.add({
-      read:function(){var rect=bar.getBoundingClientRect();var vh=window.innerHeight||document.documentElement.clientHeight;var scrolled=window.pageYOffset||document.documentElement.scrollTop||0;return{vh:vh,top:rect.top,scrolled:scrolled};},
-      write:function(m){if(!m)return;var otop=m.top+m.scrolled;var finalTop=otop-cache.scrollMax;var denom=m.vh-finalTop;var p=denom>0?(m.vh-m.top)/denom:1;if(p<0)p=0;if(p>1)p=1;bar.style.backgroundPosition=(p*MAXFRAC*cache.w)+'px 0px';}
+      read:function(){if(!near)return null;var rect=bar.getBoundingClientRect();var vh=window.innerHeight||document.documentElement.clientHeight;var scrolled=window.pageYOffset||document.documentElement.scrollTop||0;return{vh:vh,top:rect.top,scrolled:scrolled};},
+      write:function(m){if(!m)return;var otop=m.top+m.scrolled;var finalTop=otop-cache.scrollMax;var denom=m.vh-finalTop;var p=denom>0?(m.vh-m.top)/denom:1;if(p<0)p=0;if(p>1)p=1;var bg=p*MAXFRAC*cache.w;if(bg===lastBg)return;lastBg=bg;bar.style.backgroundPosition=bg+'px 0px';}
     });
   }
   function init(){

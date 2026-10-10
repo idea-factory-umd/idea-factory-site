@@ -317,6 +317,80 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
     .if-sm-box.if-scrollhold .if-stage-text { animation: none; transform: translateY(0.0px) scale(1.0600); opacity: 1; }
     .if-syn-hero.if-scrollhold .if-syn-bg { animation: none; transform: scale(1.16); }
     .if-syn-hero.if-scrollhold .if-syn-inner { animation: none; transform: translateY(0.0px) scale(1.0500); opacity: 1; }
+
+    /* ============================================================
+       3c. SCROLL-DRIVEN BARS (native CSS, 2026-10-10, REVISED same day)
+       ============================================================
+       Native replacement for the "bar grows as you scroll" effect that used to run on
+       idea-factory.js's main ifScrollEngine (a shared rAF-batched scroll listener) for the stage
+       gold bar only (width->scaleX against the SAME p=(vh-top)/(vh+h) view-cover ratio Task E's
+       photo bands already use). idea-factory.js's about-goldbars module (.if-stg-goldbar only,
+       where structurally eligible - see below) now skips ifScrollEngine entirely for this bar when
+       CSS.supports('animation-timeline: view()') is true: zero measure, zero write, zero repaint
+       on scroll. Unsupported browsers keep running the original per-frame JS exactly as before.
+
+       ⚠️ THREE OF THE FOUR GOLD-BAR-FAMILY ELEMENTS, PLUS BOTH TRICOLOR BARS, STAY ON JS -
+       deliberately, not by omission. Two different, unrelated reasons:
+
+       (1) .if-hero-goldbar, .if-syn-goldbar, and .program-page-icorps-hero-goldbar: each bar's
+       containing photo wrapper (.if-hero-right, .if-syn-hero) has overflow:hidden - needed for
+       genuinely unrelated reasons (clipping the photo/zoom underneath, including Task E's own
+       .if-syn-hero clip). Chrome treats the nearest overflow:hidden ancestor as the view-timeline's
+       candidate scroll container regardless of whether that ancestor ever actually scrolls - since
+       it never does here, the bar's view() timeline progress FREEZES at whatever value it happened
+       to compute once, and never updates again on real page scroll (confirmed empirically,
+       2026-10-10). .if-stg-goldbar's own wrapper chain has no overflow:hidden anywhere on most
+       pages (verified), which is why IT can use this CSS block - except where a specific page's
+       specific instance ALSO sits inside its own overflow:hidden photo wrapper (confirmed on MIPS
+       and ASPIRE, each with one blocked instance and one clear one side by side, not predictable
+       from the class name alone) - idea-factory.js marks exactly those instances with
+       data-if-gb-js, which the rule below uses to turn this animation off for just that instance so
+       the module's JS fallback can drive its transform cleanly instead. All four JS-kept cases use
+       the same IntersectionObserver-gated, skip-if-unchanged pattern (see main-bundle/about-goldbars
+       in idea-factory.js) so they still do zero work while off-screen, even though they never move
+       fully onto the compositor.
+
+       (2) .if-foot-accent (footer tricolor bar) and [class*="-botnav-accent"] (spinoff bottom-nav
+       tricolor bars): FIRST built as a CSS view()-timeline + compositor translateX strip (moving the
+       gradient onto a child element, since background-position itself isn't compositor-only), using
+       a JS-computed custom property to extend the view-timeline's range past the bar's own
+       cover-0%/100% so its "100%" lines up with the PAGE's own max-scroll instead of the bar's own
+       height (these two bars' progress is tied to total page scroll, not their own view-cover ratio,
+       unlike the gold bars). Reverted the same day after direct testing uncovered a genuine,
+       reproducible Chrome bug specific to that cross-element pattern (view-timeline-name on one
+       element, animation-timeline + a custom-property-driven animation-range-end on a CHILD of it):
+       the strip's computed transform depended on scroll HISTORY, not just current scroll position -
+       landing on the page's max scroll and then scrolling back up partway read a noticeably
+       different (too-large) value than reaching that same position directly from above. Not
+       reproduced on the gold bars' self-referencing pattern (same element declares the timeline and
+       animates) above, and not reproduced in an isolated minimal test page either - the exact
+       trigger was left unexplained rather than risk shipping a subtle, hard-to-detect visual bug for
+       a "no visual change" task. Both bars are back on the sanctioned JS fallback (see main-bundle's
+       foot-accent module and the botnav-accent-scroll module in idea-factory.js for the full
+       incident note) - IntersectionObserver-gated and skip-if-unchanged, same as (1) above. */
+    .if-stg-goldbar {
+      view-timeline-name: --if-gb-tl;
+      view-timeline-axis: block;
+      animation-timeline: --if-gb-tl;
+      animation-range-end: calc(100vh + 12px);
+      animation-name: if-goldbar-kf;
+      animation-duration: 1s;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+    }
+    /* idea-factory.js (about-goldbars) finds some individual .if-stg-goldbar instances ALSO sit
+       inside their own page's overflow:hidden photo wrapper, or inside a position:sticky ancestor
+       (varies per instance per page, not predictable from the class name alone - confirmed on MIPS
+       and ASPIRE for overflow:hidden, each with one blocked instance and one clear one side by
+       side; confirmed on Ventures' Impact page for position:sticky, where all 4 instances sit in a
+       sticky "photo stays, text scrolls" column and the view() timeline keeps advancing even while
+       the bar is visually frozen on screen during the sticky-active range) and marks those with
+       data-if-gb-js instead of letting this rule's own (in that case stuck, or wrongly-still-moving)
+       animation run - this turns it off for that instance so the module's JS fallback, which reads
+       the bar's real live position every frame and so correctly tracks a sticky freeze too, can
+       drive its transform cleanly instead. */
+    .if-stg-goldbar[data-if-gb-js] { animation-name: none; }
+    @keyframes if-goldbar-kf { from { transform: scaleX(0.3333); } to { transform: scaleX(1); } }
   }
 }
 
