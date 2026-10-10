@@ -1,0 +1,321 @@
+PROMPT FOR CLAUDE CODE
+Idea Factory site: Office of Business, Finance, and Facilities (OBFF) page
+===========================================================================
+(Saved verbatim 2026-09-30, given alongside obff-page-layout-guide.pdf.
+NOT YET BUILT — this is a pending task. Build only when the user explicitly
+says to build/start the OBFF page. See CLAUDE-HISTORY.md for the dated
+entry recording this hand-off.)
+
+WHAT THIS IS
+------------
+Build one page on the Idea Factory Webflow site: the Office of Business,
+Finance, and Facilities page for Idea Factory / REFI staff and students.
+It replaces the old Mtech page at https://www.mtech.umd.edu/obff.
+
+The site footer's bottom-right link "Idea Factory / REFI Staff and
+Students ››" opens this page (on its Purchasing tab).
+
+Reference: obff-page-layout-guide.pdf (in this same folder — kept locally
+since this task isn't built yet; original source:
+https://www.dropbox.com/scl/fi/crze1ikyljaj9sdxdwz2h/Idea-Factory-site-OBFF-page-layout-guide.pdf?rlkey=jc25ywygm8k0u3h3f3x5axxg4&st=eeut2aj8&dl=0 ).
+Page 1 is an index. Pages 2 to 6 each show the SAME page with a different
+tab selected and every accordion on that tab opened.
+
+HOW TO READ THE PDF
+-------------------
+- The yellow band at the top of each PDF page is a label added for you.
+  It is not part of the design. It names the tab, its URL, and how many
+  accordions it has.
+- Small red "ACCORDION · collapsed by default · shown expanded" tags next
+  to accordion titles are also labels, not part of the design.
+- In the real page every accordion starts CLOSED. The PDF shows them open
+  only so you can see their content.
+- The PDF was captured at about 920px wide, so it shows the tablet layout.
+  Build the normal desktop layout at the site's standard container width,
+  using the structure and styling described here, and let it reflow to
+  this tablet layout and to a single column on phones.
+- The site header and footer are the standard Idea Factory site header and
+  footer used on every page. The footer is omitted from the PDF.
+
+PAGE STRUCTURE (top to bottom)
+------------------------------
+1. Standard site header.
+2. Hero band, black background:
+   - Gold eyebrow, uppercase, wide letter-spacing:
+     "Idea Factory / REFI Staff and Students"
+   - Large white heading: "Office of Business, Finance, and Facilities"
+   - A row of five tabs directly under the heading (wraps to two rows on
+     narrow screens). Selected tab: gold background, black text.
+     Unselected tabs: translucent white background, white text. Uppercase
+     Interstate, heavy weight.
+   - A red bar along the bottom-right edge of the band (about 38% of the
+     width).
+   This hero is the same on every tab except for which tab is selected.
+3. White content area for the selected tab:
+   - Tab heading (bold, black), e.g. "University of Maryland's - Idea
+     Factory's Purchasing Policy".
+   - "Purpose:" paragraph (the word "Purpose:" in red, bold) on Purchasing,
+     Travel, and HR. Professional Development has an italic intro
+     paragraph instead. Elevate has neither.
+   - Then either:
+       a) always-visible content under a heavy black rule (Purchasing and
+          Elevate), or
+       b) a stack of accordions under a heavy black rule (Travel, HR, and
+          Professional Development).
+4. Standard site footer.
+
+THE FIVE TABS
+-------------
+  1. Purchasing  ->  #staff-purchasing  ->  no accordions
+  2. Travel  ->  #staff-travel  ->  3 accordion(s)
+  3. HR Employment & Onboarding  ->  #staff-hr  ->  7 accordion(s)
+  4. Elevate  ->  #staff-elevate  ->  no accordions
+  5. Professional Development  ->  #staff-development  ->  2 accordion(s)
+
+This is ONE page. The tabs switch which content is shown; they do not go
+to different pages. Each tab has its own URL fragment so any tab can be
+linked to directly:
+
+  <page URL>#staff-purchasing   (default when no fragment is given)
+  <page URL>#staff-travel
+  <page URL>#staff-hr
+  <page URL>#staff-elevate
+  <page URL>#staff-development
+
+Implementation in Webflow: use a Tabs element (or show/hide sections) plus
+a small script that (1) on load reads location.hash and selects the
+matching tab, defaulting to Purchasing, and (2) when a tab is clicked,
+updates location.hash without reloading. Mark the selected tab with
+aria-current or aria-selected for accessibility.
+
+Page URL: to be confirmed by the Idea Factory team (for example
+https://www.ideafactory.umd.edu/obff, matching the old address). Add a
+301 redirect from https://www.mtech.umd.edu/obff.
+
+ACCORDIONS
+----------
+  Travel:
+    - 1. Concur Directions
+    - 2. Policies
+    - 3. Dos and Donts of Travel
+  HR Employment & Onboarding:
+    - I. New Hire "General" Information
+    - II. Benefits
+    - III. Payroll
+    - IV. Time and Absence
+    - V. Leave
+    - VI. Required Trainings
+    - VII. Tuition Remission
+  Professional Development:
+    - I. University of Maryland (UMD) Resources
+    - II. External Resources
+
+Behavior:
+- All accordions start closed. Clicking the title row opens or closes it.
+- More than one may be open at once.
+- Title row: bold black title on the left, a square 30px "+" button with a
+  2px black border on the right. When open, the square fills black and
+  shows "-" in white.
+- Thin gray rule between accordions; heavy black rule above the first.
+- Use a <button> with aria-expanded for each title row.
+
+CONTENT STYLING (inside the content area and accordions)
+--------------------------------------------------------
+- Body text: the site's serif body font, about 17px, 1.65 line height,
+  maximum line length about 78 characters.
+- Sub-headings inside accordions (e.g. "HERE'S HOW TO GET STARTED:",
+  "AIRFARE:", "LODGING:"): Interstate, heavy, uppercase, wide
+  letter-spacing, black.
+- Bulleted lists with some nested lettered lists (a, b, c).
+- Bold run-in labels at the start of list items (e.g. "Purchasing Email:").
+- Links and email addresses: site link color (red), underlined. Long URLs
+  wrap.
+- Copy all text verbatim from the PDF.
+
+NAME AND ADDRESS CHANGES (already applied)
+------------------------------------------
+- "Mtech" has been changed to "Idea Factory" throughout the text.
+- Any link to https://mtech.umd.edu/... becomes
+  https://www.ideafactory.umd.edu/... (none appear in this page's body).
+- Email addresses are working inboxes and stay exactly as written,
+  including mtech_purchasing@umd.edu.
+
+ASSETS
+------
+The page has no images and no files hosted on the site itself. Every
+document it links to (PDF job aids, forms, Box files) is hosted by other
+UMD offices or the State of Maryland and is linked, not uploaded. Nothing
+needs to be uploaded to Webflow for this page.
+
+CMS NOTE (important, do not act on this)
+-----------------------------------------
+There WAS a CMS collection associated with this page on the earlier
+(mtech.umd.edu) site, referencing a "changeover" that took place several
+years ago. That content is now archaic and must NOT be carried over or
+referenced in any way. There is no new CMS involved in this page either
+— it is 100% static text and links, built directly as native Webflow
+elements (Tabs + Accordions), per the site's HARD RULE #1 (native Webflow
+only).
+
+ALL LINKS ON THE PAGE (58), by tab and section
+Linked text, then URL. Email links use mailto:.
+===========================================================================
+
+TAB 1: PURCHASING   (#staff-purchasing)
+------------------------------------------------------------
+
+  Main content (always visible)
+    mtech_purchasing@umd.edu
+      mailto:mtech_purchasing@umd.edu
+    hmattern@umd.edu
+      mailto:hmattern@umd.edu
+
+TAB 2: TRAVEL   (#staff-travel)
+------------------------------------------------------------
+
+  Accordion: 1. Concur Directions
+    website
+      https://purchase.umd.edu/travel/concur
+    Help Center
+      https://purchase.umd.edu/travel/concur/concur-help-center
+    purchase.umd.edu/travel/concur/concur-login
+      https://purchase.umd.edu/travel/concur/concur-login
+    hmattern@umd.edu
+      mailto:hmattern@umd.edu
+    JobAid
+      https://purchase.umd.edu/sites/default/files/uploads/documents/JobAid-Tvl-Hosting-Expense-Rpt-Single-Employee-v3.pdf
+
+  Accordion: 2. Policies
+    here
+      https://purchase.umd.edu/travel/concur/concur-help-center
+    hmattern@umd.edu
+      mailto:hmattern@umd.edu
+    hmattern@umd.edu
+      mailto:hmattern@umd.edu
+
+  Accordion: 3. Dos and Donts of Travel
+    specific policies and guidelines
+      https://purchase.umd.edu/travel/concur/policies
+    hmattern@umd.edu
+      mailto:hmattern@umd.edu
+
+TAB 3: HR EMPLOYMENT & ONBOARDING   (#staff-hr)
+------------------------------------------------------------
+
+  Accordion: I. New Hire "General" Information
+    New Employee Orientation (NEO)
+      https://uhr.umd.edu/new-employees/new-employee-orientation/
+    hmattern@umd.edu
+      mailto:hmattern@umd.edu
+    hmattern@umd.edu
+      mailto:hmattern@umd.edu
+    here
+      https://itsupport.umd.edu/itsupport?id=kb_article_view&sysparm_article=KB0016660
+    tetrad@umd.edu
+      mailto:tetrad@umd.edu
+    tetrad@umd.edu
+      mailto:tetrad@umd.edu
+    umd.bioraft.com/
+      https://umd.bioraft.com/
+    here
+      https://transportation.umd.edu/
+    epair@umd.edu
+      mailto:epair@umd.edu
+    here
+      https://www.registrar.umd.edu/current/Policies/id-cards.html
+    here
+      https://uhr.umd.edu/learning-and-talent-development/linkedin-learning/
+    here
+      https://faculty.umd.edu/main/leadership-development/faculty-development-initiatives-programs
+    here
+      https://alert.umd.edu/
+    here
+      https://maps.umd.edu/map/
+    here
+      https://uhr.umd.edu/new-employees/new-employee-orientation/neo-resources/
+    here
+      https://policies.umd.edu/personnel
+
+  Accordion: II. Benefits
+    here
+      https://uhr.umd.edu/benefits/
+    krusso@umd.edu
+      mailto:krusso@umd.edu
+
+  Accordion: III. Payroll
+    here
+      https://www.marylandtaxes.gov/statepayroll/Static_Files/Direct_Deposit_Form.pdf
+    here
+      https://umd.app.box.com/s/ig02dkmisospiejtckekqqgxzf03e2bi
+    here
+      https://finance.umd.edu/payroll/payroll-processing-miscellaneous/payroll-online-service-center
+
+  Accordion: IV. Time and Absence
+    ARES
+      https://ares.umd.edu/home/
+    full announcement here
+      https://elevate.umd.edu/articles/important-announcement-about-exempt-employee-timesheets-workday
+    krusso@umd.edu
+      mailto:krusso@umd.edu
+
+  Accordion: V. Leave
+    here
+      https://phr-app6.umd.edu/holidays/
+    Sick & Safe Leave
+      https://uhr.umd.edu/leave/ssl/
+    Parental Leave
+      https://uhr.umd.edu/leave/parental-leave/
+    Advanced Sick Leave (ASL)
+      https://uhr.umd.edu/leave/asl/
+    Family Medical Leave (FML)
+      https://uhr.umd.edu/leave/fml/
+
+  Accordion: VI. Required Trainings
+    TerrapinSTRONG
+      https://diversity.umd.edu/training-education/terrapinstrong/terrapinstrong-onboarding-logistics
+    Responding Effectively to Discrimination and Sexual Misconduct
+      https://ocrsm.umd.edu/training/#new-employees
+    Security Awareness Training
+      https://go.umd.edu/defendingyourshell
+
+  Accordion: VII. Tuition Remission
+    USM Tuition Remission Portal
+      https://www.usmd.edu/tuition-remission/
+    tuitionremission@umd.edu
+      mailto:tuitionremission@umd.edu
+    Tuition Remission FAQs and General Info for Graduate Assistants pdf
+      https://umd.box.com/v/GA-FAQs-Tuition-Remission
+    hmattern@umd.edu
+      mailto:hmattern@umd.edu
+
+TAB 4: ELEVATE   (#staff-elevate)
+------------------------------------------------------------
+
+  Main content (always visible)
+    website
+      https://elevate.umd.edu/
+    wd1.myworkdaysite.com/supplier/umd/Central_External_Supplier_Site
+      https://wd1.myworkdaysite.com/supplier/umd/Central_External_Supplier_Site
+
+TAB 5: PROFESSIONAL DEVELOPMENT   (#staff-development)
+------------------------------------------------------------
+
+  Accordion: I. University of Maryland (UMD) Resources
+    Division of Human Resources
+      https://uhr.umd.edu/learn-grow/talent-development
+    Faculty Affairs
+      https://www.eventbrite.com/o/umd-faculty-affairs-13379049329
+    Graduate School
+      https://gradschool.umd.edu/professionaldevelopment
+    Office of Research Administration
+      https://ora.umd.edu/training
+
+  Accordion: II. External Resources
+    LinkedIn Learning
+      https://learning.linkedin.com/cx/get-started
+    Coursera
+      https://www.coursera.org/
+    EdX
+      https://www.edx.org/school/umd
+    Maryland Technology Development Corporation (TEDCO)
+      https://www.tedcomd.com/events
