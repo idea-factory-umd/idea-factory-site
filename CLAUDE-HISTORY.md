@@ -5093,3 +5093,11 @@ Three more fixes to the Partners logo grid (`icorps-mie-partners-grid`/`icorps-m
    - **Verified by real hover measurement, not just compiled CSS** (per HARD RULE #20's lesson): built a local render with real placeholder images substituted in (the live logos are remote and unreachable from this offline harness) and used Playwright to hover a real cell and measure bounding boxes before/after. Cell: 1.0300/1.0300 width/height ratio — exact. Shadow: `none` at rest → `rgba(0,0,0,0.14) 0 14px 34px` on hover — exact. Logo: measured ratio 1.0609, which is correct, not a bug — the logo's own declared `scale(1.03)` compounds with the cell's own simultaneous `scale(1.03)` (1.03 × 1.03 ≈ 1.0609), the exact same compounding the `.if-prog-card`/`.if-prog-bodyinner` precedent already has in real life. Confirmed this is the intended behavior, not a deviation, before reporting done.
 
 Status: staging only, same as every other MIE-page change this session.
+
+## §283. UMD I-Corps MIE page — Partners hover: swapped to the site's spring-overshoot easing (2026-10-13, continuation of §282)
+
+User feedback: the hover felt "a bit abrupt." Root cause: both `transform` and `box-shadow` were using the plain ease-out curve (`cubic-bezier(0.22,1,0.36,1)`) copied from `.if-prog-card`. The site has a MORE REFINED, already-established version of this exact card-lift pattern (`.if-aud-cell`, `.card2-nfeat`/`.card2-nrow`, `.library-nrow-c1` in `idea-factory.css`) that splits the easing: `box-shadow` keeps the plain decelerate, `transform` gets the spring/overshoot curve (`cubic-bezier(0.34,1.55,0.42,1)`, the `--if-ease-spring`-family token), both at 320ms. Switched the Partners cell + logo to this exact precedent (scale amount left at 1.03, unchanged — only the motion curve/duration changed, since that was the only thing flagged).
+
+**Verified by sampling, not assumed:** measured the cell's actual rendered width every 20ms through the transition. It overshoots to 1.0328 (vs a final rest value of 1.03) around 156ms in, then settles back to exactly 1.03 by ~330ms — the real, characteristic signature of a spring easing actually rendering, confirmed empirically rather than inferred from the CSS text.
+
+Status: staging only.
