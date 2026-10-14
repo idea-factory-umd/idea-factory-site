@@ -5126,6 +5126,12 @@ User asked why the nav's "current page" marker (dark-red fill + gold underline d
 
 Status: **live on production** (`icorps.umd.edu` + `www.icorps.umd.edu`) and staging, confirmed via fresh fetches of both post-publish.
 
+## §291. UMD I-Corps Main Nav — thin current-marker border on the two forked items (2026-10-14, quick follow-up to §290)
+
+User flagged the gold "current page" underline looked thinner/lower on the National/MD Innovation Extension items than on every other nav item. Measured directly (real render, computed styles): every plain `if-nav-link` item uses `border-top/bottom-width:4px` always (color toggles transparent↔gold; width never changes, so becoming "current" never shifts layout) — but `icorps-nav-link-national`/`icorps-nav-link-mie` had been set to 1px border back in §288 to make vertical room for their 2-line text. The shared CSS's current-marker rule only overrides `border-bottom-color`, not width, so the thin 1px border rendered as-is once gold.
+
+**Fix:** `border-top-width`/`border-bottom-width` 1px→4px on both classes (matching every sibling, kept symmetric top/bottom so the text can't shift vertically — border-top is always invisible, but an uneven top/bottom still nudges flex-centered content), `padding-top`/`padding-bottom` 7px→5px to keep 2 lines of text fitting inside the same unchanged 50px box with a small margin. Verified offline before publishing (box height still 50px, Y-position identical to "Home", text center within 1px of reference) and again live post-publish (compiled CSS shows `border-top/bottom:4px solid #0000`, real-render box position matches "Home" exactly, screenshot confirms full-thickness gold line, text visually centered). Two properties on two existing classes, nothing else touched.
+
 ## §289. UMD I-Corps Main Nav — found the real reason §288's "verified" fix still showed broken live; redesigned the wrap mechanism with word-measured widths; first production publish of this nav work (2026-10-14, continuation of §288, PRODUCTION-PUBLISH GAP ROOT-CAUSED)
 
 Immediately after §288 was reported done, the user responded with alarm that the 50px nav-bar-height constraint was being violated, live, right now — directly contradicting the §288 verification. Per this project's own HARD RULE #22 ("evidence something is still wrong is a fresh case, re-derived from scratch — never a continuation of whatever was already concluded"), the prior verification was not defended; the live state was re-derived completely fresh.
