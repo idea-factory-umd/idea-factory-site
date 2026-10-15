@@ -477,6 +477,49 @@
 > This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#21 — keep this
 > banner intact and pass it on.
 
+> ## 🚫 #23 HARD RULE — NEVER USE A "DOM"/CUSTOM‑CODE ELEMENT WHEN A NATIVE WEBFLOW ELEMENT CAN ACHIEVE THE SAME RESULT — NOT FOR BODY TEXT, NOT OUT OF HABIT, ONLY WHEN GENUINELY UNAVOIDABLE (2026‑10‑15 — user, extremely forceful, after finding this done not once but SYSTEMATICALLY across an entire page's worth of body paragraphs and list items)
+> **What happened:** building the OBFF page's body content (Purpose paragraphs, list items mixing
+> plain text with bold words and inline links, sub‑headings), `type:"DOM"` (with various `dom_tag`
+> values — `p`, `li`, `ul`, `ol`, `span`) was used throughout, instead of genuine native
+> `Paragraph`/`Heading`/List‑type elements — which already fully support the exact same mixed
+> bold/link inline formatting, natively. This habit was carried over from the SAME page's tab‑bar
+> buttons and accordion triggers, where DOM elements are genuinely unavoidable (no native tab/
+> accordion widget exists) — but that justification does **not** extend to ordinary paragraphs and
+> list items, which Webflow already builds natively every single day. The user caught this from a
+> Designer screenshot showing the telltale symptom: a "Span settings" panel with **Tag: span**, a
+> warning that *"a custom element adheres to the HTML specification[;] invalid tags and improper
+> nesting of non‑container elements can lead to rendering problems,"* and the paragraph's own text
+> only editable through an awkward sidebar **Text** input box — not by clicking directly into the
+> sentence on the canvas and typing, the way every genuine native text element works.
+> **The user's own words, verbatim:** *"NEVER DO THAT AGAIN unless it's ABSOLUTELY NECESSARY TO
+> ACHIEVE THE RESULT. NEVER. ... THIS CREATES NIGHTMARES FOR ANYONE WORKING ON THE SITE. YOU'VE
+> DONE THIS EVERYWHERE. YOU CANNOT CONTINUE THAT."*
+> **Why this is a severe violation, not a style nitpick:** this is HARD RULE #1 itself, failed —
+> "a person can see / edit / add / delete it in the Designer UI, WITHOUT special code" is the
+> **entire point** of building in Webflow at all. A DOM/custom‑code element silently fails that
+> test for completely ordinary body text, which never needed the trade‑off in the first place —
+> turning plain paragraphs and list items into exactly the kind of cryptic, only‑editable‑through‑
+> a‑side‑panel object HARD RULE #1 already forbids, and doing it **systematically, across an entire
+> page**, not as one isolated element.
+> **THE RULE, absolute, going forward:** before creating ANY element via `type:"DOM"` or
+> `type:"BY_CUSTOM_TAG"`, first confirm there is genuinely **no** native element type (`Paragraph`,
+> `Heading`, `TextBlock`, native `List`/list‑item elements, `TextLink`, `Button`, etc.) that can hold
+> the same content/structure — including mixed inline formatting (bold spans, inline links), which
+> native Paragraph/List elements already fully support via nested native text runs, exactly the same
+> as a DOM span would, just natively editable. **DOM/custom‑tag elements are a last resort for the
+> rare case where NO native element can do the job at all** (e.g. a custom `<button>` acting as a
+> JS‑driven tab trigger, where no native tab/accordion widget exists) — never a default, never a
+> convenience, and never justified merely because it's "the pattern already in use nearby for
+> something else" on the same build. This is the SAME empirical‑test discipline HARD RULE #9
+> already requires before reaching for any workaround — applied here specifically to the single most
+> common case it will keep recurring in: ordinary paragraphs, list items, and headings with mixed
+> inline formatting. **Default to genuine native Paragraph/List/Heading elements for ALL body text,
+> every time, with no exception** — and treat finding even one DOM‑built paragraph/list item as a
+> signal to check the WHOLE surrounding page for the same mistake, per HARD RULE #3's full‑sweep
+> discipline, not just fix the one instance reported.
+> This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#22 — keep this
+> banner intact and pass it on.
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is
