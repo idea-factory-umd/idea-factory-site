@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,700;0,900;1,900&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:'Druk';src:url('uploads/Druk-BoldItalic.otf') format('opentype');font-weight:700;font-style:italic;font-display:swap}
+@font-face{font-family:'Interstate';src:url('uploads/Interstate-Light.otf') format('opentype');font-weight:300;font-style:normal;font-display:swap}
+@font-face{font-family:'Interstate';src:url('uploads/Interstate-Regular.otf') format('opentype');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Interstate';src:url('uploads/Interstate-RegularItalic.otf') format('opentype');font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:'Interstate';src:url('uploads/Interstate-Bold.otf') format('opentype');font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:'Interstate';src:url('uploads/Interstate-BoldItalic.otf') format('opentype');font-weight:700;font-style:italic;font-display:swap}
+html,body{margin:0;padding:0;background:#FFFFFF}
+body{font-family:'Interstate','Source Sans 3',system-ui,sans-serif;color:#000000;-webkit-font-smoothing:antialiased}
+a{color:#E21833;text-decoration:none}
+a:hover{color:#000000;text-decoration:underline}
+*{box-sizing:border-box}
+:focus-visible{outline:2px solid #E21833;outline-offset:2px}
+a[data-btn]{transition:background-color 260ms cubic-bezier(0.33,1,0.68,1),color 260ms cubic-bezier(0.33,1,0.68,1)}
+a[data-btn] > span{transform-origin:center center}
+a[data-logo-grow]:hover > span{transform:scale(1.069)}
+a[data-btn]:hover > span{transform:scale(var(--grow,1.05))}
+a:hover > span[data-grow]{transform:scale(var(--grow,1.05))}
+a[data-logo-tile]{transition:padding 220ms cubic-bezier(0.22,1,0.36,1)}
+a[data-logo-tile]:hover{padding:12px}
+#hubspot-form .hs-form-field{margin-bottom:22px}
+#hubspot-form label{display:block;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.16em;text-transform:uppercase;color:#000000;margin-bottom:9px}
+#hubspot-form .hs-form-required{color:#E21833}
+#hubspot-form input[type=text],#hubspot-form input[type=email],#hubspot-form input[type=tel],#hubspot-form input[type=number],#hubspot-form select,#hubspot-form textarea{width:100%;box-sizing:border-box;font-family:'Interstate','Source Sans 3',sans-serif;font-size:17px;padding:14px;border:2px solid #454545;border-radius:0;background:#FFFFFF;color:#000000}
+#hubspot-form input:focus,#hubspot-form select:focus,#hubspot-form textarea:focus{outline:none;border-color:#E21833}
+#hubspot-form .hs-button{background:#E21833;color:#FFFFFF;border:none;border-radius:0;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.14em;text-transform:uppercase;padding:18px 32px;cursor:pointer}
+#hubspot-form .hs-button:hover{background:#000000}
+#hubspot-form ul{list-style:none;padding:0;margin:8px 0 0}
+#hubspot-form .hs-error-msg,#hubspot-form .hs-error-msgs label{color:#E21833;font-family:'Interstate','Source Sans 3',sans-serif;font-size:16px;letter-spacing:0;text-transform:none;font-weight:400}
+#hubspot-form .submitted-message{font-family:'Interstate','Source Sans 3',sans-serif;font-size:18px;line-height:1.5;color:#000000}
+</style>
+<script charset="utf-8" type="text/javascript" src="https://js.hsforms.net/forms/embed/v2.js"></script>
+</helmet>
+
+<div style="width:100%;background:#FFFFFF;overflow-x:hidden">
+
+  <div style="background:#E21833">
+    <div style="max-width:1240px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:32px;padding:20px 32px;flex-wrap:wrap">
+    <a href="#" onClick="{{ goHome }}" style="display:flex;align-items:center;flex:none">
+      <img src="https://cdn.prod.website-files.com/6899f1a81d12706ef336b639/689a25ba35aa26cd8b9e1d19_UMD_Primary_Color_W.png" alt="University of Maryland" style="height:56px;width:auto;display:block">
+    </a>
+    <nav style="display:flex;gap:34px">
+      <a href="#" onClick="{{ goHome }}" style="font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.14em;text-transform:uppercase;color:#FFFFFF" style-hover="color:#FFD200;text-decoration:none"><span data-grow="1" style="display:inline-block;transform-origin:center center;transition:transform 320ms cubic-bezier(0.34,1.4,0.64,1)">Home</span><span style="display:block;height:4px;margin-top:3px;background:{{ navHome }}"></span></a>
+      <a href="#" onClick="{{ go2025 }}" style="font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.14em;text-transform:uppercase;color:#FFFFFF" style-hover="color:#FFD200;text-decoration:none"><span data-grow="1" style="display:inline-block;transform-origin:center center;transition:transform 320ms cubic-bezier(0.34,1.4,0.64,1)">2025</span><span style="display:block;height:4px;margin-top:3px;background:{{ nav2025 }}"></span></a>
+      <a href="#" onClick="{{ goUpdates }}" style="font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.14em;text-transform:uppercase;color:#FFFFFF" style-hover="color:#FFD200;text-decoration:none"><span data-grow="1" style="display:inline-block;transform-origin:center center;transition:transform 320ms cubic-bezier(0.34,1.4,0.64,1)">Updates</span><span style="display:block;height:4px;margin-top:3px;background:{{ navUpdates }}"></span></a>
+    </nav>
+    </div>
+  </div>
+
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+  <main>
+
+    <section style="background:{{ heroBg }}">
+      <div style="max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(430px,1fr));align-items:stretch">
+        <div style="padding:76px 48px 84px 32px;display:flex;flex-direction:column;justify-content:center;gap:32px">
+          <h1 style="margin:0;display:flex;flex-direction:column;align-items:flex-start;gap:0px">
+            <span style="display:inline-block;background:#FFFFFF;transform:skewX(-12deg)">
+              <span style="display:block;padding:0.16em 0.30em 0.038em;transform:skewX(12deg);font-family:'Druk','Source Sans 3',sans-serif;font-weight:700;font-style:italic;font-size:clamp(54px,7.8vw,108px);line-height:1;letter-spacing:0.01em;text-transform:uppercase;color:#000000">UMD Startup</span>
+            </span>
+            <span style="display:inline-block;background:#FFFFFF;font-size:clamp(54px,7.8vw,108px);transform:skewX(-12deg);margin-left:0.42em;margin-top:-0.217em">
+              <span style="display:block;padding:0.16em 0.30em 0.038em;transform:skewX(12deg);font-family:'Druk','Source Sans 3',sans-serif;font-weight:700;font-style:italic;font-size:clamp(54px,7.8vw,108px);line-height:1;letter-spacing:0.01em;text-transform:uppercase;color:#000000">Showcase<svg viewBox="0 0 1000 1000" style="height:0.44em;width:0.44em;margin-left:0.12em;display:inline-block;vertical-align:0.15em"><polygon points="500,1000 1000,468.7 656.3,0 156.3,0 500,468.7 0,1000" fill="#E21833"></polygon></svg></span>
+            </span>
+          </h1>
+
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <p style="margin:0;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:24px;line-height:1.2;letter-spacing:0.1em;text-transform:uppercase;color:#FFFFFF">November 13, 2026</p>
+            <p style="margin:0;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:17px;line-height:1.5;letter-spacing:0.14em;text-transform:uppercase;color:#FFFFFF">Samuel Riggs IV Alumni Center</p>
+            <p style="margin:0;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:17px;line-height:1.5;letter-spacing:0.14em;text-transform:uppercase;color:#FFD200">By invitation only</p>
+          </div>
+
+          <div style="display:flex;align-items:flex-start;gap:14px;max-width:540px">
+            <svg viewBox="0 0 1000 1000" style="height:19px;width:19px;flex:none;margin-top:7px"><polygon points="500,1000 1000,468.7 656.3,0 156.3,0 500,468.7 0,1000" fill="#E21833"></polygon></svg>
+            <div>
+              <p style="margin:0 0 14px;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:19px;line-height:1.4;color:#FFFFFF;text-wrap:pretty">Discover the exciting world of innovation and entrepreneurship at the University of Maryland.</p>
+              <p style="margin:0;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:400;font-size:17px;line-height:1.5;color:#FFFFFF;text-wrap:pretty">A day-long exhibition, forum and networking event for technology-based startups affiliated with the university — featuring rapid-fire elevator pitches, an investor panel, and an exhibition hall of startups and support organizations.</p>
+            </div>
+          </div>
+
+          <div>
+            <a href="#" onClick="{{ goUpdates }}" style="display:inline-flex;align-items:center;gap:12px;background:#FFD200;color:#000000;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.0625em;text-transform:uppercase;padding:18px 30px" style-hover="background:#FFFFFF;color:#000000;text-decoration:none" data-btn="1"><span style="display:inline-flex;align-items:center;gap:8px;--grow:1.03;transition:transform 320ms cubic-bezier(0.34,1.4,0.64,1)">Register for updates<span>&#8250;&#8250;</span></span></a>
+          </div>
+        </div>
+
+        <div style="position:relative;min-height:470px;background:#E6E6E6">
+          <img src="uploads/0F9A3989.jpg" alt="Dean Chang delivering the welcome at the UMD Startup Showcase" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block">
+        </div>
+      </div>
+      <div style="height:26px;background:url('assets/ff-pattern-dark.svg') repeat-x left center;background-size:auto 100%"></div>
+    </section>
+
+    <section style="max-width:1240px;margin:0 auto;padding:96px 32px 88px">
+      <div style="max-width:840px">
+        <div>
+          <p style="margin:0 0 22px;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.2em;text-transform:uppercase;color:#E21833">About the showcase</p>
+          <h2 style="margin:0 0 28px;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:clamp(28px,3.2vw,40px);line-height:1.08;letter-spacing:-0.01em;text-transform:uppercase;color:#000000;text-wrap:balance">UMD's most comprehensive showcase of startups and resources</h2>
+          <div style="height:4px;background:#000000;width:120px;margin-bottom:28px"></div>
+          <p style="margin:0 0 20px;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:400;font-size:18px;line-height:1.5;color:#454545;text-wrap:pretty">Connect with entrepreneurs, investors, faculty, students, and many of the startup resource partners that make up the University of Maryland startup ecosystem.</p>
+          <p style="margin:0;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:400;font-size:18px;line-height:1.5;color:#454545;text-wrap:pretty">The event welcomes faculty, current students and staff from the University of Maryland and other USM institutions, as well as venture capital investors, active angel investors, and representatives from state and county economic development organizations and government agencies.</p>
+        </div>
+      </div>
+    </section>
+
+    <section style="background:#E21833">
+      <div style="max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));align-items:stretch">
+        <div style="position:relative;min-height:440px;background:#7F7F7F">
+          <img src="uploads/0F9A4208.jpg" alt="Attendees networking at the UMD Startup Showcase" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:40% center;display:block">
+        </div>
+        <div style="padding:72px 32px 72px 56px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:24px">
+          <p style="margin:0;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.2em;text-transform:uppercase;color:#FFFFFF">Sponsorship</p>
+          <p style="margin:0;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:clamp(26px,2.8vw,36px);line-height:1.1;letter-spacing:-0.01em;text-transform:uppercase;color:#FFFFFF;text-wrap:balance">Put your firm in front of the room</p>
+          <div style="height:4px;background:#FFD200;width:96px"></div>
+          <p style="margin:0;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:400;font-size:17px;line-height:1.5;color:#FFFFFF;text-wrap:pretty">If you represent a law firm, accounting firm, startup consultancy or other professional service provider, we invite you to connect with one of the organizers about sponsoring the showcase. Sponsorships include event tickets and are an excellent way to participate while supporting the event.</p>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;width:100%;margin-top:4px">
+            <a href="https://cdn.prod.website-files.com/6899f1a81d12706ef336b639/68a49db130a9b99be192deba_Startup%20Showcase%202025%20Sponsorship%20Website.pdf" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#FFD200;color:#000000;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.0625em;text-transform:uppercase;padding:17px 26px" style-hover="background:#000000;color:#FFFFFF;text-decoration:none" data-btn="1"><span style="display:inline-flex;align-items:center;gap:7px;transition:transform 320ms cubic-bezier(0.34,1.4,0.64,1)">Sponsorship opportunities<span>&#8250;&#8250;</span></span></a>
+            <svg viewBox="0 0 1000 1000" style="height:64px;width:64px;flex:none"><polygon points="500,1000 1000,468.7 656.3,0 156.3,0 500,468.7 0,1000" fill="#000000"></polygon></svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <sc-if value="{{ cornerChevrons }}" hint-placeholder-val="{{ true }}">
+      <div style="width:100%;height:26px;background:url('assets/ff-pattern-light.svg') repeat-x left center;background-size:auto 100%"></div>
+    </sc-if>
+
+    <section style="background:#000000">
+      <div style="max-width:1240px;margin:0 auto;padding:76px 32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:48px">
+        <div>
+          <p style="margin:0;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:clamp(56px,7vw,96px);line-height:0.9;letter-spacing:-0.012em;color:#FFD200;-webkit-text-stroke:0.028em #FFD200;paint-order:stroke fill">40</p>
+          <p style="margin:14px 0 0;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.2em;text-transform:uppercase;color:#FFFFFF">Startups expected</p>
+        </div>
+        <div>
+          <p style="margin:0;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:clamp(56px,7vw,96px);line-height:0.9;letter-spacing:-0.012em;color:#FFD200;-webkit-text-stroke:0.028em #FFD200;paint-order:stroke fill">1</p>
+          <p style="margin:14px 0 0;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.2em;text-transform:uppercase;color:#FFFFFF">Exhibit hall</p>
+        </div>
+        <div>
+          <p style="margin:0;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:clamp(56px,7vw,96px);line-height:0.9;letter-spacing:-0.012em;color:#FFD200;-webkit-text-stroke:0.028em #FFD200;paint-order:stroke fill">60</p>
+          <p style="margin:14px 0 0;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.2em;text-transform:uppercase;color:#FFFFFF">Minutes of rapid-fire pitch sessions</p>
+        </div>
+      </div>
+    </section>
+
+    <section style="max-width:1240px;margin:0 auto;padding:88px 32px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:2px">
+        <div style="position:relative;aspect-ratio:4/3;background:#E6E6E6">
+          <img src="uploads/0F9A4733.jpg" alt="The Technik Soccer team at their exhibit hall demo" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block">
+        </div>
+        <div style="position:relative;aspect-ratio:4/3;background:#E6E6E6">
+          <img src="uploads/0F9A4709.jpg" alt="Attendees talking at an exhibitor table in the showcase exhibit hall" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block">
+        </div>
+        <div style="position:relative;aspect-ratio:4/3;background:#E6E6E6">
+          <img src="uploads/0F9A4237.jpg" alt="A founder delivering a quick pitch at the UMD Startup Showcase" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block">
+        </div>
+      </div>
+    </section>
+
+    <section style="background:#E6E6E6">
+      <div style="max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));align-items:stretch">
+        <div style="padding:72px 48px 72px 32px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:22px">
+          <p style="margin:0;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.2em;text-transform:uppercase;color:#000000">Program</p>
+          <p style="margin:0;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:clamp(23px,2.8vw,32px);line-height:1.14;letter-spacing:-0.01em;text-transform:uppercase;color:#000000;text-wrap:balance">The 2026 agenda, speakers and exhibitors are still to be announced</p>
+          <p style="margin:0;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:400;font-size:17px;line-height:1.5;color:#454545;text-wrap:pretty">Register for updates and we'll send them as they're confirmed. Last year's full program, photos and exhibitor list are on the 2025 page.</p>
+          <a href="#" onClick="{{ go2025 }}" style="display:inline-flex;align-items:center;gap:12px;background:#E21833;color:#FFFFFF;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.0625em;text-transform:uppercase;padding:18px 30px;margin-top:10px" style-hover="background:#000000;color:#FFFFFF;text-decoration:none" data-btn="1"><span style="display:inline-flex;align-items:center;gap:8px;--grow:1.03;transition:transform 320ms cubic-bezier(0.34,1.4,0.64,1)">See the 2025 showcase<span>&#8250;&#8250;</span></span></a>
+        </div>
+        <div style="position:relative;min-height:400px;background:#7F7F7F">
+          <img src="uploads/0F9A4456.jpg" alt="A founder presenting during the quick pitch session" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:58% center;display:block">
+        </div>
+      </div>
+    </section>
+
+    <section style="max-width:1240px;margin:0 auto;padding:80px 32px 88px">
+      <p style="margin:0 0 26px;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.2em;text-transform:uppercase;color:#454545">Hosted by</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:#FFFFFF;box-shadow:0 1px 5px rgba(0,0,0,0.10)">
+        <sc-for list="{{ hosts }}" as="h" hint-placeholder-count="0">
+          <a href="{{ h.href }}" target="_blank" rel="noopener" aria-label="{{ h.name }}" role="img" data-logo-grow="1" style="display:block;height:140px;padding:22px 17.6px;background:#FFFFFF;box-shadow:0 0 0 1px #E6E6E6"><span style="display:block;width:100%;height:100%;background-image:url('{{ h.src }}');background-size:contain;background-repeat:no-repeat;background-position:center;transform-origin:center center;transition:transform 320ms cubic-bezier(0.34,1.4,0.64,1)"></span></a>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="background:{{ ctaBg }}">
+      <div style="max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));align-items:stretch">
+        <div style="padding:88px 48px 88px 32px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:32px">
+        <h2 style="margin:0;display:flex;flex-direction:column;align-items:flex-start;gap:0px">
+          <span style="display:inline-block;background:#FFFFFF;transform:skewX(-12deg)">
+            <span style="display:block;padding:0.16em 0.30em 0.038em;transform:skewX(12deg);font-family:'Druk','Source Sans 3',sans-serif;font-weight:700;font-style:italic;font-size:clamp(34px,4.4vw,64px);line-height:1;letter-spacing:0.01em;text-transform:uppercase;color:#000000">Join us</span>
+          </span>
+          <span style="display:inline-block;background:#FFFFFF;font-size:clamp(34px,4.4vw,64px);transform:skewX(-12deg);margin-left:0.42em;margin-top:-0.217em">
+            <span style="display:block;padding:0.16em 0.30em 0.038em;transform:skewX(12deg);font-family:'Druk','Source Sans 3',sans-serif;font-weight:700;font-style:italic;font-size:clamp(34px,4.4vw,64px);line-height:1;letter-spacing:0.01em;text-transform:uppercase;color:#000000">November 13<svg viewBox="0 0 1000 1000" style="height:0.44em;width:0.44em;margin-left:0.12em;display:inline-block;vertical-align:0.15em"><polygon points="500,1000 1000,468.7 656.3,0 156.3,0 500,468.7 0,1000" fill="#E21833"></polygon></svg></span>
+          </span>
+        </h2>
+        <p style="margin:0;max-width:580px;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:400;font-size:18px;line-height:1.5;color:{{ ctaText }};text-wrap:pretty">Discover the exciting world of innovation and entrepreneurship at the University of Maryland. Attendance is by invitation — add your name for updates.</p>
+        <a href="#" onClick="{{ goUpdates }}" style="display:inline-flex;align-items:center;gap:12px;background:#E21833;color:#FFFFFF;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.0625em;text-transform:uppercase;padding:18px 30px" style-hover="background:#000000;color:#FFFFFF;text-decoration:none" data-btn="1"><span style="display:inline-flex;align-items:center;gap:8px;--grow:1.03;transition:transform 320ms cubic-bezier(0.34,1.4,0.64,1)">Register for updates<span>&#8250;&#8250;</span></span></a>
+        </div>
+        <div style="position:relative;min-height:420px;background:#7F7F7F">
+          <img src="uploads/0F9A4776.jpg" alt="Attendees at the UMD Startup Showcase" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block">
+        </div>
+      </div>
+    </section>
+
+  </main>
+  </sc-if>
+
+  <sc-if value="{{ isUpdates }}" hint-placeholder-val="{{ false }}">
+  <main>
+    <section style="background:#000000">
+      <div style="max-width:1240px;margin:0 auto;padding:84px 32px 92px">
+        <p style="margin:0 0 30px;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.18em;text-transform:uppercase;color:#FFD200">UMD Startup Showcase &#183; November 13, 2026</p>
+        <h1 style="margin:0 0 34px;display:flex;flex-direction:column;align-items:flex-start;gap:0px">
+          <span style="display:inline-block;background:#FFFFFF;transform:skewX(-12deg)">
+            <span style="display:block;padding:0.16em 0.30em 0.038em;transform:skewX(12deg);font-family:'Druk','Source Sans 3',sans-serif;font-weight:700;font-style:italic;font-size:clamp(36px,4.8vw,72px);line-height:1;letter-spacing:0.01em;text-transform:uppercase;color:#000000">Register for</span>
+          </span>
+          <span style="display:inline-block;background:#FFFFFF;font-size:clamp(36px,4.8vw,72px);transform:skewX(-12deg);margin-left:0.42em;margin-top:-0.217em">
+            <span style="display:block;padding:0.16em 0.30em 0.038em;transform:skewX(12deg);font-family:'Druk','Source Sans 3',sans-serif;font-weight:700;font-style:italic;font-size:clamp(36px,4.8vw,72px);line-height:1;letter-spacing:0.01em;text-transform:uppercase;color:#000000">Updates<svg viewBox="0 0 1000 1000" style="height:0.44em;width:0.44em;margin-left:0.12em;display:inline-block;vertical-align:0.15em"><polygon points="500,1000 1000,468.7 656.3,0 156.3,0 500,468.7 0,1000" fill="#E21833"></polygon></svg></span>
+          </span>
+        </h1>
+        <div style="display:flex;align-items:flex-start;gap:14px;max-width:620px">
+          <svg viewBox="0 0 1000 1000" style="height:19px;width:19px;flex:none;margin-top:6px"><polygon points="500,1000 1000,468.7 656.3,0 156.3,0 500,468.7 0,1000" fill="#E21833"></polygon></svg>
+          <p style="margin:0;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:400;font-size:18px;line-height:1.5;color:#FFFFFF;text-wrap:pretty">The showcase is held November 13, 2026 at the Samuel Riggs IV Alumni Center, University of Maryland, and is by invitation only. Leave your details and we'll send program news and invitation information as it's confirmed.</p>
+        </div>
+      </div>
+      <div style="height:26px;background:url('assets/ff-pattern-dark.svg') repeat-x left center;background-size:auto 100%"></div>
+    </section>
+
+    <section style="max-width:720px;margin:0 auto;padding:72px 32px 96px">
+      <div id="hubspot-form" style="min-height:320px"></div>
+    </section>
+  </main>
+  </sc-if>
+
+  <sc-if value="{{ is2025 }}" hint-placeholder-val="{{ false }}">
+  <main>
+    <section style="background:#FFD200">
+      <div style="max-width:1240px;margin:0 auto;padding:16px 32px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px">
+        <p style="margin:0;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.2em;text-transform:uppercase;color:#000000">2025 Showcase &#8212; past event</p>
+        <a href="#" onClick="{{ goHome }}" style="font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.14em;text-transform:uppercase;color:#000000;margin-right:31px;transition:color 260ms cubic-bezier(0.33,1,0.68,1)" style-hover="color:#E21833;text-decoration:none"><span data-grow="1" style="display:inline-block;--grow:1.03;transform-origin:center center;transition:transform 320ms cubic-bezier(0.34,1.4,0.64,1)">See the 2026 showcase &#8250;&#8250;</span></a>
+      </div>
+    </section>
+
+    <section style="background:#000000">
+      <div style="max-width:1240px;margin:0 auto;padding:76px 32px 84px">
+        <h1 style="margin:0 0 32px;display:flex;flex-direction:column;align-items:flex-start;gap:0px">
+          <span style="display:inline-block;background:#FFFFFF;transform:skewX(-12deg)">
+            <span style="display:block;padding:0.16em 0.30em 0.038em;transform:skewX(12deg);font-family:'Druk','Source Sans 3',sans-serif;font-weight:700;font-style:italic;font-size:clamp(34px,4.6vw,70px);line-height:1;letter-spacing:0.01em;text-transform:uppercase;color:#000000">2025 UMD Startup</span>
+          </span>
+          <span style="display:inline-block;background:#FFFFFF;font-size:clamp(34px,4.6vw,70px);transform:skewX(-12deg);margin-left:0.42em;margin-top:-0.217em">
+            <span style="display:block;padding:0.16em 0.30em 0.038em;transform:skewX(12deg);font-family:'Druk','Source Sans 3',sans-serif;font-weight:700;font-style:italic;font-size:clamp(34px,4.6vw,70px);line-height:1;letter-spacing:0.01em;text-transform:uppercase;color:#000000">Showcase<svg viewBox="0 0 1000 1000" style="height:0.44em;width:0.44em;margin-left:0.12em;display:inline-block;vertical-align:0.15em"><polygon points="500,1000 1000,468.7 656.3,0 156.3,0 500,468.7 0,1000" fill="#E21833"></polygon></svg></span>
+          </span>
+        </h1>
+        <p style="margin:0;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.18em;text-transform:uppercase;color:#FFD200">October 10, 2025 &#160;|&#160; Samuel Riggs IV Alumni Center &#160;|&#160; University of Maryland</p>
+      </div>
+      <div style="height:26px;background:url('assets/ff-pattern-dark.svg') repeat-x left center;background-size:auto 100%"></div>
+    </section>
+
+    <section style="max-width:1240px;margin:0 auto;padding:80px 32px">
+      <div style="position:relative;width:100%;aspect-ratio:3/2;background:#FFFFFF">
+        <iframe src="https://lightroom.adobe.com/embed/shares/18c726854dbe4905b13ccfa13678c7e9/slideshow?background_color=%23FFFFFF&amp;color=%23999999" title="2025 UMD Startup Showcase photo gallery" style="position:absolute;inset:0;width:100%;height:100%;border:0;display:block" allowfullscreen="true"></iframe>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:24px">
+        <a href="https://adobe.ly/43f9xJY" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#E21833;color:#FFFFFF;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.0625em;text-transform:uppercase;padding:15px 24px" style-hover="background:#000000;color:#FFFFFF;text-decoration:none" data-btn="1"><span style="display:inline-flex;align-items:center;gap:7px;--grow:1.03;transition:transform 320ms cubic-bezier(0.34,1.4,0.64,1)">View more photos<span>&#8250;&#8250;</span></span></a>
+        <a href="https://mtech.umd.edu/news/university-of-maryland-hosts-campus-wide-startup-showcase" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#FFFFFF;color:#000000;border:2px solid #000000;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.0625em;text-transform:uppercase;padding:13px 24px" style-hover="background:#000000;color:#FFFFFF;text-decoration:none" data-btn="1"><span style="display:inline-flex;align-items:center;gap:7px;--grow:1.03;transition:transform 320ms cubic-bezier(0.34,1.4,0.64,1)">Read the recap<span>&#8250;&#8250;</span></span></a>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2px;margin-top:48px">
+        <div style="position:relative;aspect-ratio:3/2;background:#E6E6E6"><img src="uploads/0F9A4184.jpg" alt="Attendees watching the quick pitch session" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"></div>
+        <div style="position:relative;aspect-ratio:3/2;background:#E6E6E6"><img src="uploads/0F9A4311.jpg" alt="A founder pitching to the room" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"></div>
+        <div style="position:relative;aspect-ratio:3/2;background:#E6E6E6"><img src="uploads/0F9A4208.jpg" alt="Attendees networking during the showcase" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"></div>
+        <div style="position:relative;aspect-ratio:3/2;background:#E6E6E6"><img src="uploads/0F9A4841.jpg" alt="A HighT-Tech founder showing produce grown with their technology" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"></div>
+        <div style="position:relative;aspect-ratio:3/2;background:#E6E6E6"><img src="uploads/0F9A4813.jpg" alt="Attendees at an exhibitor table in the exhibit hall" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"></div>
+        <div style="position:relative;aspect-ratio:3/2;background:#E6E6E6"><img src="uploads/0F9A4776.jpg" alt="Attendees at the 2025 UMD Startup Showcase" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"></div>
+      </div>
+    </section>
+
+    <section style="max-width:1240px;margin:0 auto;padding:0 32px 40px">
+      <p style="margin:0 0 22px;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.2em;text-transform:uppercase;color:#E21833">2025 Agenda</p>
+      <h2 style="margin:0 0 36px;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:clamp(28px,3.2vw,40px);line-height:1.08;letter-spacing:-0.01em;text-transform:uppercase;color:#000000">The 2025 program</h2>
+      <div style="height:4px;background:#000000;margin-bottom:8px"></div>
+      <sc-for list="{{ agenda2025 }}" as="row" hint-placeholder-count="5">
+        <div style="display:grid;grid-template-columns:190px 22px minmax(0,1fr);gap:24px;align-items:start;padding:30px 0;border-bottom:1px solid #E6E6E6">
+          <div>
+            <p style="margin:0 0 6px;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.2em;text-transform:uppercase;color:#E21833">{{ row.kind }}</p>
+            <p style="margin:0;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:18px;letter-spacing:0.06em;text-transform:uppercase;color:#000000">{{ row.time }}</p>
+          </div>
+          <svg viewBox="0 0 1000 1000" style="height:16px;width:16px;margin-top:20px"><polygon points="500,1000 1000,468.7 656.3,0 156.3,0 500,468.7 0,1000" fill="#E21833"></polygon></svg>
+          <div>
+            <p style="margin:0 0 10px;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:21px;line-height:1.25;color:#000000;text-wrap:pretty">{{ row.title }}</p>
+            <sc-for list="{{ row.people }}" as="person" hint-placeholder-count="0">
+              <p style="margin:0 0 4px;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:400;font-size:16px;line-height:1.45;color:#454545;text-wrap:pretty">{{ person }}</p>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </section>
+
+    <section style="background:#E6E6E6;margin-top:56px">
+      <div style="max-width:1240px;margin:0 auto;padding:80px 32px">
+        <p style="margin:0 0 22px;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.2em;text-transform:uppercase;color:#000000">Exhibitors</p>
+        <h2 style="margin:0 0 36px;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:clamp(28px,3.2vw,40px);line-height:1.08;letter-spacing:-0.01em;text-transform:uppercase;color:#000000">2025 startups showcased</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:1px;background:#FFFFFF">
+          <sc-for list="{{ startups2025 }}" as="s" hint-placeholder-count="0">
+            <a href="{{ s.href }}" target="_blank" rel="noopener" aria-label="{{ s.name }}" role="img" data-logo-grow="1" style="display:block;height:124px;padding:19.5px 15.6px;background:#FFFFFF;box-shadow:0 0 0 1px #D8D8D8"><span style="display:block;width:100%;height:100%;background-image:url('{{ s.src }}');background-size:contain;background-repeat:no-repeat;background-position:center;transform-origin:center center;transition:transform 320ms cubic-bezier(0.34,1.4,0.64,1)"></span></a>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+
+    <section style="max-width:1240px;margin:0 auto;padding:80px 32px">
+      <p style="margin:0 0 26px;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.2em;text-transform:uppercase;color:#E21833">2025 Sponsors</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:#FFFFFF;margin-bottom:64px;box-shadow:0 1px 5px rgba(0,0,0,0.10)">
+        <sc-for list="{{ sponsors2025 }}" as="s" hint-placeholder-count="0">
+          <a href="{{ s.href }}" target="_blank" rel="noopener" aria-label="{{ s.name }}" role="img" data-logo-grow="1" style="display:block;height:150px;padding:23.5px 14.06px;background:#FFFFFF;box-shadow:0 0 0 1px #E6E6E6"><span style="display:block;width:100%;height:100%;background-image:url('{{ s.src }}');background-size:contain;background-repeat:no-repeat;background-position:center;transform-origin:center center;transition:transform 320ms cubic-bezier(0.34,1.4,0.64,1)"></span></a>
+        </sc-for>
+      </div>
+      <p style="margin:0 0 26px;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.2em;text-transform:uppercase;color:#454545">Hosted by</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:#FFFFFF;box-shadow:0 1px 5px rgba(0,0,0,0.10)">
+        <sc-for list="{{ hosts }}" as="h" hint-placeholder-count="0">
+          <a href="{{ h.href }}" target="_blank" rel="noopener" aria-label="{{ h.name }}" role="img" data-logo-grow="1" style="display:block;height:140px;padding:22px 17.6px;background:#FFFFFF;box-shadow:0 0 0 1px #E6E6E6"><span style="display:block;width:100%;height:100%;background-image:url('{{ h.src }}');background-size:contain;background-repeat:no-repeat;background-position:center;transform-origin:center center;transition:transform 320ms cubic-bezier(0.34,1.4,0.64,1)"></span></a>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="background:#E21833">
+      <div style="max-width:1240px;margin:0 auto;padding:72px 32px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:32px">
+        <div>
+          <p style="margin:0 0 10px;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.2em;text-transform:uppercase;color:#FFFFFF">Next up</p>
+          <p style="margin:0;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:clamp(24px,3vw,36px);line-height:1.1;letter-spacing:-0.01em;text-transform:uppercase;color:#FFFFFF">The 2026 showcase &#8212; November 13</p>
+        </div>
+        <a href="#" onClick="{{ goHome }}" style="display:inline-flex;align-items:center;gap:12px;background:#000000;color:#FFFFFF;font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.0625em;text-transform:uppercase;padding:18px 30px" style-hover="background:#FFFFFF;color:#000000;text-decoration:none" data-btn="1"><span style="display:inline-flex;align-items:center;gap:8px;transition:transform 320ms cubic-bezier(0.34,1.4,0.64,1)">Go to 2026<span>&#8250;&#8250;</span></span></a>
+      </div>
+    </section>
+  </main>
+  </sc-if>
+
+  <footer style="background:#000000">
+    <div style="height:26px;background:url('assets/ff-pattern-dark.svg') repeat-x left center;background-size:auto 100%"></div>
+    <div style="max-width:1240px;margin:0 auto;padding:64px 32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:56px">
+      <div>
+        <img src="https://cdn.prod.website-files.com/6899f1a81d12706ef336b639/689a25ba35aa26cd8b9e1d19_UMD_Primary_Color_W.png" alt="University of Maryland" style="height:64px;width:auto;display:block;margin-bottom:26px">
+        <p style="margin:0;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:400;font-size:16px;line-height:1.6;letter-spacing:0.04em;color:#FFFFFF">A. James Clark School of Engineering<br>University of Maryland, College Park, MD 20742</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;align-items:flex-start">
+        <a href="#" onClick="{{ goHome }}" style="font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.14em;text-transform:uppercase;color:#FFFFFF" style-hover="color:#FFD200;text-decoration:none"><span data-grow="1" style="display:inline-block;transform-origin:center center;transition:transform 320ms cubic-bezier(0.34,1.4,0.64,1)">Home</span></a>
+        <a href="#" onClick="{{ go2025 }}" style="font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.14em;text-transform:uppercase;color:#FFFFFF" style-hover="color:#FFD200;text-decoration:none"><span data-grow="1" style="display:inline-block;transform-origin:center center;transition:transform 320ms cubic-bezier(0.34,1.4,0.64,1)">2025</span></a>
+        <a href="#" onClick="{{ goUpdates }}" style="font-family:'Interstate','Source Sans 3',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.14em;text-transform:uppercase;color:#FFFFFF" style-hover="color:#FFD200;text-decoration:none"><span data-grow="1" style="display:inline-block;transform-origin:center center;transition:transform 320ms cubic-bezier(0.34,1.4,0.64,1)">Updates</span></a>
+      </div>
+    </div>
+    <div style="border-top:1px solid #454545">
+      <div style="max-width:1240px;margin:0 auto;padding:22px 32px">
+        <p style="margin:0;font-family:'Roboto Condensed','Interstate',sans-serif;font-weight:400;font-size:16px;letter-spacing:0.08em;color:#7F7F7F">&#169; 2026 University of Maryland</p>
+      </div>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;heroField&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Black&quot;,&quot;Red&quot;],&quot;default&quot;:&quot;Black&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Brand blocking&quot;},&quot;closingBand&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Gold&quot;,&quot;Red&quot;],&quot;default&quot;:&quot;Gold&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Brand blocking&quot;},&quot;cornerChevrons&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Brand blocking&quot;}}">
+const CDN = 'https://cdn.prod.website-files.com/6899f1a81d12706ef336b639/';
+
+class Component extends DCLogic {
+  state = { page: 'home' };
+
+  go(p) {
+    return (e) => {
+      if (e) e.preventDefault();
+      this.setState({ page: p });
+      window.scrollTo(0, 0);
+    };
+  }
+
+  componentDidMount() { this.mountHubspot(); }
+  componentDidUpdate() { this.mountHubspot(); }
+  componentWillUnmount() { clearTimeout(this._hsTimer); }
+
+  mountHubspot() {
+    if (this.state.page !== 'updates') { this._hsDone = false; return; }
+    if (this._hsDone) return;
+    const el = document.getElementById('hubspot-form');
+    if (!el) return;
+    if (!window.hbspt || !window.hbspt.forms) {
+      clearTimeout(this._hsTimer);
+      this._hsTimer = setTimeout(() => this.mountHubspot(), 200);
+      return;
+    }
+    this._hsDone = true;
+    el.innerHTML = '';
+    window.hbspt.forms.create({
+      portalId: '47117306',
+      formId: '525fc6b9-a85f-4086-9bf5-69e03ee38d77',
+      region: 'na1',
+      target: '#hubspot-form'
+    });
+  }
+
+  renderVals() {
+    const p = this.state.page;
+    const on = '#FFD200';
+    const off = 'transparent';
+    const heroField = this.props.heroField ?? 'Black';
+    const ctaField = this.props.closingBand ?? 'Gold';
+
+    const startup = (name, file, href) => ({ name, src: CDN + file, href: href || null });
+
+    return {
+      isHome: p === 'home',
+      is2025: p === '2025',
+      isUpdates: p === 'updates',
+      navHome: p === 'home' ? on : off,
+      nav2025: p === '2025' ? on : off,
+      navUpdates: p === 'updates' ? on : off,
+      goHome: this.go('home'),
+      go2025: this.go('2025'),
+      goUpdates: this.go('updates'),
+      noSubmit: (e) => e.preventDefault(),
+      heroBg: heroField === 'Red' ? '#E21833' : '#000000',
+      ctaBg: ctaField === 'Red' ? '#E21833' : '#FFD200',
+      ctaText: ctaField === 'Red' ? '#FFFFFF' : '#000000',
+      cornerChevrons: this.props.cornerChevrons ?? true,
+
+      agenda2025: [
+        { kind: 'Registration', time: '9:30 a.m.', title: 'Registration and coffee', people: [] },
+        { kind: 'Talk', time: '9:45–10 a.m.', title: 'Welcome and introduction', people: [
+          'Dean Chang, Chief Innovation Officer and Associate Vice President for Innovation & Entrepreneurship and Economic Development, University of Maryland',
+          'Rob Cohen, Program Manager, Mtech Ventures'
+        ] },
+        { kind: 'Panel', time: '10–11 a.m.', title: 'Navigating the Funding Landscape: Working With (and Without) Venture Capital', people: [
+          'Kaija Gisolfi-McCready, Investment Associate, Lockheed Martin Ventures',
+          'Mehdi Kalantari Khandani, President and CTO, Resensys',
+          'Rajesh Rai, Investor, Innovation Invention Partners and Chair, TiE DC'
+        ] },
+        { kind: 'Pitches', time: '11:10 a.m.–Noon', title: 'Startup quick pitches (two minutes each)', people: [
+          'Moderated by Josh Doying, Startup Success Manager, UM Ventures'
+        ] },
+        { kind: 'Networking / Exhibit hall', time: 'Noon–2 p.m.', title: 'Lunch, networking and exhibit hall', people: [] }
+      ],
+
+      // Logos pre-trimmed to their ink box (assets/logos/) so one uniform tile padding reads even.
+      startups2025: [
+        { name: "Alchemity", src: 'assets/logos/alchemity.png', href: "https://alchemity.com/" },
+        { name: "AmpX Technologies", src: 'assets/logos/ampx-technologies.png', href: "http://www.ampxtech.com/" },
+        { name: "BeneKinetic", src: 'assets/logos/benekinetic.png', href: "https://www.benekinetic.com" },
+        { name: "CoapTech", src: 'assets/logos/coaptech.png', href: "https://www.coaptech.com/" },
+        { name: "Diffraqtion", src: 'assets/logos/diffraqtion.png', href: "https://diffraqtion.com/" },
+        { name: "Dynamic Dimension Technologies", src: 'assets/logos/dynamic-dimension-technologies.png', href: "https://www.dynamicdimensiontechnologies.com" },
+        { name: "Error Corp", src: 'assets/logos/error-corp.png', href: "https://www.error-corp.com/" },
+        { name: "Expora", src: 'assets/logos/expora.png', href: "https://exporatx.com/" },
+        { name: "Glycot", src: 'assets/logos/glycot.png', href: "https://www.glycot.com/" },
+        { name: "Green Mechanics", src: 'assets/logos/green-mechanics.png', href: "https://greenmechanics.co/" },
+        { name: "GSpin Technologies", src: 'assets/logos/gspin-technologies.png', href: "https://www.gspinmedical.com/" },
+        { name: "HighT-Tech", src: 'assets/logos/hight-tech.png', href: "https://www.hight-tech.com/" },
+        { name: "HOH Cells", src: 'assets/logos/hoh-cells.png', href: "https://hohcells.com/" },
+        { name: "Inception Robotics", src: 'assets/logos/inception-robotics.png', href: "https://www.inceptionrobotics.ai/" },
+        { name: "Khanjur", src: 'assets/logos/khanjur.png', href: "https://khanjur.com" },
+        { name: "MBlue Labs", src: 'assets/logos/mblue-labs.png', href: "https://www.mbluelabs.com/" },
+        { name: "NeoQuortex", src: 'assets/logos/neoquortex.png', href: "https://www.neoquortex.com/" },
+        { name: "New Copper", src: 'assets/logos/new-copper.png', href: "https://new-copper.com/" },
+        { name: "Next Glass", src: 'assets/logos/next-glass.png', href: "https://www.next-glass.com/" },
+        { name: "NomadIQ", src: 'assets/logos/nomadiq.png', href: "https://www.nomadiq.earth/" },
+        { name: "North American Wave Engine Corp", src: 'assets/logos/north-american-wave-engine-corp.png', href: "https://wave-engine.com/" },
+        { name: "OmniSpeech", src: 'assets/logos/omnispeech.png', href: "https://www.omni-speech.com/" },
+        { name: "Pathotrak", src: 'assets/logos/pathotrak.png', href: "https://pathotrak.com/" },
+        { name: "PhaseShift", src: 'assets/logos/phaseshift.png', href: "https://www.phaseshift.tech" },
+        { name: "Prosight AI", src: 'assets/logos/prosight-ai.png', href: "https://prosightai.com/" },
+        { name: "QC82", src: 'assets/logos/qc82.png', href: "https://www.qc82.tech/" },
+        { name: "Qunett", src: 'assets/logos/qunett.png', href: "https://www.qunett.com/" },
+        { name: "Relai", src: 'assets/logos/relai.png', href: "https://relai.ai/" },
+        { name: "Reversal Therapeutics", src: 'assets/logos/reversal-therapeutics.png', href: "https://www.reversaltherapeutics.com/" },
+        { name: "Technik", src: 'assets/logos/technik.png', href: "https://techniksoccer.com/" },
+        { name: "UCleaner", src: 'assets/logos/ucleaner.png', href: "https://ucleaner.com/" },
+        { name: "US Plasma", src: 'assets/logos/us-plasma.png', href: "https://www.usplasma.com/" },
+        { name: "Wenite", src: 'assets/logos/wenite.png', href: "https://www.weniteinc.com/" },
+        { name: "Ventos City", src: 'assets/logos/ventos-city.png', href: "https://www.ventos.city/" },
+        { name: "Whoosh", src: 'assets/logos/whoosh.png', href: null }
+      ],
+
+      sponsors2025: [
+        { name: "Mtech", src: 'assets/logos/sponsor-mtech.png', href: "https://www.mtech.umd.edu/" },
+        { name: "PTP", src: 'assets/logos/sponsor-ptp.png', href: "https://ptp.cloud/" },
+        { name: "TEDCO", src: 'assets/logos/sponsor-tedco.png', href: "https://www.tedcomd.com/" },
+        { name: "Terrapin Development Company", src: 'assets/logos/sponsor-terrapin-development-company.png', href: "https://www.terrapindevelopment.com/" },
+        { name: "Wilson Sonsini", src: 'assets/logos/sponsor-wilson-sonsini.png', href: "https://www.wsgr.com/en/" },
+        { name: "Resensys", src: 'assets/logos/sponsor-resensys.png', href: "https://resensys.com/" },
+        { name: "Cahill", src: 'assets/logos/sponsor-cahill.png', href: "https://www.cahill.com/" },
+        { name: "CSW IP Law", src: 'assets/logos/sponsor-csw-ip-law.png', href: "https://www.rcsc-ip.com/" },
+        { name: "Lex Generalis", src: 'assets/logos/sponsor-lex-generalis.png', href: "https://www.lexgeneralis.com/" },
+        { name: "Snyder Cohn", src: 'assets/logos/sponsor-snyder-cohn.png', href: "https://www.snydercohn.com" }
+      ],
+
+      // Logos are pre-trimmed to their ink bounding box (assets/logos/), so a
+      // single uniform tile padding reads as equal margins on all four.
+      hosts: [
+        { name: 'UM Ventures', src: 'assets/logos/um-ventures.png', href: 'https://www.umventures.org' },
+        { name: 'Mtech Ventures', src: 'assets/logos/mtech-ventures.png', href: 'https://www.mtech.umd.edu' },
+        { name: 'Quantum Startup Foundry', src: 'assets/logos/quantum-startup-foundry.png', href: 'https://qsf.umd.edu' },
+        { name: 'Institute for Health Computing', src: 'assets/logos/institute-for-health-computing.png', href: 'https://www.ihc.umd.edu' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
