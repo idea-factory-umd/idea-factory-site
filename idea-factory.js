@@ -4,6 +4,17 @@
  * Loaded site-wide via jsDelivr <script> in Project Settings > Custom Code (Footer).
  * Each module is try/catch-isolated and binds by class.
  * Modules: base (count-up + v1 features), nav, main bundle, CSE placement, back-to-top.
+ * ----------------------------------------------------------------------------
+ * BRANCH MAP — read before editing, on any branch, in any worktree.
+ *   main                         = PRODUCTION. GitHub Pages serves THIS branch
+ *                                  live to every site in the suite. Only small,
+ *                                  verified fixes land here directly.
+ *   claude/keen-johnson-f9w833   = working/memory branch (CLAUDE.md,
+ *                                  CLAUDE-HISTORY.md, drafts). Expected to
+ *                                  diverge from main — never bulk-merge either
+ *                                  direction; promote single verified fixes.
+ *   A fix meant for the live site must land on main, not only this branch.
+ * ----------------------------------------------------------------------------
  *
  * SCROLL EFFECTS — ONE ENGINE, MANDATORY. Read this before adding or editing
  * anything that reacts to scroll position.

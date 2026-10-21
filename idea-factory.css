@@ -4,6 +4,16 @@
  * Loaded site-wide via jsDelivr <link> in Project Settings > Custom Code (Head).
  * Layers (cascade order): v1 base (logo, stages, audience, proof, manifesto, news,
  * events, hero base) -> content-grow -> nav/dropdown/hero-word/footer -> CSE modal.
+ * ----------------------------------------------------------------------------
+ * BRANCH MAP — read before editing, on any branch, in any worktree.
+ *   main                         = PRODUCTION. GitHub Pages serves THIS branch
+ *                                  live to every site in the suite. Only small,
+ *                                  verified fixes land here directly.
+ *   claude/keen-johnson-f9w833   = working/memory branch (CLAUDE.md,
+ *                                  CLAUDE-HISTORY.md, drafts). Expected to
+ *                                  diverge from main — never bulk-merge either
+ *                                  direction; promote single verified fixes.
+ *   A fix meant for the live site must land on main, not only this branch.
  * ========================================================================== */
 
 /* ===== base layer (logo hover, stages, find-your-way-in, proof, manifesto, news, events) ===== */
