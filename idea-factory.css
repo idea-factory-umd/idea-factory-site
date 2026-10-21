@@ -487,14 +487,22 @@ body,[class^="if-"],[class*=" if-"]{font-family:var(--if-sans)!important;}
 .if-logo-link > img,
 .if-logo-link > svg,
 .if-logo-mark,
-.if-logo-img-hdr {
+.if-logo-img-hdr,
+.iflib-logo-link > img,
+.iflib-logo-link > svg,
+.iflib-logo-mark,
+.iflib-umd-wordmark {
   transition: transform 420ms cubic-bezier(0.83, 0, 0.17, 1);
   transform-origin: center;
 }
 .if-logo-link:hover > img,
 .if-logo-link:hover > svg,
 .if-logo-link:hover .if-logo-mark,
-.if-logo-link:hover .if-logo-img-hdr {
+.if-logo-link:hover .if-logo-img-hdr,
+.iflib-logo-link:hover > img,
+.iflib-logo-link:hover > svg,
+.iflib-logo-link:hover .iflib-logo-mark,
+.iflib-umd-wordmark:hover {
   transition-duration: 110ms;
   transition-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
   transform: scale(1.05);
