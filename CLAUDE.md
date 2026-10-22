@@ -550,7 +550,7 @@
 >      INSTALLED the library (what you must test on, e.g. the master, to see the real installed
 >      behavior — testing only on the Library source site itself will never catch this, since the
 >      prefix only appears on an *installed copy*, never on the source).
-> - **⚠️ TWO COMPLETELY DIFFERENT CODE LOCATIONS need this, with TWO COMPLETELY DIFFERENT FIX
+> - **⚠️ THREE COMPLETELY DIFFERENT CODE LOCATIONS need this, with THREE COMPLETELY DIFFERENT FIX
 >   WORKFLOWS — conflating them wastes hours:**
 >   1. **The shared `idea-factory.css`/`.js` file** (this repo, served via GitHub Pages) — fixed the
 >      normal way: edit → commit → push to **both** `claude/keen-johnson-f9w833` AND `main` (via the
@@ -580,22 +580,63 @@
 >     one." User's own words, confirmed 2026-10-22, worth repeating verbatim so this is never
 >     ambiguous again: "the embed on the library site has to work both there (as it had before) and
 >     on the site it's shared to."
+>   3. **Native Designer-authored COMBO-CLASS styles whose second class is only ever applied by JS at
+>      runtime, never statically combined with the base class on any element in the Designer canvas**
+>      (confirmed example: `.if-backtotop.is-visible`, supplying `opacity:1;pointer-events:auto;
+>      visibility:visible` once our JS adds the `is-visible` class on scroll). **The Shared Library
+>      installer discovers which style objects to rename/carry over by walking each component
+>      element's STATICALLY-applied classes only** — since `is-visible` is never one of them (it's
+>      added/removed purely by JS, never baked into the Designer canvas as a combo), the installer has
+>      no way to find this combo style exists at all. It silently carries over the BASE class's rule
+>      (renamed/prefixed correctly, e.g. `.if-component-library--iflib-backtotop{opacity:0;
+>      visibility:hidden;…}`) while dropping the COMBO rule entirely, with zero error anywhere. The
+>      installed instance's JS correctly toggles the `is-visible` class — but no rule anywhere answers
+>      to it, so the element just silently never becomes visible. **This cannot be fixed on the
+>      Library source site's Designer at all** — the combo style object already exists there and
+>      compiles fine for that site's own pages; the gap is purely in what the INSTALLER carries over
+>      into a DIFFERENT site, which is entirely Webflow's own internal mechanism, outside our control.
+>      **Fix workflow: add the missing rule directly to our OWN shared `idea-factory.css` file**
+>      (never the Library source's Designer), with the full three-way alias in one rule —
+>      `.if-backtotop.is-visible,.iflib-backtotop.is-visible,.if-component-library--iflib-backtotop.is-visible{opacity:1;pointer-events:auto;visibility:visible;}`
+>      — which works regardless of `<link>` tag order, because a two-class combo selector (specificity
+>      0,0,2,0) always beats the installed instance's lone surviving one-class base rule (0,0,1,0), so
+>      it doesn't matter whether our shared file loads before or after Webflow's own per-site compiled
+>      CSS. **No Library publish, no Share-updates, no per-site accept-update cycle needed** — this
+>      fix goes live everywhere the instant GitHub Pages rebuilds, exactly like any other shared-file
+>      fix (location 1 above), which is what makes it a genuinely different category from location 2.
+>      **The tell that identifies this category, vs. locations 1/2 above:** the JS correctly toggles
+>      the class (confirmed via `el.classList.contains(...)`), AND the base class's own un-combo'd
+>      properties are present/correct in the installed site's OWN compiled Webflow stylesheet
+>      (`<site-slug>.webflow.shared.<hash>.css` — fetch and grep it directly, never assume from our
+>      own shared file) — but the COMBO'd version is entirely absent from that compiled stylesheet, in
+>      every alias form. Confirmed this way on 2026-10-22 before writing the fix: `grep -n
+>      "backtotop"` on the master's own compiled stylesheet showed the prefixed base rule present but
+>      zero `.is-visible` combo in any form, while the original un-prefixed `.if-backtotop.is-visible`
+>      still compiled fine on that same file (native Duplicate-Site lineage keeps combo styles;
+>      Shared-Library-install does not, because it's a narrower graft, not a full style-sheet copy).
 > - **Confirmed fixed already (shared-file selectors, both branches, live):** the footer tricolor
 >   accent-bar gradient + scroll animation, both footer logo hovers (IF logo + UMD wordmark), the
->   back-to-top button's `is-visible` toggle module, the nav-tuck module, the `links()` href-autofill
->   helper (UMD-bar quick links, Give button, social icons, UMD-wordmark-wrap), and the HIDDEN
->   "Have an idea? Let's build it." heading's own word-reveal (`initCta()` in the main shared JS,
->   including its own previously-never-aliased-at-all `.if-foot-cta-head`/`.if-foot-cta-gold` lookups
->   — a separate, pre-existing gap this same investigation surfaced, unrelated to the install-prefix
->   issue itself, see the git history for the exact commits).
+>   back-to-top button's `is-visible` toggle module AND its own native combo-class CSS rule (location
+>   3 above — the installer never carried this one over at all; fixed by adding it fresh to the
+>   shared CSS file, verified live via Playwright: `opacity=1, pointerEvents=auto` after scroll), the
+>   nav-tuck module, the `links()` href-autofill helper (UMD-bar quick links, Give button, social
+>   icons, UMD-wordmark-wrap), and the HIDDEN "Have an idea? Let's build it." heading's own
+>   word-reveal (`initCta()` in the main shared JS, including its own previously-never-aliased-at-all
+>   `.if-foot-cta-head`/`.if-foot-cta-gold` lookups — a separate, pre-existing gap this same
+>   investigation surfaced, unrelated to the install-prefix issue itself, see the git history for the
+>   exact commits). **All five user-reported symptoms (accent bar, both hovers, back-to-top, hidden
+>   CTA reveal) were re-verified together, fresh, on the live published master Students page, via
+>   real Playwright measurements (computed `opacity`/`pointerEvents`, bounding-box scale ratios, and
+>   `classList` checks) — not just selector matching — per HARD RULE #19/#20's discipline.**
 > - **Confirmed STILL BROKEN as of this writing, not yet fixed:** the VISIBLE-by-default "Build with
 >   us." sibling heading's own dedicated component-local "CTA-2" embed script (`var
 >   head=document.querySelector('.iflib-foot-cta-head-2')` — needs the
 >   `if-component-library--iflib-foot-cta-head-2`/`-gold-2`/`-word-2` variants added, then
->   Library-republish + Share-updates + master-accepts-update, per the workflow above). The
->   back-to-top button's real root cause on this specific installed instance was still being isolated
->   when this entry was written — check whether it, too, has a dedicated component-local embed (the
->   same category of gap as CTA-2) before assuming the shared-file alias alone was sufficient.
+>   Library-republish + Share-updates + master-accepts-update, per the workflow above). **The fix
+>   itself was already written and verified-landed on the Library source site's own CTA-2 embed, and
+>   the Library site was published — the ONLY remaining step is the user manually clicking "Share
+>   updates" in the Library's Libraries panel, then "accept/apply update" in the master's own
+>   Libraries panel; this is not an open technical question, just a pending manual step.**
 > - **Before ever reporting "the library install works correctly" as done: test on an INSTALLED
 >   site (not just the Library source site), re-fetch the live published HTML fresh (HARD RULE #19),
 >   and grep for the class names actually present** — never assume the `iflib-` form is what's
