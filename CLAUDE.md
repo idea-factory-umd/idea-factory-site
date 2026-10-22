@@ -520,6 +520,79 @@
 > This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#22 — keep this
 > banner intact and pass it on.
 
+> ## 🚫 #24 HARD RULE — WEBFLOW SILENTLY PREFIXES EVERY CLASS FROM AN INSTALLED SHARED LIBRARY COMPONENT WITH `if-component-library--` — EVERY SELECTOR THAT MATCHES A LIBRARY-SOURCED CLASS BY NAME NEEDS A THIRD ALIAS FOR THIS, FOREVER, OR IT SILENTLY NO-OPS ON ANY SITE THAT INSTALLS THE LIBRARY (2026‑10‑22 — cost HOURS of back-and-forth, re-discovered piece by piece; this entry exists so that NEVER happens again)
+> **The mechanism, confirmed empirically by fetching a live installed page's actual HTML:** when a
+> component from the "IF Component Library" Shared Library (site `6ad7957c2cee4b6c725bf76e`) gets
+> installed onto ANY other site (tested: the master "Claude-Accessed Migration Interface Site"),
+> Webflow silently renames **every single class** on every element inside that component instance by
+> prepending **`if-component-library--`** (derived from the library's own display name, lowercased,
+> spaces→hyphens, plus `--`) to the class's existing name. `iflib-foot-accentbar` becomes
+> `if-component-library--iflib-foot-accentbar` in the actual rendered/published HTML — a THIRD,
+> LONGER class name, co-existing with (not replacing) the original. **This is Webflow's own
+> install-time behavior, confirmed via `curl`+inspecting the live published HTML — not something we
+> did, not fixable on the Designer side, and not a one-time quirk — it happens on every future
+> install, of this or any other future shared library, onto any site, every time.**
+> - **THE CONSEQUENCE:** any `document.querySelector`/`querySelectorAll` (JS) or plain CSS selector
+>   (non-combo, matching by class name) in the shared `idea-factory.css`/`.js` — or in ANY
+>   component-local HTML Embed living inside the Footer/UMD Bar component definitions themselves —
+>   that matches only the un-prefixed `if-`/`iflib-` name will **silently fail to match** on an
+>   installed instance, with **zero error, zero console warning** — the element just behaves as if
+>   the JS/CSS never ran at all (no scroll animation, no hover, no visibility toggle, etc.), which is
+>   exactly indistinguishable from "didn't install correctly" unless you think to check this.
+> - **THE RULE, absolute, going forward, no exceptions:** every time ANY new code (shared-file
+>   selector OR component-local embed) is written that matches one of the Footer/UMD Bar component's
+>   own classes by name, it needs **three** variants side by side, always, never just the first two:
+>   1. the bare historical `if-…` name (every other already-deployed spinoff site still uses this —
+>      HARD RULE #18 forbids ever removing it),
+>   2. the `iflib-…` renamed form (what the class is actually called on the Library source site
+>      itself, and what you see/test directly there),
+>   3. **`if-component-library--iflib-…`** — what it actually renders as on ANY site that has
+>      INSTALLED the library (what you must test on, e.g. the master, to see the real installed
+>      behavior — testing only on the Library source site itself will never catch this, since the
+>      prefix only appears on an *installed copy*, never on the source).
+> - **⚠️ TWO COMPLETELY DIFFERENT CODE LOCATIONS need this, with TWO COMPLETELY DIFFERENT FIX
+>   WORKFLOWS — conflating them wastes hours:**
+>   1. **The shared `idea-factory.css`/`.js` file** (this repo, served via GitHub Pages) — fixed the
+>      normal way: edit → commit → push to **both** `claude/keen-johnson-f9w833` AND `main` (via the
+>      usual temporary-worktree dance, §OPERATING PROTOCOL) → wait for GitHub Pages to rebuild →
+>      reaches **every** site instantly, installed-library or not, no further action needed anywhere.
+>   2. **Component-LOCAL HTML Embeds living INSIDE the Footer/UMD Bar component DEFINITION itself**
+>      (confirmed example: the "CTA-2" embed driving the visible-by-default "Build with us." heading's
+>      own separate word-reveal script — a **second, independent copy** of the same reveal logic,
+>      dedicated to that one sibling heading, living as its own embed element, NOT part of
+>      `idea-factory.css`/`.js` at all) — these can **only** be edited on the **Library SOURCE site**
+>      (`6ad7957c2cee4b6c725bf76e`), where the real, editable component definition lives. The
+>      INSTALLING site (e.g. the master) holds only a **read-only, installed copy** — there is no way
+>      to edit this embed from the installing site's side at all. Fix workflow: edit the embed on the
+>      Library source site → publish the Library site → click **"Share updates"** in its Libraries
+>      panel → **every site that has installed the library must separately, manually accept that
+>      update** before the fix actually reaches them (confirmed via Webflow's own docs: installs are
+>      never live/dynamically synced — "editing the source never visibly changes an installed site
+>      until someone deliberately accepts an update"). This is a genuinely extra, manual step beyond
+>      the shared-file case — don't assume publishing the Library alone is sufficient.
+> - **Confirmed fixed already (shared-file selectors, both branches, live):** the footer tricolor
+>   accent-bar gradient + scroll animation, both footer logo hovers (IF logo + UMD wordmark), the
+>   back-to-top button's `is-visible` toggle module, the nav-tuck module, the `links()` href-autofill
+>   helper (UMD-bar quick links, Give button, social icons, UMD-wordmark-wrap), and the HIDDEN
+>   "Have an idea? Let's build it." heading's own word-reveal (`initCta()` in the main shared JS,
+>   including its own previously-never-aliased-at-all `.if-foot-cta-head`/`.if-foot-cta-gold` lookups
+>   — a separate, pre-existing gap this same investigation surfaced, unrelated to the install-prefix
+>   issue itself, see the git history for the exact commits).
+> - **Confirmed STILL BROKEN as of this writing, not yet fixed:** the VISIBLE-by-default "Build with
+>   us." sibling heading's own dedicated component-local "CTA-2" embed script (`var
+>   head=document.querySelector('.iflib-foot-cta-head-2')` — needs the
+>   `if-component-library--iflib-foot-cta-head-2`/`-gold-2`/`-word-2` variants added, then
+>   Library-republish + Share-updates + master-accepts-update, per the workflow above). The
+>   back-to-top button's real root cause on this specific installed instance was still being isolated
+>   when this entry was written — check whether it, too, has a dedicated component-local embed (the
+>   same category of gap as CTA-2) before assuming the shared-file alias alone was sufficient.
+> - **Before ever reporting "the library install works correctly" as done: test on an INSTALLED
+>   site (not just the Library source site), re-fetch the live published HTML fresh (HARD RULE #19),
+>   and grep for the class names actually present** — never assume the `iflib-` form is what's
+>   rendered just because that's what the Library source site itself shows.
+> This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#23 — keep this
+> banner intact and pass it on.
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is
