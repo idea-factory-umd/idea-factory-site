@@ -570,6 +570,16 @@
 >      never live/dynamically synced — "editing the source never visibly changes an installed site
 >      until someone deliberately accepts an update"). This is a genuinely extra, manual step beyond
 >      the shared-file case — don't assume publishing the Library alone is sufficient.
+>   - **⭐ THE SAME ADDITIVE-ONLY RULE APPLIES HERE TOO, EXPLICITLY, NOT JUST TO THE SHARED FILE:** when
+>     editing a component-local embed to add the `if-component-library--iflib-…` alias, ADD it
+>     alongside the embed's existing `iflib-…` (and `if-…`, where present) selectors — never replace
+>     or remove them. The identical embed code must keep working correctly BOTH when viewed directly
+>     on the Library source site itself (classes unprefixed there) AND on every site that installs it
+>     (classes prefixed there) — the SAME embed, unmodified in every other way, has to satisfy both at
+>     once, so the fix is always "add a third variant," never "swap the existing one for the longer
+>     one." User's own words, confirmed 2026-10-22, worth repeating verbatim so this is never
+>     ambiguous again: "the embed on the library site has to work both there (as it had before) and
+>     on the site it's shared to."
 > - **Confirmed fixed already (shared-file selectors, both branches, live):** the footer tricolor
 >   accent-bar gradient + scroll animation, both footer logo hovers (IF logo + UMD wordmark), the
 >   back-to-top button's `is-visible` toggle module, the nav-tuck module, the `links()` href-autofill
