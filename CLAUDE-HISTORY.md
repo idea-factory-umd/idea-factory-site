@@ -5354,3 +5354,157 @@ Status: naming convention corrected/finalized; starting page + first layout guid
 - **Font floor:** `.mppm-fac-more` ("More Info ››") was at 13px, under the site's 16px minimum — raised to 16px. A fuller page-wide font-size sweep (beyond this one already-found instance) was started but not completed this session — still outstanding for a future pass.
 
 Status: all of the above verified live via fresh fetch/Playwright measurement, not assumed. The Academics page and the other 9 pages in the slug map above remain unbuilt — next MPPM work is either that page-build work, the still-open eng.umd.edu target-blank fix, or the remaining font-size sweep, whichever the user directs next.
+
+## §300. MPPM Home — the two full-page typography spec lists, RETAINED VERBATIM (user had to re-supply them after I failed to find them; this entry closes that gap permanently) (2026-10-30)
+
+**Why this entry exists:** the user gave both lists below once already, explicitly said "SAVE THIS INFORMATION" / told me to retain them, and I was unable to produce them later in the same session — they only existed in my working context, not in this durable file, so a context reset or new session would have lost them entirely. Found again by grepping the raw session transcript as a last resort; that should never be necessary. **Both lists apply to MPPM-Home at the Desktop (1440px) breakpoint** unless stated otherwise. Verify any section against these verbatim lists before ever calling that section's typography "done."
+
+**LIST 1 — exact font SIZES at 1440px desktop:**
+
+Hero
+- 72px: program name
+- 18px: gold line under the name
+- 17px: APPLY NOW (uppercase)
+- 16px: "Master of Professional Studies" label (uppercase); "Priority deadline"; "October 16"
+
+Program facts
+- 27px: values
+- 16px: labels (uppercase); footnote
+
+Job Outlook
+- 66px: figures
+- 26px: section heading (uppercase)
+- 18px: descriptions — **⚠️ superseded by a later, more specific instruction, see §-this-entry's "Job Outlook description/source" note below: actual shipped value is a fluid `clamp(21px,2vw,28px)`, 28px at 1440, not a flat 18px. Treat the later spec as authoritative for this one field.**
+- 15px: sources (uppercase)
+
+Why a Master's
+- 35px: open box title
+- 31px: closed box titles
+- 26px: section heading (uppercase)
+- 19px: lead-in sentence
+- 18px: body paragraph (Georgia)
+- 16px: "Five reasons" label (uppercase)
+
+Curriculum
+- 55px: gold display headline
+- 26px: course numbers
+- 18px: course titles
+- 16px: "Online Program" label (uppercase)
+
+Key Program Features
+- 30px: card headings
+- 26px: section heading (uppercase)
+- 18px: Format / Time Commitment text
+- 16px: "What sets it apart" (uppercase); card descriptions (Georgia); Format / Time Commitment labels (uppercase)
+
+Faculty
+- 26px: section heading (uppercase)
+- 22px: names
+- 17px: "Meet the faculty" (uppercase)
+- 16px: label (uppercase); courses; bios (Georgia)
+
+Student Testimonials
+- 26px: section heading (uppercase); quotes (Georgia italic)
+- 18px: names
+- 16px: "In their words" (uppercase)
+- 15px: employers
+
+Tuition
+- 32px: column headings
+- 26px: section heading (uppercase)
+- 18.5px: intro paragraph
+- 17px: details link (uppercase)
+- 16px: label (uppercase); column text
+
+Ready to Launch
+- 62px: "Ready to Launch?" headline
+- 30px: card headings
+- 28px: card numbers
+- 24px: deadline sentence
+- 16px: card text (Georgia); card links (uppercase)
+
+Learn More
+- 36px: red panel statement
+- 26px: section heading (uppercase)
+- 16px: "Request information" (uppercase); form labels; form field text
+
+**LIST 2 — exact font WEIGHT / case / letter-spacing at 1440px desktop (separate list, given a different day, covers the same sections):**
+
+Hero
+- Interstate 800: program name, letter-spacing −0.025em; "October 16"
+- Interstate 700, all caps: "Master of Professional Studies" label, letter-spacing 0.14em; APPLY NOW, letter-spacing 0.01em
+- Interstate 700: "Priority deadline"
+- Interstate 500: gold line under the name
+
+Program facts
+- Interstate 800, all caps: labels, letter-spacing 0.1em
+- Interstate 800: values, letter-spacing −0.015em
+- Interstate 500: footnote
+
+Job Outlook
+- Interstate 800, all caps: section heading, letter-spacing 0.05em
+- Interstate 800: figures, letter-spacing −0.035em
+- Interstate 700: descriptions
+- Interstate 700, all caps: sources, letter-spacing 0.08em
+
+Why a Master's
+- Interstate 800, all caps: section heading, letter-spacing 0.05em
+- Interstate 700, all caps: "Five reasons" label, letter-spacing 0.08em
+- Interstate 800: box titles (open and closed), letter-spacing −0.01em
+- Interstate 500: lead-in sentence
+- Georgia 400: body paragraph
+
+Curriculum
+- Interstate 700, all caps: "Online Program" label, letter-spacing 0.08em
+- Interstate 800: gold display headline, letter-spacing −0.02em
+- Interstate 800: course numbers, letter-spacing −0.03em
+- Interstate 700: course titles
+
+Key Program Features
+- Interstate 800, all caps: section heading, letter-spacing 0.05em
+- Interstate 700, all caps: "What sets it apart", letter-spacing 0.08em
+- Interstate 800: card headings, letter-spacing −0.01em
+- Georgia 400: card descriptions
+- Interstate 800, all caps: Format / Time Commitment labels, letter-spacing 0.1em
+- Interstate 700: Format / Time Commitment text
+
+Faculty
+- Interstate 800, all caps: section heading, letter-spacing 0.05em
+- Interstate 700, all caps: "Practitioner faculty · 10" label, letter-spacing 0.08em
+- Interstate 800: names, letter-spacing −0.01em
+- Interstate 600: courses
+- Georgia 400: bios
+- Interstate 700, all caps: "More Info ››", letter-spacing 0.04em
+- Interstate 700, all caps: "Meet the faculty", letter-spacing 0.01em
+
+Student Testimonials
+- Interstate 800, all caps: section heading, letter-spacing 0.05em
+- Interstate 700, all caps: "In their words", letter-spacing 0.08em
+- Georgia 400 italic: quotes
+- Interstate 800: names
+- Interstate 600: employers
+
+Tuition
+- Interstate 800, all caps: section heading, letter-spacing 0.05em
+- Interstate 700, all caps: "$28,000 · five installments" label, letter-spacing 0.08em
+- Interstate 400: intro paragraph; column text
+- Interstate 800: column headings, letter-spacing −0.01em
+- Interstate 800, all caps: details link, letter-spacing 0.06em
+
+Ready to Launch
+- Interstate 800: "Ready to Launch?" headline, letter-spacing −0.03em
+- Interstate 800: card numbers; card headings, letter-spacing −0.01em
+- Georgia 400: card text
+- Interstate 800, all caps: card links, letter-spacing 0.06em
+- Interstate 800: deadline sentence
+
+Learn More
+- Interstate 800, all caps: section heading, letter-spacing 0.05em
+- Interstate 700, all caps: "Request information", letter-spacing 0.08em
+- Interstate 800: red panel statement, letter-spacing −0.015em
+- Interstate 700: form labels
+- Interstate 700, all caps: SUBMIT, letter-spacing 0.01em
+
+**Separately given, specific override for ONE field in Job Outlook (supersedes the flat "18px: descriptions" line in List 1 above for this one field only):** the per-stat DESCRIPTION line (`.mppm-stats-itemlabel`, e.g. "Best Jobs in America") is Interstate 700, white, `clamp(21px, 2vw, 28px)` (28px at 1440 desktop), line-height 1.05, normal case/spacing, 16px space above (from the rule). The per-stat SOURCE line (`.mppm-stats-source`, e.g. "Source: Glassdoor") is Interstate 700, gold `#FFD200`, fixed 15px (does not scale), all caps, letter-spacing 0.08em, 10px space above (from the description). **Both already verified live and matching, across 1440/992/767/375px, as of this entry** — this is the one part of the full typography spec already confirmed compliant; the rest of both lists above still needs a section-by-section pass.
+
+**Status of verification against these two lists, as of this entry:** only the Hero ticker strip (two-color split, fixed in this same session — see live build) and the Job Outlook description/source pair (above) have been checked and fixed. Every other row in both lists — Program facts, Why a Master's, Curriculum, Key Program Features, Faculty, Student Testimonials, Tuition, Ready to Launch, Learn More — still needs a real, verified pass (current value fetched live, compared against both lists, fixed if it doesn't match) before this page's typography can be called compliant. `.mppm-launch-submitbtn` (Learn More's SUBMIT button) is separately already known to be under-spec (14px vs. the floor; List 2 confirms it should read "Interstate 700, all caps... letter-spacing 0.01em" — weight/case/spacing already correct, size still needs fixing to the established 16px floor since neither list gives SUBMIT an explicit size).
