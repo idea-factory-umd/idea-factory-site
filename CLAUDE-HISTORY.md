@@ -5297,3 +5297,60 @@ Status: naming convention only, confirmed with the user; no pages, nav component
 **Context for why this was only clarified now:** the user explained they withheld the page‑naming caveat until the layout guides themselves had the FINAL page names already written into their links, specifically to avoid confusing the build with that detail any earlier than necessary — confirmed consistent with what the Home guide's own link manifest shows (`MPPM-academics.html`, `MPPM.html`, etc., all final‑form). **Reconfirmed: this entire kickoff follows EXACTLY the same pattern as every other spinoff's own construction‑inside‑master phase** (ASPIRE/MIPS/CBSCF/Ventures/UMD I‑Corps/Minor) — nothing here is a new mechanism, only MPPM's own specific names.
 
 Status: naming convention corrected/finalized; starting page + first layout guide + images all confirmed in hand. Actual hero/header/nav class‑forking and page build has not started yet.
+
+## §299. MPPM Home — final page-slug map set for the whole spinoff (user-specified, matches old/existing site), 32 links wired in advance, plus a cluster of card-array/link bugs fixed same session (2026-10-30)
+
+**The full, user-specified MPPM page-slug map — RETAIN, these are the real/final slugs that must match the old/existing site because its URLs are already publicized:**
+
+| Slug (here, with `mppm-` prefix per §297/§298) | Page | Notes |
+|---|---|---|
+| `/mppm-home` | Home | already built, this page |
+| `/mppm-application-requirements` | Application Requirements | Admissions dropdown item AND the header Apply button both point here |
+| `/mppm-calendars-deadlines` | Calendars & Deadlines | Admissions dropdown item |
+| `/mppm-academic-policies` | Academic Policies | Admissions dropdown item |
+| `/mppm-online-learning` | Online Learning | Admissions dropdown item |
+| `/mppm-tuition-financial-aid` | Tuition & Financial Aid | Admissions dropdown item |
+| `/mppm-graduation-commencement` | Graduation & Commencement | Admissions dropdown item |
+| `/mppm-academics` | Academics | Academics dropdown's "Courses" item AND the nav "Academics" context both point here (bare, no anchor) |
+| `/mppm-academics#faculty` | Academics → Faculty section | Academics dropdown's "Faculty" item, and the Home page's "Meet the Faculty ››" button |
+| `/mppm-student-experience` | Experience | top nav item |
+| `/mppm-blog` | Blog | top nav item |
+
+**User's own words on why these must be exact, not placeholders to revisit:** "THE NAMES HAVE TO BE SPECIFIC THOUGH BECAUSE THEY HAVE TO MATCH THE EXISTING SITE'S PAGE NAMES AFTER WE EXPORT AND CLEAN IT UP BECAUSE PEOPLE PUBLICIZE PAGE NAMES AND THEY HAVE TO REMAIN CONSISTENT WITH THE OLD SITE." The `mppm-` prefix is still interim/stripped-at-spinoff per §297/§298 (so `mppm-academics` → `academics` eventually) — but the part AFTER the prefix is not a guess or a convenience name, it's taken as the real, final, already-public slug.
+
+**Faculty card → Academics-page anchor map** (all 10 "More Info ››" links on Home, all already wired to `/mppm-academics#<id>`):
+
+| Card | Anchor id |
+|---|---|
+| Michael O'Connor (both of his cards — he teaches 2 courses) | `faculty-oconnor` |
+| James V. Green | `faculty-green` |
+| Sharon Flank | `faculty-flank` |
+| Gregory Baecher | `faculty-baecher` |
+| Frankie Abralind | `faculty-abralind` |
+| Cynthia Gayton | `faculty-gayton` |
+| Michael Pratt | `faculty-pratt` |
+| John Johnson | `faculty-johnson` |
+| David Bosley | `faculty-bosley` |
+
+**Curriculum course-title → Academics-page anchor map** (all 10 course links on Home, already wired to `/mppm-academics#<id>`; the "30 Credits · 10 Courses ››" credit link goes to bare `/mppm-academics`, no anchor):
+
+`fundamentals`, `managing-innovation`, `business-modeling`, `data-analysis`, `innovative-thinking`, `product-dev-ops`, `market-development`, `negotiation`, `leading-organizations`, `financing` — in that order, matching the Curriculum section's own course order top-to-bottom.
+
+**⭐ REQUIRED BEHAVIOR when the Academics page is actually built (not done yet — this is the spec for that future work, per the user's explicit instruction, must survive to that point):**
+- Each faculty card carries its matching id (e.g. `id="faculty-green"`) and each course carries its matching id, set via the element's own native ID field (Designer Settings panel / `set_dom_id`) — **never a dummy/invisible placeholder element inserted just to hold the ID.** This is HARD RULE #14, restated by the user specifically for this build: "REMEMBER TO BUILD PAGE ANCHORS PROPERLY ACCORDING TO WEBFLOW PROTOCOL, ALWAYS (YOU NAME THE ELEMENT AND USE THAT REFERENCE — YOU DON'T INSERT A DUMMY 'SPAN' AS YOU'D TRIED TO DO MULTIPLE TIMES BEFORE)."
+- On page load, AND whenever the URL hash changes (same-page hash navigation, not just a fresh load): if the hash matches a faculty-card id or a course id, (1) open that specific item's own Biography/course accordion by script (a plain anchor jump alone does not open an accordion — must be scripted), then (2) scroll that card/item into view (with the site's established header-clearance offset, same pattern as every other anchor-scroll module on this site).
+- Must never CLOSE an accordion the visitor already opened by hand elsewhere on the page — the hash-driven open only ever adds the open state for its own target, never resets others closed as a side effect.
+
+**Why the hrefs were set now even though none of these 10 target pages exist yet:** initially told to hold off wiring links until the target page exists (normal practice), but the user then explicitly reversed that for this specific case — "ACTUALLY GO AHEAD AND SET ALL THE LINKS. SO THE PAGES WILL PICK THEM UP AS YOU BUILD THEM" — i.e. set the hrefs to the exact correct final slugs now, so that each page, whenever it's actually built later at that exact slug, is automatically linked correctly with no further href work needed. All 32 hrefs (11 nav-component links incl. the Admissions/Academics dropdown items, Experience, Blog, Apply; 10 Faculty More-Info links; the Meet-the-Faculty button; 10 Curriculum course links; the credit link) are set and verified live as of this entry. The target pages themselves (Academics, Application Requirements, etc.) do **not** exist yet — building them is separate, not-yet-started work.
+
+**Technical note for future sessions:** the Main Nav's dropdown sublinks (Admissions/Academics items), Experience, Blog, and Apply button all live inside the **"Main Nav — MPPM" component** (`293803d4-d6a3-d8ce-d12b-dbb3cb50da64`) — `query_elements`/`data_element_tool` calls against them silently return zero matches unless `scope_component_id` is passed (a same-named-class style filter does NOT reach inside a component instance on its own; confirmed again here, same gotcha HARD RULE #10's own footnote already documents). The Faculty/Curriculum links are plain page-level elements (component = the page id itself), no scoping needed.
+
+**Other bugs fixed and verified live this same session, on MPPM-Home, per the user's standing rules:**
+- **"Equivalent array items" / leftover-row stretch bug (new failure mode, added to standing practice):** `.mppm-fac-card` (and the same inherited pattern on `.mppm-launch-card`) used `flex-grow:1` with a `flex-basis:33.333%-ish` 3-column layout. With a 10-card grid (not a multiple of 3), the single leftover card in the last row had nothing to share its row with, so `flex-grow:1` stretched it to the FULL row width — visibly much larger than every other card. **Standing rule going forward: any card/box-array using `flex-grow` + `flex-basis` thirds must use `flex-grow:0` (not `1`) so every item, including a lone leftover-row item, stays the exact same size as its siblings** — flex-basis alone (with flex-shrink for genuine overflow safety) is enough; growth to fill a sparse row is the bug, not a feature. Checked: Key Program Features (6 cards), Tuition (3), Ready-to-Launch (3) are all exact multiples of their column count so this exact symptom never surfaced there, but they carry the same `flex-grow:1` risk latent for any future count change — worth a flex-grow:0 pass if their item counts ever change.
+- **Bottom-aligned card links, reapplied to Faculty** (same standard as §-logged for Ready-to-Launch earlier this session): `.mppm-fac-card{display:flex;flex-direction:column}` + `.mppm-fac-more{margin-top:auto;align-self:flex-start}` — every card's "More Info ››" link now sits flush at the same Y position across a row regardless of bio paragraph length.
+- **O'Connor card structural bug:** his card's course-title paragraph was a sibling of the name wrapper instead of nested inside it (every other card nests name+course together in one `.mppm-fac-nametext` div) — produced a visibly different 2-column layout on just that one card. Fixed via `move_element` (course paragraph moved inside the nametext div, after the name). Confirmed via a full sweep (`return_parent` on every `.mppm-fac-course`) that this was the ONLY card with the bug.
+- **External-link / new-tab standing rule enforced** (site-wide rule: external links open a new tab, internal links stay in the same window): the 3 Student Testimonial LinkedIn profile links and both WebinarJam registration links (hero secondary button + the "View an Info Session" Ready-to-Launch link) were missing `open_in_new_tab` — fixed via `data_element_settings_tool` (`key:"link"`, `static_link.open_in_new_tab:true`), the correct native path (not a raw `target` attribute hack). **Still outstanding, not yet fixed:** the top UMD-bar's `eng.umd.edu` link (`if-umdbar-a2`) is also missing this — it lives inside a shared chrome component, not found by a plain class-filtered query, and needs the same `scope_component_id` technique as the Main Nav above before it can be touched.
+- **Testimonial name underline color:** `.mppm-test-name` had `text-decoration:underline` with no color (defaulting to the text's own near-black), where the layout guide calls for gold (`#FFD200`). Fixed by adding the separate longhand `text-decoration-color:#ffd200` alongside the existing `text-decoration:underline` (HARD RULE #4 — `text-decoration` alone is one of the few shorthand properties that's fine bundled, but a decoration COLOR needs its own explicit longhand, which Webflow doesn't bundle automatically).
+- **Font floor:** `.mppm-fac-more` ("More Info ››") was at 13px, under the site's 16px minimum — raised to 16px. A fuller page-wide font-size sweep (beyond this one already-found instance) was started but not completed this session — still outstanding for a future pass.
+
+Status: all of the above verified live via fresh fetch/Playwright measurement, not assumed. The Academics page and the other 9 pages in the slug map above remain unbuilt — next MPPM work is either that page-build work, the still-open eng.umd.edu target-blank fix, or the remaining font-size sweep, whichever the user directs next.
