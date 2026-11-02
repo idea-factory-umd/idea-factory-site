@@ -1821,6 +1821,30 @@ try {
 })();
 } catch (_e) { try { console && console.warn && console.warn('[idea-factory] dd-toggle-navlink error:', _e); } catch (_) {} }
 
+/* ===== module: mppm-dd-toggle-navlink (MPPM-only duplicate of dd-toggle-navlink above) =====
+   Per the sub-site code segregation rule (CLAUDE.md HARD RULE #17: new work is scoped per
+   sub-site, duplicated rather than shared, even though MPPM still lives in this same physical
+   file pre-spinoff), this is a standalone copy of the dd-toggle-navlink fix above, keyed to
+   MPPM's own forked toggle class (.mppm-ddtoggle) instead of the shared .if-ddtoggle - so it
+   only ever touches MPPM's "ADMISSIONS" nav dropdown and nothing else sitewide. Same mechanism,
+   same reasoning, same non-destructive click passthrough (no preventDefault/stopPropagation). */
+try {
+(function(){
+  function init(){
+    var links=document.querySelectorAll('.mppm-ddtoggle .if-navlink-text[href]');
+    links.forEach(function(a){
+      if(a.__mppmddnav)return;
+      a.__mppmddnav=true;
+      a.addEventListener('click',function(){
+        var href=a.getAttribute('href');
+        if(href)window.location.href=href;
+      });
+    });
+  }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+} catch (_e) { try { console && console.warn && console.warn('[idea-factory] mppm-dd-toggle-navlink error:', _e); } catch (_) {} }
+
 /* ===== module: navlink-goto-spy (current-section marker for any flat nav bar using
    "#goto:<id>" anchors) =====
    Some sites' nav bars (CBSCF's main .if-navmenu AND its separate bottom "jump back" bar,
