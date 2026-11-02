@@ -5541,3 +5541,50 @@ Learn More
 - All 9 faculty cards retagged `div`→`article` for semantic markup (`data_element_settings_tool.set_tag`), re-queried to confirm the tag landed on every one.
 
 **Final state:** published and live at `/mppm-academics` on the webflow.io subdomain; all 46 text-bug instances fixed and re-verified; zero known overflow in the practical range; full interactive behavior (open/close, expand/collapse-all, bio toggles, hash deep-links) verified as a real multi-step sequence, not just isolated fresh-load clicks.
+
+## §302. MPPM tab-page transition spec — SAVED VERBATIM for 4 pages not yet built (user-supplied, 2026-11-02; same "retain it now, don't lose it to a context reset" discipline as §300's typography lists)
+
+**Why this entry exists:** the user supplied this spec in advance, explicitly for later use, with an explicit instruction not to lose it ("PLEASE SAVE THIS INFO FOR WHEN IT BECOMES RELEVANT--don't 'forget' it later"). None of these 4 pages have been built yet — they are currently header/footer-only placeholders (see §301). **Before building the tab feature on ANY of these 4 pages, read this entry first and implement exactly this spec** — do not improvise a different tab-transition mechanism, and do not re-derive it from the already-built Academics-page accordion (a different feature, different spec, see §301/HARD RULE for the accordion's own grid-template-rows mechanism — the two are not interchangeable).
+
+**Applies to, identically on all four:** `/mppm-academic-policies`, `/mppm-online-learning`, `/mppm-tuition-financial-aid`, `/mppm-graduation-commencement`.
+
+**What happens when a tab is clicked:**
+1. The clicked tab button changes color immediately (transition below).
+2. The current panel's left-column content fades OUT: opacity 1 → 0, 160ms, ease.
+3. At 160ms the content is swapped for the new tab's content (while invisible).
+4. The new content fades IN: opacity 0 → 1, 320ms, ease (starts on the next frame).
+5. Throughout, the panel's height glides from the old content height to the new: height, 420ms, cubic-bezier(0.22, 1, 0.36, 1).
+
+NO vertical movement (no translate / slide) on the content — opacity only. The right-column "Apply Now" box does not fade; it stays as is. Total transition time: about 0.5s.
+
+**Tab buttons:** `transition: background 240ms ease, color 240ms ease, box-shadow 240ms ease;` (per HARD RULE #4, write as separate longhand `transition-property`/`transition-duration`/`transition-timing-function`/`transition-delay` fields, comma-aligned by property — never a bundled `transition` shorthand). Colors themselves are unchanged from whatever the existing build uses.
+
+**Structure:**
+```
+<div class="tab-height">            ← height animator
+  <div class="tab-measure">         ← measured element
+    <div role="tabpanel" …>         ← existing white panel (padding, shadow, 2 columns)
+      <div class="tab-content">     ← left column: fades
+        …tab text…
+      </div>
+      <aside>…Apply Now box…</aside>
+    </div>
+  </div>
+</div>
+```
+
+**`.tab-height`:** `overflow: hidden;` `height:` (measured height of `.tab-measure`) + 20px — set in px by script; `"auto"` before the first measurement. `margin: 0 -10px -20px; padding: 0 10px;` (the extra 10px each side and 20px below keep the panel's drop shadow from being clipped; the negative margins cancel the extra space so the layout doesn't move). `transition: height 420ms cubic-bezier(0.22, 1, 0.36, 1);` (longhand per HARD RULE #4).
+
+**`.tab-measure`:** `padding-bottom: 20px;` Watched with a `ResizeObserver`; every size change updates `.tab-height`'s height.
+
+**`.tab-content`:** visible → `opacity: 1; transition: opacity 320ms ease;`. fading → `opacity: 0; transition: opacity 160ms ease;` (the transition value differs by state — same "put the opening/closing transition on its own end-state" technique already used for the Academics-page accordion in §301, not a contradiction, a deliberate reuse of the same CSS trick).
+
+**Logic:**
+- Keep two values: the *selected* tab (drives the tab buttons and the URL hash) and the *displayed* tab (drives the panel content).
+- On selection change: set content to fading; after 160ms set displayed = selected, then on the second animation frame set content to visible.
+- If the user clicks back to the tab still displayed before the 160ms ends: cancel the pending timer/frames and set content to visible immediately (otherwise the content can be left invisible).
+- Clicking quickly across several tabs: each click cancels the previous pending swap; the last clicked tab ends up shown and visible.
+- `prefers-reduced-motion: reduce` → swap content instantly, no fade (height may still update).
+- Unchanged: the URL hash updates on each click (`#tab-id`), and loading or changing the hash selects that tab.
+
+**Implementation notes for whoever builds this (none of this is in the user's spec verbatim, it's this entry's own build guidance):** the height-measurement + ResizeObserver + swap-timing logic is non-native JS/CSS and belongs in a page-scoped HTML Embed per HARD RULE #1 (same category as the Academics-page accordion embed) — build the native look (panel, columns, Apply Now box, tab button colors) entirely in the Designer first, then add ONLY the height-animator/fade/measure mechanics as embed code on top, exactly like §301's accordion build. All 4 pages get their OWN forked classes/embed per HARD RULE #10/#11 (page-scoped `<page>-tab-…` naming, e.g. `mppm-acadpol-tab-…` for Academic Policies) — never a shared `tab-height`/`tab-content` class reused verbatim across the 4 pages, even though the mechanism is identical on all four.
