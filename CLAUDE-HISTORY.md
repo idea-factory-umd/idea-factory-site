@@ -5588,3 +5588,172 @@ NO vertical movement (no translate / slide) on the content — opacity only. The
 - Unchanged: the URL hash updates on each click (`#tab-id`), and loading or changing the hash selects that tab.
 
 **Implementation notes for whoever builds this (none of this is in the user's spec verbatim, it's this entry's own build guidance):** the height-measurement + ResizeObserver + swap-timing logic is non-native JS/CSS and belongs in a page-scoped HTML Embed per HARD RULE #1 (same category as the Academics-page accordion embed) — build the native look (panel, columns, Apply Now box, tab button colors) entirely in the Designer first, then add ONLY the height-animator/fade/measure mechanics as embed code on top, exactly like §301's accordion build. All 4 pages get their OWN forked classes/embed per HARD RULE #10/#11 (page-scoped `<page>-tab-…` naming, e.g. `mppm-acadpol-tab-…` for Academic Policies) — never a shared `tab-height`/`tab-content` class reused verbatim across the 4 pages, even though the mechanism is identical on all four.
+
+## §303. MPPM Application Requirements page — FULL BUILD SPEC, SAVED VERBATIM before building (user-supplied, 2026-11-02, "retain all this, so nothing gets lost")
+
+**Page:** `/mppm-application-requirements`, pageId `6ae61e92f105094f5b35f004` (already exists as a header/footer-only placeholder per §301). **Layout guide PDF:** `https://www.dropbox.com/scl/fi/5vdaopo88zovctj4r8ais/MPPM-Application-Requirements-layout-guide.pdf?rlkey=xlvdy4mcvfj9exlqybnlw4c1g&st=voeyykgx&dl=0`. **The text spec below is authoritative ("this is correct and should be adhered to") — the PDF is the visual reference, read it too per HARD RULE #6, but this text spec governs every value.**
+
+**Nav wiring required alongside the page build (per the user's separate clarification, same session):** this page is the link target from BOTH (a) the "Application Requirements" item inside the Admissions dropdown, AND (b) the Admissions dropdown's own top-level label/trigger itself (clicking "Admissions" directly, not just opening the dropdown, must also land on this page). Confirmed locations in the **"Main Nav — MPPM" component** (componentId `293803d4-d6a3-d8ce-d12b-dbb3cb50da64`, group "ASPIRE" — duplicated from ASPIRE's nav during MPPM construction): the "ADMISSIONS" label String is element `3fdbb8e4-c180-72ea-eeb8-98709df590ec`; the "Application Requirements" dropdown-item String is element `3fdbb8e4-c180-72ea-eeb8-98709df590ef`. Both need their containing Link elements found (walk up via `return_parent`) and `set_link` to this page, each.
+
+**Verbatim spec follows — every value below is for desktop (1440px). Where a value is a `clamp()`, the desktop result is shown in `[brackets]`. Anything not listed uses the browser/default value.**
+
+```
+=====================================================================
+0. TOKENS USED ON THIS PAGE
+=====================================================================
+Fonts
+  Interstate (sans)  = headings, labels, button, deadline text
+  Georgia (serif)    = body paragraphs (white grounds only)
+Colors
+  Red        #E21833      Red hover  #C2142B      Red pressed  #A40F23
+  Gold       #FFD200      Black      #000000      White        #FFFFFF
+  Grey 100   #F4F4F4      Text body  #222222      Text muted   #454545
+Layout
+  Content container: max-width 1240px, centered, side padding 24px (content width 1192px).
+
+Page order (top to bottom):
+  1. Hero (black)
+  2. "What You'll Need" section (white) — two columns: requirements | "What to Expect" box
+  3. "Deadlines" section (grey)           id="deadlines"
+Nothing follows Deadlines except the site footer. No tabs, no accordions, no images on this page.
+
+=====================================================================
+1. HERO
+=====================================================================
+Section: background Black, full width.
+Inner container: 1240px max; padding clamp(40px, 5vw, 72px) [72px] top and bottom, 24px sides.
+
+Eyebrow: "Master of Professional Studies in Product Management"
+  display block; Interstate 700; 16px; ALL CAPS; letter-spacing 0.14em; color Gold.
+Title (h1): "Ready to Apply?"
+  Interstate 800; clamp(32px, 4vw, 56px) [56px]; line-height 1.0; letter-spacing -0.02em;
+  color White; margin-top 12px; max-width 18ch.
+Lead paragraph (verbatim):
+  "Applying to the Master's in Product Management is fast and easy, and it's the first step toward
+  advancing your career as a product leader. Whether you're already in tech or switching careers,
+  we're looking for driven professionals ready to lead the future of product."
+  Interstate 500 (sans — not Georgia, because the ground is black); clamp(16px, 1.4vw, 18.5px) [18.5px];
+  line-height 1.6; color rgba(255,255,255,0.92); margin-top 20px; max-width 62ch.
+No buttons, no image.
+
+=====================================================================
+2. SHARED TEXT STYLES (sections 3 and 4)
+=====================================================================
+Section heading (h2) — used for "What You'll Need", "What to Expect", "Deadlines":
+  Interstate 800; clamp(26px, 2.8vw, 38px) [38px]; line-height 1.02; letter-spacing -0.02em;
+  color Black; margin 0 0 clamp(16px, 1.8vw, 22px) [22px].
+Body paragraph:
+  Georgia; clamp(16px, 1.3vw, 17.5px) [17.5px]; line-height 1.7; color #222222; margin 0.
+
+=====================================================================
+3. "WHAT YOU'LL NEED" SECTION
+=====================================================================
+Section: background White.
+Inner container: 1240px max; padding clamp(56px, 7vw, 100px) [100px] top and bottom, 24px sides.
+Layout: CSS grid, two columns: minmax(0, 7fr) | minmax(0, 5fr);
+  column gap clamp(36px, 5vw, 80px) [72px]; align-items start.
+  The right box is NOT sticky.
+  At <=900px the columns stack (left column first, box below).
+
+---- 3A. LEFT COLUMN ----
+(1) h2 "What You'll Need"
+(2) Body paragraph (verbatim):
+    "Most applicants complete the application in under 30 minutes. You'll submit a statement of
+    purpose, your resume, and a transcript. We don't require the GRE, GMAT, or recommendations. For
+    some international applicants, an English language proficiency test such as the TOEFL may be
+    required."
+(3) Lead line: To get started in the application, for "Educational Intent" select the following:
+    Body paragraph style but weight 700 and color Black; margin-top clamp(26px, 3vw, 36px) [36px].
+(4) Selection table (<dl>): margin-top 14px; flex column; gap 3px between rows.
+    4 rows. Each row: grid, two columns minmax(0, 5fr) | minmax(0, 7fr); row background Grey 100.
+    Label cell (<dt>): Interstate 700; 15px; ALL CAPS; letter-spacing 0.06em; color Black;
+      padding 14px 18px; sits on the Grey 100 row background.
+    Value cell (<dd>): margin 0; Interstate 700; clamp(16px, 1.4vw, 18px) [18px]; line-height 1.35;
+      color Red; padding 14px 18px; background White; border 0.5px solid rgba(0,0,0,0.14).
+    Rows (label → value), in this order:
+      APPLICATION TYPE            → Degree
+      LEVEL OF STUDY              → Master's
+      INTENDED PROGRAM OF STUDY   → Product Management (Online) (MPCI) M.P.S.
+      TERM OF ENTRANCE            → Select Intended Semester and Year
+    At <=600px each row stacks (label above value, both full width).
+
+---- 3B. RIGHT COLUMN: "WHAT TO EXPECT" BOX ----
+Box: background White; border 0.5px solid rgba(0,0,0,0.18); border-radius 4px;
+  box-shadow 0 8px 24px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+  padding clamp(26px, 3vw, 40px) [40px] all sides.
+(1) h2 "What to Expect"
+(2) Body paragraph (verbatim):
+    "We review applications on a rolling basis and typically make admissions decisions within 30
+    days. Our team is here to support you at every step."
+(3) Button "APPLY NOW ››", margin-top clamp(24px, 2.6vw, 32px) [32px], left-aligned, natural width.
+    Link: https://terpengage.umd.edu/community/CustomLoginPage?GradApp=True (opens in a new tab).
+    Button style (primary, large):
+      display inline-flex; align-items center; justify-content center; gap 10px between
+      "APPLY NOW" and "››";
+      Interstate 700; 17px; ALL CAPS; letter-spacing 0.01em; line-height 1; no wrap;
+      padding 17px 34px; border 2px solid Red; border-radius 4px; background Red; color White;
+      no underline.
+      Hover: background and border #C2142B.
+      Pressed: background and border #A40F23; transform translateY(1px).
+      transition: background, color, border-color and transform, each 140ms
+        cubic-bezier(0.4, 0, 0.2, 1).
+
+=====================================================================
+4. "DEADLINES" SECTION   (id="deadlines")
+=====================================================================
+Section: background Grey 100 (#F4F4F4).
+Inner container: 1240px max; padding clamp(56px, 7vw, 100px) [100px] top and bottom, 24px sides.
+(1) h2 "Deadlines"
+(2) Deadline panel: CSS grid, two columns minmax(0, 5fr) | minmax(0, 7fr); NO gap (halves touch);
+    align-items stretch (both halves the same height); box-shadow 0 2px 8px rgba(0,0,0,0.06);
+    no border, no radius. At <=900px the halves stack (gold half on top).
+
+---- 4A. LEFT HALF (gold) ----
+  background Gold; padding clamp(28px, 3.2vw, 44px) [44px] all sides;
+  flex column; content vertically centered; gap 10px between lines.
+  Line 1: "SPRING 2027" — Interstate 700; 16px; ALL CAPS; letter-spacing 0.08em; color Black; margin 0.
+  Line 2: "Early Priority Application Deadline: October 16"
+    Interstate 800; clamp(22px, 2.2vw, 30px) [30px]; line-height 1.15; letter-spacing -0.01em;
+    color Black; margin 0.
+  Line 3: "$1,000 scholarship & application fee waived*"
+    Interstate 700; clamp(17px, 1.5vw, 20px) [20px]; line-height 1.3; color Black; margin 0.
+
+---- 4B. RIGHT HALF (white) ----
+  background White; padding clamp(28px, 3.2vw, 44px) [44px] all sides;
+  flex column; content vertically centered; gap 16px between lines.
+  Line 1: "Program Start: January 27, 2027"
+    Interstate 800; clamp(18px, 1.6vw, 21px) [21px]; color Black; margin 0.
+  Line 2: footnote, starting with "* " (verbatim):
+    "* Applicants must wait to submit their application until the department has reviewed their
+    eligibility for an application fee waiver. Fee waivers are available to qualified applicants with
+    demonstrated professional experience and a bachelor's degree with a cumulative undergraduate GPA
+    of 2.8 or higher on a 4.0 scale. Application fee waivers are intended to reduce barriers to
+    applying and do not affect the rigor of the admissions process. International applicants must
+    meet the minimum English language proficiency requirements, demonstrated by TOEFL or IELTS scores
+    if their prior degree was earned in a non-English-speaking country. The tuition is approximate
+    and may change in the future."
+    Georgia; 15px; line-height 1.7; color #454545; margin 0.
+
+=====================================================================
+5. LINKS ON THIS PAGE (body only)
+=====================================================================
+  APPLY NOW ›› (What to Expect box) → https://terpengage.umd.edu/community/CustomLoginPage?GradApp=True
+                                      (new tab)
+  No other links in the page body.
+
+=====================================================================
+6. ANIMATION / INTERACTION
+=====================================================================
+  Only the Apply Now button animates: hover and pressed colors, 140ms cubic-bezier(0.4, 0, 0.2, 1);
+  pressed also moves the button down 1px. Nothing else on this page moves or changes state.
+
+=====================================================================
+7. RESPONSIVE BREAKPOINTS (this page only)
+=====================================================================
+  <=900px : "What You'll Need" columns stack (requirements first, What to Expect box below);
+            Deadline panel halves stack (gold above white).
+  <=600px : each selection-table row stacks (label above value).
+  All clamp() values scale between their min and max automatically.
+```
+
+**Build guidance (this entry's own notes, not verbatim from the user):** page-scoped classes per HARD RULE #10/#11, prefix `mppm-apprq-` (or similar — pick once, reuse consistently for every class on this page). The 4-row `<dl>` selection table and its 2-column `dt`/`dd` grid rows, the 2-column "What You'll Need" grid, and the 2-column "Deadlines" grid are all genuinely 2D placements — legitimate native CSS Grid use per HARD RULE #12 (not gratuitous). The Apply Now button's hover/pressed states are native Designer `:hover`/`:active` pseudo-states (element-self, no parent-hover-child needed) — build natively, not in an embed. `<=900px` → native `medium` breakpoint (≤991, nearest, errs earlier/conservative per HARD RULE #2); `<=600px` → native `small` breakpoint (≤767, nearest). No DOM/custom-tag elements needed anywhere on this page (per HARD RULE #23) — the `<dl>`/`<dt>`/`<dd>` semantic tags can be achieved via `set_tag` on ordinary native Block/Container elements if Webflow's tag options permit `dl`/`dt`/`dd` on Block type, otherwise plain native Blocks styled identically are an acceptable substitute (semantic list tags are a nice-to-have, not in the spec's actual content/behavior requirements).
