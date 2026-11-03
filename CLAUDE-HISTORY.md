@@ -5843,3 +5843,172 @@ User spotted a second gratuitous-grid instance independently, on a different pag
 **User then gave the standing reasoning for HARD RULE #12a that had never been written down before, now folded into CLAUDE.md directly:** (1) a grid container is measurably harder to edit afterward in the Designer — adding/removing/reordering pieces inside it is more friction than the Flexbox equivalent; (2) the Designer's own Navigator view visually misrepresents a grid's real spacing, rendering phantom extra rows/columns/gap lines that make something look like it has more margin than it actually has. Both apply regardless of whether the grid renders correctly — "it already works and looks right" is explicitly not a defense for leaving a gratuitous grid in place once found; convert on discovery, same as any other HARD RULE violation.
 
 **Follow-up, same day: the 3 Application Requirements grids converted too.** `need-inner` (7fr/5fr), `wyn-row` (5fr/7fr, shared by all 4 table rows), `dline-panel` (5fr/7fr) all converted to `display:flex` + `flex-grow`/`flex-shrink:1`/`flex-basis:0%` on their children, preserving exact ratios. Responsive stacking preserved by replacing each breakpoint's `grid-template-columns:1fr` override with `flex-direction:column` (medium for need-inner/dline-panel, small for wyn-row) — `need-inner` additionally needed an explicit `align-items:stretch` override at its stacking breakpoint, since it had explicitly set `align-items:start` at base (controls cross-axis alignment, which flips meaning between row and column flex-direction) — `wyn-row`/`dline-panel` didn't need this, since neither overrode the stretch default. Added `min-width:0` to all 6 child classes defensively (HARD RULE #2's narrow-flex-child requirement). Verified live via Playwright across 10 widths (320–1600px): zero horizontal overflow at every width, correct single-column full-width stacking below each breakpoint, correct proportional split above each, zero JS errors. Published.
+
+## §308. MPPM "Calendars & Deadlines" page (`/mppm-calendars-deadlines`) — FULL BUILD SPEC, saved verbatim before building (2026-11-03)
+
+User-supplied layout-guide PDF: `MPPM-Calendars-Deadlines-layout-guide.pdf` (Dropbox link given in chat). Page already exists as an empty placeholder: pageId `6ae61e93975a08ca961f2974`, slug `mppm-calendars-deadlines`, title "MPPM-Calendars-Deadlines" — confirmed via `list_pages` earlier the same session. Spec below is the user's own text, reproduced verbatim, "this is correct and should be adhered to":
+
+```
+MPPM — CALENDARS & DEADLINES PAGE (/mppm-calendars-deadlines) — BUILD SPEC
+Scope: hero through the end of the page body. Site header and footer are NOT part of this spec.
+All values are for desktop (1440px viewport). Where a value is a clamp(), the desktop result is
+shown in [brackets]. Anything not listed uses the browser/default value.
+
+=====================================================================
+0. TOKENS USED ON THIS PAGE
+=====================================================================
+Fonts
+  Interstate (sans)  = headings, labels, table text, links, button
+  Georgia (serif)    = the one body sentence in the bottom panel (white ground)
+Colors
+  Red        #E21833      Gold       #FFD200      Black   #000000      White   #FFFFFF
+  Grey 100   #F4F4F4      Grey 200   #E6E6E6      Text body #222222    Text muted #454545
+  Button hover (dark button) #1F1F1F
+Layout
+  Content container: max-width 1240px, centered, side padding 24px (content width 1192px).
+
+Page order (top to bottom):
+  1. Hero (black)
+  2. Calendars section (white): "Registration Begins" table, then "Academic & Financial Calendars" table
+  3. "Applications are now open!" section (grey)
+Nothing follows section 3 except the site footer. No tabs, no accordions, no images on this page.
+
+=====================================================================
+1. HERO
+=====================================================================
+Section: background Black, full width.
+Inner container: 1240px max; padding clamp(40px, 5vw, 72px) [72px] top and bottom, 24px sides.
+Eyebrow: "Master of Professional Studies in Product Management"
+  display block; Interstate 700; 16px; ALL CAPS; letter-spacing 0.14em; color Gold.
+Title (h1): "Calendars & Deadlines"
+  Interstate 800; clamp(32px, 4vw, 56px) [56px]; line-height 1.0; letter-spacing -0.02em;
+  color White; margin-top 12px; max-width 18ch.
+No paragraph, no buttons, no image.
+
+=====================================================================
+2. SHARED STYLES (section 3)
+=====================================================================
+Section heading (h2):
+  Interstate 800; clamp(26px, 2.8vw, 38px) [38px]; line-height 1.02; letter-spacing -0.02em;
+  color Black; margin-bottom clamp(20px, 2.4vw, 28px) [28px].
+Table label text (term headers and left-column labels):
+  Interstate 800; 15px; ALL CAPS; letter-spacing 0.06em; color Black.
+Table frame (both tables, identical):
+  background White; border 0.5px solid rgba(0,0,0,0.32); padding 3px (white frame inside the
+  border); cells separated by 3px gaps (the white frame shows through);
+  box-shadow 0 8px 24px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06); no radius.
+Value cell (both tables): background White; border 0.5px solid rgba(0,0,0,0.14).
+
+=====================================================================
+3. CALENDARS SECTION (white)
+=====================================================================
+Section: background White.
+Inner container: 1240px max; padding clamp(56px, 7vw, 100px) [100px] top and bottom, 24px sides.
+
+---- 3A. "REGISTRATION BEGINS" TABLE ----
+(1) h2 "Registration Begins" (spec 2).
+(2) Table: CSS grid, 3 equal columns (repeat(3, minmax(0,1fr))), 2 rows, gap 3px; frame per spec 2.
+    Row 1, header cells: background Grey 200 (#E6E6E6); padding 16px 18px; label text style;
+      content centered horizontally and vertically.
+      FALL TERM | SPRING TERM | SUMMER TERM
+    Row 2, value cells: value-cell style; padding 18px; flex column; centered; text-align center.
+      Interstate 700; clamp(17px, 1.5vw, 19px) [19px]; line-height 1.3; color Red.
+      4th Thursday in March | 4th Thursday in October | 4th Tuesday in February
+    (Column widths are exactly 1/3 each; this aligns with the 1/3 label column of table 3B.)
+    At <=760px: table becomes 1 column; header row is hidden; each value cell instead shows its
+      term name above the value (Interstate 800, 13px, ALL CAPS, letter-spacing 0.06em,
+      color #454545; gap 4px).
+
+---- 3B. "ACADEMIC & FINANCIAL CALENDARS" TABLE ----
+(1) h2 "Academic & Financial Calendars", with margin-top clamp(64px, 6.5vw, 96px) [94px]
+    (space between table 3A and this heading).
+(2) Table (<dl>): flex column; gap 3px between rows; frame per spec 2.
+    4 rows. Each row: grid, 3 equal columns, gap 3px; row background Grey 200 (#E6E6E6).
+      Label cell (<dt>): column 1 (1/3); padding 16px 18px; label text style; vertically centered.
+      Link cell (<dd>): spans columns 2–3 (2/3); margin 0; padding 16px 18px; value-cell style.
+        Link: Interstate 700; clamp(16px, 1.4vw, 18px) [18px]; line-height 1.35; color Red;
+        NO underline (also on hover); long URLs wrap anywhere; text followed by a space and "››"
+        (same color/size); opens in a new tab.
+    Rows (label → link text → URL), in this order:
+      ACADEMIC CALENDAR
+        → www.provost.umd.edu/calendar ››
+        → https://www.provost.umd.edu/calendar/
+      PAYMENT DEADLINES
+        → Program specific payment information ››
+        → https://oes.umd.edu/professionals-post-baccalaureates/professional-graduate-programs/payment-aid
+      POLICY DEADLINES (DROP, CANCEL, WITHDRAW)
+        → www.registrar.umd.edu/calendars ››
+        → http://www.registrar.umd.edu/deadlines12week.html
+      GRADUATION DEADLINES
+        → www.gradschool.umd.edu/calendar/deadlines/academic-deadlines ››
+        → https://www.gradschool.umd.edu/calendar/deadlines/academic-deadlines
+    At <=600px each row stacks (label above link, both full width).
+
+=====================================================================
+4. "APPLICATIONS ARE NOW OPEN!" SECTION (grey)
+=====================================================================
+Section: background Grey 100 (#F4F4F4).
+Inner container: 1240px max; padding clamp(56px, 7vw, 100px) [100px] top and bottom, 24px sides.
+Panel: CSS grid, 2 columns minmax(0, 5fr) | minmax(0, 7fr); NO gap (halves touch);
+  align-items stretch (equal heights); box-shadow 0 2px 8px rgba(0,0,0,0.06); no border, no radius.
+  At <=900px the halves stack (gold above white).
+
+---- 4A. LEFT HALF (gold) ----
+  background Gold; padding clamp(28px, 3.2vw, 44px) [44px]; flex; content vertically centered.
+  Text: "Applications are now open!"
+    Interstate 800; clamp(26px, 2.8vw, 38px) [38px]; line-height 1.1; letter-spacing -0.015em;
+    color Black; margin 0.
+
+---- 4B. RIGHT HALF (white) ----
+  background White; padding clamp(28px, 3.2vw, 44px) [44px]; flex column; content vertically
+  centered; left-aligned; gap clamp(20px, 2.2vw, 26px) [26px] between sentence and button.
+  Sentence: "Request more information below."
+    Georgia; clamp(17px, 1.5vw, 20px) [20px]; line-height 1.6; color #222222; margin 0.
+  Button: "LEARN MORE ››" → links to the MPPM homepage Learn More form: /mppm#learn-more (same tab).
+    Natural width (not full width).
+    display inline-flex; align-items center; gap 10px between "LEARN MORE" and "››";
+    Interstate 700; 17px; ALL CAPS; letter-spacing 0.01em; line-height 1; no wrap;
+    padding 17px 34px; border 2px solid Black; border-radius 4px; background Black; color White;
+    no underline.
+    Hover: background and border #1F1F1F.
+    Pressed: transform translateY(1px).
+    transition: background, color, border-color and transform, each 140ms
+      cubic-bezier(0.4, 0, 0.2, 1).
+
+=====================================================================
+5. LINKS ON THIS PAGE (body only)
+=====================================================================
+  www.provost.umd.edu/calendar ››            → https://www.provost.umd.edu/calendar/ (new tab)
+  Program specific payment information ››    → https://oes.umd.edu/professionals-post-baccalaureates/professional-graduate-programs/payment-aid (new tab)
+  www.registrar.umd.edu/calendars ››         → http://www.registrar.umd.edu/deadlines12week.html (new tab)
+  www.gradschool.umd.edu/calendar/deadlines/academic-deadlines ››
+                                              → https://www.gradschool.umd.edu/calendar/deadlines/academic-deadlines (new tab)
+  LEARN MORE ›› (button)                      → /mppm#learn-more (same tab)
+
+=====================================================================
+6. ANIMATION / INTERACTION
+=====================================================================
+  Only the Learn More button animates: hover color and pressed 1px drop, 140ms
+  cubic-bezier(0.4, 0, 0.2, 1). The table links have no hover color change and no underline.
+  Nothing else on this page moves or changes state.
+
+=====================================================================
+7. RESPONSIVE BREAKPOINTS (this page only)
+=====================================================================
+  <=900px : bottom panel halves stack (gold above white).
+  <=760px : Registration Begins table becomes 1 column; header row hidden; term name shown
+            inside each value cell.
+  <=600px : each Academic & Financial Calendars row stacks (label above link).
+  All clamp() values scale between their min and max automatically.
+```
+
+**Build guidance (this entry's own notes, not verbatim from the user), reconciling the spec against every standing rule established so far this session:**
+- **Page-scoped class prefix: `mppm-caldl-` (page token `caldl`, per `CLASS-NAMING-GUIDE.md`), with section tokens `hero`, `tbls` (the Calendars section, holding both tables), `open` (the "Applications are now open" CTA section) — all lowercase, picked once, reused consistently.** Before naming anything, read `CLASS-NAMING-GUIDE.md` in full.
+- **⛔ NO `border-radius` anywhere, including the Learn More button, despite the spec literally saying `border-radius 4px`.** Per the standing MPPM rule (CLAUDE.md §0 STATUS), silently drop that one line — every other button value in the spec stays exactly as written.
+- **⛔ NO `display:grid` anywhere, despite the spec's own wording calling both tables and the bottom panel "grid."** Per HARD RULE #12a (as clarified 2026-11-03): a spec saying "grid" describes the visual arrangement, not a mandate to use CSS `display:grid`. Build every one of these — the 3-column Registration Begins table, the 3-column (1-label + 2-spanning-link) Academic & Financial Calendars rows, and the 2-column Applications-are-open panel — in Flexbox, matching the exact proportions, gaps, and responsive stacking the spec describes. None of these need genuine 2D placement.
+- **The "label cell spans column 1 (1/3), link cell spans columns 2–3 (2/3)" wording in 3B is just a 2-column 1:2 ratio, not literal grid-column spanning** — build it as a 2-child flex row with `flex-grow:1`/`flex-grow:2` (or `5`/`7` to exactly match 3A and the CTA panel's shared 1240px proportions if the user intends that alignment — re-derive from the stated "this aligns with the 1/3 label column of table 3B" line: table 3A's 3 equal thirds and 3B's label column should visually line up, meaning 3B's label column really is exactly 1/3 and its link column really is exactly 2/3 — use `flex-grow:1` / `flex-grow:2`, not 5/7).
+- **Table label text at 15px (table headers, left-column labels) is UI/label chrome (ALL CAPS, letter-spaced), not body prose** — consistent with the already-shipped, unflagged precedent on the Application Requirements page's own `wyn-dt` label class (also 15px ALL CAPS) — do not "fix" this to 16px; it's correct as spec'd.
+- **Semantic `<dl>`/`<dt>`/`<dd>` tags for table 3B**: use native elements with `set_tag`, matching the established Application Requirements pattern (`mppm-apprq-wyn-dl`/`-dt`/`-dd`) — never `type:"DOM"` (HARD RULE #23).
+- **Nav wiring, mandatory, not optional:** the "Calendars & Deadlines" item in the Admissions dropdown (element `9b29bf03-6b23-baa6-2e54-364088c32d0a`, inside "Main Nav — MPPM" component `293803d4-d6a3-d8ce-d12b-dbb3cb50da64`) currently points to the PLACEHOLDER url `/mppm-application-requirements#deadlines` (set earlier the same day, §305, before this page existed). **Once this page is live, re-point that link to the real page** (`linkType:"page"`, pageId `6ae61e93975a08ca961f2974`) — re-verify via `set_link` + re-query, the same way every other MPPM nav link was fixed today.
+- **Learn More button target `/mppm#learn-more`**: confirm the MPPM homepage (`6ae12919b1185f38e861155f`) actually has a `domId="learn-more"` element to land on before shipping this link — if it doesn't exist yet, flag it rather than ship a dead anchor.
+- **Font floor, longhand-only styles (HARD RULE #4), native elements only (HARD RULE #23), Flexbox-only (HARD RULE #12a), zero border-radius (MPPM standing rule), class naming (CLASS-NAMING-GUIDE.md), and the full verification checklist (live HTML/CSS fetch, Playwright across the full practical width range, zero overflow, Designer-canvas snapshot where possible) all apply exactly as they did on the Application Requirements build — see CLAUDE-HISTORY.md §303/§304 for the reference execution of an equivalent page build under the same rules.**
