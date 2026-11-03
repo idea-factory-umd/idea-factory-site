@@ -6038,3 +6038,391 @@ Panel: CSS grid, 2 columns minmax(0, 5fr) | minmax(0, 7fr); NO gap (halves touch
 **THE RULE, going forward:** fluid `clamp()` font-sizing is reserved for genuinely large, prominent, featured elements only (a page's own hero headline, a big standalone stat number — the kind of singular, dominant element the Premise-callout/hero-type precedent in the DESIGN PRINCIPLES bullet above was always really about). **Everything else — section headings, labels, table/body text, links, buttons, any plain sentence anywhere on the page — gets a fixed `font-size`, changed (if it needs to change at all) via Webflow's native `main`/`medium`/`small`/`tiny` breakpoint overrides, never a continuous `vw`-based clamp.** CLAUDE.md's own "Responsive by default" DESIGN PRINCIPLES bullet (§3) has been corrected in place to say this — it previously said the opposite ("prefer a fluid clamp... a fixed-px font-size is a RED FLAG"), which is now superseded.
 
 **Scope, explicit (user corrected a first, too-broad attempt at this task):** this is a **going-forward** rule, **not retroactive** — when first given this instruction, every non-hero clamp on the Calendars & Deadlines page was proposed for conversion in one batch; the user stopped this immediately: *"Don't retroactively change things that are already done unless asked to do so. Change THIS--the specific item I asked you about. Change the guideline if you want."* **Only the one flagged element** (`mppm-caldl-open-sentence`) was converted — to fixed `font-size`: `20px` (main/≥992), `19px` (medium/≤991), `18px` (small/≤767), `17px` (tiny/≤479), matching the original clamp's own floor/ceiling as the endpoints. Every other clamp already shipped on this page (both section h2's, the Registration Begins value text, the Academic & Financial Calendars link text, the "Applications are now open!" statement) was left exactly as built — **do not go back and convert those, or any other already-shipped page's clamps, without being specifically asked.** Published and re-verified live (re-checked at 8 widths including the exact breakpoint boundaries 991/992, 767, 479/480 — confirmed stepped correctly at 20/19/18/17px, zero fluid scaling remaining on this one element).
+
+## §311. MPPM "Academic Policies" page — FULL BUILD SPEC, saved verbatim before building (user-supplied, 2026-11-03, "retain all this, so nothing gets lost")
+
+**Page:** `/mppm-academic-policies` (one of the 4 tab-based MPPM pages flagged in §302; this is the first of those 4 actually built). **Layout guide PDF:** `https://www.dropbox.com/scl/fi/fhqyf28makxrdzztebvy9/MPPM-Academic-Policies-layout-guide.pdf?rlkey=goy9in2vqnw72oi5iy8sl5hut&st=6kd95b5o&dl=0`. **The text spec below is authoritative — adhere to it exactly.**
+
+```
+MPPM — ACADEMIC POLICIES PAGE (/mppm-academic-policies) — BUILD SPEC
+Scope: hero through the end of the page body. Site header and footer are NOT part of this spec.
+All values are for desktop (1440px viewport). Where a value is a clamp(), the desktop result is
+shown in [brackets]. Anything not listed uses the browser/default value.
+
+=====================================================================
+0. TOKENS USED ON THIS PAGE
+=====================================================================
+Fonts
+  Interstate (sans)  = headings, tabs, term labels, sub-labels, links, buttons, Apply Now box text
+  Georgia (serif)    = body paragraphs (white grounds only)
+Colors
+  Red #E21833   Red hover #C2142B   Red pressed #A40F23   Gold #FFD200   Black #000000   White #FFFFFF
+  Grey 100 #F4F4F4   Text body #222222   Text muted #454545   Dark-button hover #1F1F1F
+Layout
+  Content container: max-width 1240px, centered, side padding 24px (content width 1192px).
+
+Page order (top to bottom):
+  1. Hero (black)
+  2. Policy tabs section (grey): tab bar, then the tab panel (white) with the "Apply Now" box at right
+  3. "Applications are now open!" panel (same grey section background continues)
+Nothing follows section 3 except the site footer. No accordions and no images on this page.
+
+=====================================================================
+1. HERO
+=====================================================================
+Section: background Black, full width.
+Inner container: 1240px max; padding clamp(40px, 5vw, 72px) [72px] top and bottom, 24px sides.
+Eyebrow: "Master of Professional Studies in Product Management"
+  display block; Interstate 700; 16px; ALL CAPS; letter-spacing 0.14em; color Gold.
+Title (h1): "Academic Policies"
+  Interstate 800; clamp(32px, 4vw, 56px) [56px]; line-height 1.0; letter-spacing -0.02em;
+  color White; margin-top 12px; max-width 18ch.
+No paragraph, no buttons, no image.
+
+=====================================================================
+2. SHARED TEXT STYLES (inside the tab panel)
+=====================================================================
+Panel heading (h2): Interstate 800; clamp(26px, 2.8vw, 38px) [38px]; line-height 1.04;
+  letter-spacing -0.02em; color Black; margin-bottom clamp(18px, 2.2vw, 28px) [28px].
+Body paragraph: Georgia; clamp(16px, 1.3vw, 17.5px) [17.5px]; line-height 1.7; color #222222;
+  margin 0; max-width 80ch.
+Term label (h3, left column of term rows; also deadline-card titles):
+  Interstate 800; clamp(17px, 1.5vw, 19px) [19px]; line-height 1.25; color Black; margin 0.
+Sub-label (Appeals tab only): Interstate 700; 15px; ALL CAPS; letter-spacing 0.08em; color Red;
+  margin-bottom 14px.
+Link inside body text: display inline; Interstate 700; same size as the paragraph; color Red;
+  letter-spacing -0.025em; NO underline (also on hover); hover color #C2142B; white-space normal.
+  http(s) links open in a new tab; mailto links open the mail client.
+Term rows (used on Graduate School, Withdrawal, and Appeals > documentation):
+  Each row: grid, two columns minmax(0, 4fr) | minmax(0, 8fr); column gap clamp(16px, 3vw, 48px)
+  [43px]; padding clamp(20px, 2.4vw, 28px) [28px] top and bottom, 0 sides.
+  Rows after the first have border-top 0.5px solid rgba(0,0,0,0.18). First row: no border.
+  Left: term label. Right: one or more body paragraphs, flex column, gap 14px.
+  At <=760px each row stacks (label above paragraphs, gap 8px).
+
+=====================================================================
+3. POLICY TABS SECTION
+=====================================================================
+Section: background Grey 100 (#F4F4F4).
+
+---- 3A. TAB BAR ----
+Container: 1240px max; padding-top clamp(36px, 4vw, 56px) [56px]; 24px sides.
+Tab bar (role="tablist"): grid, 6 equal columns; gap 4px.
+  At <=1000px: 3 columns (2 rows). At <=520px: 2 columns (3 rows).
+Each tab (<button role="tab">): flex, content centered; min-height 60px; padding 14px 16px;
+  border 0; Interstate 800; clamp(14px, 1.15vw, 16px) [16px]; ALL CAPS; letter-spacing 0.04em;
+  line-height 1.15; text centered.
+  NOT selected: background White; color Black; box-shadow 0 2px 8px rgba(0,0,0,0.06).
+  Selected:     background Red;   color White; no shadow.
+  transition: background 240ms ease, color 240ms ease, box-shadow 240ms ease.
+Tabs, left to right: HEALTH · GRADUATE SCHOOL · WITHDRAWAL · APPEALS · ENROLLMENT · UPDATE YOUR INFO
+
+---- 3B. TAB PANEL ----
+Container: 1240px max; padding-top 4px (gap under the tab bar); padding-bottom clamp(56px, 7vw, 96px)
+  [96px]; 24px sides.
+Panel (role="tabpanel"): background White; box-shadow 0 2px 8px rgba(0,0,0,0.06); no border;
+  padding clamp(28px, 4vw, 56px) [56px] all sides;
+  grid, two columns: minmax(0, 1fr) | minmax(260px, 320px) [320px]; gap clamp(28px, 4vw, 56px) [56px];
+  align-items start. At <=1000px the columns stack (tab content, then Apply Now box).
+  Left column: the selected tab's content (section 4).
+  Right column: the Apply Now box (3C) — the same box on every tab.
+
+---- 3C. APPLY NOW BOX (right column of the panel) ----
+  <aside>: background Grey 100; padding clamp(22px, 2.4vw, 30px) [30px]; flex column; gap 16px.
+  NOT sticky.
+  (1) h2 "Apply Now": Interstate 800; clamp(22px, 2vw, 28px) [28px]; line-height 1.05;
+      letter-spacing -0.015em; color Black; margin 0.
+  (2) "Applications Now Open for Spring 2027": Interstate 800; 18px; line-height 1.25; color Red.
+  (3) "Early Priority Application Deadline: October 16 · $1,000 Scholarship & Application Fee Waived*"
+      Interstate 500; 16px; line-height 1.55; color #222222.
+  (4) Button "START YOUR APPLICATION »" (single »), full width of the box, text centered and allowed
+      to wrap; links to /mppm-application-requirements (same tab).
+      Primary, medium: inline-flex; centered; gap 10px; Interstate 700; 16px; ALL CAPS;
+      letter-spacing 0.01em; line-height 1; padding 13px 24px; border 2px solid Red; border-radius 4px;
+      background Red; color White. Hover: background/border #C2142B. Pressed: #A40F23 and
+      translateY(1px). transition background, color, border-color, transform 140ms
+      cubic-bezier(0.4, 0, 0.2, 1).
+
+=====================================================================
+4. TAB CONTENT (left column of the panel; verbatim; [brackets] = link)
+=====================================================================
+Default tab on load: HEALTH, unless the URL hash names another tab.
+Each tab: panel heading (spec 2), then its content.
+
+---- TAB 1: "HEALTH"   (hash #health; panel id "pol-health") ----
+  Panel heading (h2): "Health Requirement"
+  Body paragraph:
+    "All newly admitted students must complete UMD's [Medical History and Immunization Record
+    Form]. Students in fully online programs are exempt from this requirement. Failure to submit
+    the completed health form to the University Health Center before the first day of your first
+    semester at UMD results in a registration block on your student record, preventing you from
+    registering for the upcoming semester. Questions regarding UMD's immunization policy or the
+    immunization form may be directed to the University Health Center at 301-314-8182."
+
+---- TAB 2: "GRADUATE SCHOOL"   (hash #graduate; panel id "pol-graduate") ----
+  Panel heading (h2): "The Graduate School Policies"
+  Term rows (6), in this order — LABEL | paragraph(s):
+    • Continuous Registration Policy
+        "Depending on the calendar of the graduate program into which a student has been
+        admitted, graduate students must register for courses each semester (fall/spring) or
+        each term (I, II, III, and IV) until the degree is awarded. If the student does not
+        register, they will be dismissed from the Graduate School at the end of the
+        semester/term for failure to comply with this requirement. See The Graduate School's
+        [Continuous Registration Policy] and [Petition for Waiver of Continuous Registration
+        Form]."
+    • Leave of Absence
+        "The University permits graduate students to apply for a leave of absence relating to
+        childbearing, adoption, illness, or dependent care. See the Graduate School's [Leave of
+        Absence Policy] and [Request for Leave of Absence Form]."
+    • Transfer Credit
+        "The Graduate School has strict rules and timelines on acceptance of transfer credit.
+        See [Transfer of Credit]."
+    • Academic Probation and Dismissal
+        "The Graduate School monitors a student's grade point average each semester or term. A
+        student whose cumulative grade point average falls below 3.0 will be placed on academic
+        probation by the Graduate School.  When a student is placed on probation, the Graduate
+        School will notify both the student and the Graduate Director of the student's program.
+        Permission of the academic advisor and the Graduate Director will be required for a
+        student on probation to register for courses. For complete information, see the Graduate
+        School's [Academic Probation and Dismissal Policy]."
+        "F-1 students follow the same university policies regarding probation and dismissal. If
+        an F-1 student is dismissed from the University and can no longer enroll full time in
+        program requirements, that student can no longer remain on UMD F1/J1 immigration
+        sponsorship. Students facing this possible outcome are encouraged to work with the
+        University's [International Student & Scholar Services] to discuss possible immigration
+        options."
+    • International Students
+        "Students with F-1 or J-1 visas must be enrolled full-time every term (semester or
+        12-week) at the University while they remain in the United States."
+        "Students with questions on enrollment, status, leave of absence, extensions on their
+        I-20/DS2019, OPT, etc., work with the University's [International Student & Scholar
+        Services]."
+    • Other Graduate School Policies
+        "For other important policies, see [The Graduate School Policies]."
+
+---- TAB 3: "WITHDRAWAL"   (hash #withdrawal; panel id "pol-withdrawal") ----
+  Panel heading (h2): "Cancellation, Drop, Withdrawal"
+  Term rows (6), in this order — LABEL | paragraph(s):
+    • Cancellation of Courses by University of Maryland
+        "The University reserves the right to cancel courses due to insufficient enrollment or
+        for other reasons that it deems valid. Appropriate refunds will be made. Because
+        cancellation of a course may occur so close to the beginning of class, there is not
+        always time to send notification. Whenever possible, notification will be made via
+        e-mail or by phone, so please keep your e-mail and address current."
+    • Cancellation of Registration by Student
+        "Cancellation of registration means that the student cancels their enrollment in all
+        courses prior to the first day of classes for a semester/term. Students who cancel
+        registration prior to the first day of classes receive a 100% refund of tuition and
+        fees. Failure to attend class does not result in automatic cancellation nor is a student
+        relieved of any academic and/or financial obligation. Courses dropped prior to the first
+        day of classes will not appear on the student record, nor count towards the number of
+        attempts a student has for any given course. Students process the cancellation of
+        registration prior to the first day of classes via [Testudo] (See Registration
+        (Drop/Add)."
+    • Schedule Adjustment
+        "Begins on the first day of classes and terminates at various points depending of the
+        semester/term length. Once the schedule adjustment period has ended, courses may not be
+        added without special permission (in writing) by the student's academic college. In
+        addition, requests for withdrawals, single course drop with 'W,' and other changes that
+        occur between the end of schedule adjustment and the last day of a specific
+        semester/term of enrollment must be received in writing (via e-mail or fax) with the
+        student name and UID number."
+    • Single Course Drop
+        "Once the semester/term starts, dropping a single course means that you are registered
+        for two or more courses within a single specific semester or term. Once you drop the
+        single course before the end of scheduled adjustment, you must remain registered for at
+        least one course within that semester/term. A single course drop during the schedule
+        adjustment period will not appear on the student record, nor will it count towards the
+        number of attempts a student has for any given course. A full credit is not available
+        for courses dropped on or after the first day of classes. Students may process single
+        course drops via [Testudo] (See Registration (Drop/Add)."
+    • Single Course Drop with 'W'
+        "Means that you are dropping a single course for a specific semester/term after the
+        schedule adjustment period ends, remaining registered for at least one course in that
+        session. The drop period begins at the close of the schedule adjustment period and
+        terminates at various points depending on the semester/term length. Students must submit
+        a written request to [oes@umd.edu]."
+    • Withdrawal
+        "Means that you are terminating registration for all courses within a specific
+        semester/term (even if registered for just one course) between the first day and the
+        posted deadline of the semester/term in which you are registered. A notation of
+        withdrawn from semester/term and the effective date will post to your student record.
+        Students must submit a written request to [oes@umd.edu]."
+
+---- TAB 4: "APPEALS"   (hash #appeals; panel id "pol-appeals") ----
+  Panel heading (h2): "Appeals: Exception to Academic Policy"
+  Block 1 — two paragraphs (gap 14px):
+    "Submit the [Appeal Form]."
+    "Exception to Academic Policy requests due to extenuating circumstances relating to your
+    registration require a formal written appeal. If you experience an issue in submitting the
+    appeal or have a question, contact [oes@umd.edu]."
+  Block 2 — sub-label "DEADLINE FOR APPEAL SUBMISSION", then a 2-column deadline grid (gap 4px):
+    Card "Semester-based Graduate Programs": Fall Semester → January 15 · Spring Semester → June 15 · Summer Term → September 15
+    Card "Term-based Graduate Programs": Term I → December 15 · Term II → March 15 · Term III → June 15 · Term IV → September 15
+  Block 3 — sub-label "REQUIRED SUPPORTING DOCUMENTATION", lead paragraph, then term rows:
+    "An appeal will not be considered until documentation supporting the claims made in the
+    appeal is received. Such documentation may include but is not limited to:"
+    • Medical
+        "Verification of the severity of the condition that includes a statement on how the
+        condition affected your ability to perform coursework. Documentation from medical or
+        hospital personnel must be typed and signed on official letterhead. E-mails or unsigned
+        letters on a plain stationery are not acceptable."
+    • Death in the Family
+        "Copy of death certificate (or verification of death from hospital or attending
+        physician, typed and signed on official letterhead) with a statement of the deceased's
+        relation to the student. E-mails or unsigned letters on plain stationery are not
+        acceptable."
+    • Course Instructor or Academic Advisor
+        "May submit a statement of support on department letterhead or, if via e-mail, from the
+        instructor/academic advisor's campus e-mail. (See Contact Information, below.) The
+        statement must include your student name, UID, course information, date of registration,
+        and an explanation of why the course instructor or academic advisor supports your
+        appeal."
+    • Approved Appeal from College/Department
+        "Some Colleges/Departments require that you appeal to them first for requests that have
+        academic ramifications such as late/retroactive changes to your student record. In order
+        for us to process your request we must also receive a copy of your College/Department
+        approved appeal."
+  Block 4 — sub-label "HOW TO ATTACH DOCUMENTATION", paragraph, then a 3-item list with gold square markers:
+    "The above documentation may be uploaded to the Appeal Form BUT only as one file. If you
+    have more than one document, either combine all documents into one file or e-mail
+    [oes@umd.edu] with the additional documentation."
+    ▪ Complete all other sections of the appeal form.
+    ▪ File Title: Provide a name for your document (the documentation will not attach without a
+    title). ex. Appeal Documentation
+    ▪ File Path: Select the Choose File button and locate where your document is stored
+  Block 5 — sub-label "TIMELINE", paragraph:
+    "The average review time is two weeks from the date that the appeal and all documentation
+    are received. Confirmation of the decision is sent to the e-mail address listed on the
+    appeal form."
+
+---- TAB 5: "ENROLLMENT"   (hash #enrollment; panel id "pol-enrollment") ----
+  Panel heading (h2): "Enrollment Verification"
+  Body paragraph:
+    "Students are sometimes required to provide semester enrollment verifications to health
+    insurers or others that require proof of enrollment. [Request Enrollment Verification]."
+
+---- TAB 6: "UPDATE YOUR INFO"   (hash #update; panel id "pol-update") ----
+  Panel heading (h2): "Update Your Student Contact Information"
+  Body paragraph:
+    "UMD uses the e-mail on your student record for all correspondences regarding your
+    registration. UMD assumes no responsibility for the delivery of these electronic messages.
+    It is the student's responsibility to maintain current contact information. To update your
+    contact information visit, [Testudo] and select Change Address/E-mail."
+
+Appeals tab layout details:
+  Blocks 1–5 are a flex column with gap clamp(32px, 3.6vw, 48px) [48px].
+  Deadline grid: 2 equal columns, gap 4px (1 column at <=760px). Each card: background Grey 100;
+    padding clamp(18px, 2vw, 24px) [24px]; card title = term label style, margin-bottom 12px;
+    then a 2-column list (auto | 1fr; gap 8px rows, 18px columns):
+      term name: Interstate 700; 16px; color #454545.   date: Interstate 800; 16px; color Red.
+  Block 3 term rows start 6px below the lead paragraph.
+  Block 4 list: margin-top 14px; flex column; gap 10px; max-width 80ch; each item uses the body
+    paragraph style, laid out as flex with gap 12px; marker = 8x8px Gold square, margin-top 10px.
+
+=====================================================================
+5. "APPLICATIONS ARE NOW OPEN!" PANEL
+=====================================================================
+Continues inside the same grey section (no new background).
+Container: 1240px max; padding 0 24px clamp(56px, 7vw, 100px) [100px] (bottom only).
+Panel: grid, 2 columns minmax(0, 5fr) | minmax(0, 7fr); NO gap; align-items stretch;
+  box-shadow 0 2px 8px rgba(0,0,0,0.06); no border, no radius. At <=900px the halves stack.
+  Left (gold): background Gold; padding clamp(28px, 3.2vw, 44px) [44px]; content vertically centered.
+    "Applications are now open!": Interstate 800; clamp(26px, 2.8vw, 38px) [38px]; line-height 1.1;
+    letter-spacing -0.015em; color Black; margin 0.
+  Right (white): background White; padding clamp(28px, 3.2vw, 44px) [44px]; flex column; content
+    vertically centered; left-aligned; gap clamp(20px, 2.2vw, 26px) [26px].
+    "Request more information below.": Georgia; clamp(17px, 1.5vw, 20px) [20px]; line-height 1.6;
+      color #222222; margin 0.
+    Button "LEARN MORE ››" → /mppm#learn-more (same tab). Dark, large: inline-flex; gap 10px;
+      Interstate 700; 17px; ALL CAPS; letter-spacing 0.01em; line-height 1; no wrap;
+      padding 17px 34px; border 2px solid Black; border-radius 4px; background Black; color White.
+      Hover: background/border #1F1F1F. Pressed: translateY(1px).
+      transition 140ms cubic-bezier(0.4, 0, 0.2, 1).
+
+=====================================================================
+6. LINKS ON THIS PAGE (body only; each listed once)
+=====================================================================
+  Tabs (in-page; each sets the URL hash, no page load):
+    HEALTH #health · GRADUATE SCHOOL #graduate · WITHDRAWAL #withdrawal · APPEALS #appeals ·
+    ENROLLMENT #enrollment · UPDATE YOUR INFO #update
+  START YOUR APPLICATION » (Apply Now box) → /mppm-application-requirements
+  LEARN MORE ›› → /mppm#learn-more
+  Links in the tab text:
+  Medical History and Immunization Record Form
+    → https://health.umd.edu/forms (new tab)
+  Continuous Registration Policy
+    → https://academiccatalog.umd.edu/graduate/policies/registration-policies/ (new tab)
+  Petition for Waiver of Continuous Registration Form
+    → https://gradschool.umd.edu/forms (new tab)
+  Leave of Absence Policy
+    → https://academiccatalog.umd.edu/graduate/policies/registration-policies/ (new tab)
+  Request for Leave of Absence Form
+    → https://gradschool.umd.edu/forms (new tab)
+  Transfer of Credit
+    → https://academiccatalog.umd.edu/graduate/policies/academic-record/ (new tab)
+  Academic Probation and Dismissal Policy
+    → https://academiccatalog.umd.edu/graduate/policies/academic-record/#text (new tab)
+  International Student & Scholar Services
+    → http://globalmaryland.umd.edu/offices/international-students-scholar-services/ (new tab)
+  The Graduate School Policies
+    → https://academiccatalog.umd.edu/graduate/policies/ (new tab)
+  Testudo
+    → https://www.testudo.umd.edu/ (new tab)
+  oes@umd.edu
+    → mailto:oes@umd.edu (email link)
+  Appeal Form
+    → # (no destination yet — placeholder on the live page; build as a link, destination to be supplied)
+  Request Enrollment Verification
+    → # (no destination yet — placeholder on the live page; build as a link, destination to be supplied)
+
+=====================================================================
+7. ANIMATION / INTERACTION
+=====================================================================
+TAB BEHAVIOUR
+  - Clicking a tab selects it and replaces the URL hash with #<tab-id> (history.replaceState;
+    no new history entry, no scroll).
+  - On load, and whenever the hash changes, the tab named by the hash is selected
+    (unknown or empty hash → HEALTH).
+TAB-CHANGE TRANSITION
+  1. Tab button colours change: 240ms ease (background, color, box-shadow).
+  2. Left-column content fades OUT: opacity 1 → 0, 160ms ease.
+  3. At 160ms the content is swapped to the new tab (while invisible).
+  4. New content fades IN: opacity 0 → 1, 320ms ease (starts on the second animation frame
+     after the swap).
+  5. Throughout, the panel height glides to the new content height: height, 420ms
+     cubic-bezier(0.22, 1, 0.36, 1).
+  NO vertical movement of the content (opacity only). The Apply Now box does not fade.
+  Height animator structure:
+    <div class="tab-height">   overflow hidden; height = measured height of .tab-measure + 20px
+                               (set in px by script; "auto" before the first measurement);
+                               margin 0 -10px -20px; padding 0 10px;
+                               transition height 420ms cubic-bezier(0.22, 1, 0.36, 1)
+      <div class="tab-measure"> padding-bottom 20px; watched by a ResizeObserver
+        <div role="tabpanel">…</div>
+    (The extra 10px sides / 20px bottom keep the panel shadow from being clipped; the negative
+     margins cancel the extra space.)
+  Edge cases: clicking back to the displayed tab within 160ms cancels the swap and shows the
+  content immediately; rapid clicks cancel pending swaps (last click wins).
+  prefers-reduced-motion: reduce → content swaps instantly, no fade.
+BUTTONS: 140ms cubic-bezier(0.4, 0, 0.2, 1) hover/press as specified above.
+Links in body text: colour change to #C2142B on hover (no transition set).
+
+=====================================================================
+8. RESPONSIVE BREAKPOINTS (this page only)
+=====================================================================
+  <=1000px : tab bar 3 columns; tab panel stacks (content, then Apply Now box).
+  <=900px  : "Applications are now open!" halves stack.
+  <=760px  : term rows stack; Appeals deadline grid 1 column.
+  <=520px  : tab bar 2 columns.
+  All clamp() values scale between their min and max automatically.
+```
+
+**Build guidance (this entry's own notes, reconciling the spec against every standing rule established this session):**
+- Page-scoped class prefix: `mppm-acpol-` (page token `acpol`). Section tokens: `hero`, `tabbar`, `panel` (the tab panel chrome + Apply Now box), per-tab content classes (`health`, `grad`, `withdraw`, `appeals`, `enroll`, `update`), `open` (the Applications-open panel — forked fresh, NEVER reused from `mppm-caldl-open-*` even though visually identical, per HARD RULE #10/#17).
+- **Every "grid" in this spec is built as Flexbox per HARD RULE #12a**, including the tab bar's 6/3/2-column wrapping grid (flex-wrap with fixed per-breakpoint flex-basis percentages), the tab-panel's 2-column split (flex:1 left + flex:0 0 320px right), the term rows (flex-grow 1:2), the deadline grid (flex-wrap 2-up), and the Applications-open panel (flex-grow 5:7, same pattern as Calendars & Deadlines). The deadline card's internal term-name/date list uses fixed-width label columns in flex, not a genuine grid, since the labels are short and known at build time.
+- **No `border-radius` anywhere** per the standing MPPM rule — silently drop it from the Apply Now button and the Learn More button despite the spec saying `border-radius 4px` for both.
+- **The tab-change transition (section 7 here) is implemented EXACTLY as specified** — this is the same spec already saved verbatim in §302, now repeated here with page-specific hash/panel ids. Page-scoped HTML Embed, `mppm-acpol-` naming, per HARD RULE #1's native-first-then-embed-on-top discipline (tab buttons/panels built as genuine native elements; only the swap/fade/height-animation JS is non-native code in an embed).
+- **Two links (`Appeal Form`, `Request Enrollment Verification`) are explicitly placeholder (`#`)** per the spec itself — build them as real native Link elements with `href="#"`, not omitted, since the spec says to build them now with destinations supplied later.
+- **Two cross-page targets already exist and are confirmed working:** `/mppm-application-requirements` (built earlier today) and MPPM-Home's `#goto:learn-more` anchor (domId set earlier today, confirmed working end-to-end via Playwright click-through).
+- Every other standing rule applies exactly as on the two prior MPPM page builds: HARD RULE #4 (longhand-only), HARD RULE #23 (native elements only — mixed bold/link inline text built as nested native text runs inside Paragraph elements, never DOM), 16px body-text floor (note: the appeals term rows' "term label" style is 19px/clamp, fine; sub-labels are 15px ALL-CAPS UI chrome matching the already-shipped `wyn-dt`/table-label precedent, not flagged), `CLASS-NAMING-GUIDE.md` conventions, and the full verification checklist (live HTML/CSS fetch, Playwright across the full practical width range including this page's OWN 4 custom breakpoints — 1000/900/760/520 — mapped to the nearest native Webflow breakpoints per HARD RULE #2, Designer-canvas snapshot where possible).
