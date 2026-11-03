@@ -644,6 +644,25 @@
 > This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#23 — keep this
 > banner intact and pass it on.
 
+> ## 🚫 #25 HARD RULE — BEFORE ANY NAV MENU / DROPDOWN WORK ON ANY SITE IN THIS PROJECT, READ `NAV-MENU-GUIDE.md` FIRST (2026-11-03 — the SAME dropdown-hover/click mechanism had already been solved once, on UMD I-Corps; it still took multiple rounds of live-site correction to fix again on MPPM, because the lessons were buried in old history entries nobody re-reads before starting new nav work — this must never cost that much time again)
+> **`NAV-MENU-GUIDE.md` (repo root, NOT auto-injected — deliberately kept out of this file so it
+> doesn't bog down every unrelated session) is the complete, consolidated reference for building or
+> fixing ANY nav menu, dropdown, hover, or responsive-nav behavior on ANY site in this project.** Read
+> it in full, every time nav/dropdown work comes up, before writing or changing anything — it covers the
+> native Dropdown widget's structure, the native `data-hover`/`data-delay` attributes (not JS), why a
+> real link nested in a toggle needs a click-passthrough module to navigate at all, the single costliest
+> gotcha (a toggle's content MUST be wrapped in a populated `<div>` or a separate sitewide script silently
+> flattens it, deleting the real link, the moment it lacks one), why Webflow's native `Icon` widget is
+> unsafe when built via the API (no backing CSS, confirmed), responsive/mobile behavior, anchor-link
+> conventions, and a full verification checklist. Full incident: CLAUDE-HISTORY.md §305.
+> - **One line, inline, because it is the single most expensive mistake to repeat:** any dropdown
+>   toggle's label + caret content must sit inside a plain populated `<div>` wrapper (not bare as the
+>   toggle's direct children) — a shared, sitewide script silently destroys a toggle's real content,
+>   deleting its link, whenever it finds no direct-child `<div>` at all. This is not optional, not
+>   cosmetic, and not visible in the Designer canvas — only on the published site.
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#24 — keep this
+>   banner intact and pass it on.
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is
