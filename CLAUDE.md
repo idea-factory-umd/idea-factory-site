@@ -663,6 +663,22 @@
 > - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#24 — keep this
 >   banner intact and pass it on.
 
+> ## 🚫 #26 HARD RULE — BEFORE NAMING OR RENAMING ANY PAGE-SCOPED CLASS, READ `CLASS-NAMING-GUIDE.md` FIRST (2026-11-03 — the MPPM Application Requirements page's class names went through several rounds of live back-and-forth before landing correctly, because the actual decision procedure had never been written down)
+> **`CLASS-NAMING-GUIDE.md` (repo root, NOT auto-injected) is the full, consolidated procedure for
+> naming or renaming page-scoped classes on ANY site in this project.** Read it before touching any
+> class name. Core pattern: `<site>-<page>-<section>-<descriptor>`, all lowercase, every segment —
+> `<page>` picked once and never churned afterward just for readability; `<section>` derived from that
+> section's own on-page name, checked against reading as an unrelated/alarming word (`dead` was rejected
+> for reading as "a dead class") and against colliding with a token already meaning something else on
+> the same page; a class genuinely shared across two sections of the same page stays page-level, no
+> section segment. **Before renaming anything on an existing page: fetch the complete class list in one
+> query, check real usage for any ambiguous ones, sort into already-correct (leave alone) vs. genuinely
+> missing the pattern vs. genuinely page-level-shared — propose the full mapping once with reasoning, only
+> then execute, then re-verify the full list and the live published HTML.** Full incident + reasoning:
+> CLAUDE-HISTORY.md (2026-11-03 MPPM Application Requirements rename entry).
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#25 — keep this
+>   banner intact and pass it on.
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is
