@@ -7250,4 +7250,58 @@ Links in body text: colour change to #C2142B on hover (no transition set).
   All clamp() values scale between their min and max automatically.
 ```
 
+## §318 — MPPM Tuition & Financial Aid (`/mppm-tuition-financial-aid`): build complete, published, verified (2026-11-04)
+
+All 7 tabs built per §317's verbatim spec: TUITION/FEES, WHEN TO PAY, POLICY, PROCESS, FINANCIAL
+AID/ALT, NON-PAYMENT, REFUNDS. Tab bar expanded from Academic Policies' pasted 6 buttons to 7 (added
+one button + one panel). New classes: `mppm-acpol-tab--sm`/`mppm-acpol-tab-active--sm` (combo, smaller
+clamp(13,1.05vw,15) label font), `mppm-acpol-tablist--7col` (combo, 7/4/2 column grid at
+main/medium/small), `mppm-acpol-sublabel--reinforced` (combo, 800 weight/17px/0.03em — used on Tabs 4
+and 5's sub-label groups), `mppm-acpol-gold-callout` (standalone, Tab 1's gold payment-plan callout),
+`mppm-acpol-bold` (standalone, Tab 3's one inline bold span). Reused unchanged: `mppm-acpol-h2` (desktop
+values matched this page's own spec exactly — no override needed, unlike Online Learning),
+`mppm-acpol-item-group`, `mppm-acpol-body`, `mppm-acpol-link`, `mppm-acpol-doc-list/-item/-marker/-text`
+(Tabs 4 and 5's sub-label+bulleted-list groups, structure confirmed by querying Online Learning's own
+Guidelines-tab instances before building — unstyled `DivBlock` group wrapper containing a
+`mppm-acpol-sublabel` Paragraph then a `mppm-acpol-doc-list` Block).
+
+**Critical incident mid-build: the tab-switching JS embed broke tab clicking entirely after the
+tabs/panels were relabeled.** Renaming the 7 tabs' `data-tab`/`data-panel` values from Academic
+Policies' pasted `health/graduate/withdrawal/appeals/enrollment/update` to the new
+`tuition-fees/when-to-pay/policy/process/financial-aid/non-payment/refunds` left the page-scoped JS
+embed's own `VALID` array and `committedKey`/`initialKey` fallbacks still pointing at the OLD key names
+(this had already been identified as pending work but wasn't fixed before the user checked the page).
+Since `panels` is built dynamically from whatever `[data-panel]` elements exist, and no panel named
+`health` existed anymore, every click fell through `if (VALID.indexOf(key)===-1) key='health'` to a
+`panels['health']` lookup that returned `undefined`, which made `selectTab` return immediately — tabs
+visually existed but clicking did nothing. Fixed by rewriting the embed's `VALID` array and all 4
+`'health'` fallback references to the new key list; verified via a live interactive sequence test
+(clicking through all 7 tabs back-to-forth in one continuous page load, per HARD RULE #21) that every
+click correctly swaps the heading and the active-tab class. **Lesson for the final remaining page
+(`mppm-graduation-commencement`): the tab JS embed's `VALID` array and `'<default-key>'` fallbacks MUST
+be updated in the SAME pass as relabeling tabs/panels, not as an afterthought** — this is now the
+single most error-prone step in this page pattern.
+
+**Second recurring issue: the `data_element_builder` Lorem-ipsum placeholder bug (§316) hit 18 times**
+across Tabs 4, 5, and 6 — every `Paragraph` built via `children` (TextLink runs, for the mixed-link-text
+technique) got a stray "Lorem ipsum dolor sit amet…" `String` auto-inserted as an extra first child.
+Swept the whole page via `element_filter:{text:"Lorem ipsum"}` (0 → 18 found, matching the exact count
+of children-built Paragraphs) and removed all 18 `remove_element` calls in one batch; re-queried to
+confirm 0 remain before publishing.
+
+**Verification completed:** component instances confirmed genuine (`MPPM Apply Now Box` id
+`72ff1b76-e0e5-832f-4393-f0f69f83a019`, `MPPM Applications Open Panel` id
+`7a4c0c9b-9ff0-5b76-f3cf-0c222cd6fe9e` variant `base`); responsive sweep via headless Chromium across
+320–1600px confirmed zero horizontal overflow at every width and the correct column transitions (7 cols
+down to 992px, 4 cols from 991–768px, 2 cols from 767px down to 320px — both breakpoints mapped to the
+nearest native Webflow breakpoint per HARD RULE #2, since the spec's 1100px/600px thresholds aren't
+native) plus the panel's 2-column→1-column stack collapsing correctly below the medium breakpoint;
+interactive sequence test (7 tabs clicked back-to-back in one page load) confirmed every heading and
+active-tab class updates correctly. Published live (`publish_site`, Webflow subdomain).
+**Designer-canvas snapshot visual check (`element_snapshot_tool`) was NOT run this pass** — skipped
+under explicit time pressure from the user; flagged here as outstanding rather than claimed done, per
+HARD RULE #3.
+
+**Remaining MPPM page:** `mppm-graduation-commencement` — the last of the 3 pages named in §314.
+
 
