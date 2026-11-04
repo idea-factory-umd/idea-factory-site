@@ -6879,4 +6879,375 @@ Panel" (`7a4c0c9b-9ff0-5b76-f3cf-0c222cd6fe9e`, variant `base`) — correct by c
 members now stand at: Online Learning done (this entry), Tuition & Financial Aid and Graduation &
 Commencement still pending their own individual specs from the user, per §314.
 
+## §317 — MPPM Tuition & Financial Aid (`/mppm-tuition-financial-aid`): full verbatim build spec (2026-11-04)
+
+The user supplied the full build spec below, the second of the 3 remaining pages named in §314, and
+explicitly asked it be retained verbatim before execution. Confirmed before execution: this spec matches
+§314's own prediction table for this page exactly (hero title, 7 tabs + labels/hashes, 1100px→4col and
+600px→2col tab-bar breakpoints, smaller tab label size clamp(13,1.05vw,15), reinforced red sub-label style,
+panel heading explicitly "same as Academic Policies" — confirmed matching the EXISTING `mppm-acpol-h2`
+base class's own already-shipped values (38px/clamp(18,2.2vw,28) margin-bottom) exactly, so no h2 override
+needed on this page, unlike Online Learning's smaller-h2 combo) — no surprises versus §314. New elements
+not seen on Academic Policies or Online Learning: a GOLD CALLOUT box (Tuition/Fees tab only), bold text
+spans inside body paragraphs ({braces} in the spec = bold, color Black), and a PROCESS tab built from
+sub-label-headed bulleted lists (3 groups) rather than plain paragraphs. This page goes from Academic
+Policies' pasted 6 tabs UP to 7 (adds one tab+panel, unlike Online Learning which collapsed down to 4).
+
+```
+MPPM — TUITION & FINANCIAL AID PAGE (/mppm-tuition-financial-aid) — BUILD SPEC
+Scope: hero through the end of the page body. Site header and footer are NOT part of this spec.
+All values are for desktop (1440px viewport). Where a value is a clamp(), the desktop result is
+shown in [brackets]. Anything not listed uses the browser/default value.
+This page uses the same tab system as /mppm-academic-policies.
+
+=====================================================================
+0. TOKENS USED ON THIS PAGE
+=====================================================================
+Fonts
+  Interstate (sans)  = headings, tabs, sub-labels, links, buttons, Apply Now box text
+  Georgia (serif)    = body paragraphs and list items (white grounds only)
+Colors
+  Red #E21833   Red hover #C2142B   Red pressed #A40F23   Gold #FFD200   Black #000000   White #FFFFFF
+  Grey 100 #F4F4F4   Text body #222222   Dark-button hover #1F1F1F
+Layout
+  Content container: max-width 1240px, centered, side padding 24px (content width 1192px).
+
+Page order (top to bottom):
+  1. Hero (black)
+  2. Tabs section (grey): tab bar, then the tab panel (white) with the "Apply Now" box at right
+  3. "Applications are now open!" panel (same grey background continues)
+Nothing follows section 3 except the site footer. No accordions and no images on this page.
+
+=====================================================================
+1. HERO
+=====================================================================
+Section: background Black, full width.
+Inner container: 1240px max; padding clamp(40px, 5vw, 72px) [72px] top and bottom, 24px sides.
+Eyebrow: "Master of Professional Studies in Product Management"
+  display block; Interstate 700; 16px; ALL CAPS; letter-spacing 0.14em; color Gold.
+Title (h1): "Tuition & Financial Aid"
+  Interstate 800; clamp(32px, 4vw, 56px) [56px]; line-height 1.0; letter-spacing -0.02em;
+  color White; margin-top 12px; max-width 18ch.
+No paragraph, no buttons, no image.
+
+=====================================================================
+2. SHARED TEXT STYLES (inside the tab panel)
+=====================================================================
+Panel heading (h2): Interstate 800; clamp(26px, 2.8vw, 38px) [38px]; line-height 1.04;
+  letter-spacing -0.02em; color Black; margin-bottom clamp(18px, 2.2vw, 28px) [28px].
+Body paragraph: Georgia; clamp(16px, 1.3vw, 17.5px) [17.5px]; line-height 1.7; color #222222;
+  margin 0; max-width 80ch.
+Sub-label (heads each bulleted list): Interstate 800; clamp(16px, 1.3vw, 17px) [17px]; ALL CAPS;
+  letter-spacing 0.03em; color Red; margin-bottom 12px.
+Bold text inside paragraphs ({braces} below): weight 700 (bold), color Black.
+Bulleted list (no list-style): margin 0; padding 0; flex column; gap 10px; max-width 80ch.
+  Each item: body paragraph style, laid out as flex with gap 12px; marker = 8x8px Gold square,
+  margin-top 10px, no shrink.
+Link inside body text: display inline; Interstate 700; same size as the surrounding text; color Red;
+  letter-spacing -0.025em; NO underline (also on hover); hover color #C2142B; white-space normal.
+  http(s) links open in a new tab; mailto links open the mail client.
+Gold callout (Tuition/Fees tab only): <p>; margin 0; background Gold; padding clamp(18px, 2vw, 24px)
+  [24px]; Interstate 700; clamp(17px, 1.5vw, 19px) [19px]; line-height 1.4; color Black; max-width 80ch;
+  no border, no shadow.
+
+=====================================================================
+3. TABS SECTION
+=====================================================================
+Section: background Grey 100 (#F4F4F4).
+
+---- 3A. TAB BAR ----
+Container: 1240px max; padding-top clamp(36px, 4vw, 56px) [56px]; 24px sides.
+Tab bar (role="tablist"): grid, 7 equal columns; gap 4px.
+  At <=1100px: 4 columns (2 rows). At <=600px: 2 columns (4 rows).
+Each tab (<button role="tab">): flex, content centered; min-height 60px; padding 14px 12px;
+  border 0; Interstate 800; clamp(13px, 1.05vw, 15px) [15px]; ALL CAPS; letter-spacing 0.04em;
+  line-height 1.15; text centered.
+  NOT selected: background White; color Black; box-shadow 0 2px 8px rgba(0,0,0,0.06).
+  Selected:     background Red;   color White; no shadow.
+  transition: background 240ms ease, color 240ms ease, box-shadow 240ms ease.
+Tabs, left to right: TUITION/FEES · WHEN TO PAY · POLICY · PROCESS · FINANCIAL AID/ALT · NON-PAYMENT · REFUNDS
+
+---- 3B. TAB PANEL ----
+Container: 1240px max; padding-top 4px (gap under the tab bar); padding-bottom clamp(56px, 7vw, 96px)
+  [96px]; 24px sides.
+Panel (role="tabpanel"): background White; box-shadow 0 2px 8px rgba(0,0,0,0.06); no border;
+  padding clamp(28px, 4vw, 56px) [56px] all sides;
+  grid, two columns: minmax(0, 1fr) | minmax(260px, 320px) [320px]; gap clamp(28px, 4vw, 56px) [56px];
+  align-items start. At <=1000px the columns stack (tab content, then Apply Now box).
+  Left column: the selected tab's content (section 4). Right column: the Apply Now box (3C),
+  the same on every tab.
+
+---- 3C. APPLY NOW BOX (right column of the panel) ----
+  <aside>: background Grey 100; padding clamp(22px, 2.4vw, 30px) [30px]; flex column; gap 16px.
+  NOT sticky.
+  (1) h2 "Apply Now": Interstate 800; clamp(22px, 2vw, 28px) [28px]; line-height 1.05;
+      letter-spacing -0.015em; color Black; margin 0.
+  (2) "Applications Now Open for Spring 2027": Interstate 800; 18px; line-height 1.25; color Red.
+  (3) "Early Priority Application Deadline: October 16 · $1,000 Scholarship & Application Fee Waived*"
+      Interstate 500; 16px; line-height 1.55; color #222222.
+  (4) Button "START YOUR APPLICATION »" (single »), full width of the box, text centered and allowed
+      to wrap; links to /mppm-application-requirements (same tab).
+      Primary, medium: inline-flex; centered; gap 10px; Interstate 700; 16px; ALL CAPS;
+      letter-spacing 0.01em; line-height 1; padding 13px 24px; border 2px solid Red; border-radius 4px;
+      background Red; color White. Hover: background/border #C2142B. Pressed: #A40F23 and
+      translateY(1px). transition background, color, border-color, transform 140ms
+      cubic-bezier(0.4, 0, 0.2, 1).
+
+=====================================================================
+4. TAB CONTENT (left column of the panel; verbatim; [brackets] = link, {braces} = bold)
+=====================================================================
+Default tab on load: TUITION/FEES, unless the URL hash names another tab.
+Each tab: panel heading (spec 2), then its content.
+
+---- TAB 1: "TUITION/FEES"   (hash #tuition-fees) ----
+  Panel heading (h2): "Tuition and Fees"
+  Items (flex column, gap clamp(18px, 2vw, 24px) [24px]), in order:
+  • Body paragraph:
+      "The estimated cost for tuition and fees is approximately $28,000. Tuition is subject to
+      change each academic year, as approved by the Board of Governors, and any tuition change
+      is applicable to all enrolled students. The estimated cost of books is $100 per course."
+  • GOLD CALLOUT (spec 2):
+      "Tuition is paid in five installments at the start of each term, making it manageable for
+      learners balancing their education with other financial commitments."
+
+---- TAB 2: "WHEN TO PAY"   (hash #when-to-pay) ----
+  Panel heading (h2): "When to Pay"
+  Items (flex column, gap clamp(18px, 2vw, 24px) [24px]), in order:
+  • Body paragraph:
+      "All students who register for courses incur a financial obligation (tuition and fees) to
+      the University. UMD's Student Financial Services generates electronic bills and sends
+      monthly e-bills to the email address on record. Students are encouraged to regularly
+      verify the accuracy of their e-billing address. A paper bill is not sent."
+  • Body paragraph:
+      "Students are responsible for viewing their billing statements, accessing the current
+      account balance, and determining the payment due date at [View Your Monthly Bill]. If
+      there are questions, contact [Student Financial Services]."
+  • Body paragraph:
+      "View the [term-based calendar] for the general billing schedule."
+
+---- TAB 3: "POLICY"   (hash #policy) ----
+  Panel heading (h2): "Payment Policy"
+  Items (flex column, gap clamp(18px, 2vw, 24px) [24px]), in order:
+  • Body paragraph:
+      "Professional Graduate Programs payment due dates are determined by the date of a
+      student's initial registration and do not follow UMD's [Student Financial Services]
+      standard plan. Payment by the posted deadlines is required. Students are not billed.
+      Students are responsible for checking their [student account] to ensure that full payment
+      has posted. If there is a prior balance and you do not submit payment for this balance,
+      UMD's Student Financial Services may use your payment to cover this prior balance."
+  • Body paragraph:
+      "Should full payment not post, students may be canceled or withdrawn and blocked from
+      future registration. Students may lose their seat if the course is full. Notification of
+      this requirement is sent to the email of record following any add/drop activity. Check
+      your spam folder. No additional reminder is provided. Update your [email of record]."
+  • Body paragraph:
+      "While the University reserves the right to cancel or withdraw and limit enrollment for
+      financially delinquent students, {your registration may not be automatically canceled or
+      withdrawn for non-payment of tuition and fees}. Failure to attend class does not result in
+      automatic cancellation. In addition, non-payment cannot be used as a means for dropping a
+      course or canceling registration. Students are ultimately responsible for officially
+      dropping a course, canceling registration, or withdrawing by the posted deadlines to avoid
+      academic and/or financial consequences."
+
+---- TAB 4: "PROCESS"   (hash #process) ----
+  Panel heading (h2): "Payment Process (How to Pay)"
+  Items (flex column, gap clamp(18px, 2vw, 24px) [24px]), in order:
+  • Sub-label "STEP #1: DETERMINE YOUR ACCOUNT BALANCE", then a bulleted list (1 item):
+      ▪ See [Access Account].
+  • Sub-label "STEP #2: SELECT YOUR PAYMENT METHOD", then a bulleted list (7 items):
+      ▪ [Online (E-Check or Credit Card)] A service fee is assessed for all credit and debit
+      card transactions. There is NO service fee for ACH (electronic check) payments. See
+      Payment Overview—[Student Financial Services].
+      ▪ [Financial Aid]
+      ▪ [International Payment]
+      ▪ [Terp Payment Plan]
+      ▪ [Third Party/Sponsored Billing]
+      ▪ [Tuition Remission]
+      ▪ [Veterans Benefits]
+  • Sub-label "STEP #3: SUBMIT PAYMENT", then a bulleted list (1 item):
+      ▪ See [Make A Payment].
+
+---- TAB 5: "FINANCIAL AID/ALT"   (hash #financial-aid) ----
+  Panel heading (h2): "Financial Aid & Alternative Payment"
+  Items (flex column, gap clamp(18px, 2vw, 24px) [24px]), in order:
+  • Body paragraph:
+      "Alternative Payment includes Financial Aid, Terp Payment Plan, Third Party Billing,
+      Veterans Benefits, Tuition Remission. If an alternative payment method is used to cover
+      tuition and fees, it is your responsibility to ensure that such payment posts to your
+      student account by the due date."
+  • Sub-label "FINANCIAL AID: STATE AND/OR FEDERAL", then a bulleted list (1 item):
+      ▪ Many graduate students are eligible for a range of financial resources to fund their
+      studies including loans (federal and private), scholarships, grants, or institutional aid.
+      For all questions relating to UMD Sources of Funding, contact the [Office of Student
+      Financial Aid], at [umfinaid@umd.edu].
+  • Sub-label "FINANCIAL AID: UMD SOURCES OF FUNDING", then a bulleted list (3 items):
+      ▪ [Office of Student Financial Aid]
+      ▪ [The Graduate School]
+      ▪ [University Career Center]
+  • Sub-label "FINANCIAL AID: INTERNATIONAL STUDENTS", then a bulleted list (1 item):
+      ▪ International students are restricted in receiving certain types of financial aid. See
+      [Available Options].
+  • Sub-label "THIRD PARTY/SPONSORED BILLING", then a bulleted list (1 item):
+      ▪ [Third Party/Sponsored Billing] is when a private or government agency is paying any
+      portion of your tuition or fees and are requesting a bill from the University.
+  • Sub-label "TUITION REMISSION", then a bulleted list (1 item):
+      ▪ For professional graduate programs, tuition remission is calculated at the in-state
+      graduate rate. If the program charges a higher tuition, the student is responsible for the
+      difference. Tuition remission does not cover mandatory student services or other fees. Fee
+      payment is required by the posted deadlines. UMD System employees receive authorization
+      from their home institution. UMCP employees work with their department's human resources
+      staff. See [UMCP UHR Tuition Remission].
+  • Sub-label "VETERANS", then a bulleted list (1 item):
+      ▪ For assistance and information, visit UMD's [Office of Veteran's Benefits]. Veterans are
+      only certified for the current term. Benefits do not automatically roll over from one term
+      to another. To ensure that your student record properly reflects your status, email
+      [vabenefits@umd.edu].
+
+---- TAB 6: "NON-PAYMENT"   (hash #non-payment) ----
+  Panel heading (h2): "Consequences for Non-Payment"
+  Items (flex column, gap clamp(18px, 2vw, 24px) [24px]), in order:
+  • Body paragraph:
+      "All students who register for courses incur a financial obligation to the University.
+      Failure to make payment by the specified due date will result in a late fee or finance
+      charge and may jeopardize the student's ability to register for the upcoming semester or
+      term. Payment in full must be received before the close of business on the due date to
+      avoid a late fee. In the event the account is not settled by the due date, Student
+      Financial Services will assess the account with a late payment fee of $10 or 5% of the
+      unpaid balance, whichever is higher. Each month thereafter, a finance charge of 1.5% is
+      assessed to the outstanding balance until the account is paid in full."
+  • Body paragraph:
+      "Students are responsible for viewing their billing statements, accessing the current
+      account balance, and determining the payment due date at [View Your Monthly Bill]. If
+      there are questions, contact the [Student Financial Services]."
+
+---- TAB 7: "REFUNDS"   (hash #refunds) ----
+  Panel heading (h2): "Refund Policy"
+  Items (flex column, gap clamp(18px, 2vw, 24px) [24px]), in order:
+  • Body paragraph:
+      "The University does not automatically refund a credit balance. To request a refund, see
+      [Student Financial Services—Refunds Overview]."
+
+=====================================================================
+5. "APPLICATIONS ARE NOW OPEN!" PANEL
+=====================================================================
+Continues inside the same grey section (no new background).
+Container: 1240px max; padding 0 24px clamp(56px, 7vw, 100px) [100px] (bottom only).
+Panel: grid, 2 columns minmax(0, 5fr) | minmax(0, 7fr); NO gap; align-items stretch;
+  box-shadow 0 2px 8px rgba(0,0,0,0.06); no border, no radius. At <=900px the halves stack.
+  Left (gold): background Gold; padding clamp(28px, 3.2vw, 44px) [44px]; content vertically centered.
+    "Applications are now open!": Interstate 800; clamp(26px, 2.8vw, 38px) [38px]; line-height 1.1;
+    letter-spacing -0.015em; color Black; margin 0.
+  Right (white): background White; padding clamp(28px, 3.2vw, 44px) [44px]; flex column; content
+    vertically centered; left-aligned; gap clamp(20px, 2.2vw, 26px) [26px].
+    "Request more information below.": Georgia; clamp(17px, 1.5vw, 20px) [20px]; line-height 1.6;
+      color #222222; margin 0.
+    Button "LEARN MORE ››" → /mppm#learn-more (same tab). Dark, large: inline-flex; gap 10px;
+      Interstate 700; 17px; ALL CAPS; letter-spacing 0.01em; line-height 1; no wrap;
+      padding 17px 34px; border 2px solid Black; border-radius 4px; background Black; color White.
+      Hover: background/border #1F1F1F. Pressed: translateY(1px).
+      transition 140ms cubic-bezier(0.4, 0, 0.2, 1).
+
+=====================================================================
+6. LINKS ON THIS PAGE (body only; each listed once)
+=====================================================================
+  Tabs (in-page; each sets the URL hash, no page load):
+    TUITION/FEES #tuition-fees · WHEN TO PAY #when-to-pay · POLICY #policy · PROCESS #process · FINANCIAL AID/ALT #financial-aid · NON-PAYMENT #non-payment · REFUNDS #refunds
+  START YOUR APPLICATION » (Apply Now box) → /mppm-application-requirements
+  LEARN MORE ›› → /mppm#learn-more
+  Links in the tab text:
+  View Your Monthly Bill
+    → https://billpay.umd.edu/inquiry/ebill (new tab)
+  Student Financial Services
+    → https://billpay.umd.edu/ (new tab)
+  term-based calendar
+    → https://oes.umd.edu/professionals-post-baccalaureates/professional-graduate-programs/payment-aid/payment-due-dates-term-calendar (new tab)
+  student account
+    → https://billpay.umd.edu/ (new tab)
+  email of record
+    → https://itsupport.umd.edu/itsupport/?id=kb_article_view&sysparm_article=KB0010550&sys_kb_id=86d7a7521b54e1d0642d5287624bcb0a&spa=1 (new tab)
+  Access Account
+    → https://billpay.umd.edu/ (new tab)
+  Online (E-Check or Credit Card)
+    → https://billpay.umd.edu/payment-methodsmake-payment (new tab)
+  Student Financial Services
+    → https://billpay.umd.edu/payments/payment-overview (new tab)
+  Financial Aid
+    → https://www.financialaid.umd.edu/ (new tab)
+  International Payment
+    → https://billpay.umd.edu/payment-methodsmake-payment (new tab)
+  Terp Payment Plan
+    → https://billpay.umd.edu/TPP (new tab)
+  Third Party/Sponsored Billing
+    → https://billpay.umd.edu/tuition-billing/third-partysponsored-billing (new tab)
+  Tuition Remission
+    → https://uhr.umd.edu/benefits/tuition-remission/ (new tab)
+  Veterans Benefits
+    → https://www.registrar.umd.edu/veteran-benefits.html (new tab)
+  Make A Payment
+    → https://billpay.umd.edu/ (new tab)
+  Office of Student Financial Aid
+    → https://www.financialaid.umd.edu/ (new tab)
+  umfinaid@umd.edu
+    → mailto:umfinaid@umd.edu (email link)
+  Office of Student Financial Aid
+    → https://financialaid.umd.edu/resources-policies/graduate-student-faqs (new tab)
+  The Graduate School
+    → https://gradschool.umd.edu/funding (new tab)
+  University Career Center
+    → https://careers.umd.edu/students/further-your-education/financing-graduate-school (new tab)
+  Available Options
+    → https://financialaid.umd.edu/resources-policies/international-students (new tab)
+  Third Party/Sponsored Billing
+    → https://billpay.umd.edu/billing/third-partysponsored-billing (new tab)
+  UMCP UHR Tuition Remission
+    → https://uhr.umd.edu/benefits/tuition-remission (new tab)
+  Office of Veteran's Benefits
+    → http://www.registrar.umd.edu/veteran-benefits.html (new tab)
+  vabenefits@umd.edu
+    → mailto:vabenefits@umd.edu (email link)
+  Student Financial Services—Refunds Overview
+    → https://billpay.umd.edu/refunds/refunds-overview (new tab)
+
+=====================================================================
+7. ANIMATION / INTERACTION
+=====================================================================
+TAB BEHAVIOUR
+  - Clicking a tab selects it and replaces the URL hash with #<tab-id> (history.replaceState;
+    no new history entry, no scroll).
+  - On load, and whenever the hash changes, the tab named by the hash is selected
+    (unknown or empty hash → TUITION/FEES).
+TAB-CHANGE TRANSITION
+  1. Tab button colours change: 240ms ease (background, color, box-shadow).
+  2. The whole left-column content (heading included) fades OUT: opacity 1 → 0, 160ms ease.
+  3. At 160ms the content is swapped to the new tab (while invisible).
+  4. New content fades IN: opacity 0 → 1, 320ms ease (starts on the second animation frame
+     after the swap).
+  5. Throughout, the panel height glides to the new content height: height, 420ms
+     cubic-bezier(0.22, 1, 0.36, 1).
+  NO vertical movement of the content (opacity only). The Apply Now box does not fade.
+  Height animator structure:
+    <div class="tab-height">   overflow hidden; height = measured height of .tab-measure + 20px
+                               (set in px by script; "auto" before the first measurement);
+                               margin 0 -10px -20px; padding 0 10px;
+                               transition height 420ms cubic-bezier(0.22, 1, 0.36, 1)
+      <div class="tab-measure"> padding-bottom 20px; watched by a ResizeObserver
+        <div role="tabpanel">…</div>
+    (The extra 10px sides / 20px bottom keep the panel shadow from being clipped; the negative
+     margins cancel the extra space.)
+  Edge cases: clicking back to the displayed tab within 160ms cancels the swap and shows the
+  content immediately; rapid clicks cancel pending swaps (last click wins).
+  prefers-reduced-motion: reduce → content swaps instantly, no fade.
+BUTTONS: 140ms cubic-bezier(0.4, 0, 0.2, 1) hover/press as specified above.
+Links in body text: colour change to #C2142B on hover (no transition set).
+
+=====================================================================
+8. RESPONSIVE BREAKPOINTS (this page only)
+=====================================================================
+  <=1100px : tab bar 4 columns.
+  <=1000px : tab panel stacks (content, then Apply Now box).
+  <=900px  : "Applications are now open!" halves stack.
+  <=600px  : tab bar 2 columns.
+  All clamp() values scale between their min and max automatically.
+```
+
 
