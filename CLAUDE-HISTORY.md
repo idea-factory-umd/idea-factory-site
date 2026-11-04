@@ -6548,4 +6548,248 @@ FOR EACH PAGE, WHEN DONE
 - **Reuse the exact same tab-switching JS module already built for Academic Policies** (the embed with `selectTab`/`cancelPending`/`updateTabButtons`/ResizeObserver logic) — since the Hero+Tabs sections were PASTED from Academic Policies, the embed element itself likely pasted along with them (HTML Embeds paste as part of a Section/Block copy) — verify this fresh per page, and if present, only its internal `VALID` tab-key array and any hardcoded tab-count assumptions need updating to match each page's own tab list; if genuinely missing on a page, recreate it as its own page-scoped embed (never shared) per HARD RULE #17.
 - **No `border-radius` anywhere new** (standing MPPM rule) applies to the Tuition page's new gold callout box too, once its own spec is supplied.
 
+## §315 — MPPM Online Learning (`/mppm-online-learning`): full verbatim build spec (2026-11-04)
+
+The user supplied the full build spec below for the Online Learning page, the first of the 3 remaining
+pages named in §314, and explicitly asked it be retained verbatim before execution so nothing is lost
+across a possible compaction. Confirmed before execution: this spec matches §314's own prediction table
+for this page exactly (hero title, 4 tabs + labels/hashes, tab label size "same as Academic Policies",
+panel heading smaller than Academic Policies with the exact values §314 predicted, red sub-labels "same
+as Academic Policies") — no surprises versus §314, except the tab-bar single-column breakpoint is newly
+specified here as `<=420px` (not previously built anywhere on this page family; nearest native Webflow
+breakpoint is `tiny` (<=479px), same reasoning as Academic Policies' own 520px->tiny mapping — verify
+empirically for zero overflow in the 420-479px range once built).
+
+```
+MPPM — ONLINE LEARNING PAGE (/mppm-online-learning) — BUILD SPEC
+Scope: hero through the end of the page body. Site header and footer are NOT part of this spec.
+All values are for desktop (1440px viewport). Where a value is a clamp(), the desktop result is
+shown in [brackets]. Anything not listed uses the browser/default value.
+This page uses the same tab system as /mppm-academic-policies.
+
+=====================================================================
+0. TOKENS USED ON THIS PAGE
+=====================================================================
+Fonts
+  Interstate (sans)  = headings, tabs, sub-labels, links, buttons, Apply Now box text
+  Georgia (serif)    = body paragraphs and list items (white grounds only)
+Colors
+  Red #E21833   Red hover #C2142B   Red pressed #A40F23   Gold #FFD200   Black #000000   White #FFFFFF
+  Grey 100 #F4F4F4   Text body #222222   Dark-button hover #1F1F1F
+Layout
+  Content container: max-width 1240px, centered, side padding 24px (content width 1192px).
+
+Page order (top to bottom):
+  1. Hero (black)
+  2. Tabs section (grey): tab bar, then the tab panel (white) with the "Apply Now" box at right
+  3. "Applications are now open!" panel (same grey background continues)
+Nothing follows section 3 except the site footer. No accordions and no images on this page.
+
+=====================================================================
+1. HERO
+=====================================================================
+Section: background Black, full width.
+Inner container: 1240px max; padding clamp(40px, 5vw, 72px) [72px] top and bottom, 24px sides.
+Eyebrow: "Master of Professional Studies in Product Management"
+  display block; Interstate 700; 16px; ALL CAPS; letter-spacing 0.14em; color Gold.
+Title (h1): "Online Learning"
+  Interstate 800; clamp(32px, 4vw, 56px) [56px]; line-height 1.0; letter-spacing -0.02em;
+  color White; margin-top 12px; max-width 18ch.
+No paragraph, no buttons, no image.
+
+=====================================================================
+2. SHARED TEXT STYLES (inside the tab panel)
+=====================================================================
+Panel heading (h2): Interstate 800; clamp(24px, 2.4vw, 32px) [32px]; line-height 1.05;
+  letter-spacing -0.015em; color Black; margin-bottom clamp(14px, 1.6vw, 20px) [20px].
+Body paragraph: Georgia; clamp(16px, 1.3vw, 17.5px) [17.5px]; line-height 1.7; color #222222;
+  margin 0; max-width 80ch.
+Sub-label (heads each list on Guidelines for Success): Interstate 700; 15px; ALL CAPS;
+  letter-spacing 0.08em; color Red; margin-bottom 12px.
+Bulleted list (no list-style): margin 0; padding 0; flex column; gap 10px; max-width 80ch.
+  Each item: body paragraph style, laid out as flex with gap 12px; marker = 8x8px Gold square,
+  margin-top 10px, no shrink.
+Link inside body text: display inline; Interstate 700; same size as the surrounding text; color Red;
+  letter-spacing -0.025em; NO underline (also on hover); hover color #C2142B; white-space normal.
+  http(s) links open in a new tab; mailto links open the mail client.
+
+=====================================================================
+3. TABS SECTION
+=====================================================================
+Section: background Grey 100 (#F4F4F4).
+
+---- 3A. TAB BAR ----
+Container: 1240px max; padding-top clamp(36px, 4vw, 56px) [56px]; 24px sides.
+Tab bar (role="tablist"): grid, 4 equal columns; gap 4px.
+  At <=1000px: 2 columns (2 rows). At <=420px: 1 column.
+Each tab (<button role="tab">): flex, content centered; min-height 60px; padding 14px 16px;
+  border 0; Interstate 800; clamp(14px, 1.15vw, 16px) [16px]; ALL CAPS; letter-spacing 0.04em;
+  line-height 1.15; text centered.
+  NOT selected: background White; color Black; box-shadow 0 2px 8px rgba(0,0,0,0.06).
+  Selected:     background Red;   color White; no shadow.
+  transition: background 240ms ease, color 240ms ease, box-shadow 240ms ease.
+Tabs, left to right: OVERVIEW · ACCESSING ONLINE COURSES · ONLINE LIBRARY USAGE · GUIDELINES FOR SUCCESS
+
+---- 3B. TAB PANEL ----
+Container: 1240px max; padding-top 4px (gap under the tab bar); padding-bottom clamp(56px, 7vw, 96px)
+  [96px]; 24px sides.
+Panel (role="tabpanel"): background White; box-shadow 0 2px 8px rgba(0,0,0,0.06); no border;
+  padding clamp(28px, 4vw, 56px) [56px] all sides;
+  grid, two columns: minmax(0, 1fr) | minmax(260px, 320px) [320px]; gap clamp(28px, 4vw, 56px) [56px];
+  align-items start. At <=1000px the columns stack (tab content, then Apply Now box).
+  Left column: the selected tab's content (section 4). Right column: the Apply Now box (3C),
+  the same on every tab.
+
+---- 3C. APPLY NOW BOX (right column of the panel) ----
+  <aside>: background Grey 100; padding clamp(22px, 2.4vw, 30px) [30px]; flex column; gap 16px.
+  NOT sticky.
+  (1) h2 "Apply Now": Interstate 800; clamp(22px, 2vw, 28px) [28px]; line-height 1.05;
+      letter-spacing -0.015em; color Black; margin 0.
+  (2) "Applications Now Open for Spring 2027": Interstate 800; 18px; line-height 1.25; color Red.
+  (3) "Early Priority Application Deadline: October 16 · $1,000 Scholarship & Application Fee Waived*"
+      Interstate 500; 16px; line-height 1.55; color #222222.
+  (4) Button "START YOUR APPLICATION »" (single »), full width of the box, text centered and allowed
+      to wrap; links to /mppm-application-requirements (same tab).
+      Primary, medium: inline-flex; centered; gap 10px; Interstate 700; 16px; ALL CAPS;
+      letter-spacing 0.01em; line-height 1; padding 13px 24px; border 2px solid Red; border-radius 4px;
+      background Red; color White. Hover: background/border #C2142B. Pressed: #A40F23 and
+      translateY(1px). transition background, color, border-color, transform 140ms
+      cubic-bezier(0.4, 0, 0.2, 1).
+
+=====================================================================
+4. TAB CONTENT (left column of the panel; verbatim; [brackets] = link, {braces} = bold)
+=====================================================================
+Default tab on load: OVERVIEW, unless the URL hash names another tab.
+Each tab: panel heading (spec 2), then its content.
+
+---- TAB 1: "OVERVIEW"   (hash #overview) ----
+  Panel heading (h2): "Overview"
+  Two body paragraphs (flex column, gap 14px):
+    "The MPS in Product Management uses ELMS (Enterprise Learning Management System) as the
+    online learning environment. ELMS provides access to static course content (e.g., syllabi,
+    schedules, announcements, video lectures, etc.), as well as access to interactive tools
+    (e.g., discussion groups, live chats, and online assessments)."
+    "As an asynchronous experience, MPS in Product Management students are NOT regularly
+    required to login at a specific time to participate in course activities. Students access
+    and complete course work at any time during the assigned week. The occasional synchronous
+    interactions are available by appointment at a variety of times to accommodate student
+    schedules."
+
+---- TAB 2: "ACCESSING ONLINE COURSES"   (hash #accessing) ----
+  Panel heading (h2): "Accessing Online Courses"
+  Body paragraph:
+    "To get started, [click here]. The course instructor must first load the online course into
+    ELMS. Once the course is in ELMS, registered students have automatic access. This occurs no
+    earlier than 72 hours prior to course start date and no less than 24 hours prior to course
+    start date. Only students who are registered and on the official class list can access the
+    course. If students register late, it may take up to 24 hours for ELMS to give online
+    access. If canceled for non-payment, students lose access immediately"
+    (No period at the end — as on the live page.)
+
+---- TAB 3: "ONLINE LIBRARY USAGE"   (hash #library) ----
+  Panel heading (h2): "Online Library Usage"
+  Body paragraph:
+    "UMD Libraries extends a number of online resources and services through its Web site:
+    [[www.lib.umd.edu/UMCP]](https://www.lib.umd.edu/UMCP])."
+
+---- TAB 4: "GUIDELINES FOR SUCCESS"   (hash #guidelines) ----
+  Panel heading (h2): "Guidelines for Success"
+  Three groups (flex column, gap clamp(22px, 2.4vw, 30px) [30px]); each = sub-label + bulleted list:
+  • Sub-label "TECHNOLOGY AND COMPUTER SKILL REQUIREMENTS"
+      ▪ A computer with high-speed internet access.
+      ▪ Skill in operating a computer, navigating the internet, sending and receiving e-mail,
+      uploading and downloading files, opening attachments, downloading applications, and other
+      basic skills.
+  • Sub-label "COMMUNICATION AND COLLABORATION"
+      ▪ Interaction with professors and students may include: chat rooms, forums, threaded
+      discussions, e-mail, teleconferencing, video conferencing, and other venues enriches the
+      learning experience and provides a real opportunity to learn from others.
+      ▪ Successful students take the initiative to participate in classes and related
+      activities, meet deadlines, and complete all coursework.
+  • Sub-label "BASIC TIPS"
+      ▪ Online learning is rigorous and as demanding as face-to-face, traditional courses. Be
+      prepared to work a minimum of 9-12 hours per week for every 3 credit-hour course you take.
+      ▪ Read the syllabus and learn the course objectives, due dates and other requirements.
+      ▪ Read and study all materials provided in the course including textbooks and supplemental
+      material.
+      ▪ Be an active participant in your class.Contact your instructor with questions or
+      clarifications.
+      ▪ Time management is essential. Establish a set period of time each day or week to devote
+      to taking the course and to studying. Avoid procrastination and "cramming."
+  (Keep "class.Contact" with no space — as on the live page.)
+
+=====================================================================
+5. "APPLICATIONS ARE NOW OPEN!" PANEL
+=====================================================================
+Continues inside the same grey section (no new background).
+Container: 1240px max; padding 0 24px clamp(56px, 7vw, 100px) [100px] (bottom only).
+Panel: grid, 2 columns minmax(0, 5fr) | minmax(0, 7fr); NO gap; align-items stretch;
+  box-shadow 0 2px 8px rgba(0,0,0,0.06); no border, no radius. At <=900px the halves stack.
+  Left (gold): background Gold; padding clamp(28px, 3.2vw, 44px) [44px]; content vertically centered.
+    "Applications are now open!": Interstate 800; clamp(26px, 2.8vw, 38px) [38px]; line-height 1.1;
+    letter-spacing -0.015em; color Black; margin 0.
+  Right (white): background White; padding clamp(28px, 3.2vw, 44px) [44px]; flex column; content
+    vertically centered; left-aligned; gap clamp(20px, 2.2vw, 26px) [26px].
+    "Request more information below.": Georgia; clamp(17px, 1.5vw, 20px) [20px]; line-height 1.6;
+      color #222222; margin 0.
+    Button "LEARN MORE ››" → /mppm#learn-more (same tab). Dark, large: inline-flex; gap 10px;
+      Interstate 700; 17px; ALL CAPS; letter-spacing 0.01em; line-height 1; no wrap;
+      padding 17px 34px; border 2px solid Black; border-radius 4px; background Black; color White.
+      Hover: background/border #1F1F1F. Pressed: translateY(1px).
+      transition 140ms cubic-bezier(0.4, 0, 0.2, 1).
+
+=====================================================================
+6. LINKS ON THIS PAGE (body only; each listed once)
+=====================================================================
+  Tabs (in-page; each sets the URL hash, no page load):
+    OVERVIEW #overview · ACCESSING ONLINE COURSES #accessing · ONLINE LIBRARY USAGE #library · GUIDELINES FOR SUCCESS #guidelines
+  START YOUR APPLICATION » (Apply Now box) → /mppm-application-requirements
+  LEARN MORE ›› → /mppm#learn-more
+  Links in the tab text:
+  click here (Accessing Online Courses tab)
+    → # (no destination yet — placeholder on the live page; build as a link, destination to be supplied)
+  [www.lib.umd.edu/UMCP](https://www.lib.umd.edu/UMCP) (Online Library Usage tab)
+    → https://lib.guides.umd.edu/c.php?g=1010320&p=7319325 (new tab)
+
+=====================================================================
+7. ANIMATION / INTERACTION
+=====================================================================
+TAB BEHAVIOUR
+  - Clicking a tab selects it and replaces the URL hash with #<tab-id> (history.replaceState;
+    no new history entry, no scroll).
+  - On load, and whenever the hash changes, the tab named by the hash is selected
+    (unknown or empty hash → OVERVIEW).
+TAB-CHANGE TRANSITION
+  1. Tab button colours change: 240ms ease (background, color, box-shadow).
+  2. The whole left-column content (heading included) fades OUT: opacity 1 → 0, 160ms ease.
+  3. At 160ms the content is swapped to the new tab (while invisible).
+  4. New content fades IN: opacity 0 → 1, 320ms ease (starts on the second animation frame
+     after the swap).
+  5. Throughout, the panel height glides to the new content height: height, 420ms
+     cubic-bezier(0.22, 1, 0.36, 1).
+  NO vertical movement of the content (opacity only). The Apply Now box does not fade.
+  Height animator structure:
+    <div class="tab-height">   overflow hidden; height = measured height of .tab-measure + 20px
+                               (set in px by script; "auto" before the first measurement);
+                               margin 0 -10px -20px; padding 0 10px;
+                               transition height 420ms cubic-bezier(0.22, 1, 0.36, 1)
+      <div class="tab-measure"> padding-bottom 20px; watched by a ResizeObserver
+        <div role="tabpanel">…</div>
+    (The extra 10px sides / 20px bottom keep the panel shadow from being clipped; the negative
+     margins cancel the extra space.)
+  Edge cases: clicking back to the displayed tab within 160ms cancels the swap and shows the
+  content immediately; rapid clicks cancel pending swaps (last click wins).
+  prefers-reduced-motion: reduce → content swaps instantly, no fade.
+BUTTONS: 140ms cubic-bezier(0.4, 0, 0.2, 1) hover/press as specified above.
+Links in body text: colour change to #C2142B on hover (no transition set).
+
+=====================================================================
+8. RESPONSIVE BREAKPOINTS (this page only)
+=====================================================================
+  <=1000px : tab bar 2 columns; tab panel stacks (content, then Apply Now box).
+  <=900px  : "Applications are now open!" halves stack.
+  <=420px  : tab bar 1 column.
+  All clamp() values scale between their min and max automatically.
+```
+
 
