@@ -6458,4 +6458,94 @@ Links in body text: colour change to #C2142B on hover (no transition set).
 
 **Standing instruction for all 4 remaining MPPM pages (Online Learning, Tuition & Financial Aid, Graduation & Commencement, Student Experience): before building any new "Apply Now" sidebar box or "Applications are now open!" CTA panel from scratch, check the `MPPM` component group first** — `data_component_tool.query_components` with `keywords:["MPPM"]`, or `get_all_components` — and insert an instance of the existing component (right variant for the page's background) instead of hand-building a new copy. Hand-building a new copy here is exactly the mistake already made twice (Academic Policies + Calendars & Deadlines each got their own independent, forked copy before this fix) and exactly what the user asked to stop happening.
 
+## §314 — STANDING BUILD INSTRUCTIONS for the 3 remaining tab pages (Online Learning, Tuition & Financial Aid, Graduation & Commencement), given verbatim by the user BEFORE any of their individual specs, 2026‑11‑04 — SAVED HERE, NOT JUST IN CONVERSATION, SPECIFICALLY BECAUSE CONVERSATIONAL MEMORY DOES NOT SURVIVE COMPACTION RELIABLY
+
+**User's own words, verbatim, in full — read this before touching any of these 3 pages, every time, even in a brand-new session:**
+
+```
+CONTEXT — READ BEFORE BUILDING THE NEXT THREE TAB PAGES
+
+The MPPM site has four "tab" pages that share ONE identical structure:
+  /mppm-academic-policies        (already built by you — this is the REFERENCE page)
+  /mppm-online-learning
+  /mppm-tuition-financial-aid
+  /mppm-graduation-commencement
+
+I have already copied the Hero section and the Tabs/main content section from the finished
+Academic Policies page and pasted them into the other three pages. Those pasted sections are the
+correct, approved build. Your job on these three pages is to EDIT what is there, not to rebuild it.
+
+RULES
+1. Do NOT delete, recreate, or restructure the pasted sections. Keep every element, class, style,
+   interaction and script exactly as on Academic Policies unless a change is listed below.
+2. Change ONLY what differs per page (list below): the hero title, the number of tabs, the tab
+   labels, the tab IDs/hashes, the tab content, and the five small page-specific details.
+3. The full spec and PDF I give you for each page describe the WHOLE page from scratch. Use them only
+   for what DIFFERS. Wherever a spec describes a shared part (hero layout, tab bar styling, panel,
+   Apply Now box, "Applications are now open!" panel, tab-change animation), the existing pasted build
+   wins. Do not "correct" the pasted build to match the spec on shared parts.
+4. Classes: keep the shared class names as they are. Only add or rename a class where a page
+   genuinely needs a different value (e.g. a different tab label size or a different column count at a
+   breakpoint). Prefer a combo class (e.g. tabs + tabs--seven) over renaming or duplicating the base
+   class, so the shared styling stays shared and Academic Policies is unaffected.
+5. Keep the layout method the Academic Policies build already uses for the tab row and panel
+   (do not switch methods). Only change the column count / number of tab items.
+6. The tab script/interaction: reuse the same one. Update only the tab list (count, labels, IDs).
+   Behaviour must stay identical: clicking a tab sets the URL hash; loading a page with a hash opens
+   that tab; unknown/empty hash opens the first tab; same fade-out 160ms / height glide 420ms /
+   fade-in 320ms, no vertical movement.
+7. The Apply Now box (right column) and the "Applications are now open!" panel beneath are IDENTICAL
+   on all four pages — do not change their content or styling. If the "Applications are now open!"
+   panel was not included in what I pasted, copy it from Academic Policies unchanged.
+8. Do not touch the Academic Policies page.
+
+WHAT CHANGES, PER PAGE
+(Tab content for each tab — headings, paragraphs, lists, links — is in each page's spec, section 4.)
+
+A) /mppm-online-learning
+   Hero title: "Online Learning"
+   4 tabs (label → hash): OVERVIEW #overview · ACCESSING ONLINE COURSES #accessing ·
+     ONLINE LIBRARY USAGE #library · GUIDELINES FOR SUCCESS #guidelines
+   Tab row columns: 4; at <=1000px 2; at <=420px 1.
+   Tab label size: same as Academic Policies (14–16px, padding 14px 16px).
+   Panel heading (h2) inside tabs: SMALLER than Academic Policies — clamp(24px, 2.4vw, 32px),
+     line-height 1.05, letter-spacing -0.015em, margin-bottom clamp(14px, 1.6vw, 20px).
+   Red sub-labels: same style as Academic Policies (700, 15px, 0.08em).
+
+B) /mppm-tuition-financial-aid
+   Hero title: "Tuition & Financial Aid"
+   7 tabs: TUITION/FEES #tuition-fees · WHEN TO PAY #when-to-pay · POLICY #policy ·
+     PROCESS #process · FINANCIAL AID/ALT #financial-aid · NON-PAYMENT #non-payment · REFUNDS #refunds
+   Tab row columns: 7; at <=1100px 4; at <=600px 2.
+   Tab label size: SMALLER — clamp(13px, 1.05vw, 15px); padding 14px 12px.
+   Panel heading: same as Academic Policies.
+   Red sub-labels: REINFORCED style — Interstate 800, clamp(16px, 1.3vw, 17px), letter-spacing 0.03em
+     (they sit close to red links).
+   Extra element (this page only): one GOLD CALLOUT box in the Tuition/Fees tab — specified in the spec.
+
+C) /mppm-graduation-commencement
+   Hero title: "Graduation & Commencement"
+   4 tabs: SUBMISSION DEADLINES #submission-deadlines · MASTER'S INSTRUCTIONS #masters-instructions ·
+     TIMELINE #timeline · COMMENCEMENT #commencement
+   Tab row columns: 4; at <=1000px 2; at <=420px 1.
+   Tab label size: SMALLER — clamp(13px, 1.05vw, 15px); padding 14px 12px.
+   Panel heading: same as Academic Policies.
+   Red sub-labels: REINFORCED style (as Tuition).
+
+FOR EACH PAGE, WHEN DONE
+- Confirm you edited the pasted sections in place (nothing rebuilt).
+- List every class you added or renamed, and why.
+- Confirm each tab opens from its URL hash.
+```
+
+**Why this entry exists at all:** the user asked directly "You've retained this so, should you 'compact' you have it all?" — the honest answer is that conversational retention alone is not a safe guarantee across a compaction event (a summary can compress or drop detail from a long structured spec like this), so per this project's own MAINTENANCE RULE and the exact precedent of §302 (the tab-transition spec saved verbatim before its pages existed), this entire instruction is saved here, verbatim, rather than relied on from conversation memory alone.
+
+**Key things to remember when actually executing on each of these 3 pages, synthesized from the rules above plus this session's own prior findings:**
+- **These pages ALREADY have the Hero + Tabs/content sections pasted onto them** (done by the user, outside this session, timing unknown relative to when the Apply Now Box / Applications Open Panel components were created in §313) — the first action on each page is to **query its current element tree fresh** (never assume from this note) and confirm: (a) the pasted sections are present and structurally intact, (b) whether the Apply Now box and Applications-open panel pasted as genuine `ComponentInstance` elements (linked to `72ff1b76-e0e5-832f-4393-f0f69f83a019` / `7a4c0c9b-9ff0-5b76-f3cf-0c222cd6fe9e`) or as raw detached duplicate elements. If raw duplicates, per rule 7's own allowance, swap them for real component instances (`base` variant for all 3 of these pages — all grey background) instead of leaving them as independent forked copies.
+- **Never touch Academic Policies** (`6ae61e9305e834b547ffb9d2`) while doing this work, per rule 8 and per the project's own HARD RULE #15 ("when told make X match Y, never touch Y — Y is the model").
+- **Layout method = CSS Grid**, matching Academic Policies' own corrected build (§312) — never Flexbox for the tab row or the 2-column tab-panel split, only the column-count values change. Tuition's 7-column row is new territory (not yet built anywhere) — same `display:grid` mechanism, `grid-template-columns:repeat(7,1fr)` at base → `repeat(4,1fr)` at ≤1100 → `repeat(2,1fr)` at ≤600, mapped to the nearest native breakpoints per HARD RULE #2 the same way Academic Policies' own custom breakpoints were mapped (1100→medium/991 conservative-early is NOT available here since 1100>991, so actually 1100px sits ABOVE the medium breakpoint threshold — recheck this mapping carefully against native breakpoints when actually building; do not blindly reuse Academic Policies' own 1000→medium mapping, since these numbers differ and need their own fresh nearest-native-breakpoint decision).
+- **Combo classes for variants**, e.g. a `mppm-acpol-tab` + `mppm-acpol-tab--small` combo for the smaller tab-label size used on Tuition/Graduation, rather than renaming the shared base class — per HARD RULE #11's own combo-creation-failure caveat, remember that combining a brand-new combo class with an existing one in the SAME `set_style`/builder call can fail with "One or more styles not found" if either was freshly created this session; the established workaround (confirmed working on this exact page already, see §312's `termrow-labelh3` fix) is to create one standalone merged class with the full property set instead of a true Designer combo, if the combo-apply call fails.
+- **Reuse the exact same tab-switching JS module already built for Academic Policies** (the embed with `selectTab`/`cancelPending`/`updateTabButtons`/ResizeObserver logic) — since the Hero+Tabs sections were PASTED from Academic Policies, the embed element itself likely pasted along with them (HTML Embeds paste as part of a Section/Block copy) — verify this fresh per page, and if present, only its internal `VALID` tab-key array and any hardcoded tab-count assumptions need updating to match each page's own tab list; if genuinely missing on a page, recreate it as its own page-scoped embed (never shared) per HARD RULE #17.
+- **No `border-radius` anywhere new** (standing MPPM rule) applies to the Tuition page's new gold callout box too, once its own spec is supplied.
+
 
