@@ -6792,4 +6792,91 @@ Links in body text: colour change to #C2142B on hover (no transition set).
   All clamp() values scale between their min and max automatically.
 ```
 
+## §316 — MPPM Online Learning (`/mppm-online-learning`): build completed (2026-11-04)
+
+**⚠️ Mid-build incident, must never recur — logged here in full per HARD RULE #27:** a background
+`Agent` fork was launched to execute this build. The user's reaction was immediate and absolute
+("You may not EVER AGAIN outsource this to an 'agent' for the remainder of this entire project"); the
+fork was killed via `TaskStop` the moment this was read, and HARD RULE #27 (never delegate any part of
+this project's work to a subagent, for the rest of the project) was added to CLAUDE.md on the spot. The
+rest of this page's build — querying the fork's actual left-behind state (never trusting its self-report,
+per HARD RULE #19), building all four tabs' content, fixing a bug, full verification, and this entry —
+was done directly, by hand, one tool call at a time, with no further delegation.
+
+**Edited in place, confirmed, nothing rebuilt:** the fork (before being stopped) had already collapsed
+the pasted 6-tab Academic Policies structure down to 4 tabs, renamed all panel/button IDs and attributes
+in lockstep, retexted the hero to "Online Learning," retexted all 4 panel headings, and cleared the old
+Academic-Policies-specific body content from each panel — verified fresh via `query_elements` after
+stopping it, not assumed. The hero/tab/panel/Apply-Now-box/Applications-open-panel scaffold itself was
+never rebuilt; only its tab count and text content changed, exactly per §314's own instructions.
+
+**Classes added (two, both standalone — no existing shared class renamed or touched):**
+- `mppm-acpol-tablist--4col` — combo on `mppm-acpol-tablist`, overrides `grid-template-columns` only:
+  `1fr 1fr 1fr 1fr` (base) → `1fr 1fr` (medium, ≤991 — serves the spec's "≤1000px" threshold, same
+  conservative nearest-native mapping Academic Policies itself already uses) → `1fr` (tiny, ≤479 —
+  serves the spec's "≤420px" threshold, same mapping precedent as Academic Policies' own 520→tiny).
+- `mppm-acpol-h2--sm` — combo on `mppm-acpol-h2`, overrides only `font-size`/`line-height`/
+  `letter-spacing`/`margin-bottom`, stepped (not clamped) per the 2026-11-03 no-clamp-for-ordinary-text
+  rule: 32/29/26/24px font-size and 20/18/16/14px margin-bottom at main/medium/small/tiny — a smooth
+  ladder toward the spec's own clamp(24,2.4vw,32) and clamp(14,1.6vw,20) endpoints, not a literal
+  evaluation of the clamp formula (which would floor out near 24px for nearly the whole range below
+  1333px viewport — not what the spec's own 1440px-reference desktop value of 32px implies).
+- `mppm-acpol-parastack` (Overview's 2-paragraph wrapper, flex column gap 14px flat, no breakpoints —
+  spec gave a flat, non-responsive gap) and `mppm-acpol-guide-groups` (Guidelines' 3-group wrapper, flex
+  column gap stepped 30/27/24/22 at main/medium/small/tiny, mirroring the h2--sm ladder's rounding
+  pattern) were also created — both brand-new, page-scoped, never existed on Academic Policies.
+- Guidelines' bulleted lists reuse the EXISTING `mppm-acpol-doc-list`/`-item`/`-marker`/`-text` classes
+  as-is (verified via `query_styles` they already match spec exactly — flex column gap 10px, flex row
+  gap 12px, 8×8 gold marker, Georgia 17.5px body text) — zero changes needed there.
+- The pre-existing `mppm-acpol-sublabel` class's margin-bottom (14px) was deliberately left untouched
+  even though Online Learning's own spec text independently states 12px — per §314 rule 3 ("the existing
+  pasted build wins on shared parts"), confirmed as one of the explicitly shared items in §314's own
+  prediction table ("Red sub-labels: same style as Academic Policies").
+
+**Tab content built verbatim** (Overview: 2 plain paragraphs; Accessing Online Courses: 1 mixed paragraph
+with "click here"→`#`, no trailing period, preserved exactly; Online Library Usage: 1 mixed paragraph with
+"www.lib.umd.edu/UMCP"→`https://lib.guides.umd.edu/c.php?g=1010320&p=7319325`; Guidelines for Success: 3
+sub-label groups, 9 list items, "class.Contact" no-space and the "cramming." quote both preserved
+verbatim) using the same established mixed-paragraph technique already used on Academic Policies
+(confirmed by a read-only check of Academic Policies' own Health tab first): every text run inside a
+mixed paragraph, including plain-text ones, is built as a `TextLink` child — real links get
+`mppm-acpol-link`, plain-text runs get `mppm-acpol-body` explicitly, never left unclassed.
+
+**⚠️ Bug found and fixed before publishing was called done:** `data_element_builder` auto-populates a
+newly-created `Paragraph` element with a default "Lorem ipsum…" placeholder `String` child. Calling
+`set_text` on the Paragraph directly replaces that placeholder (used correctly for Overview's two plain
+paragraphs — no issue there) — but building a Paragraph via `children` only (the mixed-link paragraphs
+on Accessing/Library, which have no single flat `set_text` value) does NOT clear the placeholder; it
+survives as the first child, with the real `children` appended after it. Live screenshots caught this
+immediately after the first publish ("Lorem ipsum…posuere.To get started, click here…" running together
+with no space). Fixed by querying each paragraph's children, `remove_element` on the stray placeholder
+`String` node, republishing, and re-screenshotting to confirm. **Standing lesson for any future
+mixed-TextLink paragraph built this same way: always check for and remove this default placeholder
+before (or immediately after) publishing — never assume `children`-only construction leaves the
+Paragraph empty.**
+
+**Apply Now box / Applications Open Panel:** confirmed genuine `ComponentInstance` elements (not raw
+duplicates) — "MPPM Apply Now Box" (`72ff1b76-e0e5-832f-4393-f0f69f83a019`) and "MPPM Applications Open
+Panel" (`7a4c0c9b-9ff0-5b76-f3cf-0c222cd6fe9e`, variant `base`) — correct by construction, nothing to wire.
+
+**Verification (live, published site, real headless-browser checks, not compiled-CSS-only):**
+- Responsive sweep across 16 widths (320–1440): zero horizontal overflow at every width; tablist columns
+  step 1 (≤479) → 2 (480–991) → 4 (≥992); tab panel grid steps 1-col (stacked, ≤991) → 2-col (≥992);
+  zero JS console errors at any width.
+- Interactive sequence (HARD RULE #21 — one continuous session, no reloads): fresh load with no hash →
+  Overview shown; clicked Accessing → Library → Overview → Guidelines in sequence, each correctly updated
+  both the URL hash (via `replaceState`) and the visible panel, exactly one panel visible at a time;
+  30ms rapid-click-through-three-tabs → last click wins; fresh load with `#guidelines` in the URL → opens
+  directly to Guidelines with correct active-tab state; zero JS errors throughout.
+- Each tab opens correctly from its own URL hash: confirmed (`#overview` default, `#accessing`,
+  `#library`, `#guidelines` all independently tested).
+- Designer-canvas snapshot (`element_snapshot_tool`): **timed out, same Bridge App connectivity issue as
+  the rest of this session — outstanding, not silently skipped.** Substituted with the project's own
+  documented fallback (real headless-browser screenshots of the live published page, used throughout this
+  verification) per the C-Rail procedure's own stated allowance for when the snapshot tool won't connect.
+
+**Status:** `/mppm-online-learning` is DONE — published and live. 2 of the 3 remaining tab-page family
+members now stand at: Online Learning done (this entry), Tuition & Financial Aid and Graduation &
+Commencement still pending their own individual specs from the user, per §314.
+
 
