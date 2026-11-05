@@ -7812,3 +7812,60 @@ Panel: grid, 2 columns minmax(0, 5fr) | minmax(0, 7fr); NO gap; align-items stre
   <=560px  : feature row 1 column.
   All clamp() values scale between their min and max automatically.
 ```
+
+## §322 — MPPM Student Experience (`/mppm-student-experience`): build complete, published, verified (2026-11-05)
+
+Built in full per the verbatim spec in §321. Page id `6ae61e9c064237583a867de5`.
+
+**Structure shipped:** Hero (black, reused `mppm-acpol-hero`/`-hero-wrap`/`-hero-eyebrow`/`-hero-h1`
+as-is per HARD RULE #10's shared-look-family exception — confirmed via fresh `query_styles` that all
+4 properties matched this page's hero spec byte-for-byte before reusing). Block 1 "On-Demand Online
+Classes" (white, photo-left/text-right, `mppm-exp-row-57`) + a 4-box feature row (`mppm-exp-featuregrid`,
+red/gold/black/wine). Block 2 "Immersive Coursework" (grey `#F4F4F4`, text-left/photo-right in the DOM
+but reordered photo-first at the stack breakpoint via `order` on `mppm-exp-b2-photocol`/`-b2-textcol`).
+Block 3 "Student-Faculty Engagement" (white, photo-left/text-right). Closing "Applications are now
+open!" panel using the existing "MPPM Applications Open Panel" component, inserted via
+`data_component_tool.insert_component_instance` and switched to its **"White Background"** variant
+(heavier shadow + hairline border for a white section, vs. the grey "base" variant used on every
+other MPPM tab page) via `data_component_props_tool.set_component_instance_prop_values`.
+
+**26 new page-scoped classes created** (`mppm-exp-*`) — wraps, two mirrored row-grid classes
+(`mppm-exp-row-57`/`-row-75` for 5fr|7fr and 7fr|5fr column splits), photo/text column classes,
+heading-row + icon (with the calc()-based negative top-margin per spec section 2), h2/body text
+classes, the 4-column feature grid and its 4 color variants + white/black heading+text pairs. Full
+property values recorded in-session; all in the master site (`6a316b1a0f02a4cda75a50e7`).
+
+**Two new technical discoveries this build, not previously documented in this file:**
+1. **`data_element_tool.set_attributes` throws "An internal error occurred" if the attributes array
+   includes a key named `"id"`.** An element's DOM id must be set via the dedicated
+   `data_element_settings_tool.set_dom_id` action instead (flat `{element_id, static_value}` shape —
+   NOT the `{operations:[...]}` shape `set_settings` uses; the two are easy to conflate since the
+   label suggests they're interchangeable).
+2. **`data_element_builder`'s `type` enum has no `"ComponentInstance"` option.** A component instance
+   cannot be created as part of a nested-children builder call — build the surrounding shell (Section
+   + wrapper DivBlock) via `data_element_builder`, separately query to find that DivBlock's real
+   element id (the builder call only returns the top-level created element's id, not descendants),
+   then insert the component as a child of that container via the separate, purpose-built
+   `data_component_tool.insert_component_instance` action (`parent_element_id`, `component_id`,
+   `creation_position`).
+
+**Verification performed:** `query_elements` with `text:"Lorem ipsum"` scoped to this page returned
+zero matches (page was built mostly via direct `set_text`, not the `children`-based builder path that
+causes the stray-placeholder bug documented in §316, so none were introduced here). Published via
+`publish_site` (`publishToWebflowSubdomain:true`, master site). Live site re-fetched fresh and checked
+via Playwright at 1440/1000/920/900/560px: **zero horizontal overflow at any width.** Visually
+confirmed myself (not just tool output) via screenshots at 1440, 1000, 920, and 560px: desktop shows
+the full 2-column rows + 4-column feature grid + side-by-side panel exactly per spec; at 1000px the
+page is still in its desktop layout (confirms the 1000px/920px spec thresholds both correctly collapsed
+onto the native `medium` (≤991) breakpoint, per HARD RULE #2's "nearest native breakpoint, erring
+conservative" rule — no native breakpoint sits between 920 and 1000, so both map to the same one); at
+920px every block stacks to one column with the **photo appearing first** on all three blocks
+(including Block 2, whose text is DOM-first — the `order` CSS correctly reverses it), the feature row
+is 2×2, and the closing panel is already stacked (consistent with mapping the spec's ≤900px panel
+threshold to the same conservative `medium` breakpoint); at 560px the feature row is a single column.
+No lorem-ipsum, no missing images, all four feature-box colors and text correct, Learn More button
+present and styled. This completes the page in full per §321's spec.
+
+**Not yet done:** Designer-canvas `element_snapshot_tool` visual check was not attempted this pass
+(the live-screenshot verification above substituted for it, consistent with the documented fallback
+used on Tuition/Graduation when that tool has been unavailable).
