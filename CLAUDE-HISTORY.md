@@ -7565,3 +7565,69 @@ Links in body text: colour change to #C2142B on hover (no transition set).
 ```
 
 
+
+## §320 — MPPM Graduation & Commencement (`/mppm-graduation-commencement`): build complete, published, verified (2026-11-05)
+
+All 4 tabs built per §319's verbatim spec: SUBMISSION DEADLINES, MASTER'S INSTRUCTIONS, TIMELINE,
+COMMENCEMENT. This is the LAST of the 4 pages in the §314/§302 tab-page family — Academic Policies,
+Online Learning, Tuition & Financial Aid, and now Graduation & Commencement are all built, published,
+and verified. No new style classes were needed: this page's tab-label-size and sub-label specs matched
+Tuition's `mppm-acpol-tab--sm`/`mppm-acpol-tab-active--sm`/`mppm-acpol-sublabel--reinforced` combos
+exactly, and its tablist-column spec (4/2/1 at main/medium/tiny) matched Online Learning's
+`mppm-acpol-tablist--4col` combo exactly — both reused as-is after fresh verification confirmed their
+stored values matched (HARD RULE #19), with zero new classes created.
+
+**Structural approach, since this page's pasted 6 tabs/panels didn't match the 4 needed:** kept the
+first 4 of the 6 pasted tab buttons/panels (health→submission-deadlines, graduate→masters-instructions,
+withdrawal→timeline, appeals→commencement) and removed the other 2 (enrollment, update) entirely — tab
+buttons via `remove_element`, panels via `remove_element`. The 4 kept panels' OLD content didn't match
+what the new tabs needed shape-wise (graduate/withdrawal had 6-term-row structures, appeals had a
+nested `appeals-wrap` block, health/enrollment had plain paragraphs) — all old content children were
+removed first, then each panel's new content was built fresh via `data_element_builder` matching
+exactly what each tab's own spec called for (a single mixed-link paragraph, a sub-label + 4-item list,
+a plain list + a second sub-label + list, two plain-ish mixed paragraphs).
+
+**One new technical gotcha found: `data_element_tool.set_attributes` returns `"An internal error
+occurred"` when the attribute list includes `"id"`.** Setting a Block/panel's `id` (used for in-page
+anchor targeting, e.g. `pol-submission-deadlines`) must go through
+`data_element_settings_tool.set_dom_id` instead — a dedicated action, not the generic attributes
+setter. `data-panel`/`aria-labelledby`/`data-tab` all set fine via `set_attributes`; only the literal
+`id` key fails there. Fixed by splitting the one call into two: `set_attributes` for
+`data-panel`/`aria-labelledby`, `set_dom_id` for `id`, both targeting the same element.
+
+**The §318 tab-JS lesson was applied proactively this time, not reactively:** the embed's `VALID` array
+and all 4 `'<default-key>'` fallbacks were rewritten to the new 4 keys
+(`submission-deadlines/masters-instructions/timeline/commencement`) in the SAME pass as relabeling the
+tabs/panels, before any publish or verification — confirmed working on the first live interactive test,
+no repeat of Tuition's "tabs silently do nothing" incident.
+
+**Lorem-ipsum placeholder sweep (§316's recurring `data_element_builder` bug): 8 found, all removed**
+(1 on Tab 1's single mixed paragraph, 3 on Tab 2's link-bearing list items, 2 on Tab 3's mixed items, 2
+on Tab 4's two mixed paragraphs) — count matched the predicted number of children-built Paragraphs
+exactly before the sweep ran, confirming nothing was missed.
+
+**Section-6 link dedup resolved by page order, not list order:** two separate "click here" links share
+the same label but different hrefs — Tab 3's Diploma-Office "click here" (earlier in page order) maps
+to the FIRST listed href (`#`, an explicit placeholder — built as a real link with no destination yet,
+per the spec's own note), and Tab 4's commencement-info "click here" (later in page order) maps to the
+SECOND listed href (`https://commencement.umd.edu/`, new tab). Confirmed by matching each tab's
+internal link order against the link list's own sequence before building either one.
+
+**Verification completed:** component instances confirmed genuine (`MPPM Apply Now Box` id
+`72ff1b76-e0e5-832f-4393-f0f69f83a019`, `MPPM Applications Open Panel` id
+`7a4c0c9b-9ff0-5b76-f3cf-0c222cd6fe9e` variant `base`); full responsive sweep via headless Chromium
+across 23 widths (320–1600px, including explicit boundary checks at 999/1000/1001 and 419/420/421)
+confirmed zero overflow on every single element's bounding box at every width, correct tab-bar column
+transitions (4 cols down to 992px, 2 cols from 991–500px, 1 col from 479px down to 320px — both
+1000px/420px spec thresholds mapped to the nearest native breakpoints, medium/991 and tiny/479,
+matching Online Learning's identical spec exactly) and the panel's 2-column→1-column stack collapsing
+at the same medium threshold; interactive sequence test (5 clicks across all 4 tabs, including
+revisiting one, in one continuous page load) confirmed every heading and active-tab class updates
+correctly every time. Published live (`publish_site`, Webflow subdomain).
+**Designer-canvas snapshot visual check (`element_snapshot_tool`) failed (tool down, same as the
+Tuition pass) — real-browser screenshot of the live published page sent as the documented fallback
+instead, per HARD RULE #3's own carve-out for when the snapshot tool is unavailable.**
+
+**This completes the entire 4-page MPPM tab-page family named in §314.** All 4 pages (Academic
+Policies, Online Learning, Tuition & Financial Aid, Graduation & Commencement) are now built,
+published, and verified. No MPPM tab pages remain outstanding.
