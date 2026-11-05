@@ -7631,3 +7631,184 @@ instead, per HARD RULE #3's own carve-out for when the snapshot tool is unavaila
 **This completes the entire 4-page MPPM tab-page family named in §314.** All 4 pages (Academic
 Policies, Online Learning, Tuition & Financial Aid, Graduation & Commencement) are now built,
 published, and verified. No MPPM tab pages remain outstanding.
+
+## §321 — MPPM Student Experience (`/mppm-student-experience`): full verbatim build spec (2026-11-05)
+
+The user supplied the full build spec below for a NEW MPPM page type — NOT part of the §314 tab-page
+family (no tabs, no accordions). Three alternating photo/text blocks with a 4-box feature row after the
+first block, plus a closing white-background "Applications are now open!" panel. Per CLAUDE.md §313,
+this page already exists, currently empty/chrome-only, and is the one remaining page needing the
+existing "MPPM Applications Open Panel" component's `White Background` variant (not yet used anywhere
+else — every other MPPM page uses the grey `base` variant). Explicitly asked to be retained verbatim
+before execution.
+
+```
+MPPM — STUDENT EXPERIENCE PAGE (/mppm-student-experience) — BUILD SPEC
+Scope: hero through the end of the page body. Site header and footer are NOT part of this spec.
+All values are for desktop (1440px viewport). Where a value is a clamp(), the desktop result is
+shown in [brackets]. Anything not listed uses the browser/default value.
+
+=====================================================================
+0. TOKENS USED ON THIS PAGE
+=====================================================================
+Fonts
+  Interstate (sans)  = headings, feature-box text, button
+  Georgia (serif)    = block body paragraphs and the closing sentence (white/grey grounds)
+Colors
+  Red #E21833   Gold #FFD200   Black #000000   White #FFFFFF   Wine #7A0F1D
+  Grey 100 #F4F4F4   Text body #222222   Dark-button hover #1F1F1F
+Layout
+  Content container: max-width 1240px, centered, side padding 24px (content width 1192px).
+Images (all in the images set):
+  mppm-experience-educational-video-v19.svg (heading icon, used in all three blocks)
+  mppm-experience-online-classes.png (block photo: "On-Demand Online Classes")
+  mppm-experience-immersive-coursework.png (block photo: "Immersive Coursework")
+  mppm-experience-student-faculty.png (block photo: "Student-Faculty Engagement")
+
+Page order (top to bottom):
+  1. Hero (black)
+  2. Block 1: "On-Demand Online Classes" (white) + four-box feature row
+  3. Block 2: "Immersive Coursework" (grey)
+  4. Block 3: "Student-Faculty Engagement" (white)
+  5. "Applications are now open!" panel (white)
+Nothing follows except the site footer. No tabs, no accordions on this page.
+
+=====================================================================
+1. HERO
+=====================================================================
+Section: background Black, full width.
+Inner container: 1240px max; padding clamp(40px, 5vw, 72px) [72px] top and bottom, 24px sides.
+Eyebrow: "Master of Professional Studies in Product Management"
+  display block; Interstate 700; 16px; ALL CAPS; letter-spacing 0.14em; color Gold.
+Title (h1): "Student Experience"
+  Interstate 800; clamp(32px, 4vw, 56px) [56px]; line-height 1.0; letter-spacing -0.02em;
+  color White; margin-top 12px; max-width 18ch.
+No paragraph, no buttons, no image.
+
+=====================================================================
+2. SHARED STYLES (blocks)
+=====================================================================
+Container: max-width 1240px; centered; 24px side padding.
+Heading row: display flex; align-items FLEX-END; gap 18px; margin-bottom clamp(16px, 1.8vw, 22px) [22px].
+  Icon (left): mppm-experience-educational-video-v19.svg; width 124px; height auto (≈92px); no shrink;
+    decorative (alt="", aria-hidden). margin-top: calc(clamp(28px, 3vw, 42px) * 1.02 - 92px)
+    [≈ -49px] — a negative top margin so the taller icon rises into the space above and does NOT
+    push the heading down. Icon bottom aligns with the heading's bottom line.
+  Heading (h2): Interstate 800; clamp(28px, 3vw, 42px) [42px]; line-height 1.02; letter-spacing -0.02em;
+    color Black; margin 0. Long headings wrap; the icon then aligns with the last line.
+Body paragraph: Georgia; clamp(16px, 1.35vw, 18px) [18px]; line-height 1.7; color #222222; margin 0;
+  max-width 60ch. One paragraph per block (no breaks).
+
+=====================================================================
+3. BLOCKS (verbatim text)
+=====================================================================
+---- 3.1  BLOCK 1: "On-Demand Online Classes" ----
+Section: background White; full width.
+Row: container per spec 2; padding-top clamp(56px, 7vw, 96px) [96px]; padding-bottom clamp(44px, 5.4vw, 68px) [68px] (the feature row follows);
+  grid, two columns minmax(0, 5fr) | minmax(0, 7fr) — PHOTO LEFT, TEXT RIGHT;
+  gap clamp(32px, 5vw, 72px) [72px]; align-items center.
+  Photo: mppm-experience-online-classes.png — width 100% of its column, height auto (natural proportions,
+    no crop, no border, no shadow, no frame). alt="Online class shown on a desktop computer".
+  Text column: heading row (spec 2), then the body paragraph (spec 2):
+    "The MPS in Product Management is exclusively designed as a 100% online program without any
+    face-to-face or residency requirements. Students benefit from the global accessibility and
+    time flexibility of fully online learning without the requirement of meeting in a certain
+    place, or at a certain time, at any point in the Program. While there is a set syllabus and
+    learning agenda for each week, the recorded lectures may be viewed by students at any time
+    of their choosing each week."
+Feature row (directly under the row above, inside the same section):
+  Container per spec 2; padding-bottom clamp(56px, 7vw, 96px) [96px].
+  Grid: 4 equal columns (repeat(4, minmax(0,1fr))); gap 10px. Boxes stretch to equal height.
+  Each box: padding clamp(22px, 2.4vw, 32px) [32px]; no border, no shadow, no radius.
+    Heading (h3): Interstate 800; clamp(24px, 2.3vw, 32px) [32px]; line-height 1.08;
+      letter-spacing -0.015em; text-align CENTER; margin 0 0 16px; padding-bottom 16px;
+      border-bottom 1.5px solid (rule colour below).
+    Text: Interstate 500; 17px; line-height 1.5; left-aligned; margin 0.
+  Boxes, left to right (colours by position):
+    1. Red background; heading, rule and text White
+       Heading: "Faculty Collaboration"
+       Text: "With a limited number of students per cohort, the level of access to faculty is
+       high."
+    2. Gold background; heading, rule and text Black
+       Heading: "Dynamic Learning"
+       Text: "The curriculum integrates theory and action, with assignments that map the product
+       management lifecycle."
+    3. Black background; heading, rule and text White
+       Heading: "Convenient Access"
+       Text: "Students view the course lectures and content each week at their convenience, with
+       no set times."
+    4. Wine #7A0F1D background; heading, rule and text White
+       Heading: "Student Relationships"
+       Text: "With students completing the five terms in unison, there are rich opportunities to
+       develop friendships."
+
+---- 3.2  BLOCK 2: "Immersive Coursework" ----
+Section: background Grey 100 (#F4F4F4); full width.
+Row: container per spec 2; padding-top clamp(56px, 7vw, 96px) [96px]; padding-bottom clamp(56px, 7vw, 96px) [96px];
+  grid, two columns minmax(0, 7fr) | minmax(0, 5fr) — TEXT LEFT, PHOTO RIGHT;
+  gap clamp(32px, 5vw, 72px) [72px]; align-items center.
+  Photo: mppm-experience-immersive-coursework.png — width 100% of its column, height auto (natural proportions,
+    no crop, no border, no shadow, no frame). alt="Course content shown on a tablet".
+  Text column: heading row (spec 2), then the body paragraph (spec 2):
+    "Our courses are designed to map the lifecycle of product management. With an emphasis on
+    individual projects, in lieu of team projects, students can select and work in new venture
+    ideas of their choosing and apply the lessons learned to their own interests."
+
+---- 3.3  BLOCK 3: "Student-Faculty Engagement" ----
+Section: background White; full width.
+Row: container per spec 2; padding-top clamp(56px, 7vw, 96px) [96px]; padding-bottom clamp(56px, 7vw, 96px) [96px];
+  grid, two columns minmax(0, 5fr) | minmax(0, 7fr) — PHOTO LEFT, TEXT RIGHT;
+  gap clamp(32px, 5vw, 72px) [72px]; align-items center.
+  Photo: mppm-experience-student-faculty.png — width 100% of its column, height auto (natural proportions,
+    no crop, no border, no shadow, no frame). alt="Video call with faculty on a laptop".
+  Text column: heading row (spec 2), then the body paragraph (spec 2):
+    "With a limited number of students per cohort, the level of access to faculty is high. We
+    offer a number of optional live sessions to engage with faculty and classmates. The faculty
+    are also available to speak at other times via an office hour session that students can
+    schedule."
+
+=====================================================================
+4. "APPLICATIONS ARE NOW OPEN!" PANEL
+=====================================================================
+Section: background White.
+Container: 1240px max; padding-top clamp(48px, 6vw, 80px) [80px]; padding-bottom clamp(56px, 7vw, 100px)
+  [100px]; 24px sides.
+Panel: grid, 2 columns minmax(0, 5fr) | minmax(0, 7fr); NO gap; align-items stretch;
+  border 0.5px solid rgba(0,0,0,0.18); box-shadow 0 8px 24px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+  no radius. (Heavier shadow + hairline than on the grey tab pages, because it sits on white.)
+  At <=900px the halves stack (gold above white).
+  Left (gold): background Gold; padding clamp(28px, 3.2vw, 44px) [44px]; content vertically centered.
+    "Applications are now open!": Interstate 800; clamp(26px, 2.8vw, 38px) [38px]; line-height 1.1;
+    letter-spacing -0.015em; color Black; margin 0.
+  Right (white): background White; padding clamp(28px, 3.2vw, 44px) [44px]; flex column; content
+    vertically centered; left-aligned; gap clamp(20px, 2.2vw, 26px) [26px].
+    "Request more information below.": Georgia; clamp(17px, 1.5vw, 20px) [20px]; line-height 1.6;
+      color #222222; margin 0.
+    Button "LEARN MORE ››" → /mppm#learn-more (same tab). Dark, large: inline-flex; gap 10px;
+      Interstate 700; 17px; ALL CAPS; letter-spacing 0.01em; line-height 1; no wrap;
+      padding 17px 34px; border 2px solid Black; border-radius 4px; background Black; color White.
+      Hover: background/border #1F1F1F. Pressed: translateY(1px).
+      transition 140ms cubic-bezier(0.4, 0, 0.2, 1).
+
+=====================================================================
+5. LINKS ON THIS PAGE (body only)
+=====================================================================
+  LEARN MORE ›› (button) → /mppm#learn-more (same tab)
+  No other links in the page body.
+
+=====================================================================
+6. ANIMATION / INTERACTION
+=====================================================================
+  Only the Learn More button animates (hover colour, 1px press), 140ms cubic-bezier(0.4, 0, 0.2, 1).
+  Nothing else moves or changes state. No hover effects on the feature boxes.
+
+=====================================================================
+7. RESPONSIVE BREAKPOINTS (this page only)
+=====================================================================
+  <=1000px : feature row 2 columns (2 x 2).
+  <=920px  : each block stacks to one column — PHOTO FIRST, then the text (on every block,
+             including the text-left blocks).
+  <=900px  : closing panel halves stack.
+  <=560px  : feature row 1 column.
+  All clamp() values scale between their min and max automatically.
+```
