@@ -7869,3 +7869,31 @@ present and styled. This completes the page in full per §321's spec.
 **Not yet done:** Designer-canvas `element_snapshot_tool` visual check was not attempted this pass
 (the live-screenshot verification above substituted for it, consistent with the documented fallback
 used on Tuition/Graduation when that tool has been unavailable).
+
+## §323 — MPPM Student Experience: tablet-breakpoint correction for photo/text rows (2026-11-05)
+
+User feedback after viewing the live tablet rendering: the hero photo in Block 1 ("On-Demand Online
+Classes") was far too large at tablet width — §321's spec had called for the 2-column photo/text rows
+to stack to one column at a custom `<=920px` threshold, which HARD RULE #2 mapped to the native
+`medium` (`<=991px`) breakpoint; that meant the row was already stacked at ordinary tablet widths
+(e.g. 834px, 768px), blowing the photo up to full container width. User's correction: keep the tablet
+breakpoint the same as desktop (two columns) for this piece.
+
+**Fix:** moved the single-column stacking trigger from `medium` (991) down to `small` (767) for all
+three photo/text block rows, so tablet widths (768-991px) now stay two-column like desktop, and
+stacking only happens at genuine mobile widths:
+- `mppm-exp-row-57` (Block 1 & Block 3's row): removed the `medium` `grid-template-columns:1fr`
+  override, added it at `small` instead.
+- `mppm-exp-row-75` (Block 2's row): same change.
+- `mppm-exp-b2-photocol`/`mppm-exp-b2-textcol` (Block 2's photo-first reorder): removed the `medium`
+  `order` overrides, added them at `small` instead, so the reorder now happens at the same breakpoint
+  as the column stack.
+
+Did not touch the feature row's 4→2→1 column breakpoints or the closing panel's stack breakpoint —
+the user's complaint was specifically about the photo/text rows, and those weren't shown as a problem.
+
+**Verified live** (re-published, then fresh Playwright check): `mppm-exp-row-57`'s computed
+`grid-template-columns` reports 2 columns at 991/970/900/834/768px and 1 column at 767/600/375px —
+zero horizontal overflow at any tested width. Visually confirmed myself via screenshots at 834px
+(2-column, photo reasonably sized, matches desktop proportions) and 767px (correctly stacks to
+photo-first single column).
