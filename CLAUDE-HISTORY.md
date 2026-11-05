@@ -7897,3 +7897,155 @@ the user's complaint was specifically about the photo/text rows, and those weren
 zero horizontal overflow at any tested width. Visually confirmed myself via screenshots at 834px
 (2-column, photo reasonably sized, matches desktop proportions) and 767px (correctly stacks to
 photo-first single column).
+
+## §324 — MPPM Blog (`/mppm-blog`): full verbatim build spec (2026-11-05)
+
+Saved verbatim, before execution, per standing practice (see §319/§321 for the same pattern).
+
+```
+MPPM — BLOG PAGE (/mppm-blog) — BUILD SPEC
+Scope: hero through the end of the page body. Site header and footer are NOT part of this spec.
+All values are for desktop (1440px viewport). Where a value is a clamp(), the desktop result is
+shown in [brackets]. Anything not listed uses the browser/default value.
+
+=====================================================================
+0. TOKENS USED ON THIS PAGE
+=====================================================================
+Fonts
+  Interstate (sans)  = titles, "See More »"
+  Georgia (serif)    = excerpts (on the white cards)
+Colors
+  Red #E21833   Gold #FFD200   Black #000000   White #FFFFFF   Grey 100 #F4F4F4   Text body #222222
+Layout
+  Content container: max-width 1240px, centered, side padding 24px (content width 1192px).
+
+Page order (top to bottom):
+  1. Hero (black)
+  2. Blog posts grid (grey)
+Nothing follows except the site footer. No tabs, no accordions.
+
+=====================================================================
+1. CMS — THE ONLY CMS COLLECTION ON THE MPPM SITE
+=====================================================================
+Collection: Blog Entries
+  Fields: Name/Title (built-in) · Slug (built-in) · Excerpt (plain text) · Lead image (image) ·
+          Body (rich text)
+  The grid in section 3 is a Collection List bound to Blog Entries, sorted in the order below
+  (manual order or a sort field; newest-first ordering must reproduce this order).
+  Each card links to that entry's Collection template page: /blog/{slug}
+  (In the prototype the cards link to the live articles on mppm.umd.edu; those URLs are listed
+   below only as the content source.)
+  Entries (6), in display order:
+
+  1. Title:   Why Inclusion is Important in Product Management
+     Slug:    why-inclusion-is-important-in-product-management
+     Image:   mppm-blog-inclusion.jpg
+     Excerpt: Inclusivity is important in product management. This article discusses the
+     benefits of being inclusive, how you can be more inclusive in the product management
+     process, and examples of how companies have incorporated inclusion in their product
+     management processes.
+     (Live article: https://mppm.umd.edu/blog/why-inclusion-is-important-in-product-management)
+
+  2. Title:   Cracking the Product Management Interview
+     Slug:    cracking-the-product-management-interview
+     Image:   mppm-blog-interview.jpg
+     Excerpt: Learn how to prepare for a product management interview. Understand what
+     interviewers are looking for, prepare for commonly-asked questions, make a good impression,
+     and more.
+     (Live article: https://mppm.umd.edu/blog/cracking-the-product-management-interview)
+
+  3. Title:   How to Succeed in Product Management
+     Slug:    how-to-succeed-in-product-management
+     Image:   mppm-blog-succeed.jpg
+     Excerpt: How do you succeed in product management? Understand the product life cycle and
+     how your product fits into it. Know your customer and what they want/need from your
+     product. Learn about these and more!
+     (Live article: https://mppm.umd.edu/blog/how-to-succeed-in-product-management)
+
+  4. Title:   How Do Product Managers Effectively Lead Teams?
+     Slug:    how-do-product-managers-effectively-lead-teams
+     Image:   mppm-blog-lead-teams.jpg
+     Excerpt: Product managers lead teams by: defining clear goals and objectives for the team;
+     encouraging creativity and risk-taking among team members; and managing project deadlines
+     and expectations. Learn more.
+     (Live article: https://mppm.umd.edu/blog/how-do-product-managers-effectively-lead-teams)
+
+  5. Title:   Is Product Management a Good Career?
+     Slug:    is-product-management-a-good-career
+     Image:   mppm-blog-good-career.jpg
+     Excerpt: Learn about product management, the skills required for this career, its pros and
+     cons, how to become a product manager, and resources for aspiring product managers.
+     (Live article: https://mppm.umd.edu/blog/is-product-management-a-good-career)
+
+  6. Title:   Is Product Management Right for Me?
+     Slug:    is-product-management-right-for-me
+     Image:   mppm-blog-right-for-me.jpg
+     Excerpt: What does a product manager do on a day-to-day basis? What skills and qualities
+     are needed for the job? What are the pros and cons of the career? Get the answers to these
+     questions.
+     (Live article: https://mppm.umd.edu/blog/is-product-management-right-for-me)
+
+=====================================================================
+2. HERO
+=====================================================================
+Section: background Black, full width.
+Inner container: 1240px max; padding clamp(40px, 5vw, 72px) [72px] top and bottom, 24px sides.
+Eyebrow: "Master of Professional Studies in Product Management"
+  display block; Interstate 700; 16px; ALL CAPS; letter-spacing 0.14em; color Gold.
+Title (h1): "MPPM Blog"
+  Interstate 800; clamp(32px, 4vw, 56px) [56px]; line-height 1.0; letter-spacing -0.02em;
+  color White; margin-top 12px; max-width 18ch.
+No paragraph, no buttons, no image.
+
+=====================================================================
+3. BLOG POSTS GRID
+=====================================================================
+Section: background Grey 100 (#F4F4F4).
+Inner container: 1240px max; padding clamp(56px, 7vw, 100px) [100px] top and bottom, 24px sides.
+Grid: 3 equal columns (repeat(3, minmax(0,1fr))); gap clamp(14px, 1.6vw, 22px) [22px]. Cards in a row
+  stretch to equal height.
+
+Card = ONE link wrapping the whole card (<a>, opens /blog/{slug}; no underline; text colour inherited):
+  display flex; flex column; background White; border 0.5px solid rgba(0,0,0,0.18);
+  box-shadow 0 2px 8px rgba(0,0,0,0.06); overflow hidden; no radius.
+  (1) Lead image: full card width; aspect-ratio 3 / 2; object-fit cover (centre crop); display block;
+      decorative (alt="").
+  (2) Text area: padding clamp(22px, 2.4vw, 30px) [30px]; flex column; grows to fill the card.
+      Title (h2): Interstate 800; clamp(21px, 1.9vw, 26px) [26px]; line-height 1.12;
+        letter-spacing -0.01em; color Black; margin 0 0 14px.
+      Excerpt (p): Georgia; 16px; line-height 1.6; color #222222; margin 0 0 22px; grows (flex 1 1 auto)
+        so the "See More »" lines sit on the same baseline across a row.
+      "SEE MORE »" (single », decorative): Interstate 800; 16px; ALL CAPS; letter-spacing 0.04em;
+        color Red.
+
+=====================================================================
+4. LINKS ON THIS PAGE (body only)
+=====================================================================
+  Each of the 6 cards (whole card) → /blog/{slug} of its entry:
+    /blog/why-inclusion-is-important-in-product-management
+    /blog/cracking-the-product-management-interview
+    /blog/how-to-succeed-in-product-management
+    /blog/how-do-product-managers-effectively-lead-teams
+    /blog/is-product-management-a-good-career
+    /blog/is-product-management-right-for-me
+
+=====================================================================
+5. ANIMATION / INTERACTION
+=====================================================================
+  Card hover: box-shadow changes to 0 10px 26px rgba(0,0,0,0.12) and the card lifts
+    transform translateY(-2px); transition box-shadow 160ms ease, transform 160ms ease.
+    Also on hover the card title turns Red (no transition set — instant).
+  Nothing else moves.
+
+=====================================================================
+6. RESPONSIVE BREAKPOINTS (this page only)
+=====================================================================
+  <=1000px : grid 2 columns.
+  <=620px  : grid 1 column.
+  All clamp() values scale between their min and max automatically.
+
+=====================================================================
+7. BLOG ENTRY TEMPLATE PAGE (/blog/{slug})
+=====================================================================
+  Not designed in this prototype (its cards link out to the live articles). No spec is given here.
+```
