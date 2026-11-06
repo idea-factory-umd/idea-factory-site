@@ -8188,3 +8188,59 @@ point (`MAX SCALE DURING TRANSITION 1.03 | FINAL SCALE 1.03 | OVERSHOOT? false`)
 measurement, not just two endpoint snapshots, specifically because "does it bounce" is a mid-transition
 question that a before/after comparison alone cannot answer. Screenshot taken of the live hover state
 confirms the lift/scale/shadow still reads clearly against neighbors at the wider §326 gap.
+
+## §328 — MPPM Blog (`/mppm-blog`): scope text-grow to "SEE MORE" only, asymmetric hover-in/out timing, fix inherited-bold excerpt (2026-11-06)
+
+**User instruction (two asks in one message):** *"don't make the text grow within its box--only the 'See
+more >>' should grow on hover (and the photo zoom within its frame is OK). Make the hover-out more gentle
+and slightly more gradual."*
+
+**1. Scoped the grow effect — title/excerpt no longer scale, only "SEE MORE »" does.** §325's hover match
+had scaled the ENTIRE `.mppm-blog-card-bodyinner` wrapper (title + excerpt + "SEE MORE »" together) to
+replicate the Students page's `.if-prog-bodyinner` behavior verbatim. The user wants this narrowed: body
+text stays fixed size, and only the "SEE MORE »" label itself grows (photo zoom explicitly confirmed OK
+as-is). Removed `.mppm-blog-card-bodyinner`'s transition/scale rules from the page-scoped embed entirely
+(it no longer animates at all) and added a new rule scoping the grow to `.mppm-blog-card-more` alone,
+`scale(1.07)` — matching the site's own established "content-grow" hover family values (`if-flag-btn:hover
+.if-grow-inner{transform:scale(1.07)}`, Home hero flagship buttons) rather than inventing a new amount.
+Added `transform-origin:left center` so the label visibly grows from its anchored left edge instead of
+expanding from its center. Confirmed via live measurement the element renders `display:block` (not
+`inline` — HARD RULE #20's transform-on-inline trap doesn't apply here, verified, not assumed).
+
+**2. Split hover transition into a snappier hover-in and a gentler, slower hover-out.** Previously both
+directions shared one symmetric transition (`0.24s cubic-bezier(0.16,1,0.3,1)`, from §327's fix). CSS
+transitions use the transition value of whichever rule newly applies after a property change — the
+`:hover` rule's own transition governs entering hover, the base (no-pseudo) rule's transition governs
+leaving it — so this is achieved by declaring the two directions separately, not by any JS:
+- **Hover-in** (unchanged, already confirmed good): `0.24s, cubic-bezier(0.16,1,0.3,1)` — now set
+  explicitly on `mppm-blog-card`'s native `:hover` pseudo (previously implicit via the base rule only).
+- **Hover-out** (new, gentler + more gradual): `0.4s, cubic-bezier(0.22,1,0.36,1)` — the site's own
+  `--ease-out` token, set on `mppm-blog-card`'s base (no-pseudo) style. `cubic-bezier(0.22,1,0.36,1)` is a
+  more standard, evenly-graduated deceleration than the snappier expo-out hover-in curve, and 0.4s is
+  ~1.67× the hover-in duration — reads as calmer/slower settling back to rest, as asked.
+- The same split was mirrored in the page-scoped embed for the photo zoom and the new "SEE MORE" grow, so
+  all three animated pieces (card, photo, label) stay in sync on both the way in and the way out.
+
+**3. Found and fixed during verification, unprompted by the user but caught mid-check: the excerpt
+paragraph was rendering bold.** The user then asked directly, *"Why is the 'body text' bold on these
+cards?"* Root cause, confirmed via a live ancestor-chain computed-style walk (not assumed): the card's own
+`<a class="mppm-blog-card">` LinkBlock computes to `font-weight:700`, and neither `-body`, `-bodyinner`,
+nor `-excerpt` ever set their own `font-weight` to override it — so the Georgia excerpt text silently
+inherited bold all the way down the chain, while the title/more were unaffected only because they already
+had their own explicit `font-weight:800`. (The `mppm-blog-card` style object itself has no stored
+`font-weight` property — the 700 is inherited from further up, most likely a sitewide Link-tag default;
+not chased further since the fix is correct regardless of the exact upstream source.) Fix: set
+`font-weight:400` explicitly on `mppm-blog-card-excerpt`, matching the Students page's own Georgia body
+reference (`.if-prog-desc`, confirmed live at `font-weight:400`) and CLAUDE.md §9's font protocol (Georgia
+body copy is never bold).
+
+**Verification (HARD RULE #3, full gate):** published, waited for `get_site`'s `lastPublished` to actually
+advance past each publish call (per §326/§327's own lesson) before checking. Live Playwright checks
+confirmed, in one pass: `excerptWeight` now `400` (was `700`); `bodyinner` scaleX stays pinned at exactly
+`1` throughout a full hover-in→hover-out cycle (never animates); `more` scales smoothly `1→1.07` and back;
+`img` scales smoothly `1→1.04` and back; card scales `1→1.03` and back. Timed the two directions directly
+by sampling scaleX every 25ms: hover-in reaches 90% of its final value in **96ms**, hover-out takes
+**154ms** to decay 90% of the way back — confirms hover-out is genuinely slower (~1.6×) as well as using
+the gentler curve, not just a claimed difference. Screenshot of the live hovered page confirms the excerpt
+text now reads as normal-weight Georgia on both the hovered and unhovered cards, and the growth is
+visibly confined to the "SEE MORE »" label and photo, not the body copy.
