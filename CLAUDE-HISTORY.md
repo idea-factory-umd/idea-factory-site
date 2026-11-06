@@ -8049,3 +8049,57 @@ Card = ONE link wrapping the whole card (<a>, opens /blog/{slug}; no underline; 
 =====================================================================
   Not designed in this prototype (its cards link out to the live articles). No spec is given here.
 ```
+
+## §325 — MPPM Blog (`/mppm-blog`): built static (no CMS), then card hover matched to Students page exactly (2026-11-05)
+
+Per explicit user instruction, built as a **static page first** — hero + 6 hardcoded cards — with
+**no CMS collection created**. The spec's section 1 (CMS schema, Blog Entries collection) is deferred;
+the user will create the actual CMS collection later, after which these static cards are expected to
+be converted to a CMS-bound Collection List. Per CLAUDE.md's standing CMS protocol, no collection name
+was chosen or created without the user's explicit approval — that step never happened this pass.
+
+**Built:** Hero reusing `mppm-acpol-hero`/`-hero-wrap`/`-hero-eyebrow`/`-hero-h1` (confirmed byte-identical
+to spec via fresh `query_styles`, same shared-look-family reuse as every other MPPM page). Grid section
+`mppm-blog-sec-grid` (`#F4F4F4`) > `mppm-blog-wrap` (1240 max, clamp(56,7vw,100) padding) > `mppm-blog-grid`
+(CSS Grid, 3 equal columns, clamp(14,1.6vw,22) gap — literal grid spec, built as real `display:grid` per
+the literal-spec-overrides-Flexbox-default rule) > 6 `mppm-blog-card` LinkBlocks, each with a
+`mppm-blog-card-img` (aspect-ratio 3/2, object-fit cover), `mppm-blog-card-body` (padding, flex), title
+(h2), excerpt (p, Georgia), and a "SEE MORE »" label. Breakpoints: `<=1000px` and `<=620px` both mapped
+per HARD RULE #2 to the nearest native breakpoints (medium=2-col, small=1-col) — verified live: 3 cols at
+1440/1100/1000, 2 at 991/900, 1 at 767 down to 375, zero overflow throughout.
+
+**Bug found and fixed:** all 6 "SEE MORE »" labels came out as Webflow's own default placeholder text
+("This is some text inside of a div block.") instead of the given text — `data_element_builder`'s
+`set_text` silently did not apply to a freshly-created `TextBlock`-type element in this nested-children
+context (a new, distinct variant of the §316 lorem-ipsum gotcha — this one isn't caught by searching for
+"Lorem ipsum", so that search alone is NOT sufficient going forward; also check for Webflow's own generic
+placeholder strings). Fix: `data_element_tool.set_text` targeting the native `Block`/div's own type fails
+too ("This element doesn't support text") — had to target the nested **String** child directly, which
+does accept `set_text`. Found and fixed for all 6 via `query_elements` filtering on the stray placeholder
+text, re-verified 0 stale matches / 6 correct afterward.
+
+**Hover effect corrected to match Students page exactly (user's explicit instruction, "don't ignore any
+details — appearance and easing both have to be the same"):** the first-pass hover (spec section 5's own
+translateY(-2px) + title-color-change) was explicitly rejected by the user in favor of replicating
+`.if-prog-card`'s established site-wide card-hover family verbatim. Per HARD RULE #19, the exact values
+were re-derived fresh from the live source, not from CLAUDE.md §3's own written description of this
+feature (which turned out to be incomplete/stale — grepping the shared `idea-factory.css`/`.js` and
+Webflow's own compiled CSS found **zero** occurrences of `.if-prog-card:hover`, `.if-prog-bodyinner`, or
+any matching transition/shadow rule, despite CLAUDE.md describing it as shipped). The only trustworthy
+source was a live Playwright hover measurement against the actual Students page, which found: card itself
+`transform:scale(1.03)` + `box-shadow:0 14px 34px rgba(0,0,0,.14)` on hover, transition
+`transform/box-shadow 0.24s cubic-bezier(0.22,1,0.36,1)` at rest; a `.if-prog-bodyinner` wrapper (inserted
+by the existing `program-card-inner` JS module) also scales to 1.03; the lead photo's own `<img>` scales
+to 1.04. Replicated exactly: restructured each of the 6 cards' body to nest title+excerpt+more inside a
+new `mppm-blog-card-bodyinner` wrapper div (matching the reference's actual DOM shape, not just its
+visual effect); updated `.mppm-blog-card`'s native hover pseudo to `scale(1.03)` /
+`0 14px 34px rgba(0,0,0,.14)` and its transition to `0.24s cubic-bezier(0.22,1,0.36,1)` for both
+properties (native, since this is element-self hover); added a **page-scoped** HTML Embed (`<style>`,
+DO-NOT-DELETE banner) for the two parent-hover-child rules Webflow can't represent natively — bodyinner
+scale(1.03) and image scale(1.04) on `.mppm-blog-card:hover` — scoped to this page only per HARD RULE #17
+(never added to the shared idea-factory.css/js). Verified live via fresh Playwright measurement:
+card/inner/image computed transforms and the card's computed transition string matched the Students page
+reference exactly, byte-for-byte; zero overflow introduced at 1440/991/767/375px.
+
+**Not yet done:** CMS collection creation, CMS binding of the 6 cards (deferred — see above), and the
+blog entry template page (spec section 7, explicitly out of scope for this prototype).
