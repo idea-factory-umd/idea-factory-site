@@ -8154,3 +8154,37 @@ neighbors, as requested.
 
 **Not yet done (unchanged from §325):** CMS collection creation, CMS binding of the 6 cards, and the
 blog entry template page remain explicitly out of scope until the user creates the collection.
+
+## §327 — MPPM Blog (`/mppm-blog`): correction — `--ease-spring` was bouncy, not elegant; replaced with a smooth no-overshoot curve (2026-11-06)
+
+**User's immediate, forceful rejection of §326's easing choice:** *"That easing is BOUNCY. I said ELEGANT
+and NATURALISTIC. SMOOTH. What the hell are you doing? You have made if clownish."* §326 reused the
+project's existing `--ease-spring` token (`cubic-bezier(0.34,1.55,0.42,1)`) on the theory that an
+established site token beats inventing a new curve — but that token's whole defining characteristic is
+its control points exceeding `y:1`, which produces a visible overshoot/bounce past the final scale before
+settling. That is the opposite of "smooth" no matter how it's dressed up, and the user correctly called it
+out as clownish on sight.
+
+**Fix:** replaced `cubic-bezier(0.34,1.55,0.42,1)` with **`cubic-bezier(0.16,1,0.3,1)`** everywhere it had
+just been added — `mppm-blog-card`'s native `transition-timing-function` (both the `box-shadow` and
+`transform` lanes) and the page-scoped embed's two parent-hover-child rules
+(`.mppm-blog-card-bodyinner`/`.mppm-blog-card-img`). This curve is monotonic — its control points never
+exceed `y:1` — so it can only approach the final value, never overshoot it: a fast initial rise that
+glides smoothly to rest, the standard "expo-out" shape widely used for premium, understated hover/reveal
+motion. Duration left unchanged at `0.24s` (the complaint was about the curve's shape, not its speed).
+Neither of the project's two documented CLAUDE.md §9 easing tokens (`--ease-out`, `--ease-spring`) fit
+this specific ask — `--ease-out` was already tried and rejected as "bad" the turn before, and
+`--ease-spring` is bouncy by definition — so this is a new, third curve, not yet promoted to a named
+token; it lives directly in this page's own style objects/embed for now.
+
+**Verification, before calling this done:** confirmed the stored style data (`query_styles`) showed the
+new curve on first write, published, waited for `get_site`'s `lastPublished` to actually advance past the
+publish call (per §326's own lesson — checking too early reads stale), then verified on the live page:
+the card's computed `transition` string shows `cubic-bezier(0.16, 1, 0.3, 1)` for both lanes. **Went
+further than a before/after computed-style check this time** — sampled the card's live `transform`
+`scaleX` continuously every ~20ms for the full 320ms following `hover()`, to directly prove the curve
+never overshoots: values rose monotonically from `1.0` to `1.03` and never exceeded `1.03` at any sampled
+point (`MAX SCALE DURING TRANSITION 1.03 | FINAL SCALE 1.03 | OVERSHOOT? false`) — a continuous
+measurement, not just two endpoint snapshots, specifically because "does it bounce" is a mid-transition
+question that a before/after comparison alone cannot answer. Screenshot taken of the live hover state
+confirms the lift/scale/shadow still reads clearly against neighbors at the wider §326 gap.
