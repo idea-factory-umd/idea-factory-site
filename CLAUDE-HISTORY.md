@@ -8103,3 +8103,54 @@ reference exactly, byte-for-byte; zero overflow introduced at 1440/991/767/375px
 
 **Not yet done:** CMS collection creation, CMS binding of the 6 cards (deferred — see above), and the
 blog entry template page (spec section 7, explicitly out of scope for this prototype).
+
+## §326 — MPPM Blog (`/mppm-blog`): wider card-grid gap + spring easing on hover (2026-11-06)
+
+**User feedback after §325's hover-match landed:** *"OK, you need more gap between these so that you can
+see what's going on with the hover effects. Also, the easing is bad, make the easing more naturalistic
+and elegant."* Two changes, both scoped to this page's own already-forked classes:
+
+**1. Grid gap doubled, exact 2× multiple (not an arbitrary number):** `mppm-blog-grid`'s
+`grid-column-gap`/`grid-row-gap` changed from `clamp(14px, 1.6vw, 22px)` to `clamp(28px, 3.2vw, 44px)` —
+every term in the clamp exactly doubled, so the gap's proportional behavior across breakpoints is
+unchanged, just twice as large. This gives the hover scale/lift effect (card scale(1.03), its
+`bodyinner` and image scaling further inside it) visible room to read clearly against neighboring cards
+instead of nearly touching them.
+
+**2. Easing switched from `--ease-out` to `--ease-spring`, both already-established CLAUDE.md §9 site
+tokens — not an invented curve.** §325's hover match had deliberately copied the Students page's own
+`.if-prog-card` easing verbatim (`cubic-bezier(0.22,1,0.36,1)`, the site's `--ease-out` token), per that
+turn's explicit "the easing has to be the same" instruction. This turn's new instruction ("make the
+easing more naturalistic and elegant") explicitly supersedes that — the user is no longer asking for a
+byte-for-byte match to Students, just a nicer feel on this page's own cards. Rather than invent a new
+curve, reused the project's own existing "livelier" alternative token, `--ease-spring:
+cubic-bezier(0.34,1.55,0.42,1)` (already on record in CLAUDE.md §9 as the established alternative to
+`--ease-out`) — its control points exceed `y:1`, producing a slight overshoot/bounce past the final scale
+before settling, which reads as springier/more elegant than the flat ease-out curve. Applied everywhere
+the old curve appeared, so the card and its two child scale effects stay in sync:
+- `mppm-blog-card`'s native `transition-timing-function` (both `box-shadow` and `transform` lanes),
+  duration unchanged at `0.24s, 0.24s` (HARD RULE #4 longhand fields, unchanged).
+- The page-scoped HTML Embed's two parent-hover-child rules (`.mppm-blog-card-bodyinner` and
+  `.mppm-blog-card-img` transitions), kept at the same `0.24s` duration so all three elements (card,
+  text wrapper, photo) move on the identical curve and never drift out of sync with each other.
+
+**Verification (HARD RULE #3 full gate, after an initial false negative):** `update_style` calls were
+confirmed via `query_styles` immediately (exactly one match each for `mppm-blog-grid`/`mppm-blog-card`,
+no duplicate-style-object risk — new values present in the returned stored data). Publishing hit the
+platform's 1-per-minute rate limit twice on quick retries; backed off and waited a full minute-plus
+before retrying (confirmed the async `publish_site` call's own `publishTaskId` only resolves after
+`get_site`'s `lastPublished` timestamp actually advances past the call time — an immediate post-publish
+Playwright check still showed the OLD gap/easing values because the async publish task hadn't finished
+compiling yet; re-ran the same check after confirming `lastPublished` had moved forward, which then
+showed every new value live). Final live Playwright measurement on the published `mppm-blog` page
+confirmed: grid `column-gap`/`row-gap` = `44px` at 1440px scaling correctly down to `28px` by 767px and
+below; card `transition` computed string shows `cubic-bezier(0.34, 1.55, 0.42, 1)` for both lanes; hover
+still fires correctly (card `scale(1.03)`, and the nested bodyinner/image bounding-box ratios compound
+to `1.0609`/`1.0712` respectively — exactly `1.03×1.03` and `1.03×1.04`, confirming the nested transforms
+are still composing correctly, not a regression); zero horizontal overflow at every swept width
+(1440/1100/1000/991/900/767/700/600/375). Screenshots taken of the live page at rest and mid-hover
+confirm the wider gap makes the lifted/scaled card and its shadow clearly readable against its
+neighbors, as requested.
+
+**Not yet done (unchanged from §325):** CMS collection creation, CMS binding of the 6 cards, and the
+blog entry template page remain explicitly out of scope until the user creates the collection.
