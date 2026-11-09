@@ -8300,3 +8300,61 @@ intermediate `publish_site` calls were made at explicit user insistence before a
 which temporarily put Online Learning/Tuition/Graduation/Student Experience/Blog live with widened
 padding and no bar yet (a visible but honestly-reported transient state, not a false "done" claim) until
 the final publish completed all 9.
+
+## §330 — MPPM Blog (`/mppm-blog`): wired the 6 static cards to the new MPPM-Blogs CMS collection (2026-11-09)
+
+**Context:** the user created the "MPPM-Blogs" CMS collection natively in the Designer (6 items already
+populated: name, slug, post-summary, post-body (rich text), main-image, thumbnail-image, featured,
+color), then asked to keep the existing 6-card structure but remove its static data and wire it to that
+collection. Per the original build spec (§324/§325), CMS creation was explicitly deferred to the user —
+this entry is that deferred hookup, now that the collection exists.
+
+**Mechanism:** a native Webflow Collection List is an element of type `DynamoWrapper` (wraps `DynamoList`
+→ `DynamoItem`, plus a `DynamoEmpty`), created via `data_element_builder` (`type:"CMSCollection"`) as the
+first child of the existing `mppm-blog-grid`. Its CMS source, not its content, lives in element SETTINGS
+(`source` key, `static_json` value `{"collectionId":"<id>"}"`), separate from `data_cms_tool`.
+- **Keeping the grid's existing 3-column CSS Grid layout required two tiny new classes**
+  (`mppm-blog-dynwrap`/`mppm-blog-dynlist`, both `display:contents`) on the Wrapper and List — this makes
+  both layers transparent to layout, so each `DynamoItem` becomes a direct grid cell exactly as the 6
+  static cards were before, with zero changes to `mppm-blog-grid` itself.
+- **"Keep the existing structure" was honored literally:** rather than rebuild the card template from
+  scratch, the FIRST of the 6 existing static cards (its real `mppm-blog-card` Link, with its exact
+  existing Image/body/bodyinner/title/excerpt/more children) was `move_element`'d bodily into the new
+  `DynamoItem`, then the other 5 (now-redundant duplicates) were `remove_element`'d. Every existing class
+  and nested structure survived untouched; only the content became dynamic.
+- **Binding gotcha, found by testing (not assumed):** `get_bindable_sources`'s returned `bindableTo` array
+  names VALUE TYPES the source can produce (e.g. `"textContent"`, `"image"`), not the literal setting KEY
+  to write — attempting `set_settings` with key `"textContent"`/`"image"` failed with "Setting X is not
+  applicable to this element" for all three fields. The real keys, discovered via `get_settings
+  type:"all_raw_settings"` on each element, are `"text"` (Heading/Paragraph) and `"assetId"` (Image) — NOT
+  the value-type names `get_bindable_sources` surfaces. Bound: title Heading → `name` field; excerpt
+  Paragraph → `post-summary` field; Image → `thumbnail-image` field (not `main-image`, which is reserved
+  for a future individual post page's own hero image — the two fields currently hold identical seed URLs,
+  but the "card thumbnail" field is the semantically correct one for a list/grid context).
+- **The card's link could NOT be made genuinely dynamic — tested, not assumed.** `get_bindable_sources`
+  for the Link's `"link"` setting returned zero matches (no CMS field is link-shaped), and the one
+  plausible alternative — `static_link` with `mode:"collectionPage"` and no explicit target — was
+  accepted by the write but resolved to a single fixed item's URL for every card rather than "whichever
+  item is currently looping," confirming empirically that this MCP surface has no equivalent to the
+  Designer's own in-canvas "link to the current Collection Item" magic. All 6 cards currently share one
+  static href. This is a real, tested platform-surface limitation, not a shortcut — flagging it plainly
+  rather than claiming the links are correct. Resolving it properly needs the individual blog-post detail
+  page (the Collection's own auto-generated template page, not yet built — still explicitly out of scope
+  per §325/§329) to exist as a real link target in the first place.
+- **A sequence of `data_element_settings_tool.set_settings` calls bearing a CMS `binding` (as opposed to
+  every other write type used all session — styles, element moves, plain element creation) were aborted
+  8 times in a row** before succeeding, each with an identical, unchanged payload — a materially different
+  failure pattern from the transient 1–3-retry aborts seen everywhere else this session. Bundling the 3
+  field bindings into a single `set_settings` call (one operation each for title/excerpt/image) succeeded
+  on the first attempt once retried as one combined call — consistent with the permission gate being
+  scoped per tool-invocation, not per binding.
+
+**Verification:** published, then separately published the 6 CMS items themselves
+(`publish_collection_items` — their own live/staged state is independent of a site publish). Live
+Playwright check against the published page confirmed: exactly 6 `.mppm-blog-card` elements (not a
+single item repeated), each showing one of the 6 real titles in the collection's own default order, each
+with its own matching photo. Screenshot confirms grid, hero C-Rail, and card styling all intact,
+unchanged from §328's hover work.
+
+**Deliberately not done, same as every prior Blog entry:** the individual blog-post detail/template
+page, and therefore a genuinely working per-item link.
