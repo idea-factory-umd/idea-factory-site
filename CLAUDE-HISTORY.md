@@ -8358,3 +8358,42 @@ unchanged from §328's hover work.
 
 **Deliberately not done, same as every prior Blog entry:** the individual blog-post detail/template
 page, and therefore a genuinely working per-item link.
+
+## §331 — MPPM Blog card link: found the real blocker — the collection's own URL slug collides with the index page's slug (2026-11-10)
+
+**Follow-up ask:** link the 6 cards to the MPPM-Blogs collection's own auto-created template page.
+
+**Found via `list_pages` (fresh, not assumed):** the template page is real — `MPPM-Blogs Template`,
+id `6af236ff4d90f9c743a7f533`, slug `detail_mppm-blog` — but its own `publishedPath` reports as
+`/mppm-blog`, **identical to this Blog INDEX page's own published path** (`/mppm-blog`, from
+`get_collection_details`'s `slug:"mppm-blog"` on the collection itself). The collection's URL folder was
+set to the same slug as the already-existing static index page.
+
+**Two further, different attempts to make the link genuinely dynamic, both tested and both failed
+differently (ruling the approach out empirically, not by assumption):**
+1. `static_link {mode:"collectionPage"}` with no `to` → accepted the write, but rendered every card
+   pointing at one fixed, identical URL (same result as §330's first attempt).
+2. `static_link {mode:"collectionPage", to:"detail_mppm-blog"}` (the template page's own slug, per the
+   schema's literal "collectionPage: pageSlug" wording) → accepted the write, but rendered every card's
+   href as a bare `#` — worse, not better.
+
+Neither produced a per-item dynamic URL. Combined with the slug collision just found, the likely
+explanation: the template page's own published path can't resolve to anything distinct from the
+already-occupied `/mppm-blog` static page, so there is no real, independent URL space for item pages to
+resolve into at all right now — a structural blocker upstream of anything bindable from this tool surface.
+
+**Reverted the link to the same static placeholder it had after §330** (`/blog/why-inclusion-is-
+important-in-product-management` on all 6 cards) rather than leave the broken `#`, since every static
+option available renders identically on all 6 cards regardless (the href lives on the one shared card
+template, and per-item dynamic linking is not achievable here either way) — reverting to the better-
+looking of the two broken states, not a fix.
+
+**What actually needs to happen next, and whose decision it is:** the collection's own URL slug
+(Collection Settings → "Collection URL", currently `mppm-blog`) needs to change to something that doesn't
+collide with this static index page — e.g. `mppm-blog-posts` — so item pages get their own real address
+space (`/mppm-blog-posts/<item-slug>`). `data_cms_tool` has no action that renames an existing
+collection's own slug (only `create_collection` sets it, and `update_collection_field` only touches
+individual fields) — this is a Designer-UI-only change, the same settings panel already screenshotted
+earlier in this task. Once that's done, the `collectionPage` link mode should be retried fresh (this
+entry's negative results might also have been masked BY the collision rather than being a hard ceiling on
+their own — worth one more real test afterward, not written off permanently).
