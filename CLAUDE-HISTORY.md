@@ -8572,3 +8572,52 @@ date/amount string via Playwright (not just "the tool said success") — all 9 e
 specified, all live. Published site-wide (`customDomains:[]` confirmed via `get_site` first — no
 production domains on this master site yet, so `publishToWebflowSubdomain:true` alone is correct and
 complete, same as §333).
+
+## §335 — MPPM footnote asterisks: removed stray note line, linked both pages' facts-bar/panel asterisks to their footnotes via an invisible-looking fn-ref class (2026-11-10)
+
+**Ask:** (1) delete a homepage line not present on the live site; (2) make the trailing "*" on two
+homepage facts-bar values, and one Application Requirements gold-panel value, into real anchor links
+down to their page's own footnote paragraph, with the link required to be visually indistinguishable
+from plain text in every state (normal, hover, active, visited, focus) — explicit literal CSS given,
+including `scroll-margin-top:120px` on each footnote target so the jump lands below the fixed header.
+
+**New global class `fn-ref`** (`7f5a9f97-651f-96df-c394-5387be1b2795`): every property written as the
+separate longhand field per HARD RULE #4 — `color`, `font-family`, `font-size`, `font-weight`,
+`line-height`, `letter-spacing`, `cursor` all `inherit`; `text-decoration:none`; `background-color:
+transparent` (the longhand for the spec's `background:none`); `outline-style:none` (the longhand for
+`outline:none` — outline isn't in HARD RULE #4's named list of must-decompose properties, but it has the
+same shorthand/longhand split, so it was decomposed the same way for consistency and genuine Designer-
+panel editability). Applied as the BASE (noPseudo) properties, then re-applied identically to `hover`,
+`active`, `visited`, and `focus` pseudo states via 4 separate `update_style` calls — Webflow's pseudo enum
+has no separate `:link`, so the base/noPseudo state already covers it.
+
+**Homepage (`6ae12919b1185f38e861155f`):**
+- Deleted the standalone "* See the application notes below." paragraph (`mppm-hero-info-note` class,
+  now a dead/unused class left orphaned — not cleaned up, matching this project's own established
+  "harmless orphan, not worth the removal risk" precedent from §11).
+- Gave the "Ready to Launch?" footnote paragraph (`mppm-launch-note`, begins "* Applicants must wait to
+  submit their application...") the DOM id `mppm-footnote` and added `scroll-margin-top:120px` directly
+  to its own already-page-specific class.
+- Found the TWO real facts-bar values by text search, then had to rule out false positives: searching
+  "Bachelor's Degree" and "$28,000" each surfaced the footnote paragraph itself (which happens to also
+  mention "Bachelor's Degree" in its body text) and, for "$28,000", three unrelated matches from a
+  separate Tuition section further down the page. The correct two were identified by their shared class
+  `mppm-hero-info-value` (the facts-bar value style, distinct from the footnote's own class and from the
+  Tuition section's `mppm-tui-*` classes). For each: `set_text` to strip the trailing `*`, then
+  `data_element_builder` appended a new `TextLink` child (type `TextLink`, class `fn-ref`, text `*`,
+  `href="#mppm-footnote"` via `linkType:"url"`, `aria-label="See footnote"`) — reconstituting the exact
+  original visible string ("Bachelor's Degree*" / "$28,000*") while making only the asterisk a real link.
+
+**Application Requirements (`6ae61e92f105094f5b35f004`):**
+- Gave its own footnote paragraph (`mppm-apprq-dline-footnote`) the DOM id `mppm-ar-footnote` +
+  `scroll-margin-top:120px`.
+- Split the trailing `*` off the gold Deadlines panel's `mppm-apprq-dline-scholarship` paragraph
+  ("$750 scholarship & application fee waived*") the same way, linking to `#mppm-ar-footnote`.
+
+**Verified live (not just tool-echoed) via Playwright, fresh after publish:** the notes line is gone;
+both footnote elements resolve `getComputedStyle(...).scrollMarginTop === '120px'`; all 3 `a.fn-ref`
+links carry the exact intended `href`/`aria-label`/`*` text; and — the actual point of the whole task —
+a linked asterisk's computed `color` and `font-size` are byte-identical to its own parent paragraph's,
+`text-decoration` resolves to `none`, and `cursor` resolves to the parent's own value (`auto`, not
+`pointer`) — confirming the link is genuinely indistinguishable from plain text, not just styled to
+LOOK unstyled in one state.
