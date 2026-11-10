@@ -8519,3 +8519,56 @@ tag (here: `<strong>` vs plain `<p>` text) that a CSS selector can key off direc
 workaround/hack in the HARD RULE #9 sense, it's the standard, sanctioned "Webflow genuinely can't do this
 natively, so a tiny scoped custom-code block does" category already used for parent-hover-child and
 keyframe cases elsewhere on this site.
+
+## §334 — MPPM change log applied: 4 placeholder links wired, Oct 16/$1,000 deadline updated to Dec 11/$750 sitewide (2026-11-10)
+
+**Ask:** a structured change log from the design build, two categories: (1) replace 4 remaining "#"
+placeholder links with their live-site equivalents, mirroring same-page-self-link vs. external-new-tab
+behavior exactly as specified; (2) update every "October 16" priority-deadline date to "December 11" and
+every "$1,000" scholarship figure to "$750" across the whole MPPM site, matching the live site's current
+copy.
+
+**Links (4), all found by searching element text then resolving to the actual Link element (not its
+String child, which `set_text`/`set_link` can't target directly):**
+- Graduation & Commencement, Timeline tab, "Diploma Office...click here" →
+  `https://registrar.umd.edu/graduation-diplomas/diplomas`, `target="_blank"` (via `set_link` +
+  `set_attributes`, since "new tab" is a plain element attribute, not a `set_link` parameter).
+- Online Learning, "Accessing Online Courses" panel, "click here" → self-link (`linkType:"page"`,
+  the page's own ID), same tab.
+- Academic Policies, Appeals tab, "Appeal Form" → self-link. (This page had 4 separate substring matches
+  for "Appeal Form" text across different sentences — isolated the real clickable one by checking each
+  candidate Link's actual child content; the standalone `textContent:"Appeal Form"` Link was the right
+  one, not the other Link whose child text was an unrelated full sentence that happened to mention
+  "Appeal Form" in passing.)
+- Academic Policies, Enrollment tab, "Request Enrollment Verification" → self-link.
+- Commencement Information's existing `click here` → `https://commencement.umd.edu/` link was already
+  correct and confirmed untouched.
+
+**Dates/amounts:** every "October 16 · $1,000 Scholarship" instance → "December 11 · $750 Scholarship",
+exact string per the change log, found and fixed in 6 places total:
+- The shared **"MPPM Apply Now Box" component** (`72ff1b76-e0e5-832f-4393-f0f69f83a019`) — edited the
+  component DEFINITION's own text once (`scope_component_id`), confirmed via live re-fetch that the
+  change propagated automatically to all 4 tab pages using it (Academic Policies, Online Learning,
+  Tuition & Financial Aid, Graduation & Commencement) — exactly the payoff of it being a genuine Webflow
+  Component rather than 4 separate copies.
+- Application Requirements' gold Deadlines panel — 2 separate Paragraph elements (date line, scholarship
+  line), both updated.
+- MPPM homepage — 3 separate instances, none of them component instances (hand-typed static text, so each
+  needed its own fix): a small hero "metachip" badge holding just the bare date value
+  (`mppm-hero-metachip-value`), a hero ticker line (`mppm-hero-ticker-text2`, prefixed with an en-dash),
+  and the "Ready to Launch?" bold sentence (`mppm-launch-note-bold`) named explicitly in the change log.
+  The first two were NOT named in the change log's lettered list but matched its own catch-all instruction
+  ("anywhere else on the MPPM site that shows October 16 or $1,000... apply the same change") — found via
+  a full-page text sweep rather than assuming the named 3 items were exhaustive.
+
+**Verification (HARD RULE #3 — full sweep, not a sample):** after publishing, swept every MPPM page
+(Home, Academics, Application Requirements, Calendars & Deadlines, Student Experience, Blog index, plus
+the 4 Apply-Now-Box tab pages) via a fresh live fetch for leftover "October 16"/"$1,000" text — all clean.
+Separately checked the OTHER shared component on these pages, "MPPM Applications Open Panel"
+(`7a4c0c9b-9ff0-5b76-f3cf-0c222cd6fe9e`), in case it carried its own copy of the deadline text — it
+doesn't (its only text is "Applications are now open!" / "Request more information below." / "LEARN
+MORE"), so it needed no change. Live-measured every link's actual resolved `href`/`target` and every
+date/amount string via Playwright (not just "the tool said success") — all 9 edits confirmed exactly as
+specified, all live. Published site-wide (`customDomains:[]` confirmed via `get_site` first — no
+production domains on this master site yet, so `publishToWebflowSubdomain:true` alone is correct and
+complete, same as §333).
