@@ -8621,3 +8621,40 @@ a linked asterisk's computed `color` and `font-size` are byte-identical to its o
 `text-decoration` resolves to `none`, and `cursor` resolves to the parent's own value (`auto`, not
 `pointer`) — confirming the link is genuinely indistinguishable from plain text, not just styled to
 LOOK unstyled in one state.
+
+## §336 — MPPM Apply Now Box: removed two lines, added rolling-admissions note under the button (2026-11-10)
+
+**Ask:** edit the shared "MPPM Apply Now Box" component (used on all 4 tab pages) in place — delete the
+"Applications Now Open for Spring 2027" line and the deadline/scholarship line, add a new sentence
+directly under the button ("Space is limited and you are encouraged to apply early. Applications will be
+reviewed on a rolling basis until all seats are filled."), final order Apply Now (h2) → button → sentence.
+
+**Edited the component DEFINITION once** (`72ff1b76-e0e5-832f-4393-f0f69f83a019`, `scope_component_id`),
+confirmed it propagated automatically to all 4 instance pages (Academic Policies, Online Learning,
+Tuition & Financial Aid, Graduation & Commencement) — same payoff as §334's date fix on this same
+component.
+
+- Removed the two Paragraphs (`mppm-acpol-apply-open` "Applications Now Open…" and
+  `mppm-acpol-apply-deadline` "Early Priority Application Deadline…", the latter just updated by §334 —
+  both classes now orphaned, left in place per this project's established "harmless orphan, not worth the
+  removal risk" precedent, §11).
+- **New style `mppm-acpol-apply-note`**, created rather than reusing the orphaned `-deadline` class even
+  though its property values happened to be identical to the spec — reusing a class literally named
+  "deadline" for unrelated rolling-admissions copy would read as misleading to a future session, so a
+  fresh, correctly-named class was the right call despite the duplication.
+- **Spacing requirement ("same gap as between existing items") needed no extra margin at all**: the box
+  (`mppm-acpol-apply-box`) lays out its children with `display:flex; flex-direction:column;
+  grid-row-gap:16px`, and every child's own margin is already `0`/`0` — so appending the new paragraph as
+  a plain flex child automatically inherits the identical 16px gap from the parent, with nothing further
+  to set. Confirmed live via a bounding-box measurement (gap between the button's bottom edge and the
+  note's top edge = exactly 16px).
+- Appended via `data_element_builder` (type `Paragraph`, `set_style` → `mppm-acpol-apply-note`,
+  `set_text` → the exact sentence) as the LAST child of the box (after the button), giving the required
+  final order without needing any `move_element` call.
+
+**Verified live on all 4 pages** (fresh fetch, not assumed from one page): both old lines absent, new
+sentence present verbatim, DOM child order exactly H2 → A.mppm-acpol-apply-btn → P.mppm-acpol-apply-note
+on every one. Computed style on the live note paragraph: `font-family:Interstate`, `font-size:16px`,
+`font-weight:500`, `line-height:24.8px` (= 16 × 1.55, matching the spec's `1.55`), `color:rgb(34,34,34)`
+(= `#222222`), `margin:0`/`0` — all exact. Published (`customDomains:[]`, no production domains yet, same
+as prior MPPM publishes this session).
