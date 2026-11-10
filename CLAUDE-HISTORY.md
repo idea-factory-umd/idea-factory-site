@@ -8658,3 +8658,74 @@ on every one. Computed style on the live note paragraph: `font-family:Interstate
 `font-weight:500`, `line-height:24.8px` (= 16 × 1.55, matching the spec's `1.55`), `color:rgb(34,34,34)`
 (= `#222222`), `margin:0`/`0` — all exact. Published (`customDomains:[]`, no production domains yet, same
 as prior MPPM publishes this session).
+
+## §337 — MPPM Tuition & Financial Aid: 7 tabs regrouped into 4, gold callout removed, legacy hash map (2026-11-10)
+
+**Ask:** remove the gold callout box (keep its sentence as a plain paragraph), regroup the page's 7 tabs
+into 4 (merging pairs of original sections under one tab each, content/links/lists untouched), restyle
+the now-stacked section headings with an explicit literal spec (clamp-based size, different top margin
+for the first vs. second heading in a merged panel), and make old tab hashes (with or without a "sec-"
+prefix) resolve to the right new tab — all edited in place, nothing rebuilt from scratch.
+
+**Gold callout → plain paragraph:** the "box" was never a separate wrapper — the gold background was
+the paragraph's OWN class (`mppm-acpol-gold-callout`). Since it already sat directly after the paragraph
+it needed to match, the entire requirement reduced to one `set_style` swapping its class to
+`mppm-acpol-body` (the exact class already used by the paragraph above it) — no element move needed.
+
+**Why two new page-scoped classes instead of editing the shared ones:** `mppm-acpol-h2` (the existing
+heading class) and `mppm-acpol-tablist--4col`/`--7col` are shared across all 4 MPPM tab pages (Academic
+Policies, Online Learning, Tuition, Graduation) — confirmed in §315/§320. The spec's literal heading
+values (`clamp(26px, 2.8vw, 38px)` font-size, a specific `clamp()` margin-top for "first" vs. "second")
+don't match what `mppm-acpol-h2` currently holds (flat `38px`/`30px` stepped sizes, no first/second
+concept at all, since every panel previously held exactly one heading) — and this task was never asked
+to restyle the other 3 pages' headings. Created `mppm-tfa-h2` (base, margin-top:0) +
+`mppm-tfa-h2--second` (combo, overrides only margin-top to `clamp(22px, 2.6vw, 34px)`) and applied one or
+both to Tuition's own 7 headings — exactly the same combo pattern already established on this class
+family (`mppm-acpol-h2--sm` on Online Learning), just under a page-exclusive name. Same reasoning for the
+tab-bar column count: the spec's "2 columns at <=600px" has no native Webflow breakpoint at 600 — per
+HARD RULE #2, picked the nearest-and-conservative native one (`small`, ≤767, guaranteed to already be
+2-column well before 600px) — but adding that breakpoint override to the SHARED `mppm-acpol-tablist--4col`
+combo would have silently changed Online Learning's and Graduation's own tab bars too (confirmed both
+already use that exact combo, §315/§320). Created `mppm-tfa-tablist--4col` (new combo, same parent
+`mppm-acpol-tablist`, base `1fr 1fr 1fr 1fr` + `small: 1fr 1fr`) instead, applied only to Tuition.
+**Verified live afterward that all 3 other tab pages are untouched**: Academic Policies still 6 columns,
+Online Learning and Graduation still flat 295px 4-column (no 2-col override), all 3 still on their
+original `mppm-acpol-h2` sizes — confirming the fork achieved full isolation.
+
+**Merge mechanics (moved existing elements, never retyped/rebuilt their content):** for each pair being
+merged, the first-listed section's existing panel survived (renamed via `data-panel` attribute +
+`set_dom_id`, since a prior lesson this session confirmed `set_attributes` internal-errors on a payload
+containing `"id"`); the second section's Heading + its `mppm-acpol-item-group` content Block were moved
+(`move_element`, anchored after the first section's content) into the surviving panel, then the
+now-empty donor panel was deleted — confirmed empty via a fresh re-query between the move and the
+removal, per HARD RULE #13 (never batch a move with removing the container it just emptied). Tuition &
+Billing = tuition-fees (survives) + when-to-pay (merged in, deleted). Payment = policy (survives) +
+process (merged in, deleted). Financial Aid = unchanged (always a single section). Non-Payment & Refunds
+= non-payment (survives) + refunds (merged in, deleted).
+
+**Tab bar:** relabeled 4 of the 7 existing tab buttons in place (text + `data-tab`) rather than rebuilding
+the row — deleting the 3 tabs whose sections merged away left the remaining 4 in exactly the right DOM
+order with no `move_element` needed at all.
+
+**Tab-switching JS** (`356618ce…efbd0`): replaced the 7-key `VALID` array with the 4 new keys, added a
+`LEGACY_MAP` (old key → new key) and a `resolveKey()` helper that strips an optional leading `sec-` before
+checking current keys first, then the legacy map, defaulting to `tuition-billing` otherwise — applied at
+both the `hashchange` listener and the initial on-load hash check. The transition/animation code itself
+(`selectTab`'s opacity-crossfade timing, the `ResizeObserver` height sync) was copied verbatim, untouched,
+per the "no changes to the tab-change animation" requirement.
+
+**Verified live, thoroughly, not from one sample:** fresh load shows exactly 4 tabs/4 panels in the right
+order with the right labels/keys; the de-gilded paragraph has no background color and matches the body
+paragraph's Georgia font; every "first" heading computes `margin-top:0px`, every "second" computes `34px`
+(clamp's capped value at 1440px); grid is 4-across desktop, 2-across at 700px (within the small
+breakpoint). **Tested as a REAL sequence** (forward through all 4 tabs then back to the first, one
+continuous page session, per HARD RULE #21) — every click correctly updates the active tab, `aria-selected`,
+visible panel, and `location.hash`. **Tested every legacy hash, with and without the `sec-` prefix,
+plus an unrecognized hash** — `#sec-refunds`/`#refunds`/`#non-payment` → non-payment-refunds;
+`#policy`/`#sec-process` → payment; `#when-to-pay`/`#sec-tuition-fees` → tuition-billing;
+`#financial-aid` (already a valid new key) passes through unchanged; `#garbage` falls back to the default
+tab — all exactly as specified. (One early round of this same test wrongly showed every hash defaulting
+to the first tab — traced to a bug in the TEST script itself, not the site: it appended the Playwright
+cache-busting query string AFTER the `#hash` instead of before, which silently became part of the hash
+string being parsed. Fixed the test, re-ran, confirmed correct — a reminder that a failing verification
+script needs the same "don't assume, check why" discipline as the thing it's testing.)
