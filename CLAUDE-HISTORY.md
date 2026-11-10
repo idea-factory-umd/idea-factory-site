@@ -8466,3 +8466,56 @@ at the top of the right-hand Style panel, a tag-scope dropdown will read somethi
 same block, this native scoping mechanism will apply Georgia to paragraphs only and leave it untouched —
 automatically, no further steps. This is a completely standard, fast (under a minute) native Designer
 action; it is simply not one this MCP tool surface can perform on the user's behalf.
+
+## §333 — MPPM Blog template: paragraph-only serif actually achieved, via a tiny page-scoped CSS embed (2026-11-10)
+
+**Follow-up to §332.** §332 confirmed the public Designer API has no way to create Webflow's native
+per-tag "tag scope" style (the Designer's own "All Paragraphs" vs "All Bold Text" dropdown inside a Rich
+Text block) — but that only rules out doing it the way the Designer's own UI does it internally. A plain
+CSS descendant/tag selector, written by hand into a scoped custom-code embed, is a completely different
+(and fully available) mechanism, and achieves the identical visual result.
+
+**Checked the real rendered DOM first (never assume structure):** fetched the live template page and
+dumped `.mppm-blog-rich-txt-body`'s actual `innerHTML`. Every bold section lead-in compiles to
+`<p><strong>…</strong></p>` — i.e. "headers" are NOT a different tag, they're an ordinary `<p>` whose
+entire text happens to be wrapped in `<strong>`. Plain body paragraphs are bare `<p>text</p>`, no
+`<strong>` wrapper. This means a single rule on `.mppm-blog-rich-txt-body p` would (via normal CSS
+inheritance) make the `<strong>` text serif too, unless explicitly overridden back — so the real fix
+needs two rules, not one.
+
+**Fix:** created one new page-scoped `HtmlEmbed` element (`c70172d2-37ef-7637-01f2-90ad444936b5`), placed
+as a sibling immediately after the Rich Text element, containing:
+```css
+.mppm-blog-rich-txt-body p { font-family: Georgia, Times, "Times New Roman", serif; }
+.mppm-blog-rich-txt-body p strong,
+.mppm-blog-rich-txt-body p b { font-family: Interstate, OverpassFB, "Helvetica Neue", Arial, sans-serif; }
+```
+The sans-serif stack is the exact value live-measured from this same element right before the edit (via
+Playwright `getComputedStyle`), not a guess — byte-identical to the site's standard `--if-sans` stack.
+Per HARD RULE #17, this lives in a page-scoped embed on this one template page only — never added to the
+shared `idea-factory.css` — since it's new, narrowly-needed behavior Webflow's Designer genuinely can't
+produce any other way through this tool surface (the same carve-out HARD RULE #0/#17 already allow for
+parent-hover-child and similar native-impossible cases). Carries the project's standard `DO NOT DELETE`
+banner + plain-English explanation of what it does and why, referencing this entry and §332.
+
+**Verified, not assumed:** re-queried the embed's stored `code` setting immediately after writing it —
+byte-exact match. Published the site (`customDomains:[]` confirmed via `get_site` first — no production
+domains on this master site, so a plain `publishToWebflowSubdomain:true` publish is correct and complete).
+Re-fetched the live published page fresh (cache-busted) and measured actual rendered fonts: a bold
+lead-in `<p>`'s own `font-family` resolves to Georgia (expected — the base rule matches all `<p>`), but
+the `<strong>` text INSIDE it resolves to `Interstate, OverpassFB, "Helvetica Neue", Arial, sans-serif`,
+weight 700 — correctly overridden back. A plain paragraph (no `<strong>`) resolves to
+`Georgia, Times, "Times New Roman", serif`, weight 400. A full-page screenshot of the live, published
+template page confirms it visually: every bold section header renders in bold sans-serif exactly as
+before; every plain paragraph now renders in serif — exactly the split the user asked for, twice, in
+these exact words: *"STYLE THE RICH BODY TEXT PIECE SO THAT ONLY THE PLAIN BODY PARAGRAPH TEXT IS SERIF.
+LEAVING EVERYTHING ELSE THE SANS-SERIF FONT."*
+
+**Lesson for future per-tag-styling asks on a CMS-bound Rich Text block:** when Webflow's own Designer
+tag-scope mechanism is unreachable via the API (confirmed, §332), don't stop at "can't be done" — check
+whether a plain CSS descendant/tag selector, written into a small page-scoped `HtmlEmbed`, can reach the
+exact same visual result instead. It can, whenever the distinguishing content is a real, distinct HTML
+tag (here: `<strong>` vs plain `<p>` text) that a CSS selector can key off directly — this is not a
+workaround/hack in the HARD RULE #9 sense, it's the standard, sanctioned "Webflow genuinely can't do this
+natively, so a tiny scoped custom-code block does" category already used for parent-hover-child and
+keyframe cases elsewhere on this site.
