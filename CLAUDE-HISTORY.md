@@ -8397,3 +8397,72 @@ individual fields) — this is a Designer-UI-only change, the same settings pane
 earlier in this task. Once that's done, the `collectionPage` link mode should be retried fresh (this
 entry's negative results might also have been masked BY the collision rather than being a hard ceiling on
 their own — worth one more real test afterward, not written off permanently).
+
+## §332 — MPPM Blog template rich text: per-tag font scoping is a real Designer-UI-only feature, confirmed absent from the public API; reverted the overbroad fix (2026-11-10)
+
+**Ask:** "Set the styling on the mppm blog template page so that the plain paragraph body text is the
+Serif font (keepign all the rest of the fonts in the rich text piece the serif font they are now)" —
+i.e. only the plain `<p>` body copy inside the CMS-bound Rich Text block should become Georgia; the bold
+lead-in line (and anything else in that block) must stay the site's standard sans-serif (Interstate).
+
+**First attempt (wrong, user rejected it explicitly and forcefully):** the Rich Text element's entire
+visible content is governed by exactly ONE shared style object, `mppm-blog-rich-txt-body`
+(`720ebe60-8395-9c0c-1915-4812db8083ec`), applied to the wrapping `<div>` that the CMS `post-body`
+RichText field renders into — `query_elements` returns **zero children** for this element even at
+`children_depth:3`, so its internal `<p>`/`<strong>` runs are not addressable as separate elements through
+this tool surface. Lacking any visible way to scope the change, `font-family:Georgia` was applied to the
+one container class — which, confirmed live (both via a fresh `query_styles` re-query and the user's own
+Designer screenshot), made **both** the bold lead-in and the plain paragraphs render serif. The user's
+own words: *"You've just made EVERYTHING IN the 'RICH TEXT' box the Serif font. I told you specifically:
+STYLE THE RICH BODY TEXT PIECE SO THAT ONLY THE PLAIN BODY PARAGRAPH TEXT IS SERIF. LEAVING EVERYTHING
+ELSE THE SANS-SERIF FONT."** (The earlier `publish_site` call for this change had aborted before landing,
+so the live/published site was never actually affected — only the Designer draft.)
+
+**Investigated every remaining avenue before concluding none exists, rather than reporting the limitation
+from assumption:**
+1. `data_element_settings_tool.get_settings(type:"all_raw_settings")` directly on the Rich Text element
+   itself (not just `query_elements`) — returns only `domId`, `tag`, the `richText` CMS binding, `visibility`,
+   `attributes`. No per-tag/nested-content settings key of any kind.
+2. Checked this project's own saved Webflow guide-tool dump for any documented "rich text" / "tag
+   selector" / nested-style mechanism — none exists.
+3. **Confirmed externally, against Webflow's own public Designer API developer docs** (the API this MCP
+   server is built on top of): a Style object's `type` property genuinely includes `'tag'` (a bare-tag
+   selector like `h1`/`p`) and `'descendant'` (a class nested under another class, `.parent .child`) in
+   addition to `'global'`/`'combo'` — so Webflow's own data model supports exactly the kind of scoped rule
+   this task needs. **But `webflow.createStyle(name, options)` only accepts a `name` and an optional
+   `parent` (for creating a combo class) — there is no parameter anywhere in the public API to create a
+   `'tag'` or `'descendant'`-type style.** Community/developer-forum sources describe the only way to
+   produce one as a manual Designer UI action: clicking into a Rich Text block's actual content, then
+   using the tag-scope dropdown at the top of the Style panel (it shows "All Paragraphs", "All Bold Text",
+   etc. once the cursor/selection is inside that tag) to select a tag scope and style it — a real, fully
+   native, well-supported Designer feature with **no equivalent in the API surface this MCP wraps.**
+
+**Conclusion: this is a genuine, externally-confirmed platform limitation, not a gap in tool usage** — no
+combination of `data_style_tool`/`data_element_tool`/`data_element_settings_tool` can create a style
+scoped to only the `<p>` tags inside this (or any) CMS-bound Rich Text block while leaving its `<strong>`/
+heading runs unaffected. Per this project's own standing discipline (HARD RULE #9's "don't assume a
+workaround is needed without testing the native path first," applied here in the opposite direction — the
+native path was tested and genuinely isn't reachable), the correct move is to say so plainly, not to ship
+a broader change and call it close enough.
+
+**Fix applied:** removed `font-family` entirely from `mppm-blog-rich-txt-body` (`update_style` with
+`remove_properties:["font-family"]`), restoring the exact pre-edit state — confirmed via a fresh
+`query_styles` re-query immediately after, and re-confirmed a second time after an MCP server reconnect
+mid-task, both showing only `font-size:16px` / `line-height:150%` on the style, no `font-family` at all.
+Both the bold lead-in and the plain paragraphs are back to rendering in the site's standard sans-serif
+(Interstate), matching how this page looked before this task touched it. **Nothing was ever published
+with the broken all-serif state**, so live/production was unaffected throughout.
+
+**⚠️ Designer-canvas visual re-check (`element_snapshot_tool`) failed twice in a row this pass (`status:
+false`, no further detail)** — flagged explicitly per HARD RULE #3 rather than silently skipped; the
+revert is confirmed at the stored-data level (two independent fresh re-queries) but not yet confirmed by
+actually looking at the rendered canvas.
+
+**What only the user can do, to get the ACTUAL asked-for result (paragraph-only serif):** open the
+MPPM-Blogs Template page in the Designer → click into the Rich Text block's content (the purple-bordered
+box) → click so the cursor lands inside one of the plain paragraph sentences, not the bold lead-in line →
+at the top of the right-hand Style panel, a tag-scope dropdown will read something like "All Paragraphs"
+→ with that scope selected, set Font to Georgia. Because the bold lead-in is a different tag within the
+same block, this native scoping mechanism will apply Georgia to paragraphs only and leave it untouched —
+automatically, no further steps. This is a completely standard, fast (under a minute) native Designer
+action; it is simply not one this MCP tool surface can perform on the user's behalf.
