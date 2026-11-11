@@ -9097,3 +9097,30 @@ not the rounded-off estimate), title→headline `20px` (exact), headline→visib
 larger because of that half-overlap). Container confirmed `justify-content:center`,
 `align-items:stretch`, `gap:0px`; space above the stack and below the panel measured equal (`64px` each),
 confirming the leftover height centers the whole stack rather than padding between elements.
+
+## §346 — MPPM shared "Learn More" component: reCAPTCHA re-hide on click-outside, matching the hero (2026-11-11)
+
+Same feature as §343 (hero), applied to the shared "MPPM Applications Open Panel" component
+(`7a4c0c9b-9ff0-5b76-f3cf-0c222cd6fe9e`, 6 instances: Calendars & Deadlines, Academic Policies, Online
+Learning, Tuition & Financial Aid, Graduation & Commencement, Student Experience) — edited once at the
+component definition via `scope_component_id`, never touching an instance. Same two edits: the
+`challengeOpen()`/click-outside listener appended to the component's own helper script (unchanged
+otherwise — still light reCAPTCHA only, `#get-connected`'s dark-theme function untouched), and the same
+`86px`/`640ms`/`440ms` timing replacing the panel's two `._form_element:has(.g-recaptcha)` rules.
+**Gotcha hit and resolved:** the component's own elements, once fetched via `scope_component_id`, carry
+the COMPONENT's id (not the page id) in their `id.component` field — the first `get_settings` attempt
+failed "Element not found" passing the page id; fixed by using the component's own id in both the
+`element_id.component` field and `scope_component_id`.
+
+**Verified live (Playwright, full click-sequence, two instances — primary + spot-check, per HARD RULE
+#3's full-sweep discipline):** load collapsed (`0/0/hidden`, `data-theme` absent — correctly light, not
+dark); focus+type opens to `86px/1/visible`, text kept; click outside closes instantly, caught
+mid-animation (~33-46px, opacity ~0.56-0.64, not yet hidden — genuinely animating, not snapping), fully
+closed after ~580ms, text still intact; re-focus reopens, text preserved. Ticking Google's real
+checkbox did not close the panel. On mobile (390px): scrolling leaves it open, a real tap elsewhere
+closes it. **Footer-link click-through, specifically requested as check (d):** clicking a real link
+("Get updates", `https://www.ideafactory.umd.edu/updates`) sitting directly below the open panel
+correctly navigated there — confirmed by URL change, not by assumption; first test attempt gave a false
+negative because the link's screen coordinates were computed before scrolling it into the 1000px
+viewport, landing the click off-page — re-tested with `scrollIntoViewIfNeeded()` first and it passed
+cleanly. Second instance (Student Experience) showed byte-identical behavior.
