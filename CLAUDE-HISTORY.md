@@ -9041,3 +9041,32 @@ hidden on the live site, don't change it — this was reproduced only via this s
 click test on the brand-new button, not a report of an existing live defect. **The scroll offset was left
 at the originally-specified 110px, untouched; no edit was applied.** If this surfaces again, don't
 re-litigate it from scratch — this entry already has the measurements on record.
+
+## §343 — MPPM hero: reCAPTCHA re-hides on click-outside, smoother open/close (2026-11-11)
+
+Two edits only, both in the hero's existing embeds, nothing rebuilt. **(1)** Helper `<script>`: added a
+`challengeOpen()` check (scans for a visible, non-zero-height reCAPTCHA `bframe` iframe) plus a
+`document`-level `click` listener that removes `.hf-engaged` from any engaged panel (`#get-connected` /
+`#learn-more-form`) the click landed outside of, unless a challenge is currently open. Appended after the
+existing `engage()` listeners inside the same IIFE — nothing else in the script touched. **(2)** CSS: the
+two `._form_element:has(.g-recaptcha)` rules replaced with new timing — open state now caps at `86px`
+(fits Google's 78px widget) instead of `240px`, opens over `640ms cubic-bezier(0.16,1,0.3,1)` with a
+delayed `420ms` opacity fade-in; closed state now closes over `440ms cubic-bezier(0.32,0.72,0,1)` (was
+`380ms`) with a `280ms` opacity fade-out and `visibility` delayed the same `440ms` so the row stays
+non-interactive only once it's actually finished folding.
+
+**Verified live (Playwright, computed styles, full click-sequence per HARD RULE #21, not a fresh-load
+sample):** on load, collapsed exactly as before (`0px/0/hidden`). Focus+type opens to `86px/1/visible`
+with the right transition strings down to the millisecond and curve. A click on empty space elsewhere
+immediately flips `hf-engaged` off and was caught mid-animation (80ms in: `32.8px`, opacity `0.56`,
+`visibility` still `visible`, i.e. genuinely animating shut, not snapping) — fully closed by ~580ms, typed
+text (`"Jordan"`) intact throughout. Clicking back into the field reopens it, text and all. On a 390px
+mobile viewport: scrolling the page (mouse-wheel-emulated) leaves the panel engaged; a real tap elsewhere
+closes it — confirmed scroll and tap are handled differently, per spec. Clicked Google's reCAPTCHA anchor
+checkbox directly (via its iframe): the panel stayed engaged (did not collapse) while ticking, and stayed
+engaged with Google's image-challenge popup open (`bframe` present) — the `challengeOpen()` guard's own
+detection condition was independently confirmed true at that moment. A full real submission still can't
+be completed by this session: Google's risk engine escalates headless/automated traffic to the image
+challenge, which requires a human to solve — the same reCAPTCHA-is-working-as-designed limitation already
+documented in §340; reached AC's `proc.php` endpoint (200) but no thank-you state, consistent with a
+missing real captcha token rather than any defect in this change.
