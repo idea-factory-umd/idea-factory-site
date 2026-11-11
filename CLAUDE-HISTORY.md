@@ -9168,3 +9168,16 @@ merged panel, Apply Now box, and the Learn More panel below all render correctly
 **First test pass of hash routing gave 16 false negatives** — my own test script's bug, not the site's:
 the cache-busting query string was placed after the `#` fragment, so `location.hash` picked up the
 whole `?cb=...` suffix and never matched; fixed the test (query string before the hash) and reran clean.
+
+## §348 — MPPM Apply Now Box component: fixed off-center button text (2026-11-11)
+
+The "START YOUR APPLICATION »" button's label and arrow sit in two bare `<p>` elements with no style
+class, so both carried Webflow's default `margin-bottom:10px` / `margin-top:0` — an asymmetric margin
+that pushed the visible text upward inside the flex-centered button, leaving extra blank space below.
+Fixed once at the component level (`72ff1b76-e0e5-832f-4393-f0f69f83a019`, instanced on all 4 MPPM
+tab pages): created `mppm-acpol-apply-btn-text` (margin 0 on all four sides) and applied it to both
+paragraphs. Published and measured live across 1440/991/767/479/375px — margins confirmed `0px` at every
+width; at the two widths where the label wraps to two lines, the actual text block sits symmetrically
+(15px above, 15px below), confirmed by comparing like-for-like (the label's own top/bottom), not the
+label's top against the shorter arrow glyph's bottom, which don't resolve to the same baseline and
+produced a misleading 15px/23px reading on the first pass.
