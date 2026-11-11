@@ -8967,3 +8967,77 @@ replaced the old `darken(document); new MutationObserver(...)` pair with a `plac
 of two. Verified live: all three inputs read exactly "First Name"/"Last Name"/"Email Address"; typing real
 values into them works normally (placeholder text never appears in `.value`); Submit still reaches AC's
 `proc.php` endpoint (200), confirming the field-name/submission wiring is untouched by this change.
+
+## §342 — MPPM "Learn More": shared component gets the real form; homepage gets an independent cognate strip (2026-11-11)
+
+**Two-part task.** (A) The "MPPM Applications Open Panel" component (`7a4c0c9b-9ff0-5b76-f3cf-0c222cd6fe9e`,
+group "MPPM", 6 instances: Calendars & Deadlines, Academic Policies, Online Learning, Tuition & Financial
+Aid, Graduation & Commencement, Student Experience) had its right-hand white column's fake "LEARN MORE ››"
+stand-in button replaced with a real, working AC form-38 embed — edited once, at the component definition,
+via `scope_component_id`, so all 6 instances update identically. (B) The homepage (`/mppm-home`) — which
+already has form 38 live in its hero and can't host a second instance on the same page — got a plain,
+independent "Learn More" section built from ordinary page elements: a label row (already existed, matched
+spec with minor fixes) plus a new red call-to-action strip, linking back up to the hero's own form instead
+of embedding a second one.
+
+**Explicit user correction, preserved verbatim because it's the governing distinction for this whole task:**
+*"Make sure in editing that piece on the home page you're not ALTERING THE COMPONENT. ... The Homepage gets
+a UNIQUE COGNATE (NOT a component instance). Because it FUNCIONS DIFFERENTLY on the homepage (there can't
+be two instances of the sent-form on the same page--that's the reason)."* Confirmed honored both ways:
+every Part A edit used `scope_component_id` against the component definition, never a page instance; a
+fresh `component_filter` query for "Applications Open" on `/mppm-home` returned 0 matches (nothing to
+remove); and the homepage's new strip elements were confirmed via `query_elements` to be plain `Block`/
+`Paragraph`/`Link` types, not `ComponentInstance` — structurally unrelated to the component, per HARD RULE
+#10's fork-don't-share principle.
+
+**Part A (component edit).** Font-sizes on the gold heading ("Applications are now open!") and the white
+column's sentence ("Request more information below.") converted from flat px + stepped breakpoints to the
+literal `clamp()` values the spec gave (`clamp(26px,2.8vw,38px)` / `clamp(17px,1.5vw,20px)`), breakpoint
+overrides removed via `remove_properties` so only the base clamp applies. White column's `align-items`
+changed `flex-start` → `stretch` so a full-width form can fill it. Deleted the fake button + its 2 child
+paragraphs (confirmed removed via re-query: white column dropped from 2 children to 1). Appended two new
+elements at the component level: an `HtmlEmbed` (DOM id `learn-more-form`, appended inside the white
+column) holding the exact AC short-script + a shared helper `<script>` (same `darken()`/`placeholders()`/
+`engage()` helpers from §340/§341, already written generically to cover both `#get-connected` and
+`#learn-more-form` selectors — no changes needed to the hero's copy), and a second `HtmlEmbed` at the
+component root (sibling of the gold/white columns, styled `display:none` via `mppm-learnmore-cssembed`
+*at creation time* so it can never participate in the panel's grid layout) holding the full `#learn-more-
+form form._form ...` stylesheet: side-by-side First/Last fields, full-width Email, full-width red Submit,
+zero border-radius anywhere (`#learn-more-form, #learn-more-form *, ...{border-radius:0 !important}`), and
+the same collapsed-until-engaged reCAPTCHA treatment as the hero (height/opacity/visibility, never
+`display:none`) — but deliberately with **no** `data-theme="dark"` override, since the shared `darken()`
+helper only ever targets `#get-connected`, so these 6 instances correctly show Google's default *light*
+reCAPTCHA, exactly as the task's CHECK list required.
+
+**Part B (homepage strip).** Found the homepage's `mppm-learnmore-wrap` already held a leftover
+`mppm-launch-formband` — a fake form-shaped scaffold (headline + empty placeholder input divs + a fake
+"Submit ››" link, no real `<input>`s) from earlier placeholder work. Deleted it outright (a self-contained
+subtree removal, not a move+remove pair, so HARD RULE #13 doesn't apply) and built the real red strip in
+its place: a `mppm-learnmore-strip` div containing `mppm-learnmore-striptext` ("I am interested in the
+Master's in Product Management.") and `mppm-learnmore-stripbtn` (a same-page anchor link, `href="#get-
+connected"`, text "Get Connected ››"). Also corrected 5 small drifts between the pre-existing label row
+and the new literal spec (section's own `padding` clamp ceiling 100px→96px; wrap's side padding 40px→24px;
+missing `flex-wrap:wrap` on the head row; label's `font-size`/`line-height` flattened px → the spec's
+`clamp()` + `1`; the rule divider's `height`/`flex-basis`/color → `2px`/`60px`/`#E6E6E6`). Added a page-
+level `HtmlEmbed` (appended as the last child of `Body`) with the click-intercept script: listens for
+clicks on `a[href="#get-connected"]`, smooth-scrolls to the hero panel, and focuses the first text input
+once the scroll settles (`scrollend` event, with a 1500ms fallback timeout for browsers that lack it).
+
+**Verification (published, re-fetched live, Playwright, all 6 component pages + homepage — full sweep per
+HARD RULE #3):** all 6 pages show the real form (3 inputs, correct placeholders "First Name"/"Last Name"/
+"Email Address", full-width Submit, light reCAPTCHA collapsed on load and revealing on focus with
+`.hf-engaged`), zero non-zero `border-radius` anywhere in the panel, the old fake button confirmed gone,
+and the gold heading/sentence text confirmed unchanged. Homepage: confirmed exactly one `form._form` on
+the page (no duplicate AC instance), no `#learn-more-form` embed present (homepage never gets a second
+form), the strip's text/button/href all correct, zero rounded corners.
+
+**One open finding, deliberately left as-is per explicit user instruction — do not re-raise or "fix" this
+without being asked again.** Testing the new "Get Connected ››" click as a real sequence (scroll away from
+the strip, click, let the scroll+focus settle — HARD RULE #21) measured the destination panel's own label/
+lead-sentence landing under the page's sticky header (measured 179px tall on desktop, 136px on mobile) at
+the spec's literal 110px offset, on both breakpoints tested. Screenshots (with the header rendered
+translucent to show what sits behind it) were sent to the user as proof. The user's response: nothing is
+hidden on the live site, don't change it — this was reproduced only via this session's own fresh automated
+click test on the brand-new button, not a report of an existing live defect. **The scroll offset was left
+at the originally-specified 110px, untouched; no edit was applied.** If this surfaces again, don't
+re-litigate it from scratch — this entry already has the measurements on record.
