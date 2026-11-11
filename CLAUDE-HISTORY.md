@@ -9078,3 +9078,22 @@ One-property change: `mppm-hero-form-wrap`'s `margin-top` (base breakpoint) chan
 before writing, and confirmed the new value live in the freshly-fetched, freshly-hashed compiled
 stylesheet afterward — every other property on the rule (padding, borders, `scroll-margin-top`, flex
 layout) unchanged.
+
+## §345 — MPPM hero left column: two-group vertical spacing, replacing the single-margin fix (2026-11-11)
+
+Supersedes §344. Root cause: `mppm-hero-left`'s `grid-row-gap:clamp(18px,2.4vh,26px)` was adding a
+uniform flex-gap on top of each child's own margins, compounding into even ~55-60px gaps between every
+element instead of a tight headline group + a separated form panel. Fix: container gap zeroed
+(`grid-row-gap`/`grid-column-gap: 0px`), `align-items:stretch` set explicitly; each of the four
+children's margins rewritten as top-only (eyebrow `0`, h1 `14px`, blurb `20px`, `#get-connected`
+`clamp(58px,6.4vh,72px)`), bottom/left/right all `0px`; h1's `line-height` tightened `1.04`→`0.98`
+(blurb's `1.55` was already correct, left alone).
+
+**Measured live (Playwright, freshly published, 1440px):** eyebrow→title `14px` (matches the literal
+margin instructed, below the spec's own "~20px" prose estimate — the literal numeric value was followed,
+not the rounded-off estimate), title→headline `20px` (exact), headline→visible "GET CONNECTED" label
+`41px` (spec's own parenthetical flagged the label sits half above the panel's border, expecting
+~40–54px — landed right in range; the raw box-to-box gap to the panel's own top border measures `58px`,
+larger because of that half-overlap). Container confirmed `justify-content:center`,
+`align-items:stretch`, `gap:0px`; space above the stack and below the panel measured equal (`64px` each),
+confirming the leftover height centers the whole stack rather than padding between elements.
