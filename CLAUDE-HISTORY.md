@@ -9124,3 +9124,47 @@ correctly navigated there — confirmed by URL change, not by assumption; first 
 negative because the link's screen coordinates were computed before scrolling it into the 1000px
 viewport, landing the click off-page — re-tested with `scrollIntoViewIfNeeded()` first and it passed
 cleanly. Second instance (Student Experience) showed byte-identical behavior.
+
+## §347 — MPPM Academic Policies: 6 tabs regrouped into 4, old hashes mapped forward (2026-11-11)
+
+Health, Enrollment, and Update Your Info (each just one `h2` + one paragraph) merged into a single new
+tab, "Student Requirements & Records" (`data-tab="requirements"`), in that order, with no panel-level
+title above them. Graduate School became the first tab and the new on-load default; Withdrawal and
+Appeals kept their content completely untouched, only reordered/relabeled on the tab bar.
+
+**Mechanics, all edit-in-place, nothing rebuilt:** moved Enrollment's and Update's heading+paragraph
+pairs into the existing Health panel element (`move_element`, verified each old panel had zero children
+left before deleting it — HARD RULE #13), then renamed that panel's own id/data-panel/aria-labelledby
+to `requirements` and its visibility class to hidden. The old Graduate panel got the `visible` class
+instead. On the tab bar: deleted the Enrollment and Update tab buttons outright (self-contained, no
+move+remove risk), reordered the remaining four via `move_element` (prepend/after chains), and converted
+the old Health tab button in place into the new Requirements tab (relabeled text, `data-tab`, class).
+Reused an **already-existing** `mppm-acpol-tablist--4col` combo class (built earlier for another MPPM
+page) for the 4-column/2-column(`medium`,≤991)/1-column(`tiny`) responsive grid — nothing new needed
+there. Created one new combo, `mppm-acpol-h2--spaced` (`margin-top:clamp(34px,3.8vw,52px)`), applied only
+to the Enrollment and Update headings now sitting 2nd/3rd inside the merged panel; the first heading
+(Health) keeps the base class's `margin-top:0`.
+
+**Gotcha repeated from §319:** `set_attributes` with an `id` key in the payload still internal-errors;
+fixed by splitting the write into `set_attributes` (role/aria-labelledby/data-panel only) +
+`set_dom_id` (the actual id) — same split needed on any future rename like this.
+
+**Tab-switching JS:** replaced the flat `VALID` array + single-hash-check with a `HASH_MAP` covering all
+six old keys (with AND without the `pol-` prefix, per spec) resolving to the four new ones, used on both
+initial load and `hashchange`; default changed from `'health'` to `'graduate'` everywhere it appeared.
+Click-driven navigation needed no change — it already just reads each button's own (now-updated)
+`data-tab` value.
+
+**Verified live, published:** default load shows exactly 4 tabs, Graduate active/visible, zero console
+errors. All 16 hash-routing cases pass (`#health`, `#pol-health`, `#enrollment`, `#update`, and their
+`pol-` forms → requirements; `#withdrawal`/`#appeals`/`#graduate` and their `pol-` forms → themselves;
+an unknown hash and no hash → graduate). A full click-through sequence (withdrawal → appeals →
+requirements → graduate, not just isolated fresh-load clicks) landed the right panel and hash every
+time. Requirements panel headings measured live: Health `margin-top:0px`, Enrollment and Update both
+`margin-top:52px` (clamp ceiling at this width), all three `margin-bottom:28px` (clamp ceiling) — matches
+spec exactly. Responsive grid measured: 4 equal columns at 1440px, 2 columns at 991px and 767px (small
+inherits medium's value — expected cascade, not a bug), 1 column at 479px. Screenshot reviewed: tab bar,
+merged panel, Apply Now box, and the Learn More panel below all render correctly.
+**First test pass of hash routing gave 16 false negatives** — my own test script's bug, not the site's:
+the cache-busting query string was placed after the `#` fragment, so `location.hash` picked up the
+whole `?cb=...` suffix and never matched; fixed the test (query string before the hash) and reran clean.
