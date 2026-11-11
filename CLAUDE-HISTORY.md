@@ -8801,3 +8801,100 @@ it as the task's own context note described — traced this to the pre-existing,
 not rebuild the section or the photo") — flagging it here as a pre-existing fact rather than a bug
 introduced by this work, exactly the kind of distinction HARD RULE #15 asks for when a task is scoped to
 leave a surrounding structure untouched.
+
+## §339
+
+**MPPM homepage hero — reCAPTCHA-removal attempt, full-bleed layout, border-line fix, ticker-bar deletion
+(2026-11-11).** Four-part edit-in-place task, delivered as two uploaded files (the full AC form-38 HTML,
+and the literal spec).
+
+**1) Embed swap.** Deleted the hero's short-script embed (`<div class="_form_38">` + `embed.php?id=38`,
+which loads a visible reCAPTCHA widget) and replaced it verbatim with the full-HTML form-38 embed
+(style + `<form id="_form_38_">` + script, 44,788 chars, under the 50k embed limit — no head/body split
+needed). Fidelity verified by `cp`-ing the uploaded file to a ground-truth copy, writing a candidate
+reconstruction, and `diff`/`sha256sum`-matching the two byte-for-byte before ever sending the content to
+Webflow; re-queried the live stored value after the write and confirmed an identical match (Webflow trims
+one trailing newline on save — the only byte difference, functionally inert).
+**⚠️ Important finding, not a false alarm: removing the visible reCAPTCHA widget does NOT remove
+reCAPTCHA.** A real test submission (name/email filled, Submit clicked) came back from AC's own
+`proc.php` endpoint with a JSONP response that `_load_script`'s onload literally renders:
+`_show_error("38", "We were not able to confirm the captcha. Please try again", '<div class="g-recaptcha"
+data-sitekey="6LcwIw8TAAAAACP1ysM08EhCgzd6q5JAOUR1a0Go">...')` — i.e. the ActiveCampaign BACKEND rejects
+the submission and injects a reCAPTCHA widget on the fly, regardless of which embed snippet (short script
+or full HTML) was used, because both post to the identical `proc.php` endpoint and reCAPTCHA/spam
+protection is a setting on **Form 38 inside the ActiveCampaign account itself**, not something either
+embed variant controls. The full-HTML version only differs in NOT rendering the widget on page load; it
+still cannot complete a submission without solving one. **This cannot be fixed from Webflow/MCP — it
+requires AC account access (which this session does not have) to disable Spam Protection/reCAPTCHA on
+Form 38 directly in ActiveCampaign's own form settings.** Flagged to the user rather than silently
+reported as fixed.
+**1b) Blocker, unresolved:** the task's step 1(b) ("do the same in the Learn More COMPONENT, the one used
+on the six other pages") does not correspond to any real component — exhaustive search (`query_components`
+by keyword, then an unfiltered `get_all_components` site-wide listing) found no "Learn More"-named
+component and no component containing an AC form embed anywhere on the site. The closest candidate by
+instance count and button text, "MPPM Applications Open Panel" (6 instances), was fully inspected and
+contains only a plain `Link` to `/mppm-home#goto:learn-more` — no `HtmlEmbed` anywhere in its tree. Raised
+to the user as a genuine blocker rather than guessed at, per the task's own explicit "edit the existing
+build in place, do not rebuild" framing (creating a brand-new component would be an unrequested scope
+expansion).
+
+**2) Full-bleed hero.** `mppm-hero-sec` already had no max-width/padding/margin of its own (clean). Made
+`mppm-hero-grid` full-bleed: removed `max-width:1240px`, `margin-right/left:auto`, `padding-right/left`
+(40px main, 20px tiny), and `grid-column-gap:48px`; added `width:100%` and `min-height:min(72vh,640px)`.
+Set the 1.06/0.94 column ratio via `flex-grow` (left 1→1.06, imgwrap 1→0.94, both already `flex-basis:0%`
++ `min-width:0`) rather than literal CSS Grid, since this remains a single-row 2-column Flexbox layout,
+not true 2D placement (HARD RULE #12a). Removed imgwrap's old `margin-right:calc(-1 * max(0px,(100vw-
+1240px)/2) - 40px)` — a compensation hack for the OLD centered/padded grid that would have overshot the
+viewport edge now that the grid itself is already full-bleed.
+**⚠️ Measured ratio caveat, reported not silently corrected:** the rendered column split at 1440px is
+817px:623px (≈56.7:43.3), not the mathematically pure 763px:677px (53:47) that `flex-grow:1.06/0.94` alone
+would imply. Root-caused via an isolated minimal repro (byte-identical numbers reproduced outside
+Webflow): per the CSS Flexbox spec, a `flex-basis:0%` item with `box-sizing:border-box` still has its own
+padding/border pre-allocated as part of its "outer flex base size" before the grow-ratio is applied to the
+*remaining* space — `mppm-hero-left`'s 128px total horizontal padding (`clamp(36px,5vw,64px)` ×2, itself a
+NEW requirement of this same task) and `mppm-hero-imgwrap`'s 12px left border get added back on top,
+skewing the final pixel ratio toward whichever side carries more box-model overhead (left, here). The math
+checks out exactly: `128 + (1440-140)*(1.06/2) = 817`, `12 + (1440-140)*(0.94/2) = 623`. Left as literally
+specified (`flex-grow:1.06/0.94`, matching the instruction's exact numbers) rather than hand-tuning to
+oddball compensated values (which would also only hold at one specific viewport width, since the padding
+itself is responsive via `clamp()`) — flagged to the user as a measured fact rather than claimed as a
+pixel-perfect match it isn't.
+
+**3) Border-line zero-gap fix.** Set `mppm-hero-form-wrap`'s `padding-bottom` to `0px` (native Designer
+style) and `.hf-embed`'s own `margin-bottom`/`padding-bottom` to `0px` (native). Reworked the custom CSS
+embed (`f777b263…`): added `margin-bottom:0 !important;padding-bottom:0 !important` to `._form-content`;
+added `#get-connected #_form_38_ ._clear-element{display:none !important}`; gave `._button-wrapper` a new
+`padding-bottom:clamp(22px,2.2vw,28px)`; changed its `::after` connecting-line pseudo from `top:100%;
+height:clamp(22px,2.2vw,28px)` to `bottom:-1px;height:calc(clamp(22px,2.2vw,28px) + 1px)` (overlapping the
+panel's own 1px border by 1px so there's no visible seam); unpacked `._form-thank-you`'s bundled
+`padding:4px 0 !important` into longhand so only `padding-bottom` became `clamp(22px,2.2vw,28px) !important`
+(top/left/right untouched).
+**Real bug found and fixed along the way:** after the first publish, the gap measured 19px instead of 0.
+Root-caused (not guessed) via a targeted Playwright probe of `#get-connected`'s actual children: it had
+**4** children, not the expected 3 — the custom CSS-only embed (`f777b263…`, a sibling of the AC form
+embed, not nested inside it) was sitting as a genuine 4th flex child of the `mppm-hero-form-wrap` flex
+column, so the panel's own `grid-row-gap:18px` applied a that container's gap AFTER the AC-embed and
+BEFORE this empty `<style>`-only div (18px gap + the panel's 1px border ≈ the measured 19px, confirmed by
+inspecting each child's own rect and the panel's padding/margin, all independently zero). `<style>` tags
+apply their rules regardless of their wrapping element's own CSS display state, so the fix was a new
+`mppm-hero-cssembed{display:none}` class applied to that one embed — removes it from flex flow without
+touching the stylesheet it contains. Re-published, re-measured: gap is now exactly 1px (the panel's own
+border-bottom-width) — i.e. the line's content ends flush against the inside of the border, 0px of actual
+visible gap, confirmed.
+
+**4) Ticker bar deleted.** Found it was a direct child of `mppm-hero-sec` itself (`mppm-hero-ticker`,
+second child, sibling of `mppm-hero-grid`) rather than its own top-level `<section>` as the task's framing
+implied — confirmed via a fresh element-tree query before touching anything (HARD RULE #19), rather than
+trusting the task's description of the DOM shape. Removed it as one self-contained subtree
+(`remove_element` on the single wrapper div; no `move_element` involved, so HARD RULE #13 doesn't apply
+here — this was a full intentional deletion, not an empty-then-remove). Re-queried `mppm-hero-sec`'s
+children afterward and confirmed exactly one child remains (`mppm-hero-grid`), matching part 2's own
+"grid is a direct child of the section" framing once the ticker is gone.
+
+**Verified live** (full-site publish, since single-page publishing 400s on this account): full-bleed grid
+spans 0→1440 at 1440px viewport with 0px gap between columns; 0 reCAPTCHA DOM elements on page load;
+ticker text absent; 0 console errors; responsive sweep at 1600/1320/1100/992/900/767/600px shows 0px
+horizontal overflow (430/375/320px show 3–113px overflow, pre-existing at those sub-tiny widths, not
+touched by this task's scope). Real form submission test: fields correctly accept input and the request
+reaches AC's backend (HTTP 200), but is rejected by AC's own captcha requirement per the finding above —
+documented as the one item needing the user's own test + AC account action, not claimed as a pass.
