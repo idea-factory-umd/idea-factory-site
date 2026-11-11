@@ -8952,3 +8952,18 @@ focus, wait for transition, re-measure, not just a fresh-load snapshot):**
   defect: a production reCAPTCHA sitekey is specifically built to distinguish real human interaction from
   scripted browser automation, so this one sub-step is a genuine human-only check — reported to the user
   as needing their own manual test rather than claimed as passed or silently skipped.
+
+## §341
+
+**MPPM hero — short field placeholders (2026-11-11).** Small follow-up to §340. AC's default placeholders
+("Enter your first name" / "Enter your last name" / "Enter your email address") replaced with short labels
+("First Name" / "Last Name" / "Email Address"), no asterisks — display text only, the visually-hidden
+`<label>`s and the submitted field names are untouched. Edited only the hero embed's helper `<script>`:
+replaced the old `darken(document); new MutationObserver(...)` pair with a `placeholders()` function (maps
+`input[name]` → short text via a small lookup object, scoped to `#get-connected form._form input` and
+`#learn-more-form form._form input` so it's already future-proofed for wherever the still-unresolved
+"Learn More" component eventually lives) plus a `run()` wrapper that calls both `darken()` and
+`placeholders()` from the same `MutationObserver` callback — one observer now drives both behaviors instead
+of two. Verified live: all three inputs read exactly "First Name"/"Last Name"/"Email Address"; typing real
+values into them works normally (placeholder text never appears in `.value`); Submit still reaches AC's
+`proc.php` endpoint (200), confirming the field-name/submission wiring is untouched by this change.
