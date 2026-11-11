@@ -8729,3 +8729,75 @@ to the first tab — traced to a bug in the TEST script itself, not the site: it
 cache-busting query string AFTER the `#hash` instead of before, which silently became part of the hash
 string being parsed. Fixed the test, re-ran, confirmed correct — a reminder that a failing verification
 script needs the same "don't assume, check why" discipline as the thing it's testing.)
+
+## §338 — MPPM homepage hero: ActiveCampaign form installed, left column restyled (2026-11-11)
+
+**Ask:** replace the hero's left-column content (removing the old button row and deadline chips) with a
+restyled eyebrow/title/headline plus a new "GET CONNECTED" form panel wrapping a verbatim ActiveCampaign
+embed (form id 38), styled entirely to match the hero via custom CSS scoped so it out-ranks AC's own
+injected `!important` rules — explicit literal values given throughout. Grid/photo/section left untouched
+by instruction.
+
+**Text restyle (existing classes, in place):** `mppm-hero-h1`'s flat `72px`/stepped `36px`/`28px`
+breakpoint sizes replaced with one fluid `clamp(36px, 5vw, 72px)` (the stepped medium/tiny overrides
+removed, since the clamp alone now governs every width — matching the spec's single blanket value with
+no breakpoint carve-out); `line-height` 1.08→1.04; `margin-top` 0→14px. `mppm-hero-blurb`'s `max-width:520px`
+removed (the whole point of "one right edge"), `font-size` 18px flat→`clamp(16px,1.35vw,18px)`,
+`line-height` 1.4→1.55, `color` `#e6e6e6`→`rgba(255,255,255,0.92)`, `margin-bottom` 28px→0. `mppm-hero-left`
+gained a `grid-row-gap` (this site's longhand form of flex `gap`, per HARD RULE #4) of
+`clamp(18px,2.4vh,26px)` and all-four-side `clamp(36px,5vw,64px)` padding (previously top/bottom only, no
+left/right at all) — its medium-breakpoint fixed padding override (40px/32px) was removed for the same
+"one fluid value governs every width" reason as the h1. `mppm-hero-eyebrow` already matched the spec
+exactly (Interstate 700, 16px, uppercase, 0.14em, gold) — left untouched. The old button row (Apply Now /
+View an Info Session) and metachip row (Priority deadline / Classes start) were deleted outright per the
+explicit "remove any other buttons, chips or deadline lines" instruction.
+
+**New native elements (all via Designer-manageable classes, no custom code needed for these):** a
+`Box` wrapper (`#get-connected`, class `mppm-hero-form-wrap`) appended after the blurb — flex column, its
+own `grid-row-gap:18px`, `margin-top`/`scroll-margin-top`, asymmetric padding (0 on the left, per spec),
+and borders only on top/right/bottom (`border-left-width:0`) with all four corner radii explicitly 0. A
+`BY_CUSTOM_TAG="span"` label (class `mppm-hero-form-label`) — Webflow's native element types have nothing
+that compiles to a bare `<span>`, so custom-tag was the correct, sanctioned mechanism here (not a
+DOM/HARD-RULE-#23 violation: this is a short structural badge, not body text, exactly the category that
+rule reserves custom-tag for) — positioned absolute/`translateY(-50%)` to visually break the top border
+line, with a native `::before` pseudo (content `""`, 0.42em square, `#E21833`) for the red square — fully
+native, no custom CSS needed for the label at all. A `Paragraph` (class `mppm-hero-form-lead`) holding the
+lead sentence, with a nested `BY_CUSTOM_TAG="strong"` (class `mppm-hero-form-lead-bold`, only overriding
+`font-weight:700`/`color:#fff`, everything else inherited from the paragraph) wrapping the bold lead-in —
+the same native-nested-inline-run technique already established for CMS rich text in §333, applied here
+to hand-authored content instead.
+
+**Two `HtmlEmbed`s, split by what's genuinely impossible natively:** (1) the AC snippet itself
+(`<div class="_form_38">` + their `embed.php` script), pasted byte-for-byte unchanged, class `hf-embed`
+(Webflow wraps an Embed's content in a div carrying whatever class you give it, which is exactly what the
+spec's CSS scoping assumes). (2) a second, CSS-only embed holding every rule from the spec's section 3 —
+genuinely unavoidable as custom code because AC's script renders the real `<form>` under a
+runtime-generated id (not `_form_38_`) and injects its own `!important` CSS against classes
+(`._form_element`, `._form-label`, `._submit`, etc.) that exist only in AC's compiled output, never as
+Designer style objects I could target natively. Followed the spec's own `!important` markings exactly
+(e.g., `._form-content`'s display/flex-wrap/gap and `._button-wrapper`'s own margin/position are NOT
+`!important`, matching its literal text) and applied the two explicitly-blanket "all `!important`"
+sections (text inputs, submit) to their stated hover/focus/active/error sub-states too, on the reasoning
+that the blanket marker's whole point is out-ranking AC's own injected `!important`, so under-applying it
+in an ambiguous spot risked exactly the silent-override failure the entire section exists to prevent.
+
+**Verified live, not assumed:** right edge of eyebrow/h1/blurb/panel all measure identically (760px at
+1440 viewport width) — confirmed via real bounding-box measurement, not a visual guess. Wrapper borders:
+top/right/bottom 1px, left 0px, padding-left 0px, all four corner radii 0px. The AC script genuinely
+loaded and rendered 3 real text inputs (placeholders are AC's own real copy: "Enter your first name" /
+"Enter your last name" / "Enter your email address") with the correct dark background/white
+text/square-corner styling; computed `flex-basis` on the first three `._form_element`s is `200px, 200px,
+100%` — First/Last side by side, Email full width, exactly as specified. Submit button: red, white
+uppercase text, full width, square corners. Clicking Submit on an empty form produced 8 real
+"This field is required." error tooltips — confirms AC's own validation script is wired and firing, not
+just visually present. The connecting-line `::after` on `._button-wrapper` computed `content:""`,
+`height:28px` (clamp's capped value at this width), `border-left:1px solid rgba(255,255,255,0.4)` — all
+exactly as specified. Console showed only two benign `requestStorageAccess: Permission denied` messages
+(a third-party-cookie sandboxing notice from AC's own tracking code, unrelated to anything built here).
+Checked the medium-breakpoint stacking too (700px viewport): grid correctly switches to a single column
+with no horizontal overflow; the photo currently renders BELOW the text column at this width, not above
+it as the task's own context note described — traced this to the pre-existing, untouched DOM/CSS order of
+`mppm-hero-imgwrap` vs. `mppm-hero-left` (never touched by this task, which was explicitly scoped to "do
+not rebuild the section or the photo") — flagging it here as a pre-existing fact rather than a bug
+introduced by this work, exactly the kind of distinction HARD RULE #15 asks for when a task is scoped to
+leave a surrounding structure untouched.
