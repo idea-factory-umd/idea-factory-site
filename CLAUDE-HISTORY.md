@@ -8898,3 +8898,57 @@ horizontal overflow (430/375/320px show 3–113px overflow, pre-existing at thos
 touched by this task's scope). Real form submission test: fields correctly accept input and the request
 reaches AC's backend (HTTP 200), but is rejected by AC's own captcha requirement per the finding above —
 documented as the one item needing the user's own test + AC account action, not claimed as a pass.
+
+## §340
+
+**MPPM hero — reCAPTCHA fix, follow-up to §339 (2026-11-11).** §339 found that removing the reCAPTCHA
+widget doesn't remove AC's server-side enforcement of it. User's fix, delivered as a literal spec: go back
+to the short embed (which passes AC's check because reCAPTCHA actually loads), but keep it visually out of
+the way — dark-themed to match the panel, and collapsed until the visitor engages the form.
+
+**1) Embed swap back.** Replaced the full-HTML embed's entire contents with the short script
+(`<div class="_form_38">` + `embed.php?id=38`) plus a new helper `<script>` (verbatim, unmodified): a
+`MutationObserver` that stamps `data-theme="dark"` onto `.g-recaptcha` the instant AC injects it (before
+Google draws the widget), and a capture-phase listener on `focusin/input/change/pointerdown/keydown` that
+adds `.hf-engaged` to `#get-connected` the moment the visitor touches the form. This also removed the old
+full-HTML form's own `<style>` block for free, since it lived inside this same embed and the whole thing
+was replaced wholesale, not merged.
+
+**2) Selector fix for the random form id.** The short embed's AC script assigns the `<form>` a
+runtime-random id (not `_form_38_`), so the one surviving `#_form_38_`-scoped rule in the custom CSS embed
+(`._clear-element`'s `display:none`) was repointed to `#get-connected form._form ._clear-element` — the
+form's static `._form` class is stable across both embed variants, confirmed by the user. Every other rule
+already used `.hf-embed` (the Designer-applied class on the embed WRAPPER element, unaffected by whatever
+AC injects inside it) as its scoping ancestor, so nothing else needed to change.
+
+**3) reCAPTCHA collapse/reveal CSS**, added verbatim to the same embed: `._form_element:has(.g-recaptcha)`
+sits at `max-height:240px;opacity:1;visibility:visible` by default, collapsed to
+`max-height:0;opacity:0;visibility:hidden;margin:0 !important` while `#get-connected` lacks `.hf-engaged`
+(specificity of the `:not(.hf-engaged)` + `:has()` compound selector cleanly out-ranks the base
+`._form_element` rule's own `margin:0 0 12px !important`, confirmed by hand before publishing — both
+declarations are `!important`, so only specificity decides, and the new rule wins on both class-count and
+pseudo-class count). Uses height/opacity/visibility, never `display:none`, so Google's widget still
+fully initializes at real size the moment it's revealed.
+
+**Verified live (screenshots + Playwright, full sequence in one continuous page load per HARD RULE #21 —
+focus, wait for transition, re-measure, not just a fresh-load snapshot):**
+- **On load:** no reCAPTCHA visible anywhere, zero empty gap between Email and SUBMIT (screenshot
+  confirms the panel reads as a clean 3-field + Submit form); computed style on the recaptcha wrapper:
+  `max-height:0px;overflow:hidden;opacity:0;visibility:hidden;margin:0px` — fully collapsed, not just
+  visually hidden.
+- **On focus:** `#get-connected` gains `.hf-engaged` immediately; after the 380ms transition the wrapper
+  measures a real `78px` tall box, `max-height:240px;opacity:1;visibility:visible`; the live `.g-recaptcha`
+  div carries `data-theme="dark"`; a cropped screenshot of the actual rendered widget confirms Google drew
+  it with the charcoal/dark skin, not the default light one.
+- **Styling/line unchanged:** with the recaptcha row expanded, the connecting line still measures a 1px
+  gap to the panel's bottom border (= the border's own width, i.e. visually flush, identical to §339's
+  verified result) — confirms the border-line fix holds regardless of how tall the form becomes above it.
+  Input/submit backgrounds, border-radius all unchanged (`#1a1a1a`, `#E21833`, `0px` respectively).
+- **Real submission (the literal "tick it and submit" step): could not be completed by this session.**
+  Clicking the reCAPTCHA checkbox via Playwright successfully loaded the widget's anchor iframe, but
+  Google's own risk engine — correctly, this is reCAPTCHA working as designed — responded to the
+  automated/headless/proxied traffic by escalating to a full image-challenge popup rather than passing the
+  simple click, which then blocked the Submit button behind an intercepting iframe. This is not a site
+  defect: a production reCAPTCHA sitekey is specifically built to distinguish real human interaction from
+  scripted browser automation, so this one sub-step is a genuine human-only check — reported to the user
+  as needing their own manual test rather than claimed as passed or silently skipped.
