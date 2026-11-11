@@ -9070,3 +9070,11 @@ be completed by this session: Google's risk engine escalates headless/automated 
 challenge, which requires a human to solve — the same reCAPTCHA-is-working-as-designed limitation already
 documented in §340; reached AC's `proc.php` endpoint (200) but no thank-you state, consistent with a
 missing real captcha token rather than any defect in this change.
+
+## §344 — MPPM hero: form panel top margin increased (2026-11-11)
+
+One-property change: `mppm-hero-form-wrap`'s `margin-top` (base breakpoint) changed from
+`clamp(22px, 2.6vh, 32px)` to `clamp(38px, 4.6vh, 50px)`. Confirmed the pre-edit value matched exactly
+before writing, and confirmed the new value live in the freshly-fetched, freshly-hashed compiled
+stylesheet afterward — every other property on the rule (padding, borders, `scroll-margin-top`, flex
+layout) unchanged.
