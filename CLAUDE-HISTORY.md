@@ -9444,3 +9444,30 @@ fixed header, every time, on both pages. Two `requestStorageAccess: Permission d
 messages appear on every page checked, including the completely untouched `mppm-home` — confirmed
 pre-existing/sitewide (almost certainly a font-loader or analytics script's harmless headless-Chromium
 artifact), not introduced by this fix.
+
+## §354 — §353 follow-up: fixed a huge empty gap in the Apply Now wrapper at stacked (phone) widths (2026-11-12)
+
+User caught this immediately via a Designer-canvas screenshot at the "Mobile (L)" breakpoint: the new
+`mppm-flat-applybar-text` wrapper (added in §353) rendered with a large empty blue-bordered area below
+its actual text content, pushing the button down unnecessarily. Root cause, confirmed by direct
+Playwright measurement before fixing (`getBoundingClientRect`/`getComputedStyle` at 700/480/400px): the
+wrapper's `flex-basis:360px` (set in §353 to size it as a flex CHILD when the row is side-by-side,
+main-axis = horizontal) gets reinterpreted as a **360px HEIGHT floor** the instant
+`.mppm-flat-applybar`'s own pre-existing `small`-breakpoint override flips it to
+`flex-direction:column` — because flex-basis always sizes along the container's current MAIN axis,
+and that axis becomes vertical once the direction changes. The wrapper's real content was only
+~90–160px tall depending on width, so the leftover ~200–270px showed as dead space.
+
+**User's own general rule, stated mid-fix and worth keeping as standing guidance for this entire
+pattern:** once a responsive layout stacks children into a single column, the stacked container's
+height should generally just be left as `auto` rather than carrying over a sizing value that only made
+sense in the row layout.
+
+**Fix:** added one breakpoint override — `mppm-flat-applybar-text` at `small`: `flex-basis:auto`. Since
+Webflow breakpoint overrides cascade down to narrower ones unless re-overridden, this single override
+also correctly resolves `tiny`. Published and re-verified on BOTH `mppm-online-learning` and
+`mppm-graduation-commencement` across the full practical width range (1440 down to 320px, 12 sample
+widths) via fresh Playwright measurement: the wrapper's rendered height now equals its actual text
+content height at every single width tested, zero horizontal overflow anywhere, and the gap between the
+wrapper and the button is a consistent, intentional 20px at every stacked width. A phone-width
+screenshot (390×844, 2x) confirms the dead space is gone.
