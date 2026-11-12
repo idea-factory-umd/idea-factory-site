@@ -9181,3 +9181,35 @@ width; at the two widths where the label wraps to two lines, the actual text blo
 (15px above, 15px below), confirmed by comparing like-for-like (the label's own top/bottom), not the
 label's top against the shorter arrow glyph's bottom, which don't resolve to the same baseline and
 produced a misleading 15px/23px reading on the first pass.
+
+## §349 — MPPM hero: "Get Connected" scroll-to now clears the header by exactly 38px, every breakpoint (2026-11-12)
+
+The homepage's "Get Connected ››" strip button scrolls up to the hero form; the user reported (with
+screenshots) that it still landed with "GET CONNECTED" hidden behind the sticky header. This is the
+same issue flagged with proof earlier in this session and left unfixed at the time; it was confirmed
+again here and fixed for real, to an explicit spec: 38px of visible gap between the header's bottom edge
+and the top of the "GET CONNECTED" label, on every breakpoint.
+
+**Root cause, found by direct instrumentation (not guessed):** the scroll-target math was always
+correct — patching `window.scrollTo` and logging its arguments showed the right pixel value computed
+every time. The problem was *after* that call: this page also loads the shared sitewide `idea-factory.js`,
+which installs its own capture-phase click handler and several independent scroll-reactive modules
+(nav-tuck, back-to-top visibility, a scroll-driven gold bar, etc.). Something in that mix was landing the
+final scroll position 150–370px away from the correctly-computed target, and the URL hash still changed
+to `#get-connected` even though this page's own handler calls `preventDefault()` — meaning some other
+code was still reaching a default/competing scroll action. Rather than keep chasing the exact interaction
+inside code this page doesn't own, the fix was made independent of it.
+
+**Fix:** the click handler now **enforces** its own target for a fixed window (900ms — safely longer than
+the shared script's own documented max animation duration of 820ms) by recomputing the exact live target
+and instantly re-snapping to it on every animation frame, so any competing scroll gets overridden the
+moment it happens rather than being raced against once. Only after that window closes does it focus the
+first input. This sacrifices the smooth-scroll glide in favor of a guaranteed-correct landing position —
+the right trade given the actual bug was about landing in the wrong place, not about animation smoothness.
+
+**Verified live (Playwright), full sweep, not a sample:** gap measured at 1440/991/767/479/390px — `38,
+37.9, 37.7, 38.1, 38.4`, all within rounding of the exact 38px target, at every width. Field focus
+confirmed (`firstname` is `document.activeElement` after landing) at every width too. Tested as a real
+sequence per HARD RULE #21 — scrolled away and clicked twice in the same page session, from two
+different starting scroll positions, both landed at exactly 38px with focus correct, not just a single
+fresh-load click.
