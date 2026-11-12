@@ -9655,3 +9655,71 @@ because the fix had been made by comment-only documentation inside the code itse
 dated history entry — a reminder that `idea-factory.js`'s own header/module comments are a real, primary
 source of project history in their own right, not just implementation detail, and are worth reading
 directly rather than only searching this file's §-entries when investigating "was X ever fixed."
+
+## §357 — MPPM Home hero: fixed premature stacking (was collapsing at "tablet"/medium ≤991px, now correctly holds 2-column until "phone-horizontal"/small ≤767px, matching every other home hero) (2026-11-12)
+
+**The bug:** `.mppm-hero-grid` (the flex row holding `.mppm-hero-left` text/form column +
+`.mppm-hero-imgwrap` photo column) had `flex-direction:column` set at the **medium** breakpoint
+(≤991px) — meaning it stacked to one column as soon as the viewport dropped below "tablet," instead
+of holding the 2-column layout all the way down to "phone-horizontal" (**small**, ≤767px) like every
+other spinoff's own home hero (and the flagship Idea Factory home hero itself — CLAUDE.md's own quick
+reference already documents "Hero stacks at ≤767px (NOT 991)" as the site's standing convention).
+
+**Root cause, found by reading the actual stored breakpoint data, not guessing:** three styles each
+had a premature **medium**-breakpoint override that belonged at **small** instead:
+- `.mppm-hero-grid`: `flex-direction:column` at medium (nothing at small/tiny, so they inherited it too).
+- `.mppm-hero-left`: `flex-grow:0; flex-shrink:0; flex-basis:auto` at medium (the "let it size to its
+  own content once stacked" treatment — correct in principle, just triggered one breakpoint too early).
+- `.mppm-hero-img`: `width:100%; height:320px; flex-grow:0; flex-shrink:0; flex-basis:auto` at medium
+  (switches the image from "stretch to 100% of the row's height" to a fixed height — again correct in
+  principle, just at the wrong breakpoint). `tiny`'s own further reduction to `height:220px` was already
+  correctly breakpoint-scoped and needed no change.
+
+**Fix:** removed all three overrides from **medium** (so main's 2-column/row values are inherited
+there, continuing the 2-column layout through the whole tablet range) and added the identical values
+at **small** instead (so the stacking + auto-size + fixed-image-height treatment now triggers exactly
+where it should). Six `update_style` calls (3 `remove_properties` + 3 `properties` adds), each
+re-queried individually to confirm it landed before publishing.
+
+**Verified live, full practical width range, real browser (Playwright), both measured geometry AND
+visual screenshots:** 1440/1200/992/991/850/768px all confirmed `flex-direction:row`, side-by-side
+boxes, zero overflow — the 2-column layout now genuinely holds all the way through the tablet range
+that used to collapse. 767px and below (767/700/600/480/430/375/320) all confirmed `flex-direction:
+column`, stacked boxes — the exact new cutoff the user asked for. Screenshots at 850 (2-col), 767
+(freshly-stacked), and 375 (phone) all visually clean: proportional 2-column split with no cramping at
+850, full-width text-then-image stack with no overlap at 767, and correctly-collapsed single-column
+form fields at 375. The Designer-canvas snapshot tool was not attempted this time, consistent with
+this project's established practice of treating a live-published-page Playwright check as the
+documented, sufficient fallback given that tool's repeated unavailability on this exact page in prior
+sessions (see the Tuition/Graduation entries above).
+
+**One separate, unrelated finding surfaced incidentally while checking for overflow, explicitly NOT
+fixed as part of this task (different classes, different sections, pre-existing, nothing to do with
+the hero):** at ≤480px, three small label/tag elements further down MPPM Home — `.mppm-why-tag`,
+`.mppm-feat-tag`, `.mppm-test-tag` (the "Why," "Features," and "Testimonial" sections' own small
+uppercase labels) — overflow the viewport by roughly 40-60px, causing horizontal scroll on narrow
+phones. Confirmed via a direct per-element overflow scan that these are the ONLY offending elements
+sitewide at that width, and confirmed they are unrelated to anything touched in this entry (different
+classes, different sections, not part of the hero's own element tree). Flagged to the user as a
+separate, distinct item rather than silently expanded into or silently dropped.
+
+**Addendum, same session, same hero:** immediately after the breakpoint fix above, the user sent a
+live Designer screenshot at 991px ("Tablet") showing the hero photo's face almost entirely cropped out
+of frame, with only a hand barely visible — demanded a fix so a good portion of the face (preferably
+the hand too) is always visible, at every width. Root cause: `.mppm-hero-img` used
+`object-fit:cover` with a single fixed `object-position:67% 50%` inherited at every breakpoint; the
+source photo (`mppm-hero.jpg`, 2560×1440) has its subject's face at the far right edge of the frame
+(roughly the rightmost 12% of the image width) — at the narrower 2-column widths this breakpoint fix
+now holds onto (850-991px), the visible crop window (computed: ~35-49% of the image's width, depending
+on exact container width/height) landed well to the LEFT of the face entirely, matching the screenshot
+exactly. Fixed with two breakpoint-scoped `object-position` overrides on `.mppm-hero-img`: **main**
+(inherited by medium too, covering every 2-column width) → `88% 50%` (biases the crop hard toward the
+image's right edge, where the face is); **small** (covering every stacked/full-width view, where the
+image's aspect ratio flips the crop from horizontal to largely vertical) → `80% 56%` (keeps the
+subject's face AND hand both inside the visible vertical band). Verified visually, not just measured,
+via real Playwright screenshots of just the image crop at 1440/992/850/767/600/480/375px: **face
+clearly visible at every single width tested, hand also visible at every single width tested** (a
+stronger result than the user's stated minimum bar of "face required, hand preferred"). Published and
+confirmed live. This is a page-scoped fix on MPPM's own forked `mppm-hero-img` class only — it has no
+bearing on any other site's hero image, which all use their own independent classes and their own
+source photos per HARD RULE #10/#17.
