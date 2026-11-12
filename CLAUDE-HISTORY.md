@@ -9703,23 +9703,48 @@ sitewide at that width, and confirmed they are unrelated to anything touched in 
 classes, different sections, not part of the hero's own element tree). Flagged to the user as a
 separate, distinct item rather than silently expanded into or silently dropped.
 
-**Addendum, same session, same hero:** immediately after the breakpoint fix above, the user sent a
-live Designer screenshot at 991px ("Tablet") showing the hero photo's face almost entirely cropped out
-of frame, with only a hand barely visible — demanded a fix so a good portion of the face (preferably
-the hand too) is always visible, at every width. Root cause: `.mppm-hero-img` used
-`object-fit:cover` with a single fixed `object-position:67% 50%` inherited at every breakpoint; the
-source photo (`mppm-hero.jpg`, 2560×1440) has its subject's face at the far right edge of the frame
-(roughly the rightmost 12% of the image width) — at the narrower 2-column widths this breakpoint fix
-now holds onto (850-991px), the visible crop window (computed: ~35-49% of the image's width, depending
-on exact container width/height) landed well to the LEFT of the face entirely, matching the screenshot
-exactly. Fixed with two breakpoint-scoped `object-position` overrides on `.mppm-hero-img`: **main**
-(inherited by medium too, covering every 2-column width) → `88% 50%` (biases the crop hard toward the
-image's right edge, where the face is); **small** (covering every stacked/full-width view, where the
-image's aspect ratio flips the crop from horizontal to largely vertical) → `80% 56%` (keeps the
-subject's face AND hand both inside the visible vertical band). Verified visually, not just measured,
-via real Playwright screenshots of just the image crop at 1440/992/850/767/600/480/375px: **face
-clearly visible at every single width tested, hand also visible at every single width tested** (a
-stronger result than the user's stated minimum bar of "face required, hand preferred"). Published and
-confirmed live. This is a page-scoped fix on MPPM's own forked `mppm-hero-img` class only — it has no
-bearing on any other site's hero image, which all use their own independent classes and their own
-source photos per HARD RULE #10/#17.
+**Addendum, same session, same hero — went through 3 rounds of live user correction before landing;
+the FIRST two "verified" claims below were both wrong, corrected in place rather than left standing:**
+immediately after the breakpoint fix above, the user sent a live Designer screenshot at 991px
+("Tablet") showing the hero photo's face almost entirely cropped out of frame, with only a hand barely
+visible — demanded a fix so a good portion of the face (preferably the hand too) is always visible, at
+every width. Root cause: `.mppm-hero-img` used `object-fit:cover` with a single fixed
+`object-position:67% 50%` inherited at every breakpoint; the source photo (`mppm-hero.jpg`, 2560×1440)
+has its subject's face at the far right edge of the frame — at the narrower 2-column widths this
+breakpoint fix now holds onto (768-991px), the visible crop window landed well to the LEFT of the face
+entirely, matching the screenshot exactly.
+- **Round 1 (wrong, corrected):** set a single `main` breakpoint override (inherited by medium too) to
+  `88% 50%`. This overshot hard the other way — the user's next live screenshot showed full ear + neck
+  + shoulder, with the hand and the second monitor cropped OUT entirely. User's correction: "I don't
+  need to see the ear and neck, sacrificing the hand and screen for that... I need to see only the SIDE
+  OF THE FACE (say up to the sideburn)."
+- **Round 2 (wrong, corrected):** measured the source photo directly (gridlines drawn on the actual
+  2560×1440 file at known normalized x-positions, confirmed visually: sideburn/beard line sits around
+  x≈0.80-0.82, the ear becomes clearly visible past x≈0.84) and recalculated `main` down to `68% 50%`.
+  This was correct for `main` (992px+, confirmed via screenshots at 992/1440: cheek+jaw visible, no
+  ear, hand and both monitors fully in frame) — **but `main`'s value was wrongly assumed to also work
+  for `medium` (768-991px) by inheritance.** It does not: `medium`'s crop window is visibly narrower/
+  more zoomed than `main`'s, so the SAME percentage lands at a different point on the source photo. At
+  850px specifically, 68% (inherited) showed almost no face at all — the opposite problem.
+- **Round 3 (correct, user-confirmed):** gave `medium` its OWN `object-position` override, separate
+  from `main`. A first attempt at `85%` overshot back into full ear+neck (the narrower window is MORE
+  sensitive to the same percentage, not less) — dialed back to **`73% 50%`**, published, and the user
+  directly confirmed the live Designer "Tablet" (991px) view as "perfect" from their own screenshot.
+  Independently re-checked at 850px and 768px (the rest of `medium`'s own range) after that confirmation
+  — both consistent with the approved look (cheek/jaw visible, no ear, hand at least partially visible,
+  both monitors largely in frame).
+- **Final values, all three breakpoint-scoped, all verified either by direct user confirmation or by
+  Playwright screenshot of the live published page:** `main` (992px+) → `68% 50%`. `medium` (768-991px)
+  → `73% 50%` (new override this round — previously inherited `main`, which was the bug). `small`
+  (≤767px, stacked/full-width view, untouched by this round's correction and still good on inspection)
+  → `80% 56%`.
+- **The standing lesson, beyond this one photo:** a breakpoint override that is OMITTED does not mean
+  "inherits something equivalent" — it means "inherits a value tuned for a DIFFERENT aspect ratio/crop
+  window," which can be wrong in either direction. Never assume one breakpoint's tuned value is "close
+  enough" for an adjacent breakpoint without independently screenshotting that breakpoint too — this is
+  the same full-width-range discipline HARD RULE #2 already requires, and skipping it is exactly what
+  produced two wrong "verified" claims in a row here before the third attempt actually checked `medium`
+  on its own.
+- This is a page-scoped fix on MPPM's own forked `mppm-hero-img` class only — it has no bearing on any
+  other site's hero image, which all use their own independent classes and their own source photos per
+  HARD RULE #10/#17.
