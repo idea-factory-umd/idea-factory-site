@@ -1034,7 +1034,17 @@ try {
     function fmt(n){ var s = n.toFixed(decimals); if(hasComma){ var p = s.split('.'); p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g,','); s = p.join('.'); } return prefix+s+suffix; }
     if(reduce){ el.textContent = value; el.style.opacity = 1; return; }
     el.style.opacity = 0; el.textContent = fmt(0);
-    var started = false;
+    var started = false, near = true;
+    // 2026-11-12 PROXIMITY GATE: before this, read() measured getBoundingClientRect() on every
+    // scroll frame for the element's ENTIRE time unstarted - i.e. from page load until it finally
+    // scrolled into view, regardless of how far down the page it sits. Harmless in isolation, but
+    // this file can carry a dozen+ of these per impact page, all doing this at once, every frame,
+    // for however long it takes to scroll there - the same unconditional-measurement pattern the
+    // 2026-10-10 "SCROLL-DRIVEN BARS" fix (see about-goldbars/botnav-accent-scroll below) already
+    // eliminated for the gold/accent bars but never back-ported to count-up. Same IntersectionObserver
+    // (rootMargin '100% 0px') + near-flag technique as those modules: read() is a no-op whenever the
+    // element is more than about a viewport away, so this now matches their off-screen cost (zero).
+    new IntersectionObserver(function(entries){ near = entries[entries.length-1].isIntersecting; }, {rootMargin:'100% 0px'}).observe(el);
     function run(){
       var dur = 1600, fade = 480, t0 = performance.now();
       function tick(now){ var dt = now-t0, p = Math.min(1, dt/dur), e = p*p*p; // easeInCubic
@@ -1043,7 +1053,7 @@ try {
       requestAnimationFrame(tick);
     }
     ifScrollEngine.add({
-      read: function(){ if(started) return null; var r = el.getBoundingClientRect(); return {top:r.top, bottom:r.bottom, vh: window.innerHeight||document.documentElement.clientHeight}; },
+      read: function(){ if(started || !near) return null; var r = el.getBoundingClientRect(); return {top:r.top, bottom:r.bottom, vh: window.innerHeight||document.documentElement.clientHeight}; },
       write: function(m){ if(started || !m) return; if(m.top<m.vh*0.85 && m.bottom>0){ started = true; run(); } }
     });
   });
@@ -1422,17 +1432,31 @@ try {
     var cssAnim=!!(window.CSS && CSS.supports && CSS.supports('animation-timeline: view()'));
 
     // .if-stg-goldbar: CSS handles it when supported; only this group falls back to JS otherwise.
+    // 2026-11-12 PROXIMITY GATE: this fallback had NO IntersectionObserver gate - unlike the jsBars
+    // group right below it, it measured every cssBars[k].getBoundingClientRect() on every scroll
+    // frame for the bar's whole page life, regardless of distance from the viewport (the browser
+    // only reaches this branch at all when it DOESN'T support animation-timeline:view(), so this was
+    // the worst case: the exact un-gated-by-proximity cost the 2026-10-10 SCROLL-DRIVEN BARS fix
+    // pass closed everywhere else in this module, left open here). Same nears[]+IntersectionObserver
+    // technique as jsBars below, applied to this group too.
     if(cssBars.length && !cssAnim){
+      var cssNears=[];
+      for(i=0;i<cssBars.length;i++){
+        cssNears.push(true);
+        (function(idx){
+          new IntersectionObserver(function(entries){ cssNears[idx]=entries[entries.length-1].isIntersecting; }, {rootMargin:'100% 0px'}).observe(cssBars[idx]);
+        })(i);
+      }
       ifScrollEngine.add({
         read: function(){
           var vh=window.innerHeight||document.documentElement.clientHeight;
           var rects=[],k;
-          for(k=0;k<cssBars.length;k++){ var rr=cssBars[k].getBoundingClientRect(); rects.push({top:rr.top, height:rr.height}); }
+          for(k=0;k<cssBars.length;k++){ if(!cssNears[k]){ rects.push(null); continue; } var rr=cssBars[k].getBoundingClientRect(); rects.push({top:rr.top, height:rr.height}); }
           return {vh:vh, rects:rects};
         },
         write: function(m){
           if(!m) return;
-          for(var j=0;j<cssBars.length;j++){var r=m.rects[j];var p=(m.vh-r.top)/(m.vh+r.height);if(p<0)p=0;if(p>1)p=1;cssBars[j].style.transform='scaleX('+(MIN+(MAX-MIN)*p)/MAX+')';}
+          for(var j=0;j<cssBars.length;j++){var r=m.rects[j]; if(!r) continue; var p=(m.vh-r.top)/(m.vh+r.height);if(p<0)p=0;if(p>1)p=1;cssBars[j].style.transform='scaleX('+(MIN+(MAX-MIN)*p)/MAX+')';}
         }
       });
     }
@@ -1940,7 +1964,12 @@ try {
     function fmt(n){ var s = n.toFixed(decimals); if(hasComma){ var p = s.split('.'); p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g,','); s = p.join('.'); } return prefix+s+suffix; }
     if(reduce){ el.textContent = value; el.style.opacity = 1; return; }
     el.style.opacity = 0; el.textContent = fmt(0);
-    var started = false;
+    var started = false, near = true;
+    // 2026-11-12: same proximity-gate fix as count-up above, applied here too even though this
+    // module is currently a permanent no-op (no element sitewide carries .if-hero-countup) - so
+    // that IF a future hero stat reactivates this exact class, it doesn't resurrect the ungated,
+    // measure-every-frame-regardless-of-position bug along with it.
+    new IntersectionObserver(function(entries){ near = entries[entries.length-1].isIntersecting; }, {rootMargin:'100% 0px'}).observe(el);
     function run(){
       var dur = 1600, fade = 480, t0 = performance.now();
       function tick(now){ var dt = now-t0, p = Math.min(1, dt/dur), e = 1-(1-p)*(1-p); // easeOutQuad
@@ -1949,7 +1978,7 @@ try {
       requestAnimationFrame(tick);
     }
     ifScrollEngine.add({
-      read: function(){ if(started) return null; var r = el.getBoundingClientRect(); return {top:r.top, bottom:r.bottom, vh: window.innerHeight||document.documentElement.clientHeight}; },
+      read: function(){ if(started || !near) return null; var r = el.getBoundingClientRect(); return {top:r.top, bottom:r.bottom, vh: window.innerHeight||document.documentElement.clientHeight}; },
       write: function(m){ if(started || !m) return; if(m.top<m.vh*0.85 && m.bottom>0){ started = true; run(); } }
     });
   });
