@@ -689,7 +689,42 @@
 > - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#26 — keep this
 >   banner intact and pass it on.
 
-> ## 🚫 #28 HARD RULE — ANY NEW SCROLL‑ OR RESIZE‑DRIVEN EFFECT MUST REGISTER WITH THE SHARED `window.ifScrollEngine`/`window.ifResizeEngine`, EVEN WHEN BUILT AS A PAGE‑SCOPED EMBED PER HARD RULE #17 (2026‑11‑12 — closes a real gap: HARD RULE #17 governs WHERE new effect code lives, but never said anything about HOW it must hook into scrolling, leaving an opening for the exact choppy‑scrolling regression the September 2026 "SCROLL EFFECTS ARCHITECTURE" fix — CLAUDE‑HISTORY.md §155 — was built to eliminate)
+> ## 🚫 #28 HARD RULE — ANY NEW SCROLL‑ OR RESIZE‑DRIVEN EFFECT MUST (1) REGISTER WITH THE SHARED `window.ifScrollEngine`/`window.ifResizeEngine` AND (2) BE PROXIMITY‑GATED SO IT DOES ZERO MEASUREMENT WORK WHILE OFF‑SCREEN — BOTH, NOT EITHER, EVEN WHEN BUILT AS A PAGE‑SCOPED EMBED PER HARD RULE #17 (2026‑11‑12, AMENDED 2026‑11‑12 SAME DAY — see the amendment note below; this is TWO related but DISTINCT requirements, and item (2) is the one that actually matches what the user remembered and asked to have enforced)
+> **⚠️ AMENDMENT, same day this rule was first written:** the ORIGINAL version of this rule (below,
+> still accurate and still required) only mandated requirement (1) — engine registration + read/write
+> separation. The user then described a MORE SPECIFIC historical bug from their own memory: effects
+> "at the bottom of the page (above the footer and the bottom nav bar)... taking CONSTANT MEASUREMENTS
+> from the VERY TOP of the page all the way down (not just while within view)." That is requirement (2)
+> — proximity gating — which is a SEPARATE thing engine registration does NOT give you for free. A
+> perfectly engine‑registered, perfectly read/write‑separated effect can still measure
+> `getBoundingClientRect()` on every single scroll frame of the ENTIRE page, for its whole life, if its
+> `read()` never checks whether the element is anywhere near the viewport first. Investigating this
+> claim (rather than taking the existing rule's word that it was already covered) found the user was
+> right on all counts: a real, dated, previously-undocumented-in-this-file fix pass (**"SCROLL‑DRIVEN
+> BARS," 2026‑10‑09/10‑10**, found by reading `idea-factory.js`'s own header comments and per‑module
+> notes directly — NOT previously surfaced by any CLAUDE‑HISTORY.md keyword search, because it was
+> never given its own dated §‑entry, only inline code comments) had ALREADY added exactly this
+> proximity gate — an `IntersectionObserver` with `rootMargin:'100% 0px'` setting a `near`/`nears[]`
+> flag that `read()` checks before doing ANY `getBoundingClientRect()` work — to the hero gold bar, the
+> stage/synthesis gold bars, the footer's own tricolor accent bar, and the spinoff bottom‑nav tricolor
+> accent bar (one of that pass's own comments literally says the old bug was measuring "even while the
+> footer is off‑screen and the value is just 0" — this IS the event the user remembered). **But a full
+> sweep of the ENTIRE shared file (never just trusting that one fix closed the whole bug class) found
+> that pass did NOT reach everywhere:** the shared `count‑up` module (`.if‑countup` and the dozen
+> page‑specific stat‑number classes aliased to it — MIPS‑Impact, ASPIRE‑Home, Ventures‑Home/Impact,
+> I‑Corps‑Impact, the Building, the Impact page, UMD I‑Corps' Maryland Innovation Extension page, etc.),
+> the dormant `hero‑countup‑easeout` module, and `about‑goldbars`' own `cssBars` fallback path (used by
+> browsers without `animation-timeline:view()` support) all STILL measured unconditionally, every scroll
+> frame, regardless of distance from the viewport — the identical bug, never fixed, hiding in plain
+> sight in the very file whose header comment claims this problem was solved. **MPPM's own
+> `mppm-stats-num` count‑up embed had been built by copying that exact (still‑broken) shared pattern,**
+> so the newest construction on this site carried the old bug forward on day one — direct, concrete
+> proof of why requirement (2) has to be its own explicit, checked‑for rule, not an assumption that
+> "it's probably fine, the October fix covered this." All of the above (shared `count‑up`,
+> `hero‑countup‑easeout`, `about‑goldbars` cssBars fallback, AND MPPM's `mppm-stats-num`) were fixed the
+> same day, the same way — see CLAUDE‑HISTORY.md for the dated entry with full technical detail and the
+> exact commits. **Going forward, requirement (2) below is checked EVERY TIME requirement (1) is — they
+> are a package, never treat engine registration alone as "this effect is now safe."**
 > **The permanent anti‑jank engine (`window.ifScrollEngine` for scroll, `window.ifResizeEngine` for
 > resize — both in the shared `idea-factory.js`, batching every registered effect's `read()` first,
 > then every effect's `write()`, once per frame, so no effect's DOM write can force another effect's
@@ -715,9 +750,40 @@
 >   **and `write()` must be write‑only** (style/class mutations) — never mix a read into the write
 >   callback or vice versa; that's the exact violation (`about-goldbars`, CLAUDE‑HISTORY.md §156) found
 >   and fixed even in the FIRST post‑engine pass. Prefer `transform`/`opacity` over layout‑triggering
->   properties; cache expensive measurements; gate any `IntersectionObserver` so off‑screen elements are
->   skipped entirely rather than measured every frame (MPPM's own `mppm-goldbars` embed already does
->   this correctly — see CLAUDE‑HISTORY.md — and is the reference example to copy).
+>   properties; cache expensive measurements (document height, viewport size) instead of re‑reading them
+>   every frame.
+> - **⭐ REQUIREMENT (2), MANDATORY, SEPARATE FROM ENGINE REGISTRATION — `read()` must be a no‑op whenever
+>   its element is not near the viewport.** Engine registration alone only fixes read/write ORDERING
+>   within a frame — it does nothing to stop `read()` from running its full measurement on literally
+>   EVERY frame, for the element's ENTIRE time on the page, regardless of how far away it is. That
+>   "constant measurement from the very top of the page all the way down, not just while in view" is
+>   its own distinct performance bug (confirmed real, confirmed previously only partially fixed — see the
+>   amendment note above) and needs its own explicit gate: an `IntersectionObserver` with
+>   `rootMargin:'100% 0px'` setting a boolean flag (`near`, or an array `nears[]` for a multi‑element
+>   module), checked as the FIRST line of `read()` — `if(!near) return null;` (or `return;`/push `null`
+>   per‑index for a multi‑element module) — before any `getBoundingClientRect()` or other measurement
+>   runs. Initialize the flag `true` (not `false`) so the very first frame, before the observer's first
+>   callback arrives, still behaves correctly. `write()` must already no‑op on a `null`/missing read
+>   result (it has to anyway, for the engine's own error‑isolation to work) — no additional write‑side
+>   change is needed beyond that. **Reference implementations to copy, both already correct:
+>   `mppm-goldbars` (page‑scoped embed) and `botnav-accent-scroll`/`hero-goldbar` (shared file)** — all
+>   three use this exact `near`/`nears[]` + `rootMargin:'100% 0px'` pattern; copy it verbatim rather than
+>   inventing a new gating mechanism.
+> - **⭐ MANDATORY SELF‑CHECK, every time a new continuous scroll/resize effect is created or an existing
+>   one is edited (this is the "checked for after such things are created anew" the user explicitly
+>   asked this rule to guarantee — run it as a real step, not a mental note):**
+>   1. Does it register via `ifScrollEngine.add`/`ifResizeEngine.add`, with no raw `addEventListener`?
+>   2. Is `read()` pure measurement and `write()` pure mutation, never mixed?
+>   3. Does `read()` check a proximity flag FIRST and return a no‑op when the element isn't near the
+>      viewport — i.e., does the module contain an `IntersectionObserver` with `rootMargin:'100% 0px'`
+>      gating it, not just a scroll‑engine registration?
+>   4. If the answer to #3 is "no" for an EXISTING module you're touching for an unrelated reason, fix it
+>      in the same pass (HARD RULE #3's full‑sweep discipline) — do not leave a known-bad module
+>      un‑gated just because today's task is something else.
+>   A new construction that passes #1–#2 but fails #3 is NOT compliant with this rule, even though it
+>   would have passed the rule's own FIRST (2026‑11‑12, pre‑amendment) wording — that gap is exactly what
+>   this amendment closes, specifically so it cannot be "technically followed" while still re‑introducing
+>   the measured‑from‑the‑top‑of‑the‑page‑regardless‑of‑proximity bug.
 > - **Before shipping ANY new scroll/resize‑driven effect on this master site or any spin‑off, confirm
 >   which of the two categories it is — one‑shot (fires once per click/load/hash‑change, like a
 >   click‑to‑scroll jump) vs. continuous (re‑measures on every scroll/resize tick) — and apply this rule

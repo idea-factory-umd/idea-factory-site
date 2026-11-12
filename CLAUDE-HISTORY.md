@@ -9545,3 +9545,113 @@ the tricolor accent stripe + black band render correctly. This is now the refere
 application of "Bottom Nav" as its own reusable pattern (Ventures → CBSCF/UMD I-Corps as independent
 per-site components → MPPM as the newest, built the same way, deliberately duplicated+forked rather than
 shared, per this project's standing cross-site isolation rules).
+
+## §356 — Found + fixed a real, live gap in the October 2026 "scroll-jank" fix: unconditional per-frame measurement regardless of viewport proximity, still present in 2 shared modules + MPPM's own count-up embed; amended HARD RULE #28 (2026-11-12)
+
+**The question, from the user, discussion-only at first:** after shipping the Bottom Nav (§355), asked
+for a "rundown" on whether the big post-spinoff "smooth scrolling" cleanup other sites got was shared
+code (so it automatically covers MPPM) or something that could "creep back in." First answer given cited
+§155 (Sept 2026, the original `ifScrollEngine`/`ifResizeEngine` read/write-ordering engine) — the user
+firmly rejected this as not matching their memory, insisting the event they meant was specifically dated
+"first, second, or third week in October," involved "gold bars," and that anything before Oct 4 was "NOT
+the correct thing." An exhaustive keyword/date sweep of this file turned up nothing after Oct 4 matching
+that description (only §276's Nav Alignment Crisis, Oct 1, a different bug class entirely — wrong scroll
+*landing position*, not continuous jank). The user then clarified the work happened **on the
+independently-spun-off sites themselves, by hand in the Designer, with no Claude/MCP involvement** — so
+it would never appear in this log at all. Rather than keep searching the log, the actual LIVE shared
+`idea-factory.js` was read directly, line by line, and the real event was found immediately: it was never
+missing from history because it was never done by hand off-session — it had simply never been given its
+own dated §-entry, only inline code comments, so no keyword search of this file could ever have found it.
+
+**What was actually found, confirmed by reading `idea-factory.js`'s own header comments and per-module
+notes directly (not inferred, not assumed):** a dated pass titled **"SCROLL-DRIVEN BARS," 2026-10-09
+through 2026-10-10** — squarely in the user's named window — that fixed the hero gold bar
+(`.if-hero-goldbar`), the stage/synthesis gold bars (`.if-stg-goldbar`/`.if-syn-goldbar`/
+`.program-page-icorps-hero-goldbar`), the footer's own tricolor accent bar (`.if-foot-accent`), and the
+spinoff bottom-nav tricolor accent bar (`botnav-accent-scroll`, matching `[class*="-botnav-accent"]` —
+literally the class MPPM's own Bottom Nav built in §355 inherits). The footer-accent module's own comment
+says it directly: the old bug was measuring **"even while the footer is off-screen and the value is just
+0"** — word for word the user's own description ("constant measurements from the very top of the page
+all the way down, not just within view"). The fix: an `IntersectionObserver` with `rootMargin:'100% 0px'`
+sets a `near`/`nears[]` boolean per bar; `read()` is a no-op (`return null`) whenever that flag is false,
+so the element does zero measurement work until it's within about one viewport of the screen. This lives
+in the shared file, so it already covered MPPM automatically, confirming the user's memory was correct in
+every particular — date, mechanism, and the literal "gold bars" name.
+
+**But this was not where the check stopped — HARD RULE #3's full-sweep discipline was applied to the
+WHOLE file, not just the four modules named above, before reporting "yes, fully confirmed."** That sweep
+found the October pass did **not** reach everywhere. Three places still had the exact same unconditional,
+proximity-blind measurement pattern, live, today:
+1. **The shared `count-up` module** (`.if-countup` plus every page's own aliased stat-number class —
+   MIPS-Impact, ASPIRE-Home, Ventures-Home/Impact, I-Corps-Impact, the Building, the Impact page, UMD
+   I-Corps' Maryland Innovation Extension page, and more) — registered correctly with `ifScrollEngine`
+   (no raw listener), but `read()`'s only guard was `if(started) return null` — i.e. it measured
+   `getBoundingClientRect()` on literally every scroll frame, for the ENTIRE time before an element first
+   triggers, regardless of how far down the page it sits. Never touched by the Oct 10 pass.
+2. **The dormant `hero-countup-easeout` module** (`.if-hero-countup` — currently a guaranteed no-op
+   sitewide, no element uses this class, kept as a template for a possible future hero stat) — identical
+   gap, left in the reusable template, so reactivating it would resurrect the bug too.
+3. **`about-goldbars`' own `cssBars` fallback path** (for browsers without `animation-timeline:view()`
+   support) — its sibling `jsBars` group right below it in the SAME module WAS correctly gated with
+   `nears[]`+`IntersectionObserver` by the Oct 10 pass; the `cssBars` fallback was not, despite being the
+   worse case (it only runs at all on browsers that can't use the compositor-native CSS path).
+4. **MPPM's own `mppm-stats-num` count-up embed** (page-scoped, MPPM Home) — built by directly copying
+   the shared `count-up` module's pattern, so it carried gap #1 forward into the newest construction on
+   the site, on day one. Direct, concrete proof that "the shared engine already covers this" is not
+   sufficient reassurance on its own — a brand-new page-scoped embed can silently reintroduce an old,
+   still-open bug just by copying an existing (unfixed) reference pattern.
+
+**Fixed, same technique as the already-correct modules, same day:**
+- `idea-factory.js`: added a `near` flag + `IntersectionObserver(rootMargin:'100% 0px')` to `count-up`
+  (`read(){if(started||!near)return null;...}`) and to `hero-countup-easeout` (same pattern, even though
+  currently inert, so a future reactivation inherits the fix). Added a `cssNears[]` array +
+  per-bar `IntersectionObserver` to `about-goldbars`' `cssBars` fallback path, mirroring its own `jsBars`
+  group exactly (`read()` pushes `null` into `rects[]` for any bar that isn't near; `write()` skips `null`
+  entries). `node --check` passed; committed to `claude/keen-johnson-f9w833` (`ef343ea`), then the SAME
+  diff cherry-picked cleanly (zero conflicts, confirmed via a temporary worktree off `origin/main`) onto
+  `main` (`c3695a3`) and pushed — GitHub Pages rebuild confirmed live by polling
+  `idea-factory-umd.github.io/idea-factory-site/idea-factory.js` for the new code's own comment text.
+- MPPM's `mppm-stats-num` embed (element `de6c7f8d-74ff-3cc4-e641-1f129c1cbff5`, MPPM Home): same fix,
+  applied via `data_element_settings_tool.set_settings` on the embed's `code` setting, re-queried to
+  confirm it saved (single match), then shipped live via a full `publish_site` call (this site has no
+  Enterprise single-page-publish feature — `pageId` on `publish_site` returned `400 invalid_parameter`,
+  so a normal full-site publish was used instead, consistent with how every other publish on this project
+  has always worked).
+
+**Verified live, real browser, one continuous Playwright session (not three separate fresh loads — per
+HARD RULE #21's "test a sequence, not one fresh action" discipline), against the actual published MPPM
+Home page:** instrumented `Element.prototype.getBoundingClientRect` to count calls tagged by class,
+scrolled to a point in the page more than one viewport away from BOTH the stats section (top ≈1285px)
+AND the Bottom Nav accent bar (top ≈9065px, doc height 9787px — genuinely "above the footer and the
+bottom nav bar," confirming the user's own description of WHERE these effects live), then jiggled the
+scroll position there for ~2.5 seconds (30 small scroll events): **zero `getBoundingClientRect()` calls
+on either tracked element, the entire time.** Then scrolled gradually into the stats section: exactly 3
+calls total (one per live tracked number, right at the moment each crosses into view, before `started`
+latches and the gate takes over for good) and the three numbers correctly counted up to their real values
+(29%, 128,000, $196,548). Then scrolled gradually into the Bottom Nav bar's zone: measurement calls
+resumed exactly as expected for an actively-animating effect, and its `backgroundPosition` genuinely
+changed as scrolling continued (-181.9px → -261.8px), confirming the animation itself still works
+end-to-end. Zero console/page errors throughout. This is the proof, not just the claim, that (a) the
+October fix's mechanism is real and still working where it was applied, (b) the newly-found gaps are
+real and now closed, and (c) nothing was broken by closing them.
+
+**HARD RULE #28 amended** (same rule added earlier the same day, before this investigation — see its own
+entry above in this file is unnecessary since the rule lives in CLAUDE.md, not here) to make explicit
+that it has TWO distinct, both-mandatory requirements, not one: (1) register with the shared engine +
+keep read/write separated — the original wording — and (2), new, explicit, with its own mandatory
+self-check checklist: `read()` must be gated by an `IntersectionObserver`-based proximity flag so it is a
+genuine no-op whenever its element isn't near the viewport. Engine registration alone was proven, by this
+exact investigation, not to guarantee requirement (2) — a module can be perfectly engine-registered and
+still measure unconditionally on every frame for its entire page life. The amendment also makes the
+sweep-on-touch discipline explicit: finding one un-gated module during unrelated work is itself the
+signal to fix it in the same pass, not a separate future task.
+
+**The standing, generalizable lesson, beyond this one bug:** "the shared engine already covers this" and
+"this was already fixed once, in October" were both TRUE and both INSUFFICIENT as a final answer on their
+own — the only thing that actually closes a question like this is reading the live, current code directly
+and sweeping the whole file for the SAME pattern, not just the one place it was first reported. The user's
+own memory of the date and mechanism was more reliable here than this file's own prior log, precisely
+because the fix had been made by comment-only documentation inside the code itself rather than as a
+dated history entry — a reminder that `idea-factory.js`'s own header/module comments are a real, primary
+source of project history in their own right, not just implementation detail, and are worth reading
+directly rather than only searching this file's §-entries when investigating "was X ever fixed."
