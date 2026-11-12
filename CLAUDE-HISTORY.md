@@ -9471,3 +9471,77 @@ widths) via fresh Playwright measurement: the wrapper's rendered height now equa
 content height at every single width tested, zero horizontal overflow anywhere, and the gap between the
 wrapper and the button is a consistent, intentional 20px at every stacked width. A phone-width
 screenshot (390×844, 2x) confirms the dead space is gone.
+
+## §355 — MPPM: added the Bottom Nav bar the Home layout guide called for, missed since the original build (2026-11-12)
+
+User asked what became of the "bottom menu" strip seen on several other spinoff sites (Ventures, CBSCF,
+UMD I-Corps) and whether it had been deliberately left off MPPM. A fresh, direct search of
+CLAUDE-HISTORY.md found no record of such a decision in either direction — and re-reading the ORIGINAL
+`MPPM-Home-layout-guide.pdf` (re-fetched from the user's Dropbox link, since no copy had ever been
+committed to this repo per the standing housekeeping policy §2026-09-30 of removing shipped-task guide
+PDFs) turned up the actual answer: page 1's "SITE HEADER" section ends with *"Footer: the shared Idea
+Factory system footer (same on every site). Its site block repeats the MPPM nav above..."* — a plain
+instruction to include this element that was never acted on. Page 2's visual mock confirmed the exact
+content: a dark band directly above the Footer reading "Master's in Product Management | ADMISSIONS ·
+ACADEMICS · EXPERIENCE · BLOG · PRODUCT@UMD ↗ | APPLY »".
+
+**User's explicit build instruction, once this was found:** use the PDF only for the link/label content,
+not its visual layout — instead duplicate the existing, already-refined **"Bottom Nav — Ventures"**
+component exactly, as the model for how this is now done across the site, and populate the duplicate
+with MPPM's own 7 items. No up-right arrow glyph on Product@UMD. Internal links stay same-window;
+external links open a new tab. On every built MPPM page.
+
+**Build, in order:**
+1. `duplicate_component` on `Bottom Nav — Ventures` (`be6aad5d-9a8a-b27b-208a-4abe431ea1ee`) → new
+   **"Bottom Nav — MPPM"** component (`7387081d-22b4-7874-366d-9b38c539b0fe`, group `MPPM`).
+2. **Immediately forked 4 standalone MPPM classes** (`mppm-botnav-sec`, `-accent`, `-row`, `-link`) with
+   the full property set copied from Ventures' originals (confirmed via `query_styles` that
+   `duplicate_component` does NOT clone style objects — the new component's elements were still wearing
+   the EXACT SAME shared `program-page-ventures-botnav-*` style IDs as the live Ventures component,
+   which is exactly the cross-site coupling HARD RULE #10 forbids: editing Ventures' bar later would have
+   silently changed MPPM's too, and vice versa). `mppm-botnav-row` folds in `if-stage-wrap`'s own
+   properties directly (per HARD RULE #11 — never co-apply a shared `if-` class, fork one full
+   standalone class instead) since the original combined `if-stage-wrap.program-page-ventures-botnav-row`
+   as two classes on one element. The two empty "`-home-botnav-*`" combo classes Ventures carried were
+   confirmed to hold zero actual properties of their own (pure page-marker combos) and were simply not
+   carried forward — nothing to fork.
+3. Re-pointed the component's root/accent/row/7-links to the new classes, deleted 2 extra unneeded link
+   slots left over from Ventures' own 9-item row, set each link's text and destination: **MPPM Home**
+   (brand, later corrected per the user's own follow-up message mid-build from "Master's in Product
+   Management" to **"MPPM Home"**) → Home; Admissions → Application Requirements; Academics → Academics;
+   Experience → Student Experience; Blog → the Blog index page; Product@UMD → `https://www.product.umd.edu/`;
+   Apply → Application Requirements. Every internal link set via `data_element_settings_tool` with no
+   `open_in_new_tab` key (Webflow's own stored-absence default = same window, confirmed by inspecting the
+   RAW stored setting, not just the resolved one); Product@UMD set with `open_in_new_tab:true`.
+   **⚠️ Gotcha confirmed again here (same one HARD RULE #10's own footnote already documents): every
+   `data_element_tool`/`data_element_settings_tool` action against an element living inside a component
+   DEFINITION returned "Element not found" until `scope_component_id` was added to each action — a
+   same-named-class or bare element_id lookup does not reach inside a component on its own.**
+4. **A separate, real gotcha found and resolved:** `insert_component_instance` with a component-instance
+   element (the Footer) as the anchor is rejected outright ("Cannot insert relative to a component
+   instance") — fixed by anchoring on the last plain content section instead, `creation_position:"after"`,
+   landing in the exact same visual position (directly above the Footer) without ever targeting the
+   Footer instance itself.
+5. **A red herring investigated and ruled out, not assumed:** `insert_component_instance`'s own return
+   value (and a direct instance query) showed a full set of stale Ventures-era **component PROPS**
+   ("Text 2"="Mtech Ventures", "Text 3"="Incubator", "Programs", "Calendar", "Contact", "Resources", all
+   link props pointing at `#`) attached to the component — looking exactly like leftover wiring that
+   could silently override the new MPPM content at render time. Verified empirically (never assumed)
+   by publishing and fetching the real live HTML: the actual rendered bar showed the correct MPPM
+   content with zero trace of any Ventures string — confirming these props are inert/vestigial metadata
+   from the original Ventures build, not actually connected to anything that affects rendering.
+6. Inserted one instance of the finished component directly above the Footer on **all 11 built MPPM
+   surfaces**: Home, Academics, Application Requirements, Calendars & Deadlines, Academic Policies,
+   Online Learning, Tuition & Financial Aid, Graduation & Commencement, Student Experience, the Blog
+   index page, and the MPPM-Blogs CMS template (confirmed this last one propagates correctly to every
+   individual rendered blog post, not just the template itself).
+
+**Verified, full sweep, live, after publish:** fetched the actual published HTML of all 10 regular pages
+plus one real rendered blog post (11 total) and confirmed, on every single one: identical 7-item order
+and exact text (MPPM Home / Admissions / Academics / Experience / Blog / Product@UMD / Apply), zero
+remaining Ventures-era strings anywhere, exactly one `target="_blank"` per page (the Product@UMD link —
+every internal link confirmed to have none), and a real Playwright screenshot of the live bar confirming
+the tricolor accent stripe + black band render correctly. This is now the reference second-site
+application of "Bottom Nav" as its own reusable pattern (Ventures → CBSCF/UMD I-Corps as independent
+per-site components → MPPM as the newest, built the same way, deliberately duplicated+forked rather than
+shared, per this project's standing cross-site isolation rules).
