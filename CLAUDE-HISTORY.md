@@ -9322,3 +9322,69 @@ hash was picked up, both still showing the old grid rule; the third fetch (fresh
 URL) confirmed `.mppm-acpol-termrow`/`-bordered` compile as `display:flex` with no
 `grid-template-columns` anywhere, and the `small`-breakpoint media query confirmed
 `flex-direction:column` in place of the old `grid-template-columns:minmax(0,1fr)`.
+
+## §352 — MPPM term-row stacking finished (direction + both gap sizes), bold-body-text root cause fixed sitewide, blog "Next" links repointed off the old domain (2026-11-12)
+
+**Term-row, continued from §351.** §351 converted `.mppm-acpol-termrow`/`-bordered` from a gratuitous
+2-column CSS Grid to Flexbox but left it `flex-direction:row` — the user, looking at the live Designer
+canvas, wanted the label stacked above the body instead of beside it, not a 2-column layout at all. Set
+`flex-direction:column` on both classes. That surfaced two more oversized-gap bugs, both already fixed
+and published:
+  - The row's own leftover `grid-column-gap:clamp(16px,3vw,48px)` (originally the horizontal gap between
+    the 2 columns) became, after the direction change, an oversized *vertical* gap between heading and
+    body inside every row. Reduced to a flat `10px`.
+  - Each row's own `padding-top`/`padding-bottom` (`clamp(20px,2.4vw,28px)` each side) was not actually
+    the cause of the "huge gap before the next divider" the user kept reporting (flex `gap` and padding
+    don't double-count against each other the way margins do) — reduced anyway to a flat `16px` for a
+    tighter look, but the REAL remaining cause turned out to be one level up: `.mppm-acpol-appeals-wrap`
+    (the Appeals tab's own wrapping flex container, page-specific, not shared with other tabs) had its
+    own `grid-row-gap:clamp(32px,3.6vw,48px)` stacking on top of everything — confirmed by directly
+    measuring `getBoundingClientRect()` gaps between rows live (48px, exactly matching the wrap's own
+    gap, nothing else). Fixed by setting the wrap's gap to `clamp(22px,2.4vw,30px)`, matching a
+    `mppm-acpol-appeals-wrap--tight` combo that already existed on this same class (apparently created
+    for exactly this purpose at some earlier point, never applied) — re-measured live post-publish:
+    30px between every row, confirmed. **Lesson: when a "gap before the divider" complaint keeps
+    recurring after fixing a row's own properties, check the row's PARENT container's own flex `gap` —
+    it's an independent, additive spacing source the row's own padding/margin can't explain or fix.**
+
+**Bold body text, root cause (not a today's-session bug — pre-existing, found across Online Learning,
+Tuition & Financial Aid, and Graduation & Commencement simultaneously).** Live `getComputedStyle` on the
+visibly-bold text showed `font-weight:700` on nested `<a>` elements specifically — never on the wrapping
+`<p>` itself. Root cause: Webflow's native `<a>` tag defaults to bold absent an explicit override, and
+any sentence containing an inline hyperlink gets built as a Paragraph whose children are multiple `<a>`
+elements (one per plain-text run, one for the real link) rather than a single text node — exactly the
+native mixed-inline-formatting pattern this project's own HARD RULE #23 requires. Neither `mppm-acpol-body`,
+`mppm-acpol-doc-text`, nor this session's own `mppm-flat-body` fork ever explicitly set `font-weight`, so
+every one of those `<a>`-wrapped runs silently fell back to the browser/Webflow bold default — explaining
+why it looked "random" (only sentences containing a link were affected; a bullet with no link in it
+rendered correctly all along). Fixed by adding `font-weight:400` to all three classes. Sitewide fix in one
+pass: Online Learning + Graduation & Commencement (via `mppm-flat-body`) and Academic Policies + Tuition &
+Financial Aid (via the still-shared `mppm-acpol-body`/`mppm-acpol-doc-text`) all corrected simultaneously.
+Verified live via fresh compiled CSS fetch on Academic Policies' own stylesheet — all three rules confirmed
+`font-weight: 400`.
+
+**Blog "Next" links — housed in the CMS, not the template.** User asked for an audit of "the links at the
+bottom of every blog piece." The template page itself (`6af236ff4d90f9c743a7f533`, collection
+`6af236ff4d90f9c743a7f519`) has only one native Link (a page-reference to the blog index — safe by
+construction) and its 2 HtmlEmbeds are unrelated (nav CSS/JS; a Georgia-serif-scoping rule for rich-text
+`<p>`s). The real "links at the bottom" are a hardcoded `<a href="https://mppm.umd.edu/blog/<slug>">`
+baked directly into each post's own `Post Body` RichText field content — a holdover from however these 6
+posts were originally written/imported, pointing at the old production domain. 5 of 6 posts have one (the
+6th, "Cracking the Product Management Interview," is the end of the reading chain, no outgoing link).
+Fixed by rewriting each affected `post-body` field, replacing only the href with a root-relative path on
+THIS site (`/mppm-blog/<slug>` — confirmed as the real live URL pattern by fetching this site's own blog
+index page, not assumed), leaving every word of surrounding content byte-identical. Published the 5 CMS
+items; swept all 6 live posts afterward for any further `mppm.umd.edu` occurrence — zero found.
+
+**⚠️ STANDING REMINDER, must survive compaction — user explicitly asked this be saved and not forgotten,
+to be checked "probably later today" when the post-spin-off page/slug renaming pass happens (the same
+pass already flagged for MPPM's `mppm-` page-slug prefixes elsewhere in this file's STATUS section):**
+these 5 blog-post "Next" links are root-relative (`/mppm-blog/<slug>`), so they survive a DOMAIN change
+with zero further edits (the whole point of fixing them this way) — but they are NOT independent of the
+collection's own URL **slug** (currently `mppm-blog`, distinct from its cosmetic *display name*
+"MPPM-Blogs"/"MPPM-Blog"). Renaming the collection's display name alone is safe and does nothing to these
+links. If the collection's actual URL slug is ever changed (as opposed to just its display name) as part
+of the post-spin-off renaming pass, these 5 hardcoded hrefs will break exactly the same way the original
+old-domain ones did, and need the identical fix repeated. **Check this specifically, by hand, the moment
+any blog-collection slug/URL change is made — do not assume the root-relative form alone makes them
+permanently safe.**
