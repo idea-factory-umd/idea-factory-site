@@ -9388,3 +9388,59 @@ of the post-spin-off renaming pass, these 5 hardcoded hrefs will break exactly t
 old-domain ones did, and need the identical fix repeated. **Check this specifically, by hand, the moment
 any blog-collection slug/URL change is made — do not assume the root-relative form alone makes them
 permanently safe.**
+
+## §353 — MPPM Apply Now row: fixed structure + styling to match the user's explicit one-page-layout spec (2026-11-12)
+
+User re-pasted the full "ONLINE LEARNING + GRADUATION & COMMENCEMENT: REMOVE TABS, ONE-PAGE LAYOUT"
+spec in full and asked for a fresh re-check against it (HARD RULE #22 — compare actual current state
+against the actual reference immediately before any "done" claim, never reason from what was already
+concluded). Re-fetched the live compiled CSS and real DOM structure fresh rather than trusting the
+§350 completion note, and found the Apply Now row (step 5 of the spec) had shipped with real
+deviations on BOTH pages:
+
+**DOM structure bug (the more serious finding):** `.mppm-flat-applybar`'s 3 children were, in order,
+**[heading, button, sentence]** — the button sat directly BETWEEN the heading and the sentence as a
+sibling flex item, with no wrapper grouping heading+sentence together. A live screenshot confirmed the
+visible result: "Apply Now" / button / sentence all crammed onto the same line at desktop width, and
+heading → button → sentence stacked in that wrong order at mobile width — nothing like the spec's
+"heading, with the sentence directly under it, button on the far right" layout. Fixed by creating a new
+standalone wrapper class `mppm-flat-applybar-text` (`flex-grow:1;flex-shrink:1;flex-basis:360px;
+min-width:0px`, matching the spec's `.apply-row__text`), building it as a new Block element prepended
+into `mppm-flat-applybar` on each page, then moving the heading and sentence (in that order) into it —
+leaving the row's only two direct children as `[text-wrapper, button]`. Done identically on both
+`mppm-online-learning` and `mppm-graduation-commencement` (each page has its own element instances of
+this row, same shared classes).
+
+**Styling bugs, on the 3 shared classes (fixed once, propagates to both pages):**
+- `mppm-flat-applybar`: background was `#F4F4F4` (a grey box) — spec explicitly says "NO grey box,"
+  fixed to `#FFFFFF`. Padding was `clamp(22px,2.4vw,30px)` on all 4 sides — spec wants padding-top
+  only, fixed to `padding-top:clamp(28px,3.2vw,40px)` with right/bottom/left all `0px`. No border-top
+  existed at all — added `border-top-width:0.5px;border-top-style:solid;border-top-color:
+  rgba(0,0,0,0.18)` (the spec's divider line). No `justify-content` was set (so text/button never
+  actually spread apart) — added `space-between`. Gaps were backwards from spec: column-gap was a flat
+  `16px` (spec wants `clamp(28px,4vw,56px)`) and row-gap was `clamp(20px,2.4vw,32px)` (spec wants a flat
+  `20px`) — both corrected.
+- `mppm-flat-applybar-h2`: was `clamp(22px,2vw,28px)` — visibly smaller than the page's own section
+  headings, contradicting the spec's explicit "SAME style as the section headings." Rather than
+  introduce a new `clamp()` (superseded as the default for ordinary headings per the 2026-11-03
+  CLAUDE.md correction), copied `mppm-acpol-h2`'s own native-breakpoint values exactly — 38/34/30/26px
+  across main/medium/small/tiny — plus its `line-height:1.04` and `letter-spacing:-0.02em`. Margin
+  stayed `0` (not `mppm-acpol-h2`'s own `margin-bottom` clamp) since the sentence's own `margin-top`
+  now supplies that gap instead.
+- `mppm-flat-applybar-sentence`: color was `#222222` (full-strength body-text color) and weight `500`
+  — spec wants the lighter `#454545` / weight `400`; also had `margin-top:0`, so it sat flush under the
+  heading with no gap — spec's `margin:10px 0 0` fixed both the color/weight and the gap.
+
+**Verification (fresh, both pages, after publish):** re-screenshotted the row at 1440px and 600px on
+`mppm-online-learning` — now renders exactly per spec (white row, visible top divider, big "Apply Now"
+heading, grey sentence directly under it, full-width red button stacking below at 600px). Re-queried
+the live element tree on both pages independently to confirm each `mppm-flat-applybar` now has exactly
+2 children in the correct order. Ran a combined Playwright check against both pages' LIVE published
+HTML covering: panel/row background colors, border widths, `justify-content`, heading font-size/text,
+sentence color/margin, button text/border-radius, zero tab-role/`data-tab` remnants, zero paragraph
+`max-width`, and a HARD-RULE-#21-style realistic sequence of 3 different in-page hash-link clicks in a
+row (no reload between) on each page — every link landed at the same `top:110px` offset below the
+fixed header, every time, on both pages. Two `requestStorageAccess: Permission denied.` console
+messages appear on every page checked, including the completely untouched `mppm-home` — confirmed
+pre-existing/sitewide (almost certainly a font-loader or analytics script's harmless headless-Chromium
+artifact), not introduced by this fix.
