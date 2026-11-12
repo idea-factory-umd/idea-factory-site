@@ -9290,3 +9290,35 @@ wrapper (`mppm-acpol-tab-height`/`-tab-measure`) remains in the DOM on either pa
 a literal HTML attribute, not the embed's code — there is no atomic way to set an HtmlEmbed's script
 content at creation time through this tool; create the element bare, then write its `code` setting
 through `data_element_settings_tool.set_settings` as a separate call.
+
+## §351 — MPPM shared term-row: converted gratuitous CSS Grid to Flexbox (2026-11-12)
+
+User screenshotted the Designer canvas showing a huge false blank gap below a policy-topic paragraph
+("Leave of Absence" / "illness, or dependent care... Leave of Absence Policy... Request for Leave of
+Absence Form") and demanded an immediate, sitewide fix — "I've told you repeatedly to avoid that because
+of this problem."
+
+**Root cause, found directly via `query_styles` (not guessed):** `.mppm-acpol-termrow` and
+`.mppm-acpol-termrow-bordered` — the shared label+body row used for every policy topic across Academic
+Policies (and any other MPPM page reusing it) — were `display:grid` with
+`grid-template-columns:minmax(0,4fr) minmax(0,8fr)`, exactly the gratuitous-grid pattern HARD RULE #12
+already names as a known cause of phantom extra space in the Designer canvas/Navigator.
+
+**Fix:** converted both classes to `display:flex; flex-direction:row; align-items:flex-start`, removed
+`grid-template-columns`, and set the two child columns (`mppm-acpol-termrow-left`/`-right`) to
+`flex-grow:4`/`flex-grow:8` with `flex-shrink:1; flex-basis:0%` each — reproducing the original 4fr:8fr
+ratio exactly. The pre-existing `small` (≤767px) breakpoint, which collapsed the grid to one column
+(`grid-template-columns:minmax(0,1fr)`), was replicated as `flex-direction:column` at the same
+breakpoint; its `grid-row-gap:8px` override needed no change since Webflow uses the same gap property
+names for both grid and flex. All properties written as separate longhand fields per HARD RULE #4.
+
+This is a single shared, global Webflow style (not page-scoped), so the fix applies everywhere
+`.mppm-acpol-termrow`/`-bordered` is used, across the whole site, in one edit — satisfying "fix this
+everywhere" without touching any page content.
+
+**Verified live:** published, then re-fetched the page fresh to get the current (hash-changed) compiled
+CSS filename — the first two verification attempts hit a stale cached filename before the publish's new
+hash was picked up, both still showing the old grid rule; the third fetch (fresh page load, fresh CSS
+URL) confirmed `.mppm-acpol-termrow`/`-bordered` compile as `display:flex` with no
+`grid-template-columns` anywhere, and the `small`-breakpoint media query confirmed
+`flex-direction:column` in place of the old `grid-template-columns:minmax(0,1fr)`.
