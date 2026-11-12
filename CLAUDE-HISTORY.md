@@ -9213,3 +9213,80 @@ confirmed (`firstname` is `document.activeElement` after landing) at every width
 sequence per HARD RULE #21 — scrolled away and clicked twice in the same page session, from two
 different starting scroll positions, both landed at exactly 38px with focus correct, not just a single
 fresh-load click.
+
+## §350 — MPPM Online Learning + Graduation & Commencement: removed tabs, one-page layout (2026-11-12)
+
+Both pages' tab systems replaced with a single scrolling page per the user's literal spec, editing in
+place rather than rebuilding (hero, page container, and the closing "Applications are now open!" Learn
+More component untouched throughout).
+
+**Deleted on both pages:** the 4-button tab row and its wrapper; the height-animating wrapper
+(`mppm-acpol-tab-height`) and measuring wrapper (`mppm-acpol-tab-measure`) — emptied via `move_element`
+onto the panel-left container first, verified empty via a fresh query, THEN removed in a separate call
+per HARD RULE #13, never batched with the moves; all `role`/`aria-selected`/`aria-labelledby`/
+`data-panel` attributes off the 4 former tab panels; the old tab-switching JS embed; the sidebar "MPPM
+Apply Now Box" component instance. Online Learning's "Overview" heading was also deleted outright (its
+panel now starts directly with the two intro paragraphs) — the other 3 Online Learning headings lost
+their oversized `mppm-acpol-h2--sm` combo (Graduation's 4 headings never had one, so no change needed
+there — this explains why "Online Learning's were smaller" prior to the fix).
+
+**New shared classes created** (kept separate from the still-tabbed Academic Policies/Tuition pages,
+which still reference the original `mppm-acpol-tabs-sec`/`-panel-wrap`/`-panel`/`-panel-left`/`-body`/
+`-doc-list` classes and were never touched): `mppm-flat-sec` (grey section bg), `mppm-flat-container`
+(1240px centered wrap, clamp top/bottom padding), `mppm-flat-panel` (white panel, flex column — replaces
+the old 2-col grid entirely, its ≤1000px override deleted with it), `mppm-flat-sections` (min-width:0
+holder for the section list), `mppm-flat-section-first` (scroll-margin-top only), `mppm-flat-section`
+(scroll-margin-top + the 0.5px top border/padding/margin-top clamp for every section after the first),
+`mppm-flat-body` (Georgia clamp(16,1.3vw,17.5) body text, no max-width — replaces `mppm-acpol-body` AND
+`mppm-acpol-doc-text` on both pages, since both shared an identical property shape), `mppm-flat-doclist`
+(doc-list wrapper, max-width removed), `mppm-flat-itemgroup` (Graduation-only: forked from the shared
+`mppm-acpol-item-group`, which stays flat `24px` gap for Academic Policies/Tuition — this one carries the
+spec's `clamp(18px,2vw,24px)`), `mppm-flat-applybar` + `mppm-flat-applybar-h2` +
+`mppm-flat-applybar-sentence` (the new bottom bar's own heading/sentence), and a new combo
+`mppm-acpol-apply-btn--bar` (parent `mppm-acpol-apply-btn`) overriding width/flex/white-space for the
+horizontal bar context without touching the base class the component still uses elsewhere. `small`
+(≤767px) breakpoint overrides added to `mppm-flat-applybar` and the new combo for the stacked/full-width
+phone layout — chosen over `tiny` (≤479px) per HARD RULE #2, since picking the smaller breakpoint would
+leave a 480–600px gap where the spec's required stacking wouldn't yet be active.
+
+**Left untouched, reused as-is (data-free "look family" utilities, HARD RULE #10's exception):**
+`mppm-acpol-h2` itself (already matched the spec exactly — only its `--sm` combo was the problem),
+`mppm-acpol-parastack`, `mppm-acpol-guide-groups`, `mppm-acpol-doc-item`, `mppm-acpol-doc-marker`,
+`mppm-acpol-sublabel`/`--reinforced`, `mppm-acpol-link`, `mppm-acpol-open-wrap`.
+
+**New Apply Now bar** built as the literal last child of each page's panel: an h2 ("Apply Now"), the
+existing "START YOUR APPLICATION »" Link (same two `mppm-acpol-apply-btn-text` paragraphs, same page link
+to Application Requirements, confirmed via a fresh query of the component's own internals before
+replicating it) now carrying the extra `--bar` combo, and the reassurance sentence — left-to-right order
+preserved, `flex-direction:column` stack with a full-width button at ≤767px.
+
+**New hash-routing script** installed on both pages (the exact reference script from the spec, non-smooth
+`window.scrollTo`, 110px offset, 60ms initial delay + `hashchange` listener) after a mechanical slip: the
+first attempt wrote the script as a bogus `data-embed-code` HTML *attribute* via
+`data_element_builder`'s `set_attributes`, which creates no `<script>` tag at all — caught immediately by
+reading the embed's own settings back (`code` was empty), fixed by writing it through
+`data_element_settings_tool.set_settings` with `key:"code"`, which is the element's actual content field.
+
+**Verified live (Playwright), full sweep, both pages, matching the 8-point CHECK list exactly:**
+(a) no tab row, 4 sections in document order inside one white panel on the grey section — confirmed via
+`mppm-flat-section-first`/`mppm-flat-section` element counts and ids on both pages; (b) Online Learning's
+first section has no `<h2>`, starts with its parastack div; (c) `h2` font-size measured `38px` on both
+pages at 1440px (same clamp ceiling); (d) first section's border-top `0px`, every later section's `1px`
+(the stored value is the spec's literal `0.5px` — sub-pixel borders commonly compute to a whole pixel in
+`getComputedStyle`, confirmed harmless since the only thing that matters is present-vs-absent); (e) body
+paragraph/doc-list `max-width:none` and the live text-to-panel-edge gap measured `0px` on both pages;
+(f) Apply Now bar is the panel's literal `lastElementChild`, children order `H2,A,P`, phone-width (390px)
+measurements showed `btnWidth === barContentWidth` (242px, i.e. genuinely 100% of its own container,
+`justify-content:center`, `white-space:normal`) on both pages; (g) hash routing tested as a REAL
+SEQUENCE per HARD RULE #21, not just isolated fresh loads — Online Learning: fresh `#library` → `110.0px`
+from viewport top, then `#guidelines` → `110.3px`, then back to `#accessing` → `109.5px`, all in one
+continuous page session; Graduation: fresh `#timeline` → `110.3px`, then `#commencement` → `110.0px`,
+then back to `#submission-deadlines` → `110.0px`; (h) zero console errors introduced by this change on
+either page (the only console lines present — two `requestStorageAccess: Permission denied` notices —
+are a pre-existing, page-independent third-party embed warning, not a regression), and no animating
+wrapper (`mppm-acpol-tab-height`/`-tab-measure`) remains in the DOM on either page.
+
+**New gotcha for the record:** `data_element_builder`'s `set_attributes` on an `HtmlEmbed` element writes
+a literal HTML attribute, not the embed's code — there is no atomic way to set an HtmlEmbed's script
+content at creation time through this tool; create the element bare, then write its `code` setting
+through `data_element_settings_tool.set_settings` as a separate call.
