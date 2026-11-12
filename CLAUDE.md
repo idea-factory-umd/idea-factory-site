@@ -689,6 +689,49 @@
 > - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#26 — keep this
 >   banner intact and pass it on.
 
+> ## 🚫 #28 HARD RULE — ANY NEW SCROLL‑ OR RESIZE‑DRIVEN EFFECT MUST REGISTER WITH THE SHARED `window.ifScrollEngine`/`window.ifResizeEngine`, EVEN WHEN BUILT AS A PAGE‑SCOPED EMBED PER HARD RULE #17 (2026‑11‑12 — closes a real gap: HARD RULE #17 governs WHERE new effect code lives, but never said anything about HOW it must hook into scrolling, leaving an opening for the exact choppy‑scrolling regression the September 2026 "SCROLL EFFECTS ARCHITECTURE" fix — CLAUDE‑HISTORY.md §155 — was built to eliminate)
+> **The permanent anti‑jank engine (`window.ifScrollEngine` for scroll, `window.ifResizeEngine` for
+> resize — both in the shared `idea-factory.js`, batching every registered effect's `read()` first,
+> then every effect's `write()`, once per frame, so no effect's DOM write can force another effect's
+> DOM read into a synchronous layout recalc) is NOT optional infrastructure a new build can skip.** It
+> loads automatically on this master site and every spin‑off, present and future, with zero setup — but
+> it only protects effects that actually register with it. **A page‑scoped HtmlEmbed built correctly per
+> HARD RULE #17 (new code stays segregated per sub‑site) can still silently reintroduce the exact
+> "choppy scrolling from intricate content measuring" problem these engines exist to prevent, if it
+> binds its own raw `addEventListener('scroll', …)`/`addEventListener('resize', …)` instead of
+> registering with the shared engine** — HARD RULE #17 only ever said WHERE new effect code must live,
+> never HOW it must hook into scroll/resize, and that gap is exactly what let this rule need writing.
+> - **THE RULE, absolute, going forward: any new effect whose logic runs on every scroll‑position
+>   change (parallax, scroll‑grow bars, count‑up‑on‑scroll‑into‑view, scroll‑spy/current‑section
+>   markers, sticky‑pin logic, etc.) must register via `window.ifScrollEngine.add({read, write})` —
+>   never its own `scroll` listener.** Same for anything driven by viewport‑size/resize:
+>   `window.ifResizeEngine.add(fn)` — never its own `resize` listener. This applies **even though the
+>   effect's own code/selectors/markup stay page‑scoped** per HARD RULE #17 — only the SCHEDULING hooks
+>   into the shared engine; the engine objects themselves are globals already present on every page from
+>   the shared file, so calling them from a page‑scoped embed creates no new cross‑site coupling (HARD
+>   RULE #10/#17's own concerns are about CSS classes/selectors and JS logic CONTENT, not about reusing
+>   an already‑shared, already‑global scheduling primitive).
+> - **`read()` must be measure‑only** (`getBoundingClientRect`, scroll position, computed‑style reads)
+>   **and `write()` must be write‑only** (style/class mutations) — never mix a read into the write
+>   callback or vice versa; that's the exact violation (`about-goldbars`, CLAUDE‑HISTORY.md §156) found
+>   and fixed even in the FIRST post‑engine pass. Prefer `transform`/`opacity` over layout‑triggering
+>   properties; cache expensive measurements; gate any `IntersectionObserver` so off‑screen elements are
+>   skipped entirely rather than measured every frame (MPPM's own `mppm-goldbars` embed already does
+>   this correctly — see CLAUDE‑HISTORY.md — and is the reference example to copy).
+> - **Before shipping ANY new scroll/resize‑driven effect on this master site or any spin‑off, confirm
+>   which of the two categories it is — one‑shot (fires once per click/load/hash‑change, like a
+>   click‑to‑scroll jump) vs. continuous (re‑measures on every scroll/resize tick) — and apply this rule
+>   only to the continuous category.** A one‑shot `scrollTo()` triggered by a click (e.g. the
+>   `cross-page-anchor-scroll`/`#goto:` mechanism, or the Nav Alignment Crisis's own corrective
+>   same‑page‑click scroll, CLAUDE‑HISTORY.md §276) is NOT what this rule targets and does not need
+>   engine registration — it doesn't run repeatedly during a scroll gesture, so it cannot cause this
+>   class of jank.
+> - **Audit trigger:** finding even ONE new scroll/resize effect that binds its own raw listener instead
+>   of registering with the engine is a signal to sweep the WHOLE page/site for the same mistake (HARD
+>   RULE #3's own full‑sweep discipline), not just fix the one instance found.
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#27 — keep this
+>   banner intact and pass it on.
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is
