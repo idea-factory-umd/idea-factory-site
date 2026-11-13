@@ -10555,3 +10555,23 @@ desktop/tablet/phone, all 7 jump-bar links clicked in sequence, a backward click
 
 Published and verified live via Playwright against the actual published `.webflow.io` page, per
 HARD RULE #3.
+
+### §371 — MPPM Course Page JUMP-BAR: What/Who retargeted to the shared containing section (2026-11-13)
+
+User flagged (via screenshot) that the "What"/"Who" jump-bar links were inconsistent with the other
+5: they pointed at the two individual `mppm-course-whatwho-col` divs (ids `sec-what`/`sec-who`)
+instead of the shared colored section those columns sit inside. On a stacked (narrow) layout this
+visibly lands "Who" well below the section's own top (past "What You'll Learn"), unlike every other
+jump target which lands at its own section's top — confirmed via a Designer screenshot showing the
+correct target: `mppm-course-whatwho-sec`, id `whatwho`, Tag: Section.
+
+Fix: retargeted both link elements' `link` setting (mode `url`) from `#sec-what`/`#sec-who` to
+`#whatwho` — both now point at the one shared section, at every breakpoint, with no per-breakpoint
+logic needed (same target regardless of column layout). (A prior intermediate step in this same
+investigation — changing the two column divs' tag from `div` to `section` — is harmless and was left
+in place, but was not the actual fix; the real fix is this link retarget.)
+
+Verified live via Playwright: at desktop (1440)/tablet (820)/phone (390), clicking "What" then "Who"
+in the same session now lands at the **identical** `scrollY`/section-top position every time, flush
+against the header (±0.2px), matching every other jump target's behavior exactly. Published before
+testing, per HARD RULE #3.
