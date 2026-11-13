@@ -10575,3 +10575,77 @@ Verified live via Playwright: at desktop (1440)/tablet (820)/phone (390), clicki
 in the same session now lands at the **identical** `scrollY`/section-top position every time, flush
 against the header (±0.2px), matching every other jump target's behavior exactly. Published before
 testing, per HARD RULE #3.
+
+### §372 — MPPM Course Page JUMP BAR: What/Who smart-target spec (committed before execution)
+
+User-provided spec, verbatim, committed before execution — supersedes §371's flat "both link to
+the shared section" fix with a smarter, stacked-aware computation done in the script itself:
+
+```
+COURSE PAGE — JUMP BAR: FIX "WHAT" AND "WHO" TARGETS
+Page: /course-innovative-ideas-concept-development (and every course page copied from it).
+Edit the existing jump-bar script plus one id. Change nothing else.
+
+PROBLEM
+The "What" and "Who" links scroll to the individual column inside the gold section, so they land
+one level too deep (inside the gold). Every other link lands at the top of its section.
+
+1. ADD ONE ID
+   Give the gold section that contains both the What and the Who columns:  id="sec-what-who"
+   Keep the existing ids on the two columns (sec-what, sec-who) — links and #hash URLs still use them.
+
+2. TARGET RULES (computed at the moment of the jump, every time)
+   Let WHAT = #sec-what, WHO = #sec-who, SECTION = #sec-what-who.
+   stacked = WHO's top edge is more than 10px below WHAT's top edge
+             (measure with getBoundingClientRect; do NOT use a fixed breakpoint).
+   - "What" (sec-what):                 land at the top of SECTION.
+   - "Who"  (sec-who), NOT stacked:     land at the top of SECTION (same spot as "What").
+   - "Who"  (sec-who), stacked:         land at the BOTTOM edge of the LAST white card inside WHAT,
+                                        i.e. that card sits just hidden under the header and the
+                                        Who heading starts right below the header.
+   "Land at Y" means: scroll so that Y is exactly at the bottom of the red header bar
+   (the existing headerBottom() + GAP, with GAP = 0).
+
+3. CODE — add this function and use it inside the existing go(id, smooth):
+
+   function jumpY(id) {
+     var abs = function (y) { return y + window.scrollY; };
+     if (id === 'sec-what' || id === 'sec-who') {
+       var what = document.getElementById('sec-what');
+       var who  = document.getElementById('sec-who');
+       var sec  = document.getElementById('sec-what-who');
+       if (what && who && sec) {
+         var stacked = who.getBoundingClientRect().top > what.getBoundingClientRect().top + 10;
+         if (id === 'sec-who' && stacked) {
+           // last white card in the What column (the last element that has a card class/background)
+           var cards = what.querySelectorAll('[class*="card"]');
+           var last = cards.length ? cards[cards.length - 1] : what;
+           return abs(last.getBoundingClientRect().bottom);
+         }
+         return abs(sec.getBoundingClientRect().top);
+       }
+     }
+     var el = document.getElementById(id);
+     return el ? abs(el.getBoundingClientRect().top) : null;
+   }
+
+   In go(id, smooth), replace the line that computes the element's top with:
+     var y = jumpY(id); if (y === null) return;
+     window.scrollTo({ top: y - headerBottom() - GAP, behavior: smooth ? 'smooth' : 'auto' });
+
+   If the white cards' class name doesn't contain "card", replace the selector
+   '[class*="card"]' with the actual class of the white What cards — do not guess silently;
+   state which class you used.
+   The on-load settle loop already calls go(), so #sec-who / #sec-what links get the same rules.
+
+CHECK
+a) Desktop (columns side by side): "What" and "Who" both land with the top of the gold section
+   against the red bar — the same as every other link.
+b) Phone (stacked): "What" lands at the top of the gold section; "Who" lands with the last white
+   What card just hidden under the bar and the "Who" heading directly below it.
+c) Resize between the two layouts and click again: each case still lands correctly.
+d) Open .../course-innovative-ideas-concept-development#sec-who directly on a phone: same as (b).
+e) All other jump-bar links unchanged.
+```
+
+Execution + verification to follow in the next entry.
