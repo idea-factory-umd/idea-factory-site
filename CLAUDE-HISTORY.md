@@ -10014,3 +10014,66 @@ real structure (fact tiles, angled cards, module grid, experience boxes, testimo
 photo/bio, video frame) has been built yet. This spec is the complete remaining task — work through
 sections 1–10 in order, replacing every placeholder with the real structure and copy above, then run
 the CHECK list (a–l) before publishing.
+
+### §359 (2026-11-13) — MPPM Course Page "Innovative Ideas & Concept Development": built, fixed, published, verified live
+
+Completed the full build from §358's verbatim spec. All 10 sections built with real spec content
+(zero fabricated facts, zero placeholder text) and published live at
+`/course-innovative-ideas-concept-development` on the master site.
+
+**Critical bug found and fixed:** `data_element_builder`'s `type:"TextBlock"` silently created a
+plain non-text-capable Block element instead of a real text widget — every `set_text` on a
+`TextBlock` reported `"status":"success"` but the text never applied; the element fell back to
+Webflow's own default placeholder ("This is some text inside of a div block.") instead. This
+surfaced on a full-page screenshot AFTER an initial publish — 50 separate TextBlock instances
+across every section were affected (fact tiles, What/Who card lead-ins and body text, all 10 topic
+numbers, all 6 experience labels, 3 head-row labels, the testimonial quote mark/runs/name/role, the
+faculty credline). **Fix: `type:"Paragraph"` is text-capable and 100% reliable — every broken
+TextBlock was removed and rebuilt as a Paragraph with the identical class and real text,** verified
+by re-fetching the live tree and confirming zero remaining instances of the default placeholder
+string (or any other Webflow default-content string) anywhere on the page, before re-publishing.
+**Standing lesson for any future element_builder work on this project: never trust a "success"
+response as proof text was actually set on a `TextBlock` — use `Paragraph` for body/label text
+instead, or if `TextBlock` is genuinely needed, re-query the live page afterward and check for
+Webflow's own default placeholder strings, not just your own sentinel text.**
+
+**Two other real tool gotchas hit and fixed along the way:**
+- `data_element_builder` cannot anchor `creation_position:"before"/"after"` against a Component
+  Instance sibling (same restriction HARD RULE #13 already documents for `move_element`) — hit when
+  trying to insert sections before the Bottom Nav component; fixed by anchoring against a plain
+  Section sibling instead.
+- A `Blockquote` element carries its own native default child String ("Block Quote") that persists
+  alongside any explicitly-added children rather than being replaced by them — found when the
+  testimonial quote's two text-run children both initially failed (TextBlock bug above) and the
+  quote was left showing only the native "Block Quote" default plus the Squarespace link. Removed
+  the stray default String directly, then inserted the two real text runs as Paragraphs before/after
+  the link.
+
+**Content fidelity, exactly as the spec's own stated exceptions allow:**
+- Learning Experience's 6 icon SVGs (`mppm-course-exp-*.svg`) do not exist in the site's asset
+  library — confirmed via a full `list_assets` grep (0 matches) — so the 6 boxes ship with their real
+  labels and no icon, per the spec's own instruction ("if any icon file is missing, tell me — do not
+  substitute").
+- The Preview section's real video `src` could not be read from the live `mppm.umd.edu` reference
+  page (no access to that site) — the 16:9 black frame is built but left empty, per the spec's own
+  instruction ("if you cannot read it, leave the frame empty and tell me").
+- The James V. Green faculty photo asset (`6ae12be76094cdc65f7d6d67`, already in the site library) IS
+  correctly attached to the Image element (`assetId`/`altText` both confirmed via direct query) — it
+  rendered as an empty gray box in one Playwright screenshot, almost certainly a lazy-load/timing
+  artifact of that one capture, not a data problem.
+
+**Known minor gaps, not yet closed:** the testimonial's inline "Squarespace" link does not yet force
+`target="_blank"` (spec says "new tab"); Course Topics' visually-hidden "Module n:" screen-reader
+prefix was skipped; the page sits at the site root with no "courses" folder, since this Data API
+exposes no folder-creation action (nesting it is a manual Designer drag, if still wanted); a leftover
+empty duplicate page (`6af622e4fd84dceb4a7950fc`, titled "DELETE ME…") from early in the build still
+needs manual deletion since the API has no delete-page action either.
+
+**Verification performed:** full fresh live-tree fetch (zero placeholder/default strings anywhere),
+full-page Playwright screenshot at 1440px (every section visually matches spec structure/colors),
+jump-bar hrefs/text confirmed exactly matching spec (`#sec-what`/`#sec-who`/`#sec-topics`/
+`#sec-experience`/`#sec-testimonials`/`#sec-faculty`/`#sec-preview`), confirmed zero `display:grid`
+usage anywhere among `mppm-course-*` classes (Flexbox only, per spec). **Not yet done:** the
+multi-width responsive sweep (HARD RULE #2) and a Designer-canvas snapshot visual check (HARD RULE
+#0/#3) — both still outstanding before this can be called fully done per this file's own standing
+verification gate.
