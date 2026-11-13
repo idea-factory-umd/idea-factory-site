@@ -10373,3 +10373,63 @@ User sent an expanded "ONE PASS" spec (FIX 1-4) superseding §364's narrower Fac
 **FIX 2 — skipped, per the user's own correction.** FIX 4 (icons) — already fully compliant with this round's spec (confirmed via `query_styles`: correct `clamp(88px,8vw,116px)` sizing, `display:block`; no explicit `margin` needed since the browser's own default `img` margin is already `0`) — no change made, consistent with "change only what's listed."
 
 Published and verified live (Playwright, real screenshots) before reporting done, per HARD RULE #3.
+
+### §366 — MPPM Course Page JUMP-BAR ANCHORS spec (committed before execution)
+
+User-provided spec, verbatim, committed before execution:
+
+```
+MPPM COURSE PAGE — JUMP-BAR ANCHORS: PRECISE SCROLL POSITION
+Page: /course-innovative-ideas-concept-development (it will be duplicated for every course page,
+so put this in the PAGE's custom code, before </body>). Change nothing else.
+
+Problem: clicking a jump-bar link (What / Who / Topics / Experience / Testimonials / Faculty /
+Preview) does not stop with the section top aligned. Webflow's built-in smooth scroll ignores
+scroll-margin-top and doesn't account for the header.
+
+1. Add this script to the page's before-</body> custom code, exactly:
+<script>
+(function () {
+  var GAP = 24; // breathing room between the header and the section top
+  function headerBottom() {
+    var max = 0, els = document.body.querySelectorAll('*');
+    for (var i = 0; i < els.length; i++) {
+      var cs = getComputedStyle(els[i]);
+      if (cs.position !== 'fixed' && cs.position !== 'sticky') continue;
+      var r = els[i].getBoundingClientRect();
+      if (r.top <= 1 && r.bottom > 0 && r.height < window.innerHeight / 2) max = Math.max(max, r.bottom);
+    }
+    return max;
+  }
+  function go(id, smooth) {
+    var el = id && document.getElementById(id);
+    if (!el) return false;
+    var y = el.getBoundingClientRect().top + window.scrollY - headerBottom() - GAP;
+    window.scrollTo({ top: Math.max(0, y), behavior: smooth ? 'smooth' : 'auto' });
+    return true;
+  }
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var id = a.getAttribute('href').slice(1);
+    if (!id || !document.getElementById(id)) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    go(id, true);
+    history.replaceState(null, '', '#' + id);
+  }, true);
+  window.addEventListener('load', function () {
+    if (location.hash) setTimeout(function () { go(location.hash.slice(1), false); }, 50);
+  });
+})();
+</script>
+
+2. Every jump-bar link must be href="#<section id>" and every section must carry that id
+   (ids must be unique on the page). Do not change the ids.
+
+CHECK on the published page: click each jump-bar link — each section's top edge stops 24px
+below the bottom of the header, every time, at desktop, tablet and phone widths. Loading the
+page with #faculty in the URL lands the same way.
+```
+
+Execution + verification to follow in the next entry.
