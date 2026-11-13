@@ -10077,3 +10077,103 @@ usage anywhere among `mppm-course-*` classes (Flexbox only, per spec). **Not yet
 multi-width responsive sweep (HARD RULE #2) and a Designer-canvas snapshot visual check (HARD RULE
 #0/#3) — both still outstanding before this can be called fully done per this file's own standing
 verification gate.
+
+### §360 (2026-11-13) — MPPM Course Page fixes: verbatim user spec (committed before execution, per standing instruction)
+
+User-supplied follow-up fix list for `/course-innovative-ideas-concept-development` (pageId
+`6af6231016b9c27c1a03b5b8`), to be applied IN PLACE — "Change ONLY what is listed. Everything not
+listed stays exactly as it is (Course Topics, Learning Experience, Faculty, the Learn More component
+are correct)." Committed verbatim before execution per the user's explicit standing instruction.
+
+```
+MPPM COURSE PAGE — FIXES: /course-innovative-ideas-concept-development
+Edit in place. Change ONLY what is listed. Everything not listed stays exactly as it is
+(Course Topics, Learning Experience, Faculty, the Learn More component are correct).
+
+=====================================================================
+FIX 1 — OVERVIEW: remove heading; lead-in inline
+=====================================================================
+a) DELETE the "Overview" heading. The section has no heading; it starts with the summary sentence.
+b) The summary is ONE Paragraph element with the whole sentence:
+     Learn today’s newest skills and tools for identifying and acting on entrepreneurial opportunities for startup companies and corporate innovations and innovators.
+   Delete the separate red element and the separate rest-of-sentence element.
+   Inside the paragraph, select ONLY "Learn today’s newest skills and tools" → Wrap in Span,
+   class course-leadin.
+   Paragraph: Georgia; clamp(18px, 1.6vw, 21px); line-height 1.65; color #222222;
+     margin 0 0 clamp(28px, 3.2vw, 40px).
+   .course-leadin: display inline (NEVER block); Interstate 800; font-size 1.5em; line-height 1;
+     letter-spacing -0.02em; color #E21833; margin-right 0.12em.
+   Result: the large red words and "for identifying…" sit on the SAME line, same baseline.
+
+=====================================================================
+FIX 2 — WHAT YOU’LL LEARN / WHO WILL BENEFIT: bold lead-in inline, heading spacing
+=====================================================================
+a) Each card currently shows the bold words on their own line, smaller, with the rest as a separate
+   block below. WRONG. Each card's text is ONE Paragraph element containing the whole item; the bold
+   words are an inline Span at the START of that same paragraph (same size, same line).
+   For every one of the 8 cards:
+   - Delete the separate bold element and the separate text element.
+   - Add ONE Paragraph with the full item text (below). Select ONLY the bold words → Wrap in Span,
+     class course-lead-bold.
+   Paragraph: Interstate 300; clamp(18px, 1.45vw, 20px); line-height 1.55; color #000; margin 0.
+   .course-lead-bold: display inline; Interstate 800 (same font-size as the paragraph — do NOT set
+     a smaller size); color #000; letter-spacing -0.01em.
+   Card layout stays: flex row; red 11px square marker (margin-top 0.6em) then the paragraph; gap 16px.
+
+   What You’ll Learn (bold part in [brackets]; do not type the brackets):
+     [Develop the skills] for identifying and analyzing entrepreneurial ideas
+     [Foster thinking entrepreneurially] with an awareness of entrepreneurial mindset, entrepreneurial motivation, and entrepreneurial behavior
+     [Cultivate seeing entrepreneurially] with attention to industry conditions, industry status, macroeconomic change, and competition
+     [Champion acting entrepreneurially] with an understanding of value innovation and opportunity identification
+   Who Will Benefit:
+     [Aspiring entrepreneurs] working to identify a viable new business idea from which to develop their own company.
+     [Active entrepreneurs] seeing to validate and enhance their existing business idea and accelerate their company’s success.
+     [Corporate professionals] interested in understanding how business and technology shape the creation of new products and services by established companies.
+     [Educators, consultants, and organizational leads] desiring to improve their capacity to teach, advise, or empower their constituencies to succeed in startup entrepreneurship or corporate innovation.
+
+b) Card padding: top/bottom clamp(16px, 1.8vw, 22px); right clamp(28px, 2.8vw, 36px);
+   left clamp(18px, 2vw, 26px). (Cards are currently much taller than this.)
+c) The two headings ("What You’ll Learn", "Who Will Benefit") currently touch the first card.
+   Set margin-bottom clamp(24px, 2.8vw, 36px) on both.
+
+=====================================================================
+FIX 3 — LEARNER TESTIMONIALS card
+=====================================================================
+a) Card: add border-top 4px solid #E21833 (keep the 0.5px rgba(0,0,0,0.18) border on the other sides,
+   white background, no shadow, square corners).
+b) Big quote mark "“": Interstate 800 (NOT Georgia); font-size 72px; line-height 0.7; color #E21833;
+   display block; margin-bottom 4px.
+c) Blockquote: REMOVE Webflow's default blockquote styling — set border-left NONE, padding 0, margin 0.
+   Keep: Georgia italic 400; clamp(23px, 2.4vw, 32px); line-height 1.4; color #2B2B2B.
+   (The "Squarespace" link stays as it is: red, bold, Georgia italic. Add target="_blank" rel="noopener".)
+d) Attribution: margin-top 34px; padding-top 18px; border-top 0.5px solid rgba(0,0,0,0.38).
+   Name "Anthony Casalena": Interstate 800; clamp(20px, 1.8vw, 24px); line-height 1.15; color #E21833.
+   Title "Founder and CEO, Squarespace": Interstate 700; 16px; ALL CAPS (text-transform uppercase);
+     letter-spacing 0.06em; line-height 1.4; color #454545; margin-top 6px.
+
+=====================================================================
+FIX 4 — PREVIEW VIDEO
+=====================================================================
+Set the iframe src to:  PASTE VIDEO SRC HERE
+(Frame, heading and black section are otherwise correct.)
+
+=====================================================================
+CHECK — publish, then confirm with a screenshot of each fixed section
+=====================================================================
+1. No "Overview" heading; red lead-in on the same line as the rest of the sentence.
+2. All 8 cards: bold words start the sentence on the same line, same size; cards compact;
+   space under both headings.
+3. Testimonial: red top bar, big red Interstate quote mark, no grey bar beside the quote,
+   red name, ALL-CAPS grey title.
+4. Video plays.
+```
+
+**Key technical requirement this fix list imposes, not previously solved:** FIX 1 and FIX 2 both
+require a bold/colored inline text run living INSIDE the same Paragraph/sentence as plain text
+following it on the same line — exactly the capability that was worked around with a stacked
+TextBlock-then-Paragraph fallback in §359's build (explicitly called "WRONG" by the user now that
+they've seen it rendered). §359 already found `type:"DOM"` with `settings:[{key:"textContent",...}]`
+fails at element-builder creation time ("Setting textContent is not applicable to this element") —
+this entry's fix pass must find (or re-confirm failure of) a working mechanism for a real inline
+nested text run before FIX 1/2 can be done correctly, not just re-apply the same rejected stacked
+layout under a new class name.
