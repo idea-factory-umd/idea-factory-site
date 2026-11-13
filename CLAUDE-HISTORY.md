@@ -10500,3 +10500,31 @@ only the load handler changed behavior as intended.
 Published and verified live via Playwright against the actual published `.webflow.io` page, per
 HARD RULE #3. This completes the jump-bar anchor scroll-positioning feature (§366-368) — all CHECK
 items pass at every tested width.
+
+### §369 — MPPM Course Page JUMP-BAR SCRIPT: GAP value spec (committed before execution)
+
+User-provided spec, verbatim, committed before execution — single-value change, GAP 24 → 0,
+removing the white strip between the header and each jumped-to section:
+
+```
+COURSE PAGE — JUMP-BAR SCRIPT: REMOVE THE GAP UNDER THE HEADER
+Page: /course-innovative-ideas-concept-development (and every course page copied from it).
+Edit one value in the existing jump-bar script; change nothing else.
+
+Problem: every jump-bar link (and every #section link on load) stops the section 24px below the
+red header bar, leaving a white strip between the header and the section.
+
+Fix: in the script, change
+    var GAP = 24;
+to
+    var GAP = 0;
+
+That is the only change. The click handling, the on-load settle loop, headerBottom() and go()
+stay exactly as they are.
+
+CHECK (desktop, tablet, phone): click each jump-bar link, and open
+.../course-innovative-ideas-concept-development#sec-faculty directly. Each time, the section's
+top edge sits exactly against the bottom of the red header bar: no white strip, no overlap.
+```
+
+Execution + verification to follow in the next entry.
