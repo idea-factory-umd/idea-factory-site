@@ -10483,3 +10483,20 @@ Also confirm the jump-bar clicks still behave exactly as before.
 ```
 
 Execution + verification to follow in the next entry.
+
+### §368 — MPPM Course Page JUMP-BAR SCRIPT: load-handler fix verified, full CHECK list re-run clean (2026-11-13)
+
+Applied §367's exact replacement (window 'load' block only — click handler byte-identical, re-verified
+via `all_raw_settings` before publishing). Re-ran the full CHECK across desktop (1440)/tablet (820)/
+phone (390): forward sequence through all 7 sections, a backward click, and a direct `#sec-faculty`
+URL load, per HARD RULE #21's realistic-sequence-not-just-fresh-clicks discipline.
+
+**Result: the phone direct-hash-load bug (§366, 3.6px gap instead of 24px) is fixed** — now lands at
+23.6px, matching the same settled value the phone forward-click sequence produces for that section.
+Every other measurement (21 forward clicks + 3 backward clicks + desktop/tablet hash-loads) is
+byte-for-byte identical to the pre-fix run — zero regressions from the click-handler side, confirming
+only the load handler changed behavior as intended.
+
+Published and verified live via Playwright against the actual published `.webflow.io` page, per
+HARD RULE #3. This completes the jump-bar anchor scroll-positioning feature (§366-368) — all CHECK
+items pass at every tested width.
