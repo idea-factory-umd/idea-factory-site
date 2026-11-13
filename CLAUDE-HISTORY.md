@@ -10326,3 +10326,33 @@ re-verifying) before building the Image elements.
 **Still blocked (unchanged from §360/§361):** Preview section's video iframe `src` — the user's own FIX-pass-1 spec contained the literal placeholder text "PASTE VIDEO SRC HERE" instead of a real URL; still awaiting the real video URL.
 
 Published (3x — icons/Learn More, then the two overflow fixes) and verified live via Playwright against the actual published `.webflow.io` page each time, per HARD RULE #3. Site has no custom domains (`get_site` confirmed `customDomains:[]`), so `publishToWebflowSubdomain:true` alone reaches production — no `customDomains` array population needed for this particular site.
+
+### §364 — MPPM Course Page FACULTY FIXES spec (committed before execution, per standing session convention)
+
+User-provided spec, verbatim, committed before execution:
+
+```
+MPPM COURSE PAGE — FACULTY FIXES: /course-innovative-ideas-concept-development
+Edit in place. Change ONLY what is listed.
+
+1. PHOTO + NAME PLATE = ONE CARD
+   Remove the space between James V. Green's photo and the black name plate below it.
+   - Photo box: margin-bottom 0.
+   - Name plate: margin-top 0.
+   - The card wrapper (holding photo + plate): display flex; flex-direction column; gap 0.
+   The plate's top edge touches the photo's bottom edge; both are the same width.
+
+2. "INSTRUCTOR" LABEL ON THE HEADING ROW
+   The heading row is: "Faculty" · grey rule · label. Add the label as the LAST item in that row,
+   after the rule:
+     Text: Instructor
+     Interstate 700; 16px; text-transform uppercase; letter-spacing 0.1em; color #7F7F7F;
+     white-space nowrap.
+   Row stays: display flex; flex-wrap wrap; align-items center; gap 12px 24px.
+   The rule keeps flex 1 1 60px (it fills the space between "Faculty" and "INSTRUCTOR").
+
+CHECK: photo and black name plate touch with no gap; "INSTRUCTOR" in grey caps sits at the
+right end of the rule beside "Faculty".
+```
+
+User confirmed the rest of the Faculty section (photo, name plate styling, gold affiliation, bio) already matches their own build correctly — only these two items are off. Execution + verification to follow in the next entry.
