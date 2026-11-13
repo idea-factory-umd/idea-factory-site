@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "mcp__Webflow__*",
-      "mcp__Webflow_Beta__*"
+      "mcp__Webflow_Beta__*",
+      "Edit",
+      "Write",
+      "Read",
+      "WebFetch",
+      "WebSearch"
     ]
   }
 }
