@@ -10528,3 +10528,30 @@ top edge sits exactly against the bottom of the red header bar: no white strip, 
 ```
 
 Execution + verification to follow in the next entry.
+
+### §370 — MPPM Course Page JUMP-BAR SCRIPT: GAP changed to 0, verified clean after ruling out a publish-propagation false start (2026-11-13)
+
+Applied §369's single-value change (`GAP = 24` → `GAP = 0`) — re-verified via `all_raw_settings`
+before publishing that nothing else in the script differed (click handler, settle loop,
+`headerBottom()`, `go()` all byte-identical). Published.
+
+**First CHECK run (immediately after publish, ~6s wait) showed a split result:** tablet and phone
+correctly landed at ~0px everywhere, but desktop's entire forward-click sequence still showed the
+OLD ~24px gap, while desktop's own separate direct-hash-load (a second, later page load in the same
+test run) correctly showed ~0px. Per HARD RULE #19/#22, did not conclude a bug from this — re-ran the
+identical CHECK with more elapsed time since publish, with no other change. **Second run: desktop's
+forward sequence now also shows ~0px, matching every other measurement.** Root-caused as ordinary
+Webflow publish-propagation lag: the very first page load in the test (desktop's forward-click
+session) opened only seconds after calling `publish_site`, before the new asset had finished
+propagating, and a page that loads once and never reloads (clicks don't reload the page) keeps
+running whatever script version it loaded at that moment for its whole session — so all 8 of that
+page's measurements (7 forward + 1 backward) carried the stale value, while every other page
+load in the test, happening later, got the fresh one. Not a defect in the shipped fix.
+
+**Final, confirmed-clean result — every section's top edge sits flush against the header's bottom
+edge (within ±0.5px sub-pixel rounding, the same noise seen in every prior check this session) —
+desktop/tablet/phone, all 7 jump-bar links clicked in sequence, a backward click, and a direct
+`#sec-faculty` URL load. No white strip, no visible overlap, at any tested width.**
+
+Published and verified live via Playwright against the actual published `.webflow.io` page, per
+HARD RULE #3.
