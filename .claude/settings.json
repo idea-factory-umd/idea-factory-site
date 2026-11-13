@@ -1,6 +1,6 @@
 {
   "permissions": {
-    "defaultMode": "acceptEdits",
+    "defaultMode": "auto",
     "allow": [
       "Bash",
       "Edit",
@@ -8,7 +8,9 @@
       "Read",
       "WebFetch",
       "WebSearch",
-      "mcp__Webflow"
+      "mcp__Webflow",
+      "mcp__Webflow__*",
+      "mcp__Webflow_Beta__*"
     ]
   }
 }
