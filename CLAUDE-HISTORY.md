@@ -10649,3 +10649,39 @@ e) All other jump-bar links unchanged.
 ```
 
 Execution + verification to follow in the next entry.
+
+### §373 — MPPM Course Page JUMP BAR: What/Who stacked-aware smart targeting, implemented and verified (2026-11-13)
+
+Implemented §372's spec in full:
+1. Renamed the gold section's id `whatwho` → `sec-what-who` (confirmed via fresh query it was the only
+   element carrying that id before renaming — nothing else depended on it).
+2. Reverted the "What"/"Who" jump-bar links' hrefs from `#whatwho` (§371's flat fix, now superseded)
+   back to `#sec-what`/`#sec-who`, since the new script logic needs the column id to distinguish the two.
+3. Added `jumpY(id)` to the embed script and wired it into `go()`, exactly per spec. **Investigated the
+   white card class fresh rather than guessing**: the real class is `mppm-course-whatwho-item`, not
+   anything containing "card" — used `.mppm-course-whatwho-item` in the `querySelectorAll` selector
+   in place of the spec's placeholder `[class*="card"]`, as its own instructions required.
+
+Verified live via Playwright, full CHECK list:
+- **(a) Desktop, side-by-side:** "What" and "Who" land at the identical scrollY/section-top, flush
+  with the header (0.44px) — same spot, as required.
+- **(b) Phone, stacked:** "What" lands at the section top (flush with header, 0.16px). "Who" lands
+  with the last `.mppm-course-whatwho-item` card's bottom edge flush with the header (0.08px) — the
+  Who heading sits directly below, exactly as specified.
+- **(c) Live resize, no reload:** clicked "Who" at desktop width (side-by-side rule, correct) →
+  resized the same page down to phone width without reloading → clicked "Who" again → correctly
+  switched to the stacked rule (last-card-bottom flush with header). Confirms `stacked` is computed
+  fresh via live `getBoundingClientRect()` at the moment of each click, not cached or breakpoint-based.
+- **(d) Direct `#sec-who` URL load on phone:** identical result to (b)'s phone "Who" — confirms the
+  on-load settle loop (unchanged) correctly reuses the same `go()`/`jumpY()` logic as clicks.
+- **(e) Other links unchanged:** spot-checked Topics (untouched code path) both as a first click from
+  a fresh load and as a later click in a sequence — both correct (0.44px), confirming no regression
+  there. Faculty initially measured several px off in a rushed check — traced to the Faculty photo's
+  `loading="lazy"` image finishing its load/decode shortly *after* the click, causing a brief
+  self-resolving layout shift; re-measuring after ~1.5s (well within the on-load path's own existing
+  ~4s settle tolerance) showed the exact same correct 0.2px gap every other verified target shows.
+  Confirmed via direct code inspection this is unrelated to the current change — Faculty's `jumpY()`
+  code path (any id other than `sec-what`/`sec-who`) is behaviorally identical to the prior script.
+
+Published before testing, per HARD RULE #3; byte-for-byte diff of the stored embed code confirmed
+before publish.
