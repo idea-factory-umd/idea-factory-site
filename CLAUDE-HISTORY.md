@@ -10433,3 +10433,53 @@ page with #faculty in the URL lands the same way.
 ```
 
 Execution + verification to follow in the next entry.
+
+### §367 — MPPM Course Page JUMP-BAR SCRIPT fix spec (committed before execution)
+
+User-provided spec, verbatim, committed before execution — fixes the phone-width direct-hash-load
+edge case found while verifying §366's jump-bar anchor script (headerBottom() transiently reports
+a too-small value for ~0.5s on a cold phone load, so the one-shot load-time correction lands early
+and the header then grows past it with nothing re-checking):
+
+```
+COURSE PAGE — JUMP-BAR SCRIPT: FIX LANDING ON A #SECTION LINK (phone)
+Edit only the page-load part of the existing jump-bar script. Do not change the click handling.
+
+Problem: arriving with a hash in the URL (e.g. #sec-faculty), the script positions the page once,
+while the header is still settling to its final height on phones, so the section lands too high.
+
+Fix: on load, re-position until the header height has settled, then stop.
+
+Replace the existing window 'load' block with:
+
+  window.addEventListener('load', function () {
+    var id = location.hash.slice(1);
+    if (!id || !document.getElementById(id)) return;
+    var userMoved = false;
+    function stop() { userMoved = true; }
+    ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function (t) {
+      window.addEventListener(t, stop, { once: true, passive: true });
+    });
+    var last = -1, stable = 0, tries = 0;
+    (function settle() {
+      if (userMoved) return;              // never fight the visitor
+      var h = headerBottom();
+      go(id, false);
+      stable = (h === last) ? stable + 1 : 0;
+      last = h;
+      if (stable < 3 && ++tries < 40) setTimeout(settle, 100);  // max ~4s
+    })();
+  });
+
+Notes:
+- Re-runs every 100ms until the header height has stayed the same 3 times in a row, then stops.
+- Stops immediately if the visitor scrolls, taps or presses a key, so it never pulls the page away
+  from where they're going.
+- go() and headerBottom() are the existing functions in the script; reuse them.
+
+CHECK on a phone: open .../course-innovative-ideas-concept-development#sec-faculty directly.
+The Faculty section sits 24px below the header, the same as when clicked from the jump bar.
+Also confirm the jump-bar clicks still behave exactly as before.
+```
+
+Execution + verification to follow in the next entry.
