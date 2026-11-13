@@ -10245,3 +10245,68 @@ response alone, per the TextBlock lesson in §359. `type:"TextBlock"` and `type:
 unsuitable for this specific inline-run need (TextBlock is outright broken per §359; Paragraph is
 fine for its OWN single text but cannot hold two differently-styled inline runs without this same
 DOM-span-as-child technique).
+
+### §362 (2026-11-13) — MPPM Course Page fixes pass 2: verbatim user spec (committed before execution)
+
+```
+MPPM COURSE PAGE — FIXES PASS 2: /course-innovative-ideas-concept-development
+Edit in place. Change ONLY what is listed. Everything else stays as it is.
+
+=====================================================================
+FIX 1 — LEARNING EXPERIENCE (red section)
+=====================================================================
+a) Heading "Learning Experience": add margin-bottom clamp(32px, 4vw, 52px)
+   (it currently touches the boxes).
+
+b) Each of the 6 boxes:
+   background #FFFFFF (NOT grey); padding clamp(32px,3.6vw,52px) clamp(20px,2.2vw,30px);
+   min-height clamp(240px, 22vw, 300px); box-sizing border-box;
+   display flex; flex-direction column; align-items CENTER; justify-content CENTER;
+   text-align CENTER; gap clamp(18px, 2vw, 26px). Square corners, no border, no shadow.
+   Row/gap/three-per-row sizing stays as it is.
+
+c) ICON — add an Image element as the FIRST child of each box, above the label.
+   The SVGs are uploaded to the site Assets panel:
+     Asynchronous Lectures              → mppm-course-exp-asynchronous-lectures.svg
+     Coaching and Mentoring             → mppm-course-exp-coaching-mentoring.svg
+     Live Office Hours                  → mppm-course-exp-live-office-hours.svg
+     Peer Interactions and Networking   → mppm-course-exp-peer-networking.svg
+     Project-Based Learning             → mppm-course-exp-project-based-learning.svg
+     Real-World Assignments             → mppm-course-exp-real-world-assignments.svg
+   Image: width clamp(88px, 8vw, 116px); height clamp(88px, 8vw, 116px); display block;
+   alt="" (decorative). No circle or background behind it.
+   If any file is NOT in the Assets panel, stop and tell me which — do not substitute.
+
+d) Label (under the icon, inside the box):
+   Interstate 700; clamp(17px, 1.5vw, 21px); ALL CAPS (text-transform uppercase);
+   letter-spacing 0.04em; line-height 1.22; color #4A4A4A; text-align center; max-width 320px.
+
+=====================================================================
+FIX 2 — "APPLICATIONS ARE NOW OPEN!" (Learn More component placement)
+=====================================================================
+The component instance currently sits edge-to-edge, directly against the black Preview section.
+Do NOT edit the component. Wrap THIS page's instance in a section:
+
+  Section (wrapper around the component instance):
+    background #F4F4F4;
+    border-top 0.5px solid rgba(0,0,0,0.12);
+    box-shadow inset 0 10px 18px -12px rgba(0,0,0,0.16);
+  Inside it, the site container (max-width 1240px; centered; side padding 24px) with
+    padding-top clamp(64px, 7.5vw, 112px); padding-bottom clamp(64px, 7.5vw, 112px).
+  The component instance goes inside the container.
+
+Result: a grey band below the black Preview section; the gold/white panel sits inside it at
+content width with grey margin on all sides — the same as on /mppm-calendars-deadlines.
+(If the instance on the other pages is already wrapped this way, match that exactly.)
+
+=====================================================================
+CHECK — publish, then screenshot both sections
+=====================================================================
+1. Six WHITE boxes on red, three per row; each shows its icon centered above an ALL-CAPS grey
+   label; space between the heading and the boxes.
+2. Grey band under the black Preview section; the Applications panel inset inside it, not full-bleed.
+```
+
+**Note:** FIX 1c says the 6 icon SVGs are now uploaded — §359/§361 found them missing; re-checking
+the asset library fresh (per HARD RULE #19, never trust the earlier "missing" finding without
+re-verifying) before building the Image elements.
