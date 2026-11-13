@@ -10356,3 +10356,20 @@ right end of the rule beside "Faculty".
 ```
 
 User confirmed the rest of the Faculty section (photo, name plate styling, gold affiliation, bio) already matches their own build correctly — only these two items are off. Execution + verification to follow in the next entry.
+
+### §365 — MPPM Course Page: Faculty card rebuild + fact-tile responsive fix, Instructor label confirmed already correct (2026-11-13)
+
+User sent an expanded "ONE PASS" spec (FIX 1-4) superseding §364's narrower Faculty-only spec, then immediately corrected: the "INSTRUCTOR" label (FIX 2 in both specs) was NOT actually missing — that was the user's own confusion, explicitly withdrawn ("THAT WAS CONFUSION--IGNORE THAT"). FIX 2 was skipped entirely; the Faculty heading row was never touched.
+
+**FIX 1 — Faculty card, photo+plate now touch at 0px (done):**
+- **Forensic finding (as the spec's CHECK item explicitly asked for):** the old card wrapper class `.mppm-course-faculty-left` (a `flex-direction:column` container holding the photobox and the black namepanel) had `grid-row-gap:14px` (CSS `gap:14px`) set directly on it — that 14px flex gap was the entire cause of the visible space between the photo and the plate. Nothing else in the old chain (`mppm-course-faculty-photobox`, `-photo`, `-namepanel`, `-name`, `-credline`) contributed any vertical space of its own.
+- Per the spec's explicit instruction, the old card (wrapper + photobox + photo + namepanel + name + credline, element `3605a509…`) was deleted outright — not restyled — and rebuilt fresh as `div.fac-card > (div.fac-photo > img.fac-photo-img, div.fac-plate > h3.fac-name + p.fac-affil)`, all six as brand-new standalone classes per the spec's own instruction ("make a new class... shared classes are what keep adding unwanted spacing"), prepended as the first child of `mppm-course-faculty-person` (the bio/`-right` column stays second, untouched). `fac-affil` was built as a `Paragraph` rather than a literal `div` — the spec's ASCII sketch indicates a plain block, and this project's own standing lesson (§359, this exact page) is that a non-text-capable block silently fails to hold text, where `Paragraph` is the reliable native element with identical visual output.
+- Reused the same headshot asset already on this page (`6ae12be76094cdc65f7d6d67`, `mppm-faculty-green.jpg`) rather than re-uploading; set `alt="James V. Green"` via `data_element_settings_tool`.
+- Verified live via Playwright measurement (`photo.bottom === plate.top`, gap = 0px, identical left edge and width, 320px) and a real screenshot — photo and plate now read as one seamless card.
+
+**FIX 3 — Overview fact tiles, no stretched last tile (done):**
+- All three tile classes (`mppm-course-facts-box-red/-black/-gold`, 4 tile instances: red/black/gold/red) had a fixed `flex-basis:240px` with zero breakpoint overrides — exactly the bug the spec named. Fixed: base → `flex-grow:1; flex-shrink:1; flex-basis:0` (equal-width, one row); `medium` breakpoint → `flex-grow:0; flex-shrink:0; flex-basis:calc((100% - 6px)/2)` (2+2); `tiny` breakpoint → `flex-basis:100%` (one per row). The spec's own "900px"/"480px" thresholds aren't native Webflow breakpoints, so per HARD RULE #2 the change was anchored to the nearest native ones (medium/tiny), erring conservative — verified empirically live: one row of 4 equal tiles through 992px, clean 2+2 from 900px down through 480px, 1-per-row at 400/320px, equal widths and zero stretching at every width tested.
+
+**FIX 2 — skipped, per the user's own correction.** FIX 4 (icons) — already fully compliant with this round's spec (confirmed via `query_styles`: correct `clamp(88px,8vw,116px)` sizing, `display:block`; no explicit `margin` needed since the browser's own default `img` margin is already `0`) — no change made, consistent with "change only what's listed."
+
+Published and verified live (Playwright, real screenshots) before reporting done, per HARD RULE #3.
