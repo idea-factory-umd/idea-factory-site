@@ -9748,3 +9748,269 @@ entirely, matching the screenshot exactly.
 - This is a page-scoped fix on MPPM's own forked `mppm-hero-img` class only — it has no bearing on any
   other site's hero image, which all use their own independent classes and their own source photos per
   HARD RULE #10/#17.
+
+### §358 (2026-11-13) — MPPM Course Page "Innovative Ideas & Concept Development": full literal build spec (verbatim, user-supplied, committed here so it survives any future compaction)
+
+The user supplied the complete, self-contained build spec below for the course page at
+`/course-innovative-ideas-concept-development` (pageId `6af6231016b9c27c1a03b5b8`), after an earlier
+version of this same spec was lost to a mid-session context compaction. Per the user's explicit
+instruction, the FULL VERBATIM TEXT is committed here, unedited, so that any future session (or this
+one after another compaction) has the real content and never has to guess, paraphrase, or invent
+placeholder facts again. This is the single source of truth for this page's content — build from THIS
+copy, not from memory of it.
+
+```
+MPPM COURSE PAGE — BUILD THE COMPLETE PAGE: Innovative Ideas & Concept Development
+Page: /course-innovative-ideas-concept-development  (the page that already exists; currently only
+colored sections with a word or two). Replace the contents of each section with exactly what is
+specified below. This prompt is self-contained: every element, style and word is here.
+
+READ FIRST
+- Copy all text EXACTLY: same words, punctuation, curly apostrophes (’), capitalization, order.
+  Do not shorten, reword, add or invent anything.
+- Use FLEXBOX for every layout. Do NOT use CSS Grid anywhere on this page.
+- The site header and the site footer are already correct — do not touch them.
+- Tokens: Red #E21833 · Gold #FFD200 · Black #000000 · White #FFFFFF · Grey 100 #F4F4F4 ·
+  Text body #222222 · Text muted #454545 · Interstate (sans) · Georgia (serif).
+  Container: max-width 1240px, centered, left/right padding 24px.
+- "clamp(a, b, c)" values are exact CSS; use them as written.
+
+Section order (top to bottom) and backgrounds:
+  1 Hero (black) · 2 Jump bar (white) · 3 Overview (white) · 4 What You’ll Learn + Who Will Benefit
+  (gold) · 5 Course Topics (white) · 6 Learning Experience (red) · 7 Learner Testimonials (gold) ·
+  8 Faculty (white) · 9 Preview (black) · 10 "Applications are now open!" Learn More COMPONENT
+  (already exists as a shared component — place one instance; do not modify it)
+
+Every content section (3–9) uses the same vertical padding:
+  padding-top clamp(64px, 7.5vw, 112px); padding-bottom clamp(64px, 7.5vw, 112px).
+Section heading style "H2" (used below):
+  Interstate 800; clamp(32px, 3.6vw, 50px); line-height 1.0; letter-spacing -0.025em; margin 0.
+Small label style "LABEL": Interstate 700; 16px; ALL CAPS; letter-spacing 0.1em.
+
+=====================================================================
+1. HERO (black)
+=====================================================================
+Container padding clamp(40px, 5vw, 72px) top and bottom.
+Eyebrow: "Master of Professional Studies in Product Management" — Interstate 700, 16px, ALL CAPS,
+  letter-spacing 0.14em, color Gold.
+Title (h1): "Innovative Ideas & Concept Development" — Interstate 800, clamp(32px, 4vw, 56px),
+  line-height 1.0, letter-spacing -0.02em, color White, margin-top 12px.
+
+=====================================================================
+2. JUMP BAR (white) — in-page anchor links
+=====================================================================
+<nav aria-label="On this page">: background White; border-bottom 0.5px solid rgba(0,0,0,0.12);
+  box-shadow 0 4px 12px rgba(0,0,0,0.06); position relative; z-index 1.
+Inside the container: a wrapper with overflow hidden; inside it a row: display flex; flex-wrap wrap;
+  margin -1px 0 0 -1px.
+Each link: flex 1 1 auto; display flex; align-items center; justify-content center; text-align center;
+  white-space nowrap; padding 22px clamp(14px, 1.6vw, 24px);
+  border-left 0.5px solid rgba(0,0,0,0.16); border-top 0.5px solid rgba(0,0,0,0.16);
+  Interstate 700, 17px, ALL CAPS, letter-spacing 0.06em, color #222222, no underline;
+  transition color 160ms ease. Hover: color Red. (No underline, no bar, no background change.)
+  At <=760px: padding 16px 14px; font-size 16px.
+Links, in order (text → target id):
+  What → #sec-what · Who → #sec-who · Topics → #sec-topics · Experience → #sec-experience ·
+  Testimonials → #sec-testimonials · Faculty → #sec-faculty · Preview → #sec-preview
+Click: smooth-scroll so the target section's top sits 110px below the viewport top.
+All target sections: scroll-margin-top 110px.
+(The bar must wrap cleanly onto two rows on narrow screens; cells share hairline borders.)
+
+=====================================================================
+3. OVERVIEW (white)
+=====================================================================
+(a) Summary paragraph — Georgia, clamp(18px, 1.6vw, 21px), line-height 1.65, color #222222,
+    margin-bottom clamp(28px, 3.2vw, 40px).
+    The first six words are a lead-in span on the same baseline: Interstate 800, font-size 1.5em,
+    line-height 1, letter-spacing -0.02em, color Red, margin-right 0.12em.
+    Lead-in: "Learn today’s newest skills and tools"
+    Rest:    " for identifying and acting on entrepreneurial opportunities for startup companies and corporate innovations and innovators."
+(b) Facts row — display flex; flex-wrap wrap; gap 6px. Each fact tile: flex 1 1 240px; min-width 0;
+    padding clamp(22px, 2.4vw, 32px); display flex; flex-direction column; gap 12px.
+    Label: LABEL style. Value: Interstate 800, clamp(26px, 2.6vw, 36px), line-height 1.05,
+    letter-spacing -0.02em.
+    Tile colors cycle red, black, gold, then repeat:
+      Tile 1 Red:   label rgba(255,255,255,0.86), value White — "Delivery" / "Online"
+      Tile 2 Black: label Gold, value White            — "Duration" / "12 Weeks"
+      Tile 3 Gold:  label Black, value Black           — "Commitment" / "8-10 Hours per Week"
+      Tile 4 Red:   label rgba(255,255,255,0.86), value White — "Instructor Rating" / "3.8 / 4"
+(c) Description — margin-top clamp(36px, 4vw, 56px); Georgia, clamp(18px, 1.6vw, 21px),
+    line-height 1.65, color #222222:
+    "This course explores how anyone can be a successful startup entrepreneur or corporate innovator by thoughtfully examining themselves and the business opportunity. By harnessing these insights and cultivating an entrepreneurial spirit, you can create and transform an entrepreneurial idea into a new startup company or corporate venture. The course distills vast amounts of research in psychology, sociology, and business into a practical how-to guide for aspiring and active entrepreneurs and innovators."
+
+=====================================================================
+4. WHAT YOU’LL LEARN + WHO WILL BENEFIT (gold)
+=====================================================================
+Row: display flex; flex-wrap wrap; gap clamp(48px, 6vw, 96px). Two columns, each flex 1 1 420px;
+  min-width 0. Left column id="sec-what"; right column id="sec-who".
+Column heading: H2 style, color Red, margin-bottom clamp(24px, 2.8vw, 36px).
+List (both columns): no bullets; display flex; flex-direction column; gap 16px.
+Each item ("angled card"): background White; display flex; gap 16px; align-items flex-start;
+  padding clamp(16px,1.8vw,22px) clamp(28px,2.8vw,36px) clamp(16px,1.8vw,22px) clamp(18px,2vw,26px);
+  top-right corner cut at a steep angle: clip-path polygon(0 0, calc(100% - 14px) 0, 100% 36px, 100% 100%, 0 100%).
+  No border, no shadow.
+  Marker: 11px × 11px Red square, flex-shrink 0, margin-top 0.6em.
+  Text: Interstate 300, clamp(18px, 1.45vw, 20px), line-height 1.55, color Black.
+  Bold lead-in: Interstate 800, color Black, letter-spacing -0.01em (same size, same line).
+
+Left — heading "What You’ll Learn". Items (bold part | rest; do not print "|"):
+  Develop the skills | for identifying and analyzing entrepreneurial ideas
+  Foster thinking entrepreneurially | with an awareness of entrepreneurial mindset, entrepreneurial motivation, and entrepreneurial behavior
+  Cultivate seeing entrepreneurially | with attention to industry conditions, industry status, macroeconomic change, and competition
+  Champion acting entrepreneurially | with an understanding of value innovation and opportunity identification
+
+Right — heading "Who Will Benefit". Items (bold part | rest, with a space between):
+  Aspiring entrepreneurs | working to identify a viable new business idea from which to develop their own company.
+  Active entrepreneurs | seeing to validate and enhance their existing business idea and accelerate their company’s success.
+  Corporate professionals | interested in understanding how business and technology shape the creation of new products and services by established companies.
+  Educators, consultants, and organizational leads | desiring to improve their capacity to teach, advise, or empower their constituencies to succeed in startup entrepreneurship or corporate innovation.
+  ("seeing to validate" is the live wording — keep it.)
+
+=====================================================================
+5. COURSE TOPICS (white)  id="sec-topics"
+=====================================================================
+Section head row: display flex; flex-wrap wrap; align-items center; gap 12px 24px;
+  margin-bottom clamp(32px, 4vw, 52px).
+  H2 "Course Topics" (color Black) · a rule: flex 1 1 60px, height 2px, background #D9D9D9 ·
+  LABEL "10 Modules" in color #7F7F7F.
+Module list: no numbers from the browser; display flex; flex-wrap wrap; gap clamp(14px, 1.6vw, 22px).
+Each module card: flex 0 0 calc((100% - clamp(14px, 1.6vw, 22px)) / 2)  (two per row);
+  min-width 0; background Grey 100; padding clamp(24px, 2.6vw, 34px); display flex;
+  gap clamp(18px, 2vw, 28px); align-items flex-start. At <=900px: flex-basis 100% (one per row).
+  Number (left): "01"…"10" — Interstate 800, clamp(44px, 4.4vw, 64px), line-height 0.82,
+    letter-spacing -0.04em, color Red, min-width 1.3em, flex 0 0 auto.
+  Title (h3): Interstate 800, clamp(23px, 2.15vw, 30px), line-height 1.1, letter-spacing -0.015em,
+    color Black, margin 0 0 12px. (Prefix "Module n: " visually hidden for screen readers only.)
+  Text: Interstate 300, clamp(16px, 1.3vw, 17.5px), line-height 1.6, color #222222.
+Modules (number · title · text):
+  01 Introduction to Startup Entrepreneurship and Corporate Innovation
+     This module includes a welcome to the course, an orientation to our teaching approach and faculty, and an introduction to the fundamentals of entrepreneurship and innovation.
+  02 Entrepreneurial Mindset
+     What role does need for achievement play in your decisions? What level of influence do friends and family have in your decision making? Do you have an internal or external locus of control? What techniques can you use to focus your time and resources? How can you improve your level of optimism?
+  03 Entrepreneurial Motivation
+     Do you believe that you have the capabilities to be successful as an entrepreneur? Do you enjoy collecting information and doing analysis before making decisions? How can you increase your comfort level with making strategic decisions quickly, with limited information and high consequences?
+  04 Entrepreneurial Behavior
+     How can you improve your confidence level and risk tolerance? What resources can you use to enhance your interpersonal relationship skills? How can you grow your social capital?
+  05 Industry Condition
+     What knowledge do you possess that can contribute to serving a market need? What are the demand conditions in the market?
+  06 Industry Status
+     What is the lifecycle stage of the industry that you are interested in entering? What is the capital intensity within your chosen industry? What is the advertising intensity within your chosen industry? What is the company concentration within your chosen industry? What is the average company size within your chosen industry?
+  07 Macroeconomic Change
+     What demographic changes are creating business opportunities for new ventures? What psychographic changes are creating business opportunities for new ventures? How can you stay current on technical advancements that are emerging? How can you stay current on societal changes that are emerging? How can you stay current on political and regulatory changes that are emerging?
+  08 Competition
+     What is the learning curve in your industry and market of interest? What complementary assets are most critical in your industry and market of interest? How does the reputation of competitors influence your success?
+  09 Value Innovation
+     Using the principles of value innovation, what existing factors can you eliminate? Where can you reduce factors and not reduce value? Which factors can you raise to exceed customer expectations? What new factors can you create that will bring new values in new ways to customers?
+  10 Opportunity Identification
+     What evidence can you provide that your proposed problem is significant? What key customer values does your solution offer? How will you make your advantages superior and sustainable? What steps will you take to build the right team at the right time?
+
+=====================================================================
+6. LEARNING EXPERIENCE (red)  id="sec-experience"
+=====================================================================
+Heading: H2 "Learning Experience", color White, margin-bottom clamp(32px, 4vw, 52px). No rule, no label.
+Row: display flex; flex-wrap wrap; gap clamp(10px, 1.2vw, 16px). Six boxes, three per row
+  (two rows of three):
+  Box: flex 0 0 calc((100% - 2 * clamp(10px, 1.2vw, 16px)) / 3); min-width 0; box-sizing border-box;
+  background White; padding clamp(32px,3.6vw,52px) clamp(20px,2.2vw,30px); min-height clamp(240px,22vw,300px);
+  display flex; flex-direction column; align-items center; justify-content center; text-align center;
+  gap clamp(18px, 2vw, 26px). Square corners, no circle, no border, no shadow.
+  At <=760px: two per row (flex-basis calc((100% - clamp(10px,1.2vw,16px)) / 2)). At <=460px: one per row.
+  Icon: width and height clamp(88px, 8vw, 116px), centered, decorative (alt="").
+  Label: Interstate 700, clamp(17px, 1.5vw, 21px), ALL CAPS, letter-spacing 0.04em, line-height 1.22,
+    color #4A4A4A, max-width 320px. Label sits INSIDE the box, under the icon.
+Items (icon file in the site's MPPM assets → label):
+  mppm-course-exp-asynchronous-lectures.svg   → Asynchronous Lectures
+  mppm-course-exp-coaching-mentoring.svg      → Coaching and Mentoring
+  mppm-course-exp-live-office-hours.svg       → Live Office Hours
+  mppm-course-exp-peer-networking.svg         → Peer Interactions and Networking
+  mppm-course-exp-project-based-learning.svg  → Project-Based Learning
+  mppm-course-exp-real-world-assignments.svg  → Real-World Assignments
+(If any icon file is missing from the site assets, tell me — do not substitute.)
+
+=====================================================================
+7. LEARNER TESTIMONIALS (gold)  id="sec-testimonials"
+=====================================================================
+Head row (same structure as 5): H2 "Learner Testimonials" color BLACK · rule flex 1 1 60px, height 2px,
+  background RED · LABEL "In their words" color BLACK. margin-bottom clamp(32px, 4vw, 52px).
+Card (one): background White; border 0.5px solid rgba(0,0,0,0.18); border-top 4px solid Red;
+  padding clamp(26px, 2.8vw, 38px); display flex; flex-direction column; NO shadow; square corners;
+  width 100%.
+  Big quote mark: "“" — Interstate 800, 72px, line-height 0.7, color Red, display block, margin-bottom 4px.
+  Quote (blockquote): Georgia ITALIC 400, clamp(23px, 2.4vw, 32px), line-height 1.4, color #2B2B2B, margin 0:
+    "The instruction and startup coaching that I received from Dr. Green were invaluable to the launch and growth of Squarespace. The skills taught in this course are a fantastic introduction to many of the fundamentals one needs when starting a business.”"
+    (ends with the closing ” character)
+    "Squarespace" is a link → https://www.squarespace.com/ (new tab). Link style HERE ONLY: keep
+    Georgia italic (do NOT switch to Interstate); font-weight 700; color Red; no underline;
+    hover color #C2142B, still no underline.
+  Attribution (figcaption): margin-top 34px; padding-top 18px; border-top 0.5px solid rgba(0,0,0,0.38).
+    Name: "Anthony Casalena" — Interstate 800, clamp(20px, 1.8vw, 24px), line-height 1.15, color Red.
+    Title: "Founder and CEO, Squarespace" — Interstate 700, 16px, ALL CAPS, letter-spacing 0.06em,
+      line-height 1.4, color #454545, margin-top 6px.
+
+=====================================================================
+8. FACULTY (white)  id="sec-faculty"
+=====================================================================
+Head row (same structure as 5): H2 "Faculty" color Black · rule #D9D9D9 · LABEL "Instructor" color #7F7F7F.
+Instructor row: display flex; flex-wrap wrap; gap clamp(28px, 4vw, 64px); align-items flex-start.
+  Left card: flex 0 1 320px; min-width 240px.
+    Photo box: aspect-ratio 1/1; background Grey 100; overflow hidden; square corners.
+      Image: James V. Green headshot (the same asset already used for him on the MPPM homepage and
+      Academics page, mppm-faculty-green.jpg); object-fit cover; object-position center 25%.
+    Name plate (directly under the photo, same width): background Black;
+      padding clamp(18px,2vw,24px) clamp(20px,2.2vw,26px).
+      Name (h3): "James V. Green" — Interstate 800, clamp(24px, 2.4vw, 32px), line-height 1.05,
+        letter-spacing -0.015em, color White, margin 0 0 10px.
+      Affiliation: "Managing Director of Learning and Development, Maryland Technology Enterprise Institute, University of Maryland"
+        — Interstate 800, 16px, line-height 1.4, letter-spacing 0.01em, color Gold.
+  Right bio: flex 1 1 480px; min-width 0; padding-top 4px.
+    Georgia, clamp(16px, 1.35vw, 18px), line-height 1.7, color #222222:
+    "Dr. Green is a globally-recognized leader in educating entrepreneurs and innovators, and an award-winning faculty in online learning. He’s advised over 100 startups who’ve raised over $1B in venture capital and reached valuations of over $10B. As a consultant for Google, Infosys, the World Bank, and the U.S. Small Business Administration, he’s helped shape how corporate innovation and startup entrepreneurship is taught and practiced throughout the world. At the University of Maryland since 2004, Dr. Green has created and launched a number of new online master’s program and initiatives to serve startup entrepreneurs and corporate innovators."
+
+=====================================================================
+9. PREVIEW (black)  id="sec-preview"
+=====================================================================
+Heading: H2 "Take a Peek at Innovative Ideas & Concept Development", color White,
+  margin-bottom clamp(32px, 4vw, 52px).
+Video frame: width 100%; aspect-ratio 16/9; background #111; position relative.
+  iframe inside: position absolute; inset 0; width 100%; height 100%; border 0;
+  allow="autoplay; fullscreen; picture-in-picture"; allowfullscreen.
+  Video source: copy the iframe src EXACTLY from the live page's Preview section:
+    https://mppm.umd.edu/courses/course-innovative-ideas-concept-development
+  If you cannot read it, leave the frame empty and tell me. Do not insert any other video.
+
+=====================================================================
+10. LEARN MORE COMPONENT
+=====================================================================
+Place one instance of the existing shared "Applications are now open!" Learn More component
+directly after the Preview section. Do not edit the component.
+
+=====================================================================
+PAGE SETTINGS
+=====================================================================
+Title tag: Innovative Ideas & Concept Development — Master's in Product Management
+Slug: course-innovative-ideas-concept-development (unchanged). Not in the site menu.
+
+=====================================================================
+CHECK — report each item
+=====================================================================
+a) No placeholder text anywhere. b) Jump bar shows 7 links; each scrolls to its section.
+c) Overview: red lead-in, 4 colored fact tiles (red/black/gold/red), description.
+d) Gold section: 4 learn items + 4 benefit items as white angled cards with red squares, bold lead-ins.
+e) 10 module cards, two per row, red numbers 01–10. f) 6 white experience boxes, 3 per row, on red.
+g) Testimonial card with Georgia-italic quote, red "Squarespace" link still italic, name red, title caps.
+h) James V. Green photo with black name plate; bio at right.
+i) Preview video plays (or you reported you couldn't get the src). j) Learn More component below.
+k) No CSS Grid used. l) Layout holds at desktop, tablet and phone widths.
+```
+
+**Status as this entry is written:** the page currently has (from the prior, pre-spec-loss pass)
+a restyled hero, a working 7-link jump bar (anchors not yet matching this spec's exact target ids —
+built as `#overview`/`#whatwho`/`#topics`/`#experience`/`#testimonials`/`#faculty`/`#preview`, this
+spec instead wants `#sec-what`/`#sec-who` as TWO separate targets for the gold section's two columns,
+plus `#sec-topics`/`#sec-experience`/`#sec-testimonials`/`#sec-faculty`/`#sec-preview` — the anchor
+ids need to be corrected to match this spec exactly), and all 7 content sections exist as bare
+Section > Container > H2 + a single honestly-labeled `[PLACEHOLDER]` paragraph each — none of the
+real structure (fact tiles, angled cards, module grid, experience boxes, testimonial card, faculty
+photo/bio, video frame) has been built yet. This spec is the complete remaining task — work through
+sections 1–10 in order, replacing every placeholder with the real structure and copy above, then run
+the CHECK list (a–l) before publishing.
