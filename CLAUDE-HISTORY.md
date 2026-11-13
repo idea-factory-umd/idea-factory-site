@@ -10177,3 +10177,71 @@ fails at element-builder creation time ("Setting textContent is not applicable t
 this entry's fix pass must find (or re-confirm failure of) a working mechanism for a real inline
 nested text run before FIX 1/2 can be done correctly, not just re-apply the same rejected stacked
 layout under a new class name.
+
+### §361 (2026-11-13) — MPPM Course Page: FIX 1-3 from §360 applied, verified, published (FIX 4 blocked on missing video src)
+
+Applied the fix list from §360. **Key technical unlock: found the correct way to set text on a
+native DOM span for genuine same-line inline runs** (needed for FIX 1's red lead-in and FIX 2's bold
+card lead-ins, both of which §359's stacked-TextBlock fallback got visibly wrong — explicitly called
+"WRONG" by the user once they saw it rendered). The working sequence: create the DOM span via
+`data_element_builder` with `set_dom_config:{dom_tag:"span"}` and **no text at creation**, then in a
+**separate** `data_element_settings_tool.set_settings` call use **`key:"text"`** (not `"textContent"`,
+which `get_settings`'s own `query_settings` output confirms is the actual key name despite the
+value's `valueType` being called `"textContent"`) with `static_text:{value:"..."}`. Verified by
+re-querying the element afterward and seeing the real text as its String child. This is the
+genuine fix for the gap §359 hit (DOM `settings.textContent` at element-builder creation time fails
+with "Setting textContent is not applicable to this element") — the key was right in spirit, wrong
+in name, and had to be set post-creation, not atomically at creation.
+
+**Two more default-content gotchas hit and handled, same family as §359's Lorem-ipsum/Block-Quote
+ones:** a `Paragraph` given only non-text `children` (no top-level `set_text`) still auto-inserts its
+own default Lorem-ipsum `String` as an extra first child, alongside the real children — this happened
+on every one of the 9 merged paragraphs built this pass (the Overview summary + all 8 What/Who
+cards) and each stray default string had to be found and removed in a follow-up call before the real
+spans' text would read correctly.
+
+**FIX 1 (Overview):** heading removed; summary rebuilt as one Paragraph with two inline DOM-span
+children — `.course-leadin` (new page-scoped class: Interstate 800, 1.5em, line-height 1,
+letter-spacing -0.02em, color red, margin-right 0.12em, display inline) for the lead-in, plain
+unstyled span for the rest — now sitting on one line/baseline as specified.
+
+**FIX 2 (What/Who):** all 8 cards' separate stacked lead+text paragraphs replaced with one merged
+Paragraph (`mppm-course-whatwho-text`) containing a `.course-lead-bold` span (new page-scoped class:
+Interstate 800, color black, letter-spacing -0.01em, display inline, no separate font-size — inherits
+the paragraph's own clamp size per spec) plus a plain rest span. `mppm-course-h2-red` gained
+`margin-bottom:clamp(24px,2.8vw,36px)` per FIX 2c; FIX 2b's padding values turned out to already
+match the spec exactly from the original build — the "cards are too tall" symptom was purely the old
+2-paragraph stacking, resolved by the merge itself.
+
+**FIX 3 (Testimonials):** `mppm-course-testimonial-card` gained a 4px solid red top border plus
+0.5px `rgba(0,0,0,0.18)` on the other three sides (was 1px `#E6E6E6` all around before this pass).
+`mppm-course-testimonial-mark` switched Georgia→Interstate 800, 56px→72px, line-height 0.6→0.7,
+margin-bottom 10px→4px. `mppm-course-testimonial-quote` zeroed its own margin/padding/border-left
+(native Blockquote default-styling reset) and corrected font-size from a flat 17px to the spec's
+`clamp(23px,2.4vw,32px)`, line-height 1.4, color `#2B2B2B`. `mppm-course-testimonial-caption` gained
+margin-top 34px, padding-top 18px, border-top 0.5px `rgba(0,0,0,0.38)`. `-name` corrected to
+font-weight 800 (was 700) and the spec's clamp size/color/line-height; `-role` corrected font-size
+14px→16px plus added uppercase/letter-spacing/line-height/margin-top. The inline "Squarespace"
+`TextLink`'s `link` setting was updated via `set_settings` to add `openInNewTab:true` and
+`rel:"noopener"` — confirmed via a fresh `get_settings` read showing both applied.
+
+**FIX 4 (Preview video) could not be done:** the user's own pasted fix spec left the literal
+placeholder text `PASTE VIDEO SRC HERE` where the real iframe `src` URL was supposed to go — flagged
+back to the user rather than guessing or inventing a URL.
+
+**Verified:** fresh live-page screenshot of each of the three fixed sections (Overview, What/Who,
+Testimonials) confirms every item on this pass's own checklist — inline same-line/same-baseline lead
+text in both the Overview sentence and all 8 cards, compact card height, correct testimonial border/
+quote-mark/link/name/title styling. Fresh full-body text scrape confirms zero remaining default
+placeholder strings and zero leftover "Overview" heading. Published live.
+
+**Standing lesson, elevated past this one page:** for ANY future inline mixed-formatting need on this
+project (a bold word inside a sentence, a colored lead-in, anything Designer would do via
+"select text → wrap in span"), the sequence is now proven: build a bare `type:"DOM"` span with
+`set_dom_config` and no text, then set its real text via a separate
+`data_element_settings_tool.set_settings` call using `key:"text"` (NOT `"textContent"`) with
+`static_text:{value:"..."}`, and always re-query afterward to confirm — never trust the "success"
+response alone, per the TextBlock lesson in §359. `type:"TextBlock"` and `type:"Paragraph"` remain
+unsuitable for this specific inline-run need (TextBlock is outright broken per §359; Paragraph is
+fine for its OWN single text but cannot hold two differently-styled inline runs without this same
+DOM-span-as-child technique).
