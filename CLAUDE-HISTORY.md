@@ -10685,3 +10685,37 @@ Verified live via Playwright, full CHECK list:
 
 Published before testing, per HARD RULE #3; byte-for-byte diff of the stored embed code confirmed
 before publish.
+
+### §374 — MPPM Course Page PREVIEW SECTION spacing spec (committed before execution)
+
+User-provided spec, verbatim, committed before execution:
+
+```
+COURSE PAGE — PREVIEW SECTION: MORE SPACE BETWEEN HEADING AND VIDEO
+Page: /course-innovative-ideas-concept-development (and every course page copied from it that has
+the Preview section). Edit in place. Change ONLY this one spacing.
+
+PROBLEM
+The large heading "Take a Peek at …" sits too close to the video below it (about 32px).
+
+FIX
+Set the space between the heading and the video embed to:
+  clamp(32px, 3.6vw, 52px)
+  → about 52px at desktop (1440px), about 36px on tablets, 32px on phones.
+
+How:
+- Put it as margin-bottom on the heading: margin-bottom clamp(32px, 3.6vw, 52px).
+- The heading's other margins stay 0. The video embed wrapper gets margin-top 0.
+- If the heading and video sit in a flex column with a "gap", set that gap to 0 so the
+  margin above is the ONLY space between them (no doubled spacing).
+- Do NOT change the heading's font size, the video size, the section's top/bottom padding,
+  or anything else in the section.
+
+CHECK
+Measure the distance from the bottom of the heading's last line to the top of the video frame:
+  1440px wide: ~52px    ·    ~900px wide: ~36px    ·    phone (390px): 32px.
+Report the computed margin-bottom on the heading and confirm no gap/margin is added elsewhere
+between the two.
+```
+
+Execution + verification to follow in the next entry.
