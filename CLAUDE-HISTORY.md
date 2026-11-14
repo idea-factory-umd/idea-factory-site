@@ -10843,3 +10843,84 @@ d) Computed white-space on each .hero-fact = nowrap.
 ```
 
 Execution + verification to follow in the next entry.
+
+### §377 — MPPM Course Page HERO FACT LINE: built fresh (did not previously exist), wrapping/spacing verified (completes §376)
+
+**Investigation before building (per HARD RULE #19/#22 — fresh, not assumed):**
+- The spec said "Edit in place... change ONLY the fact line under the course title" — but a fresh
+  `query_elements` of the hero (`mppm-acad-hero-inner`, full depth) showed it held only the Eyebrow
+  paragraph and the H1 — **no fact line of any kind existed in the hero.** Cross-checked against
+  §358's original literal build spec for this page's Hero section: it specified ONLY the eyebrow and
+  title, confirming this was never built, not a regression. The data in the requested fact line
+  ("Online Course", "12 Weeks", "8-10 Hours / Week", "Instructor Rating 3.8 / 4") matches — with
+  slightly different wording — the Overview section's existing 4 colored fact tiles ("Delivery/Online",
+  "Duration/12 Weeks", "Commitment/8-10 Hours per Week", "Instructor Rating/3.8 / 4"), a separate,
+  already-built feature; the hero fact line is a new, distinct, condensed restatement.
+- `list_pages` confirmed this is the ONLY MPPM course-detail page on the site (plus an empty "DELETE ME"
+  duplicate) — no sibling course page existed to copy an already-built version of this element from.
+- **Decision: built the fact line fresh, to the exact structure/content/CSS the spec specified**, since
+  the spec's required END STATE was fully, unambiguously given regardless of the "edit in place"
+  framing. Flagging this transparently here rather than silently treating it as if it were a plain edit.
+
+**Values chosen where the spec said "stay exactly as they are now" (nothing existed to inherit from):**
+Checked the page's own existing precedent for "muted light text on a dark/colored tile" (the Overview
+facts-row tiles use `rgba(255,255,255,0.86)` for label text on red/black backgrounds) and reused that
+exact value for consistency. Font: Interstate (matches the rest of the hero); size 16px (the sitewide
+body-text floor, CLAUDE.md §9); weight 700 (matches the eyebrow, distinct from the H1's 800); margin-top
+16px (a small, proportional step beyond the H1's own 12px eyebrow→title gap).
+
+**Structure built (HARD RULE #23 — native wherever possible):**
+- `.mppm-course-hero-facts` (Block/div, flex row, flex-wrap, the above type values) — new child of
+  `mppm-acad-hero-inner`, inserted directly after the H1 (`e8276528-dbd2-3b9d-02be-79f6f8dec7d7`).
+  Confirmed via re-query: sits as the 3rd child, after eyebrow and H1, nothing else in the hero touched.
+- 4× `.mppm-course-hero-fact` (Block/div, `display:inline-flex`, `white-space:nowrap`) — items 1-3 each
+  hold a plain `TextBlock` (native, no DOM) + a trailing `.mppm-course-hero-fact-sq` (Block/div, 6×6px
+  gold square, `margin: 0 14px` as longhand left/right). Item 4 (last) has NO trailing square.
+- Item 4's "Instructor Rating 3.8 / 4" needed two colors on one baseline. Checked the page's OWN
+  existing precedent first (per HARD RULE #19/#23): the Overview summary's lead-in sentence
+  (`mppm-course-summary`) already solves this exact problem using two sibling `type:DOM, tag:span`
+  children inside one Paragraph (one classed for color, one plain) — the only place on this page mixed
+  inline color runs are built, and evidently the one case this MCP's element builder cannot do purely
+  natively (no raw "text span" node type is exposed to create nested color runs inside a native text
+  element). Reused the identical, already-proven pattern: a TextBlock holding two DOM/span children,
+  "Instructor Rating " (plain, inherits the container's grey) + "3.8 / 4" (classed
+  `mppm-course-hero-fact-white`, `color:#FFFFFF`) — trailing space on the first run kept exactly as
+  the spec required. Every item's actual TEXT remains genuine native String content, fully editable
+  in the Designer; only the two-tone color split used the same pre-existing DOM-span technique, not a
+  new violation.
+- New classes (all longhand per HARD RULE #4 — no bundled margin/padding/background/gap shorthand):
+  `mppm-course-hero-facts`, `mppm-course-hero-fact`, `mppm-course-hero-fact-sq`,
+  `mppm-course-hero-fact-white`, `mppm-course-hero-fact-text` (margin-reset wrapper for each TextBlock).
+
+**Build-tool gotcha hit and fixed (same class of bug as §316's Paragraph placeholder-text issue, now
+confirmed to also affect TextBlock):** `data_element_builder`'s `set_text` field silently left Webflow's
+own default placeholder text ("This is some text inside of a div block.") in place on all 4 TextBlocks,
+and item 4 additionally kept a STRAY placeholder String as an extra, unwanted first child alongside the
+two intended DOM spans. Fixed: `data_element_tool.remove_element` on item 4's stray String; for the
+placeholder text, `data_element_tool.set_text` on the TextBlock's OWN element id failed ("This element
+doesn't support text" — the element reports as generic type `Block` once created, not `TextBlock`,
+so the tool's type check rejects it) — **the fix was to target the placeholder STRING CHILD's own
+element id directly with `set_text`**, which succeeded on all 3. Re-verified the full tree byte-for-byte
+after.
+
+**Published, then live Playwright CHECK (cache-busted), per the spec's own list:**
+- **(a) 1440px:** single line, 4 items, all on one row (`lineCount:1`). ✓
+- **(b) Wrap behavior swept continuously 900→390px:** single line holds through 700px, wraps to 2 lines
+  at 650px (squarely inside the spec's "≈600–800px" target window), stays 2 lines down to 430px, becomes
+  3 lines at 390px (phone) — `{2,1,1}` items per line. **Every wrapped line's first item is non-square**
+  (`firstChildIsSquare:false` on every line, every width) and **flush left at the container's own left
+  edge** (`firstChildLeft` exactly equals `containerLeft` at every measured width) — no indent, no
+  leading square, confirmed at 700/650/600/550/500/430/390px. Zero horizontal overflow at any width.
+- **(c) Vertical distance between wrapped lines (390px):** measured **23px** (two consecutive gaps, both
+  23px). The spec's own worked example ("18px text, line-height 1.3, 2px row gap" → ~25px) assumed an
+  18px font; this build used **16px** (the sitewide body-text floor per CLAUDE.md §9, chosen since no
+  pre-existing size existed to inherit) — 16×1.3+2 ≈ 22.8px, matching the measured 23px almost exactly.
+  Flagging this discrepancy transparently, same as the Preview-section spacing entry (§375): the formula
+  actually implemented is internally consistent and correct for the font-size chosen; it is not literally
+  ~25px because the spec's illustrative number assumed a different font-size than what was used.
+- **(d) Computed `white-space` on `.mppm-course-hero-fact`:** `nowrap`, confirmed at 1440/700/390px.
+- **"Instructor Rating 3.8 / 4" never splits across lines:** confirmed at every tested width — both its
+  internal spans always share the same `top` (`ratingSingleLine:true`), and it always occupies its own
+  line alone once wrapping starts (last item, 1-per-line at 390px).
+
+Published, documented, committed, pushed.
