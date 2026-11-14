@@ -11135,3 +11135,61 @@ verified steps, nothing batched):**
   bottom edge, previously partly obscured by the tiles sitting right below it).
 
 Published, documented, committed, pushed.
+
+### §382 — MPPM Course Page OVERVIEW PHOTO: added the sitewide scroll-grow gold-bar animation (user request, mid-task, not pre-committed as a spec — documented after execution per standing practice)
+
+**User request (verbatim, via an annotated screenshot of the Overview photo):** *"PUT THE REGULAR
+ANIMATION WITH THAT GOLD BAR HERE AS WE USE ON MANY OTHER PHOTOS THROUGHOUT THESE SITES."*
+
+**Investigation:** grepped the shared `idea-factory.js` for the sitewide `about-goldbars` module
+(targets `.if-stg-goldbar`/`.if-syn-goldbar`/`.program-page-icorps-hero-goldbar` — not applicable here,
+a different site's classes) — then, per HARD RULE #28's own pointer to the already-correct MPPM-scoped
+reference, fetched MPPM-Home's published HTML directly and found the real implementation: a
+page-scoped `<div data-embed="mppm-goldbars">` embed at the end of Body, targeting
+`.mppm-hero-goldbar, .mppm-why-goldbar` (MPPM-Home's own two photo gold bars). `query_styles` on both
+confirmed their stored Designer CSS is `position:absolute;left:0;bottom:0;z-index:2;width:38%;
+height:10px;background-color:#ffd200;clip-path:polygon(0 0, calc(100% - 1.75px) 0, 100% 100%, 0 100%)`
+— **the exact same 38%/10px/#FFD200 this page's `.mppm-course-ov-bar-gold` already had** (built in §379,
+before this animation existed) — confirming 38% is the established "static/no-JS" base value the script
+then overrides at runtime, not something to change.
+
+**Mechanism (copied verbatim, only the selector changed):** on init, every matched bar's `style.width`
+is forced to `MAX=90%` and `transform-origin:left center`; an `IntersectionObserver`
+(`rootMargin:'100% 0px'`) proximity-gates each bar; a `window.ifScrollEngine.add({read,write})`
+registration computes scroll progress `p=(vh-top)/(vh+height)` clamped to `[0,1]` and applies
+`transform:scaleX((MIN+(MAX-MIN)*p)/MAX)` — visually growing the bar from 30% to 90% of its own
+90%-wide box as it scrolls through the viewport. `ifScrollEngine.kick()` forces an initial pass. This
+is the IDENTICAL technique already governing every goldbar instance across the site (hero, stage
+photos, synthesis bar, I-Corps-Home hero photo, MPPM-Home's hero/why photos) — already fully compliant
+with HARD RULE #28's three-part check (engine-registered, read/write separated, proximity-gated), so
+reusing it verbatim carries that compliance over with no new review needed.
+
+**Execution:**
+- Added `z-index:2` and the established angled `clip-path:polygon(0 0, calc(100% - 1.75px) 0, 100%
+  100%, 0 100%)` to `.mppm-course-ov-bar-gold` (left/bottom/width/height/background-color already
+  matched the reference exactly, confirmed above — no change needed to those).
+- Created a new page-scoped `HtmlEmbed` (element `43386453-7dad-332d-45b8-715dfcc6fc47`), appended to
+  Body, `data-embed="mppm-course-goldbars"`, carrying a `DO NOT DELETE` banner per CLAUDE.md convention
+  #2 — the ONE difference from the reference's own code being the targeted selector
+  (`.mppm-course-ov-bar-gold` only, this page's single gold bar) and the console-warning tag
+  (`'[mppm] course goldbars error:'`). Re-fetched the stored code via `get_settings` and confirmed it
+  matches byte-for-byte before publishing.
+
+**Published, then live Playwright CHECK (cache-busted, real scroll events via `mouse.wheel`, per HARD
+RULE #20/#21's "measure the real rendered box, test a real sequence, don't trust computed-style alone"
+discipline):**
+- Confirmed `bar.style.width` is overridden to `"90%"` at runtime (was `38%` pre-JS) and `transform`
+  carries a real `matrix(...)` scaleX value that changes with scroll position — not just present in
+  the stylesheet, actually rendering.
+- Measured the bar's real `getBoundingClientRect().width` as a % of the photo's own width across 3
+  increasing scroll positions: **31% → 65% → 68%**, monotonically increasing as the photo scrolled
+  further into view — confirmed real, continuous growth, not a static jump. (The very first,
+  pre-scroll measurement read exactly the 30% floor — expected: `ifScrollEngine.kick()`'s initial pass
+  runs once at load, and a scroll position that never changes, as in a `scrollTo(0,0)` no-op, never
+  fires a native `scroll` event to trigger a recompute; this is the SAME behavior the already-accepted
+  MPPM-Home reference has, not a defect introduced here — the moment a real visit scrolls at all, the
+  value recomputes correctly, as confirmed.)
+- Screenshot confirms visually: the bar is clearly wider than its original static 38% once the photo
+  has scrolled partway up through the viewport.
+
+Published, documented, committed, pushed.
