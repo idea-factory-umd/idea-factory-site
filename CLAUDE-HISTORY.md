@@ -11504,3 +11504,38 @@ CHECK — open each dropdown on desktop:
 ```
 
 Execution + verification to follow in the next entry.
+
+### §386 — §385 RETRACTED by the user, never executed — MPPM nav dropdowns confirmed already consistent with the family standard
+
+**§385's spec (the "match the family standard" dropdown-styling change) was retracted by the user in
+full and must NEVER be executed, in this or any future session.** User's own words: *"IF THE MENUS YOU
+BUILD ARE CONSISTENT WITH EVERYTING ELSE WE'VE DONE HERE KEEP THEM EXACTLY AS THEY ARE AND COMPLETELY
+DISREGARD THAT LAST PROMPT I GAVE YOU ABOUT CHANGING THEM... THE DISCREPANCY I WAS TRYING TO REMEDY
+EXISTS ELSEWHERE — NOT ON WHAT YOU HAVE HERE."* Before retracting, the actual discrepancy the user was
+trying to fix was investigated and found NOT to exist on MPPM's nav:
+
+- **Fetched the live compiled CSS directly** (never trusted the spec's own "Keep: ..." description of
+  current state at face value, per HARD RULE #22) and found `.mppm-nav-sublink` / `.mppm-dd-list` to be
+  **byte-for-byte identical**, property for property, to ASPIRE's shared `.if-nav-sublink` /
+  `.if-dd-list` — same color `#1a1a1a`, `letter-spacing:.06em`, `text-transform:uppercase`, `font-size:
+  14px`, `font-weight:700`, `border-bottom:1px solid #e6e6e6`, `padding:12px 18px`, same hover
+  (`scale(1.07)`, color unchanged) — only the class prefix differs (`mppm-` vs `if-`, per HARD RULE
+  #17's standing per‑site duplication convention). **Confirmed MPPM's dropdowns were built matching the
+  existing sitewide family standard, not with unique/divergent styling.**
+- **Also confirmed against Mtech Ventures** (a second, independent reference site) — its live nav HTML
+  uses the exact same shared `.if-dd-wrap` / `.if-ddtoggle` / `.if-dd-list` / `.if-nav-sublink` classes
+  directly, which are the same classes already confirmed identical to MPPM's `mppm-` versions. Same
+  font weights, font sizes, capitalization, padding, colors, hover behavior — confirmed consistent.
+- **Separately discovered (not acted on, flagged only):** §385's "Keep: 1px grey border, 4px gold top
+  border, min-width 260px" describes properties that do **not** exist in the current compiled CSS on
+  EITHER MPPM or the ASPIRE reference — this was never a real "existing, keep-it" state anywhere in the
+  family. The user has confirmed the actual discrepancy they meant to fix lives elsewhere, not on this
+  dropdown — **no further action needed here on that basis; do not revisit these three properties on
+  this dropdown unless the user raises it again explicitly, naming the correct location.**
+
+**Net result: zero changes made to `.mppm-nav-sublink`, `.mppm-dd-list`, `.mppm-ddtoggle`, or any other
+nav class as a result of §385 — the MPPM Main Nav component (`293803d4-d6a3-d8ce-d12b-dbb3cb50da64`,
+12 instances) is untouched, exactly as it was before §385 was ever proposed.** §385 itself stays in
+this file only as a record that it was proposed and then explicitly retracted — it is not a pending or
+outstanding task, and must not be treated as one, re-executed, or treated as a competing/contradictory
+style directive in any future session.
