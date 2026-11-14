@@ -11320,3 +11320,152 @@ i) Applications panel: gold over white; the form usable and full width.
 ```
 
 Execution + verification to follow in the next entry.
+
+### §384 — MPPM Course Page RESPONSIVE LAYOUT: tablet/phone-landscape/phone-portrait, all 9 sections (completes §383)
+
+**Scope:** every section after the hero, across Webflow's native `medium` (≤991, "tablet"), `small`
+(≤767, "phone landscape"), and `tiny` (≤479, "phone portrait") breakpoints — the spec's own ≤478px
+phone-portrait threshold mapped to Webflow's native ≤479 per HARD RULE #2 (nearest native, erring
+1px wider/earlier, the safe direction). Investigated every section's current element tree and stored
+styles (base + all 3 breakpoints) before writing anything, confirming zero pre-existing breakpoint
+overrides existed anywhere on this page except Learning Experience's own prior interim fix (§363),
+which this pass superseded with the new spec's exact numbers.
+
+**1. Jump bar (`mppm-course-jumpbar-link`):** medium padding 18px/16px, font 16px; small
+`flex:1 1 33.333%` (3/row), padding 16px/10px; tiny `flex:1 1 50%` (2/row), padding 15px/8px — font
+never below 16px at any breakpoint. "Last row stretches" is automatic (every link already carries
+`flex-grow:1`) — no extra rule needed.
+
+**2. Overview:** `mppm-course-ov-row` gap flattened to 32/28/24px at medium/small/tiny (replacing the
+clamp(), which didn't hit these exact values); `mppm-course-ov-photo` gets `min-height:0` at medium
+(persists down) so its 16:9 aspect-ratio governs height cleanly. Paragraph font (18px) and the red
+lead-in (1.5em/line-height 1, inline) were already correct at every width via the existing clamp
+floor — untouched.
+
+**3. What/Who:** `mppm-course-whatwho-col` forced to `flex-basis:100%` at medium (stacks both
+columns, no max-width to conflict with, unlike Faculty below); row gap flattened to 56/48/44px;
+card padding set explicitly at small/tiny only (tablet keeps its clamp, per the spec's own silence on
+tablet card padding); list gap set to 12px at small/tiny (already 16px at medium — matched already).
+
+**4. Course Topics:** `mppm-course-topics-card` forced to `flex-basis:100%` at all 3 (1/row); list gap
+flattened to 16px uniformly; card padding 22px (small) / 20px (tiny); `mppm-course-topics-num` font
+44px/40px; `mppm-course-topics-h3` font 22px/21px; card's own internal num↔text gap flattened to 16px
+at tiny only. `mppm-course-headrow`'s row-gap set to 8px at all 3 breakpoints (shared class — also
+fixes Testimonials' and Faculty's identical "heading row wraps, label flush left" requirement in one
+stroke, since all three sections reuse this one class).
+
+**5. Learning Experience:** `mppm-course-experience-tile` — medium keeps 3/row (base formula already
+gives 3 at any width unless overridden) with min-height 220px, padding 28/16px, gap 18px; small
+OVERRIDES to 2/row (`calc((100% - 12px)/2)`), min-height 200px, padding 26/14px, gap 16px; tiny
+**changed from the prior interim fix's 1/row to 2/row** (`calc((100% - 10px)/2)`) per this spec's
+explicit "TWO per row still," min-height 180px, padding 22/10px, gap 16px. Icon 80/76/64px; label
+17/16/16px (tiny also gets `letter-spacing:0.02em`).
+
+**6. Learner Testimonials:** quote font flattened to 26/23/21px (replacing clamp — medium's natural
+clamp value was ~23.8px, not 26, so this was a genuine correction, not just a restatement); card
+padding flattened to 30/24/20px.
+
+**7. Faculty — found and fixed a genuine bug, see below.** `fac-card` given `width:100%` +
+`max-width:420/360/none` + `flex-basis:100%` at medium/small/tiny.
+
+**8. Preview video:** `mppm-course-h2-white` font flattened to 38/32/27px, `line-height:1.05`,
+margin-bottom flattened to 36/34/32px (each a genuine correction vs. the existing clamp's natural
+values at these exact widths, per the same per-breakpoint-flattening approach used throughout).
+Video frame's `width:100%`/`aspect-ratio:16 / 9` already held at every width — confirmed, untouched.
+
+**9. "Applications are now open!" panel — a real structural change to a SHARED COMPONENT, see below.**
+
+**⚠️ BUG FOUND AND FIXED DURING VERIFICATION — Faculty didn't stack at exactly 991px:** `fac-card`
+with `flex-basis:100%` PLUS a `max-width` cap does NOT reliably force a sibling to wrap onto its own
+row — once `max-width` clamps the card's resolved size well below the container's actual width, the
+remaining space is large enough for `mppm-course-faculty-right`'s own untouched `flex-basis:360px` to
+still fit on the same row (420+360+32px gap = 812px, comfortably inside the ~951px available content
+width at 991px) — so no wrap occurred, even though the identical technique worked correctly at every
+OTHER breakpoint (767/478/375), where the combined widths genuinely exceeded the available row width
+and forced a wrap "by accident" of the specific numbers involved. **This is exactly the class of bug
+this project's own verification discipline (HARD RULE #2/#3 — verify the FULL width range, not a
+sample) exists to catch** — it was found only because the live Playwright CHECK measured ACTUAL
+element positions at all 4 widths rather than trusting the stored CSS values alone. **Fix:** forced
+`flex-direction:column` on `mppm-course-faculty-person` at medium (persists to small/tiny) — this
+guarantees unconditional stacking regardless of any child's max-width, immune to any future
+coincidental width-fit at a specific screen size. Correspondingly updated `mppm-course-faculty-right`
+at medium to `width:100%;flex-basis:auto` (its old 360px basis would otherwise have been
+mis-interpreted as a HEIGHT once the parent became column-direction). Re-verified live after a second
+publish: `cardAboveBio:true` at 991px, confirmed also still correct at 767/478/375.
+**A second false alarm during this same verification pass, correctly ruled out as not a bug:**
+immediately after the fix's first publish, a live re-check still showed the old (broken) layout —
+traced to CDN/publish propagation lag (the exact same class of false start already documented in
+§370), confirmed by fetching the live compiled CSS directly via `curl` (which already showed the
+correct new rule) while the Playwright-driven browser was still rendering the old layout from a
+not-yet-refreshed edge. Re-tested after allowing more time; confirmed correct. Logged per HARD RULE
+#22's "re-derive the case fresh, don't assume" discipline rather than chasing a phantom CSS bug.
+
+**⚠️ STRUCTURAL COMPONENT CHANGE — "MPPM Applications Open Panel" (componentId
+`7a4c0c9b-9ff0-5b76-f3cf-0c222cd6fe9e`), used on 6 OTHER already-shipped MPPM pages (Academic
+Policies, Online Learning, Tuition & Financial Aid, Graduation & Commencement, Calendars & Deadlines,
+Student Experience — per §0 STATUS):** the spec explicitly required **"The panel is display FLEX (not
+grid)"** — the component's root (`mppm-acpol-open-panel`) was previously `display:grid;
+grid-template-columns:minmax(0,5fr) minmax(0,7fr)` with a medium-breakpoint collapse to
+`minmax(0,1fr)` (1-column grid, which visually stacks). Converted to genuine flexbox per the explicit
+instruction (also consistent with HARD RULE #12a's general grid-avoidance default): removed
+`grid-template-columns` entirely (both base and medium), set `display:flex` with `align-items:stretch`
+kept, added `flex-direction:column` at medium (replacing the grid-collapse trick). Gave
+`mppm-acpol-open-gold`/`mppm-acpol-open-white` (which never had their own flex-sizing properties
+before, since their parent was grid) explicit `flex-grow:5`/`flex-grow:7` (both `flex-shrink:1;
+flex-basis:0%`) — preserving the exact same 5:7 visual ratio the old `5fr:7fr` grid columns gave.
+Added `width:100%` + the spec's padding numbers (28/24/22px gold, 28/24/20px white) at
+medium/small/tiny, and `mppm-acpol-open-goldtext` font 32/28/26px. **Per HARD RULE #10 — editing a
+genuine Component's own properties is correct and intended (propagates to every instance, which is
+the whole point); this is NOT a component split/fork, which remains forbidden.** This bugfix/responsive
+improvement is deliberately understood to reach all 6 other pages using this component, not just this
+course page — flagging this explicitly since it's a larger blast radius than the rest of this task,
+not something to be alarmed by (the 5:7 desktop ratio is visually unchanged; only broken/absent mobile
+behavior improves).
+Also found and fixed, in the component's own paired CSS embed (`#learn-more-form`'s styling, the
+pre-existing side-by-side First/Last-name field pair via auto-generated classes `._x01844924`/
+`._x98588294`, each `flex:1 1 200px`): added one new `@media (max-width: 479px)` rule forcing both to
+`flex:1 1 100% !important`, satisfying "First and Last name stack (one per row) at ≤478px" — a plain
+CSS media query, not a Designer breakpoint override, since this targets an embedded 3rd‑party form
+widget's own auto‑generated classes that the native breakpoint system has no access to (the genuinely
+non-native case HARD RULE #2 carves out). Verified byte-for-byte via `get_settings` before publishing;
+every other line of the existing embed preserved verbatim.
+
+**Global:** `mppm-course-container` (shared by 7 of the 9 sections) side-padding flattened to
+20/18/16px at medium/small/tiny — fixes all 7 sections' container padding in one edit. Each section's
+own `-sec` class (7 separate style objects: overview/whatwho/topics/experience/testimonials/faculty/
+preview) given top/bottom padding 64/52/44px at medium/small/tiny, replacing the shared
+`clamp(64px,7.5vw,112px)` at those widths specifically (base/desktop clamp untouched). ApplyBand's own
+container (which combines side-padding + top/bottom padding in one class, no separate `-sec`) given
+the same treatment. Hero and desktop (`main`) layout were never touched, per the spec's explicit scope.
+
+**Published (twice — second publish picked up the Faculty bugfix), then live Playwright CHECK at
+991/767/478/375px (cache-busted), matching the spec's own lettered checklist:**
+- **(a)** Zero horizontal overflow (`scrollWidth === clientWidth`) at all 4 widths. ✓
+- **(b)** Jump bar: 7/row at 991 (fits naturally, spec never mandated a forced row count there — only
+  landscape/portrait specify exact counts), **3/row at 767** (`[3,3,1]`), **2/row at 478/375**
+  (`[2,2,2,1]`) — last row stretches correctly in both cases; font never below 16px at any width. ✓
+- **(c)** Overview: photo below text at every width, aspect exactly 1.78 (16:9) at all 4, both accent
+  bars visible at all 4. ✓
+- **(d)** What/Who: Who sits after What at every width, each column 100% width, gap measured
+  **56/48/44px exactly**, matching the spec's numbers to the pixel. ✓
+- **(e)** Topics: all 10 cards land one-per-row at every width (10 rows used), number confirmed left
+  of the text at every width. ✓
+- **(f)** Learning Experience: **3/row at 991** (`[3,3]`), **2/row at 767/478/375** (`[2,2,2]` each) —
+  matches the spec's explicit tablet-stays-3/phones-go-2 requirement exactly, confirmed visually via
+  screenshot at 478px (clean 2-column grid, labels wrapping 1-2 lines, centered). ✓
+- **(g)** Faculty: card sits above bio at every width (after the fix above), photo↔plate gap
+  measured **0px** at all 4 widths, card width 420/360/(no cap)/(no cap) matching medium/small/
+  tiny/tiny exactly — confirmed visually via screenshot at 991px. ✓
+- **(h)** Preview video: `aspect` exactly 1.78 at all 4 widths; width-percentage readings of 96/95/93/91%
+  are a measurement-script artifact (divided by the container's OUTER padded width instead of its
+  inner content-box width) — the frame genuinely IS `width:100%` of its real available content box at
+  every width, confirmed by the stored CSS (untouched, already correct) and by the arithmetic matching
+  exactly once the container's own side-padding is subtracted. Not a defect.
+- **(i)** Applications panel: `display:flex` confirmed live at all 4 widths (grid genuinely gone); gold
+  sits above white at all 4; both halves measure 100% width when stacked; confirmed visually via
+  screenshot at 991px and (implicitly, same CSS) at every narrower width. First/Last name fields
+  confirmed via direct per-field row measurement: **side-by-side at 991/767** (pre-existing, unchanged,
+  correct — the spec only required stacking at ≤478) and **three separate rows at 478** (First, Last,
+  Email each on their own row) — the new media query confirmed working correctly, not just present.
+
+Published, documented, committed, pushed.
