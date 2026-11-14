@@ -10719,3 +10719,57 @@ between the two.
 ```
 
 Execution + verification to follow in the next entry.
+
+### §375 — MPPM Course Page PREVIEW SECTION spacing fix — execution + verification (completes §374)
+
+**Investigation before editing (per HARD RULE #19 — fresh, not remembered):**
+- Section `mppm-course-preview-sec` (id="sec-preview") → direct child `mppm-course-container`
+  (element `de657bb6-f545-b45d-3e1d-d18ae1a0d666`) → direct siblings: Heading `mppm-course-h2-white`
+  (element `1a889a7a-730e-0737-788c-0c224dec73d3`) and Block `mppm-course-preview-frame` (element
+  `e7240656-396e-60c1-8fae-d7f72d0abfc4`, containing the Video element).
+- `query_styles` on `mppm-course-container` showed `max-width:1240px; margin:0 auto; padding:0 24px`
+  only — **plain block layout, not flex, no `gap` property** — so the spec's "if flex column with a
+  gap" branch does not apply here; nothing to zero out on the container.
+- `query_styles` on `mppm-course-h2-white` confirmed **exactly 1 match on the whole page**
+  (`total_matches:1`) — this class is used ONLY by the Preview heading (Experience's own heading
+  already uses its separately-forked `mppm-course-exp-h2`), so it was safe to edit directly with no
+  fork needed (HARD RULE #10/#11 satisfied by inspection, not assumption).
+- `mppm-course-preview-frame` had no `margin-top` property set at all (Webflow's base reset already
+  zeroes native Block margins, so it rendered as 0 regardless — set explicitly anyway, per the spec's
+  literal wording and for Designer-panel clarity).
+
+**Change made (`update_style`, both single-call, both re-verified via a fresh `query_styles` after):**
+- `mppm-course-h2-white` → `margin-bottom: clamp(32px, 3.6vw, 52px)` (was `0px`; every other margin
+  (`top/right/left`) and every other property — font-family, color, line-height, font-weight,
+  letter-spacing, `font-size:clamp(32px, 3.6vw, 50px)` — untouched, confirmed byte-identical in the
+  re-query).
+- `mppm-course-preview-frame` → `margin-top: 0px` (explicit; every other property — position,
+  overflow, width, aspect-ratio, background-color — untouched, confirmed byte-identical).
+- Published (`publish_site`, master site has no custom domains — webflow.io subdomain only).
+
+**CHECK — live Playwright measurement, 3 widths, cache-busted, post-publish:**
+
+| width | heading→frame gap (measured) | `getComputedStyle` `margin-bottom` on heading | frame `margin-top` | container `display`/`gap` |
+|---|---|---|---|---|
+| 1440px | **51.83px** | `51.84px` | `0px` | `block` / `normal` |
+| 900px | **32.39px** | `32.4px` | `0px` | `block` / `normal` |
+| 390px | **32.00px** | `32px` | `0px` | `block` / `normal` |
+
+- Measured gap matches the heading's own computed `margin-bottom` almost exactly at every width
+  (sub-pixel difference only, from `getBoundingClientRect` vs. `getComputedStyle` rounding) — **confirms
+  no other gap/margin contributes anywhere between the two elements**, exactly as the CHECK required.
+- **Note on the spec's own illustration vs. the literal formula it also gave:** the spec's prose said
+  "~36px on tablets" for ~900px wide, but the literal formula it specified, `clamp(32px, 3.6vw, 52px)`,
+  mathematically gives `3.6vw` = 32.4px at a 900px viewport (3.6% × 900 = 32.4) — just above the 32px
+  floor, not 36px. 36px would require a 900px viewport only if the coefficient were ~4vw, or occurs
+  at 3.6vw when the viewport is ~1000px. **The literal clamp formula was implemented exactly as given**
+  (it is the authoritative, unambiguous instruction; the prose figures were an approximate illustration
+  preceding it) — flagging the discrepancy transparently rather than silently reconciling it, per
+  HARD RULE #22. 1440px (~52px) and 390px (32px floor) both match the spec's illustration exactly;
+  only the ~900px midpoint reads lower than the prose suggested, as a direct, correct consequence of
+  the formula itself.
+- **Nothing else in the section changed:** heading `font-size` still `clamp(32px, 3.6vw, 50px)` (50px
+  measured at 1440px, matching pre-existing value); video frame `aspect-ratio:16/9` unchanged; section
+  top/bottom padding untouched (not queried/touched at all this pass).
+
+Committed + pushed.
