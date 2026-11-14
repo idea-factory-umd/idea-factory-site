@@ -11193,3 +11193,130 @@ discipline):**
   has scrolled partway up through the viewport.
 
 Published, documented, committed, pushed.
+
+### §383 — MPPM Course Page RESPONSIVE LAYOUT spec: tablet/phone-landscape/phone-portrait (committed before execution)
+
+User-provided spec, verbatim, committed before execution:
+
+```
+COURSE PAGE — RESPONSIVE LAYOUT: TABLET, PHONE LANDSCAPE, PHONE PORTRAIT
+Page: /course-innovative-ideas-concept-development (and every course page copied from it).
+Scope: every section AFTER the hero. Do not change the hero or the desktop layout.
+Use Webflow's breakpoints and set styles ON EACH BREAKPOINT:
+  TABLET          (≤ 991px)
+  PHONE LANDSCAPE (≤ 767px)
+  PHONE PORTRAIT  (≤ 478px)
+Rules: flexbox only (no CSS grid). No fixed widths or heights on anything that holds text.
+Every flex child that holds text has min-width 0. No element may overflow the screen
+sideways (check: no horizontal scrollbar at any width from 320px up).
+Container side padding at all three: 20px (≤ 991), 18px (≤ 767), 16px (≤ 478).
+Section top/bottom padding: 64px (tablet), 52px (phone landscape), 44px (phone portrait).
+
+=====================================================================
+1. JUMP BAR (white bar under the hero with What · Who · Topics · …)
+=====================================================================
+It holds 5–7 links depending on the page; the rules must work for any count.
+Bar: display flex; flex-wrap wrap. Each link: flex 1 1 auto; text centered; white-space nowrap;
+  0.5px rgba(0,0,0,0.16) border on left and top (cells read as a tidy grid of boxes).
+  TABLET:          link padding 18px 16px; font 16px. Links wrap to as many rows as needed.
+  PHONE LANDSCAPE: each link flex 1 1 33.333% (three per row); padding 16px 10px; font 16px.
+  PHONE PORTRAIT:  each link flex 1 1 50% (two per row); padding 15px 8px; font 16px.
+  A last row with fewer links stretches those links to fill the row (flex-grow 1). Never
+  shrink text below 16px.
+
+=====================================================================
+2. OVERVIEW ("Learn today's…" text + photo)
+=====================================================================
+  TABLET (≤ 991): the row becomes a COLUMN: text first, photo below.
+    Photo: width 100%; flex none; aspect-ratio 16/9; min-height 0. Gap between text and photo 32px.
+    Accent bars unchanged (red left edge 10px, gold bottom-left 38% × 10px).
+  PHONE LANDSCAPE / PORTRAIT: same column; gap 28px / 24px. Paragraph font stays 18px.
+    The red lead-in ("Learn today's newest skills and tools") keeps font-size 1.5em and
+    line-height 1 — it wraps inline with the paragraph; do not put it on its own line.
+
+=====================================================================
+3. WHAT YOU'LL LEARN / WHO WILL BENEFIT (gold section, two columns of white cards)
+=====================================================================
+  TABLET (≤ 991): the two columns STACK: "What You'll Learn" (heading + all its cards) first,
+    then "Who Will Benefit" (heading + cards). Each column width 100%. Space between the last
+    What card and the "Who Will Benefit" heading: 56px.
+  PHONE LANDSCAPE: same; that space 48px. Card padding 16px 26px 16px 16px.
+  PHONE PORTRAIT:  same; that space 44px. Card padding 14px 24px 14px 14px.
+  Cards: width 100%; 12px between cards on phones (16px tablet). The angled top-right corner,
+    red square bullet and text sizes stay as on desktop (text never below 16px).
+
+=====================================================================
+4. COURSE TOPICS (numbered module boxes, two per row on desktop)
+=====================================================================
+  TABLET (≤ 991): ONE box per row (flex-basis 100%). Gap between boxes 16px.
+  PHONE LANDSCAPE: same; box padding 22px; number font 44px; title 22px.
+  PHONE PORTRAIT: same; box padding 20px; number font 40px; title 21px; gap between the
+    number and the text 16px. Number stays to the LEFT of the text (do not stack it on top).
+  Heading row ("Course Topics" · rule · "10 Modules"): may wrap; the label drops under the
+    heading flush left if there's no room. Row gap 8px.
+
+=====================================================================
+5. LEARNING EXPERIENCE (red section, 6 white boxes, 3 per row on desktop)
+=====================================================================
+  TABLET (≤ 991): still THREE per row. Box min-height 220px; padding 28px 16px;
+    icon 80px × 80px; label 17px.
+  PHONE LANDSCAPE (≤ 767): TWO per row: flex 0 0 calc((100% - 12px) / 2); gap 12px.
+    Box min-height 200px; padding 26px 14px; icon 76px; label 16px.
+  PHONE PORTRAIT (≤ 478): TWO per row still (6 boxes = 3 even rows), gap 10px:
+    flex 0 0 calc((100% - 10px) / 2). Box min-height 180px; padding 22px 10px; icon 64px;
+    label 16px, letter-spacing 0.02em; labels may wrap to 2–3 lines, centered.
+  Icon and label stay centered in the box; the gap between them is the box's flex gap only
+    (18px tablet, 16px phones).
+
+=====================================================================
+6. LEARNER TESTIMONIALS (gold; only on pages that have it)
+=====================================================================
+  All three: the testimonial card is width 100%.
+  Quote text: 26px tablet · 23px phone landscape · 21px phone portrait (Georgia italic).
+  Card padding: 30px tablet · 24px phone landscape · 20px phone portrait.
+  Heading row ("Learner Testimonials" · red rule · "In their words"): wraps; label flush left
+    under the heading when it doesn't fit; row gap 8px.
+
+=====================================================================
+7. FACULTY (photo + black name plate on the left, bio on the right)
+=====================================================================
+  TABLET (≤ 991): STACK — the photo/name-plate card first, the bio below it.
+    Card: width 100%; max-width 420px; aligned left. Space between card and bio 32px.
+    The photo and the black name plate still touch (0px between them).
+  PHONE LANDSCAPE: card max-width 360px; space to bio 28px.
+  PHONE PORTRAIT:  card width 100% (no max-width); photo stays square; space to bio 24px.
+  Bio paragraphs: 17px tablet, 16px phones; line-height 1.65.
+
+=====================================================================
+8. PREVIEW VIDEO (black; only on pages that have it)
+=====================================================================
+  All three: video width 100%, 16:9 (the embed's padding-top 56.25% wrapper). Never a fixed height.
+  Heading "Take a Peek at …": 38px tablet · 32px phone landscape · 27px phone portrait;
+    line-height 1.05.
+  Space between heading and video: 36px tablet · 34px phone landscape · 32px phone portrait.
+
+=====================================================================
+9. "APPLICATIONS ARE NOW OPEN!" (gold + white panel with the form)
+=====================================================================
+  The panel is display FLEX (not grid): gold half flex 5 1 0, white half flex 7 1 0.
+  TABLET (≤ 991): the halves STACK: gold on top, white (with the form) below, both width 100%.
+    Gold padding 28px; its heading 32px. White padding 28px.
+  PHONE LANDSCAPE: gold padding 24px; heading 28px. White padding 24px.
+  PHONE PORTRAIT: gold padding 22px; heading 26px. White padding 20px.
+  Form fields full width; First and Last name stack (one per row) at ≤ 478px.
+
+=====================================================================
+CHECK — at 991, 767, 478 and 375px wide (screenshot each section)
+=====================================================================
+a) No horizontal scrolling at any width; nothing cut off on the right.
+b) Jump bar: tidy rows of boxes (3 per row landscape, 2 per row portrait); no text below 16px.
+c) Overview: photo below the text, 16:9, accent bars visible.
+d) What/Who: stacked, Who after What, with clear space between.
+e) Topics: one box per row; number left of the text.
+f) Learning Experience: 3 per row tablet, 2 per row on phones, icons centered above labels.
+g) Faculty: card above the bio; photo and plate touching.
+h) Preview video fills the width at 16:9.
+i) Applications panel: gold over white; the form usable and full width.
+```
+
+Execution + verification to follow in the next entry.
