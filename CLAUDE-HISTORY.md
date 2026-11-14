@@ -11096,3 +11096,42 @@ on the page; the facts appear once, in the hero.
 ```
 
 Execution + verification to follow in the next entry.
+
+### §381 — MPPM Course Page OVERVIEW SECTION: colored fact tiles deleted, verified (completes §380)
+
+**Investigation before deleting:** fresh full-depth `query_elements` of `mppm-course-facts-row`
+inventoried its complete subtree — the wrapper plus 4 tiles (Delivery/Online, Duration/12 Weeks,
+Commitment/8-10 Hours per Week, Instructor Rating/3.8 / 4) and their 9 distinct style classes
+(`mppm-course-facts-row`, `-box-red` ×2 uses, `-box-black`, `-box-gold`, `-label-onred` ×2 uses,
+`-label-onblack`, `-label-ongold`, `-value-white` ×3 uses, `-value-black`). **Confirmed via a
+whole-page `element_filter:{style:...}` query per class (not assumed from naming) that every single
+one of these 9 classes is used ONLY inside this one row, nowhere else on the page** — counts matched
+exactly (1/2/1/1/2/1/1/3/1), safe to delete all 9 style objects along with the elements.
+
+**Execution (HARD RULE #13 — element removal and style deletion done as separate, individually
+verified steps, nothing batched):**
+1. `remove_element` on the `mppm-course-facts-row` wrapper (cascades its entire subtree — all 4 tiles,
+   8 label/value paragraphs, and their text).
+2. Re-queried the Overview container: confirmed its only remaining child is `.mppm-course-ov-row`
+   (the text+photo row from §379) — facts-row and everything inside it is gone.
+3. `remove_style` on all 9 classes, individually, then re-queried each by `name_path` — all 9 return
+   zero matches, confirming full deletion (no orphaned style objects left behind, and nothing to prune
+   from media queries since deleting the whole style object removes every breakpoint rule with it).
+
+**Published, then live CHECK (cache-busted):**
+- All 9 tile class selectors: **0 elements found** anywhere on the published page.
+- Overview container's only child: `mppm-course-ov-row` (the paragraphs + photo from §379) — exactly
+  as the spec required ("the Overview section's content is just the text + photo row").
+- Section's own top/bottom padding: unchanged, **108px/108px**, symmetric — confirmed **zero leftover
+  gap** where the tiles used to sit (measured distance from the row's own bottom edge to the section's
+  padding boundary = 0px).
+- Whole-page text scan for the tile-only label words ("Delivery", "Duration", "Commitment" — words that
+  existed nowhere except on the deleted tiles) returned **zero occurrences** anywhere on the page.
+- Hero fact line (§377) still reads correctly, confirmed live: "Online Course / 12 Weeks / 8-10 Hours
+  per Week / Instructor Rating 3.8 / 4" present and intact — **the facts now appear exactly once, in
+  the hero, as required.**
+- Screenshot confirms visually: Overview section now shows only the red-lead-in paragraph, description
+  paragraph, and photo (with both accent bars — the gold bar is now fully visible along the photo's
+  bottom edge, previously partly obscured by the tiles sitting right below it).
+
+Published, documented, committed, pushed.
