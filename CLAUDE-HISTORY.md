@@ -11069,3 +11069,30 @@ breakpoints. Per HARD RULE #2 ("pick the nearest native one, erring earlier/more
   the new row, at every width — confirmed in both screenshots.
 
 Published, documented, committed, pushed.
+
+### §380 — MPPM Course Page OVERVIEW SECTION: delete colored fact tiles spec (committed before execution)
+
+User-provided spec, verbatim, committed before execution:
+
+```
+COURSE PAGE — OVERVIEW SECTION: DELETE THE COLORED FACT TILES
+Page: /course-innovative-ideas-concept-development (and every course page copied from it).
+
+DELETE the entire row of colored fact tiles in the Overview section (the white section directly
+under the jump bar): the red / black / gold tiles showing Delivery "Online", Duration "12 Weeks",
+Commitment "8-10 Hours per Week" and Instructor Rating "3.8 / 4" — the tiles AND their wrapper row.
+Also delete the tile styles/classes if nothing else uses them, and any media-query rules written
+only for those tiles (the 4-across / 2+2 / 1-per-row rules from the earlier fix).
+
+These facts are NOT lost: they now appear ONLY in the hero fact line under the course title
+(Online Course ■ 12 Weeks ■ 8-10 Hours / Week ■ Instructor Rating 3.8 / 4), per the hero
+fact-line prompt. They must not appear anywhere else on the page.
+
+Leave no empty space where the tiles were: the Overview section's content is just the text +
+photo row (per the Overview prompt), with the section's normal top/bottom padding.
+
+CHECK: the Overview section shows only the paragraphs and the photo — no colored tiles anywhere
+on the page; the facts appear once, in the hero.
+```
+
+Execution + verification to follow in the next entry.
