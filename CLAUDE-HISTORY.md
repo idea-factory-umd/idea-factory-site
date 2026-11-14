@@ -10773,3 +10773,73 @@ Execution + verification to follow in the next entry.
   top/bottom padding untouched (not queried/touched at all this pass).
 
 Committed + pushed.
+
+### §376 — MPPM Course Page HERO FACT LINE: wrapping/line-spacing spec (committed before execution)
+
+User-provided spec, verbatim, committed before execution:
+
+```
+COURSE PAGE — HERO FACT LINE: WRAPPING AND LINE SPACING
+Page: /course-innovative-ideas-concept-development (and every course page copied from it).
+Edit in place. Change ONLY the fact line under the course title in the black hero:
+  Online Course ■ 12 Weeks ■ 8-10 Hours / Week ■ Instructor Rating 3.8 / 4
+Nothing else in the hero changes (eyebrow, title, the space above and below this line).
+
+=====================================================================
+1. STRUCTURE — each item carries the square AFTER it
+=====================================================================
+Rebuild the line as:
+
+  div.hero-facts
+    span.hero-fact  "Online Course"            + span.hero-fact-sq
+    span.hero-fact  "12 Weeks"                 + span.hero-fact-sq
+    span.hero-fact  "8-10 Hours / Week"        + span.hero-fact-sq
+    span.hero-fact  "Instructor Rating 3.8 / 4"   (LAST item: NO square)
+
+  - The gold square is the LAST child INSIDE each item's span, after the text. It is never a
+    separate sibling between items, and never at the START of an item.
+  - The last item has no square.
+  - In "Instructor Rating 3.8 / 4", "3.8 / 4" stays in its own span with color #FFFFFF
+    (the rest of the item is the existing light grey). Keep the space before "3.8".
+
+=====================================================================
+2. STYLES
+=====================================================================
+.hero-facts
+  display flex; flex-wrap wrap; align-items center;
+  row-gap 2px; column-gap 0;
+  line-height 1.3;
+  (font, size, weight, color and margin-top stay exactly as they are now)
+.hero-fact
+  display inline-flex; align-items center;
+  white-space nowrap;          ← an item and its square NEVER break apart or wrap inside
+  margin 0; padding 0.
+.hero-fact-sq
+  display block; width 6px; height 6px; flex-shrink 0;
+  background #FFD200; margin 0 14px;
+
+Remove any old rule that puts the square BEFORE an item (e.g. "i > 0" squares, ::before squares,
+or a left margin/padding on items). Nothing may indent a wrapped line.
+
+=====================================================================
+3. RESULT REQUIRED
+=====================================================================
+- Wide screens: unchanged — one line, squares between items.
+- When it wraps: every new line STARTS with white/grey TEXT, flush left with "Online Course"
+  (no leading square, no indent). A line may END with a square.
+- No item ever splits across lines ("Instructor Rating 3.8 / 4" always stays whole).
+- Wrapped lines sit close together: ~25px from one line's top to the next (18px text,
+  line-height 1.3, 2px row gap). The distance from the title above and the section below is
+  unchanged.
+
+=====================================================================
+CHECK — report each
+=====================================================================
+a) 1440px: single line, identical to before.
+b) Narrow the window until it wraps (≈ 600–800px) and at 390px phone width: each wrapped line
+   begins with text flush left under "Online Course"; no line begins with a square.
+c) Measure the vertical distance between the tops of two wrapped lines: ~25px.
+d) Computed white-space on each .hero-fact = nowrap.
+```
+
+Execution + verification to follow in the next entry.
