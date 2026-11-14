@@ -10991,3 +10991,81 @@ e) No paragraph has a max-width.
 ```
 
 Execution + verification to follow in the next entry.
+
+### §379 — MPPM Course Page OVERVIEW SECTION: red lead-in + photo built, verified (completes §378)
+
+**Investigation before building:** fresh `query_elements` of the Overview container
+(`mppm-course-container`, element `8f347567-...`) showed its current 3 children in order: Paragraph
+`mppm-course-summary` (the lead-in sentence), Block `mppm-course-facts-row` (the 4 colored stat tiles —
+a separate, already-built feature this spec never mentions), Paragraph `mppm-course-desc` (the longer
+description). The lead-in mechanism the spec describes ("wrap the first six words in a span... same
+baseline... Interstate 800, 1.5em, line-height 1, letter-spacing -0.02em, color #E21833,
+margin-right 0.12em") was **already built, word-for-word identical**, as the existing `course-leadin`
+DOM/span class — confirmed via `query_styles`, every property matched the new spec exactly, so it was
+left untouched. (A same-propertied but UNUSED orphan duplicate, `mppm-course-summary-lead`, was found
+alongside it — not applied to any element on the page — left alone, out of scope for this task, same
+"don't bulk-clean orphans speculatively" discipline as §11's class-system audit.)
+
+**Resolved ambiguity (flagged per HARD RULE #22, not silently decided):** the spec's `.ov-text` only
+describes the two paragraphs (summary + description); it never mentions the facts-row of 4 colored
+tiles, which currently sits BETWEEN them. Since the new layout requires the two paragraphs to become
+ADJACENT siblings (1em apart) inside one text column, facts-row had to move. Decision: relocated it to
+sit immediately AFTER the new text/photo row (so it continues to read right below the intro copy, same
+general position as before) rather than nesting it inside `.ov-text` (never described by the spec) or
+discarding it (never requested). Facts-row's own content/classes/styling were not touched at all.
+
+**Breakpoint choice:** the spec's custom `<=900px` stack threshold isn't one of Webflow's four native
+breakpoints. Per HARD RULE #2 ("pick the nearest native one, erring earlier/more conservative"), used
+`medium` (≤991) — triggers the stack slightly earlier (wider) than 900px, the safe direction.
+
+**Build (HARD RULE #13 — moves done individually, never batched with a delete):**
+- New classes (all longhand, HARD RULE #4): `mppm-course-ov-row` (flex row, `align-items:stretch`,
+  `grid-column-gap:clamp(28px,4vw,56px)`; `medium` override: `flex-direction:column`,
+  `grid-row-gap:clamp(28px,4vw,56px)`), `mppm-course-ov-text` (`flex-grow:1;flex-shrink:1;
+  flex-basis:0%;min-width:0px`), `mppm-course-ov-photo` (`flex-grow:0;flex-shrink:0;
+  flex-basis:clamp(260px,32%,400px);width:clamp(260px,32%,400px);position:relative;overflow:hidden;
+  min-height:280px;background-color:#F4F4F4`; `medium` override: `flex-grow:0;flex-shrink:0;
+  flex-basis:auto;width:100%;aspect-ratio:16 / 9`), `mppm-course-ov-img` (absolute inset-0 longhand,
+  `width/height:100%`, `object-fit:cover`, `object-position:82% center`, `display:block`),
+  `mppm-course-ov-bar-red` (absolute, `left:0;top:0;bottom:0;width:10px;background-color:#E21833`),
+  `mppm-course-ov-bar-gold` (absolute, `left:0;bottom:0;width:38%;height:10px;
+  background-color:#FFD200`).
+- Adjusted 2 existing classes (no new fork needed — each is used by exactly one element on this
+  single-course-page site): `mppm-course-summary` `margin-bottom` → `1em` (was
+  `clamp(28px,3.2vw,40px)`); `mppm-course-desc` `margin-top` → `0px` (was `clamp(36px,4vw,56px)`).
+- Built `.mppm-course-ov-row` (containing an empty `.mppm-course-ov-text` + a fully-populated
+  `.mppm-course-ov-photo` — Image element on asset `6ae12be8eede0471dce7ae6f` (`mppm-hero.jpg`, the
+  MPPM homepage hero photo) with the specified alt text, plus the two `aria-hidden="true"` accent-bar
+  divs) as a new sibling inserted directly `before` the existing summary paragraph.
+- Moved (not recreated) the EXISTING `mppm-course-summary` and `mppm-course-desc` Paragraph elements
+  into `.ov-text`, one `move_element` call at a time, each individually re-queried to confirm it landed
+  before issuing the next — the two paragraphs are the literal same elements, same IDs, same text,
+  same classes, only relocated. Re-verified the container afterward: children now
+  `[ov-row, facts-row]`; `.ov-text` children now `[summary, desc]`, in order.
+
+**Published, then live Playwright CHECK (cache-busted) + real-browser screenshots at 1440/390px:**
+- **(a) 1440px:** text left (`left:124`), photo right (`left:935`); **photo height exactly equals text
+  block height** — both measured `336px`, to the pixel. ✓
+- **(b)** The lead-in span's own box (`top:619,bottom:654`) sits within the first line's natural
+  line-height span of the surrounding Georgia paragraph (`top:621`, 21px×1.65≈655 expected bottom) —
+  confirms the large red lead-in shares the SAME line as the black text that follows it, not an extra
+  line; screenshot confirms visually ("**Learn today's newest skills and tools** for identifying and…"
+  reads as one continuous line). No extra gap introduced — this mechanism was already correct/untouched
+  from the prior build; only the surrounding LAYOUT changed.
+- **(c)** Red bar: `left:0,top:0` relative to the photo, `width:10px`, `height` equals the photo's own
+  height at every width (336/479/280px at 1440/900/390px respectively) — spans the full left edge.
+  Gold bar: `left:0,bottom:0`, `width` consistently **38%** of the photo's own width at all 3 widths
+  (145/381≈38%, 324/852=38%, 130/342=38%), `height:10px` — confirmed both in measurements and visually
+  in both screenshots.
+- **(d) ≤900px (medium):** confirmed `flex-direction:column` at both 900px and 390px; photo
+  `width:100%` (`photoWidthPct:100` both), `aspect-ratio:"16 / 9"` both; photo sits below the text
+  (`photoTop > textTop+textHeight`, gap ≈ `clamp(28px,4vw,56px)`'s own value at each width — 36px at
+  900, ~28px floor at 390, matching the formula); both accent bars remain full-height/38%-width,
+  unchanged proportionally, confirmed at both stacked widths.
+- **(e)** `max-width` on `mppm-course-summary`, `mppm-course-desc`, and `.ov-text` all read `none` at
+  every one of the 3 tested widths — no paragraph is width-constrained; text runs to the column edge
+  as required.
+- Zero regressions: facts-row (4 colored tiles) still renders correctly, same content, directly below
+  the new row, at every width — confirmed in both screenshots.
+
+Published, documented, committed, pushed.
