@@ -11469,3 +11469,38 @@ the same treatment. Hero and desktop (`main`) layout were never touched, per the
   Email each on their own row) — the new media query confirmed working correctly, not just present.
 
 Published, documented, committed, pushed.
+
+### §385 — MPPM Main Nav dropdown items (Admissions/Academics): match-family-standard spec (committed before execution)
+
+User-provided spec, verbatim, committed before execution. User's own framing explicitly names this as
+the SHARED site header used by every MPPM page — not a surprise found mid-task, stated up front here:
+
+```
+MPPM — MAIN MENU DROPDOWN ITEMS: MATCH THE FAMILY STANDARD
+Edit the existing site header in place (all MPPM pages share it). Change ONLY the dropdown
+panels under "Admissions" and "Academics". The top-level red
+menu items do NOT change.
+
+1. EACH DROPDOWN ITEM (link)
+   font-family Interstate; font-weight 700; font-size 16px;
+   text-transform NONE (normal case — "Application Requirements", not ALL CAPS);
+   letter-spacing normal (remove the 0.02em);
+   color #000000; text-decoration none; white-space nowrap;
+   padding 11px 18px;
+   NO border between items — remove the 1px bottom border on every item.
+   Hover: background #F4F4F4; color #E21833. (No transition change.)
+
+2. THE DROPDOWN PANEL
+   padding 6px 0 (top and bottom space inside the panel);
+   box-shadow 0 4px 12px rgba(0,0,0,0.10);
+   Keep: white background, 1px grey border, 4px gold (#FFD200) top border, min-width 260px,
+   position under its menu item, z-index.
+
+CHECK — open each dropdown on desktop:
+- Items read in normal case, 16px bold black, no lines between them.
+- A little white space above the first item and below the last.
+- Hover turns an item's background light grey and its text red.
+- The red top menu bar itself looks exactly as before.
+```
+
+Execution + verification to follow in the next entry.
