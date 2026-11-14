@@ -10924,3 +10924,70 @@ after.
   line alone once wrapping starts (last item, 1-per-line at 390px).
 
 Published, documented, committed, pushed.
+
+### §378 — MPPM Course Page OVERVIEW SECTION: red lead-in + photo spec (committed before execution)
+
+User-provided spec, verbatim, committed before execution:
+
+```
+COURSE PAGE — OVERVIEW SECTION ("Learn today's…"): RED LEAD-IN + PHOTO
+Page: /course-innovative-ideas-concept-development (and every course page copied from it).
+Edit in place. Change ONLY the first section under the jump bar (white background). The text
+content stays exactly as it is; only its presentation and the photo change.
+
+=====================================================================
+1. LAYOUT — text left, photo right
+=====================================================================
+Section: background #FFFFFF; existing container and top/bottom padding unchanged.
+Inside the container, ONE row:
+  div.ov-row      display flex; align-items STRETCH; column-gap clamp(28px, 4vw, 56px).
+    div.ov-text   flex 1 1 0; min-width 0.        (the paragraphs)
+    div.ov-photo  flex 0 0 clamp(260px, 32%, 400px); width clamp(260px, 32%, 400px).
+At <= 900px: .ov-row flex-direction column; .ov-photo goes BELOW the text, full width
+(width 100%; flex none), aspect-ratio 16 / 9; the row gap becomes the vertical gap.
+No CSS grid.
+
+=====================================================================
+2. TEXT (.ov-text)
+=====================================================================
+First paragraph (the course summary, verbatim), e.g. on this page:
+  "Learn today's newest skills and tools for identifying and acting on entrepreneurial
+   opportunities for startup companies and corporate innovations and innovators."
+Paragraph style: Georgia; clamp(18px, 1.6vw, 21px); line-height 1.65; color #222222;
+  margin 0 0 1em.
+LEAD-IN: wrap the FIRST SIX WORDS of that paragraph ("Learn today's newest skills and tools")
+in a span — it stays INSIDE the same paragraph, on the same baseline as the text after it:
+  span.ov-lead  Interstate 800; font-size 1.5em; line-height 1; letter-spacing -0.02em;
+                color #E21833; margin-right 0.12em.
+  A normal space follows the span, then the rest of the sentence in the paragraph style.
+  (line-height 1 on the span keeps the large words from pushing the lines apart.)
+Following paragraph(s) (the course description, verbatim): same paragraph style, margin 0;
+  1em between paragraphs. No max-width on any paragraph — text runs to the column edge.
+
+=====================================================================
+3. PHOTO (.ov-photo)
+=====================================================================
+.ov-photo   position relative; overflow hidden; min-height 280px; background #F4F4F4.
+            Its height comes from the row (align-items stretch) — it matches the text block.
+img         Asset: mppm-hero.jpg (the MPPM homepage hero image — already in the Assets panel).
+            alt="Engineer at a workstation reviewing an electric-vehicle design simulation on two monitors"
+            position absolute; inset 0; width 100%; height 100%; object-fit cover;
+            object-position 82% center; display block.
+Two accent bars, decorative (aria-hidden), absolutely positioned on top of the image:
+  red bar:  left 0; top 0; bottom 0; width 10px; background #E21833.
+  gold bar: left 0; bottom 0; width 38%; height 10px; background #FFD200.
+  (Red down the LEFT edge, gold along the BOTTOM starting at the LEFT corner.)
+No border, no radius, no shadow.
+
+=====================================================================
+CHECK — report each
+=====================================================================
+a) 1440px: text left, photo right; the photo is exactly as tall as the text block.
+b) "Learn today's newest skills and tools" is large red Interstate, on the SAME line/baseline as
+   the black Georgia text that follows; no extra gap between the paragraph's lines.
+c) Red bar down the photo's left edge; gold bar along the bottom from the left corner.
+d) <= 900px: photo below the text, full width, 16:9; accent bars unchanged.
+e) No paragraph has a max-width.
+```
+
+Execution + verification to follow in the next entry.
