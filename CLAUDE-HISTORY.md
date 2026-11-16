@@ -13173,3 +13173,82 @@ write it was meant to cover, never assumed from the `publish_site` call's own im
 
 No further action pending on this task. `MPPM-Blogs-Template` / the collection's own `mppm-blog` slug
 remain exactly as the user asked — untouched, open for a future pass if ever requested.
+
+### §404 — MPPM forms: inline validation messages + hide-on-outside-click, both AC embeds (2026-11-16, COMPLETE)
+
+Verbatim user spec implemented on the MPPM spinoff site (`6afb5f248e7d4b4975da8c4e`), covering both
+ActiveCampaign form embeds: the homepage hero panel (`#get-connected`, element `ef4a1087-8bca-2b39-b238-a91b8c085ef2`
+for the form+script embed, `f777b263-a294-db6d-318d-ee4dd7615a3d` for its CSS embed, both plain
+page-level elements on Home) and the shared "MPPM Applications Open Panel" component's Learn More
+form (`learn-more-form`, element `9d76e61e-033b-2633-964a-34f7ab1c19e7` for the form+script embed,
+`d880334c-254a-4bfb-0d7b-c2dc6cd32f96` for its CSS embed — both edited via `scope_component_id`
+`7a4c0c9b-9ff0-5b76-f3cf-0c222cd6fe9e`, the component master, so the fix propagates to all 17 live
+instances without any per-instance override).
+
+**Pre-edit investigation, since the spec's own naming didn't fully match the live DOM:**
+- "learn-more-form" is NOT a registered Webflow Component on its own — it's an HtmlEmbed *inside* the
+  genuine "MPPM Applications Open Panel" component (confirmed via `get_all_components`, 17 instances).
+  The spec's "Shared Learn More COMPONENT" language refers to that outer component.
+- The spec assumes both embeds carry a distinguishing CSS class (`hf-embed` / `lm-embed`). The Hero
+  embed genuinely has `hf-embed` (verified) — but **no `.lm-embed` class exists anywhere in the Learn
+  More embed's own markup or its existing CSS** (confirmed by reading both raw `code` settings in
+  full before touching anything). The spec's own fallback clause covers this exactly ("If your
+  existing CSS uses a different embed class... use yours") — so the Learn More CSS block was adapted
+  by dropping `.lm-embed` from all 6 occurrences, matching every other existing rule in that embed
+  (which all key off `#learn-more-form form._form ...` directly, no embed-level class at all). The
+  specificity math was re-verified by hand for the adapted `.hf-quiet` rule against the existing
+  `._has_error` red-border rule to confirm it still out-ranks it (same requirement the spec states for
+  the unmodified Hero side, where the literal `.hf-embed` class already satisfies it).
+
+**Edit 1 (helper script, applied identically to both embeds' `code` settings via
+`data_element_settings_tool.set_settings`, key `code`):**
+- `engage()`: `if (panel) panel.classList.add('hf-engaged');` → `if (panel) { panel.classList.add('hf-engaged'); panel.classList.remove('hf-quiet'); }`
+- Click listener: added, directly after the existing `hf-engaged` removal loop, before the listener's
+  closing `});`:
+  ```
+  var all = document.querySelectorAll('#get-connected, #learn-more-form');
+  for (var j = 0; j < all.length; j++) if (!all[j].contains(e.target)) all[j].classList.add('hf-quiet');
+  ```
+  Both embeds' executable logic was already byte-identical before this edit (only their header
+  comments differ, intentionally, per-panel context) — confirmed by direct comparison before writing
+  anything.
+
+**Edit 2 (CSS, appended before each embed's closing `</style>`, nothing else in either file touched):**
+- Hero: the spec's block used verbatim (its `.hf-embed` assumption holds).
+- Learn More: the spec's block with every `.lm-embed` occurrence removed, per the adaptation above.
+
+**Verification (HARD RULE #3 full discipline — every write independently re-queried fresh before
+moving to the next; published once after all 4 writes landed; fresh `get_site.lastPublished` checked
+past the write before testing):**
+- A Playwright script drove the full CHECK list (a–e) against both the live Home hero panel and the
+  Learn More instance on `/calendars-deadlines` (the spec's own example URL used its PRE-rename slug,
+  `/mppm-calendars-deadlines` — resolved to the page's current, just-renamed slug instead, per §403).
+- (a) Empty submit: `._error` position:static/transparent/no-shadow; `._error-arrow` display:none;
+  `._error-inner` display:flex, correct color (white on Hero `rgb(255,255,255)`, dark on Learn More
+  `rgb(34,34,34)`), font-size 16px/weight 600; a 7×7px `#E21833` `::before` square; the errored input's
+  border red (`rgb(226,24,51)`) — on both panels.
+- (b) Click outside (`page.mouse.click` far from the form): `hf-quiet` added, `._error` display:none,
+  input border back to its normal rgba value — both panels.
+- (c) Click back into a field: `hf-quiet` removed, message reappears (display back to a real value, not
+  none); Submit pressed again re-validates normally (4 errors shown on the still-empty form) — both
+  panels.
+- (d) Filled firstname/lastname/email with valid-looking data and clicked Submit: zero of those three
+  fields still flagged `_has_error`, confirming valid input isn't falsely rejected by the new CSS.
+  **Deliberately stopped here, before reCAPTCHA** — completing a real submission would create an
+  actual lead record in the university's live ActiveCampaign CRM, which is not something to generate
+  unilaterally for a test; reCAPTCHA itself also makes an unattended bot submission effectively
+  impossible regardless. The Learn More instance's recaptcha-row visibility/engaged state read
+  differently from the Hero's during this automated run — not a regression (that reveal code is
+  byte-identical to before, confirmed by diff, and is explicitly out of scope per requirement #4) —
+  most likely automated-browser/reCAPTCHA friction, noted but not chased further.
+- (e) Console: only `requestStorageAccess: Permission denied.` (×2) — a known benign artifact of
+  Google reCAPTCHA running under browser automation, unrelated to this change.
+- Requirements #1–#5 (never remove/move `._error`/`_has_error` via JS, reuse the existing `click`
+  listener, never change the red border while engaged, leave reCAPTCHA/placeholders/dark-theme code
+  untouched, edit the component master only) all independently confirmed — the reCAPTCHA/placeholder
+  code in all 4 embeds is byte-identical to its pre-edit state except for the two script lines and the
+  appended CSS block, confirmed by direct text comparison before and after each write.
+
+No further action pending. Both embeds now show ActiveCampaign's validation messages as a single
+line under the field with a small red square, hidden whenever the visitor is outside the form,
+reappearing on refocus, with Submit re-validating normally throughout.
