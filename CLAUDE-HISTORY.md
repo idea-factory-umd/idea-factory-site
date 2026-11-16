@@ -13101,3 +13101,75 @@ as a real sequence (HARD RULE #21) to confirm no 404s.
 
 No Webflow writes made yet as of this entry — plan committed per explicit user instruction
 ("commit this task to memory, then go") before any execution began. Completion entry to follow.
+
+### §403 — MPPM spinoff: 9 page slugs de-prefixed, 31 stray links fixed, fully verified (2026-11-16, COMPLETE)
+
+Completion entry for the plan committed in §402. Site: MPPM spinoff (`6afb5f248e7d4b4975da8c4e`).
+
+**Page renames — confirmed independently via a fresh `list_pages` call after a `bulk_update_pages`
+write (both title and slug, SEO title left untouched on every page):**
+
+| Old title / slug | New title / slug |
+|---|---|
+| MPPM-Application-Requirements / mppm-application-requirements | Application-Requirements / application-requirements |
+| MPPM-Calendars-Deadlines / mppm-calendars-deadlines | Calendars-Deadlines / calendars-deadlines |
+| MPPM-Academic-Policies / mppm-academic-policies | Academic-Policies / academic-policies |
+| MPPM-Online-Learning / mppm-online-learning | Online-Learning / online-learning |
+| MPPM-Tuition-Financial-Aid / mppm-tuition-financial-aid | Tuition-Financial-Aid / tuition-financial-aid |
+| MPPM-Graduation-Commencement / mppm-graduation-commencement | Graduation-Commencement / graduation-commencement |
+| MPPM-Academics / mppm-academics | Academics / academics |
+| MPPM-Student-Experience / mppm-student-experience | Student-Experience / student-experience |
+| MPPM-Blog / mppm-blog (static page) | Blog / blog |
+
+`MPPM-Blogs Template` (the CMS collection template page, collectionId `6afb5f248e7d4b4975da8c4e`... its
+own id `6afb5f248e7d4b4975da8d1e`, slug `detail_mppm-blog`) was correctly left untouched, per the
+user's explicit deferral.
+
+**Link sweep — two rounds found, two rounds fixed, both via live-HTML `curl` sweeps of all 21 static
+pages (Home + the 9 renamed + the 11 course pages) before AND after each fix, per HARD RULE #3's full
+sweep discipline:**
+
+1. **Round 1 (Main Nav — MPPM component, 9 links):** every one of these had been built as a hardcoded
+   `linkType:"url"` string, not a native Page-type link, so none of them auto-tracked the rename —
+   Academic Policies, Online Learning, Tuition & Financial Aid, Graduation & Commencement, Experience,
+   Blog (this one was a confirmed live 404 after the rename, since the static page moved out from
+   under it), and the Apply button. Fixed by converting all of these to genuine native `linkType:"page"`
+   links (future-proofing them against ever going stale on a rename again) via `pageId`. Two more —
+   the Academics dropdown's "Courses" and "Faculty" anchor sublinks (`#courses`/`#faculty`) — stayed
+   `url`-type since a native page-link can't carry a fragment through this tool, just corrected to
+   `/academics#courses` / `/academics#faculty`. **Bottom Nav — MPPM's links were ALREADY all native
+   `linkType:"page"`, confirmed by inspection — zero fixes needed there**, which is exactly why the
+   Calendars & Deadlines dropdown item (also already a native page-link) never showed up as stale in
+   either sweep.
+2. **Round 2 (Home page body content, 22 links):** a "Programs at a glance"-style course list +
+   faculty "more" list directly on Home, entirely separate from the nav, all hardcoded `url`-type
+   anchors into the old `/mppm-academics#...` slug (10 course anchors, 10 faculty-name anchors — one
+   name, O'Connor, had two separate link elements pointing at it — plus one bare `/mppm-academics`
+   "view full curriculum" link and one "#faculty" CTA button = 22 elements, 21 unique hrefs). These
+   only surfaced in the SECOND sweep, after round 1's identical-looking nav hrefs stopped masking them
+   on every page. Fixed by correcting each hardcoded path's prefix while preserving its exact anchor
+   fragment.
+
+**What was confirmed correctly left alone, not a bug:** the 6 blog-post links on the new `/blog` page
+(`/mppm-blog/<post-slug>`) — these resolve via the CMS collection's own, separately-configured URL
+slug (still `mppm-blog`, per CLAUDE-HISTORY.md §352), which is independent of the static landing
+page's own slug and was explicitly out of scope for this pass (bundled with the deferred
+`MPPM-Blogs-Template` question).
+
+**Final verification, both legs:**
+- A third, clean `curl` sweep of all 21 pages: zero remaining references to any of the 9 old slugs
+  anywhere, in any form, except the correct/expected blog-post links.
+- A real, continuous Playwright click-through (HARD RULE #21 — a sequence of real actions, not
+  isolated fresh loads): Home → Admissions dropdown → Academic Policies → (same session) Admissions
+  dropdown again → Online Learning → BLOG nav link (previously the literal 404) → a real blog post →
+  back to Home → EXPERIENCE → APPLY → back to Home → Academics dropdown → Courses anchor → back to
+  Home → a body course-teaser link → back to Home → a faculty "more" link. All 10 navigations landed
+  on the correct new URL with HTTP 200 and the correct page title, no "Not Found" anywhere in the
+  sequence.
+
+Two publishes were needed (one after the page renames, one after each link-fix round landed) before
+the final clean sweep — each confirmed via `get_site`'s `lastPublished` timestamp advancing past the
+write it was meant to cover, never assumed from the `publish_site` call's own immediate response alone.
+
+No further action pending on this task. `MPPM-Blogs-Template` / the collection's own `mppm-blog` slug
+remain exactly as the user asked — untouched, open for a future pass if ever requested.
