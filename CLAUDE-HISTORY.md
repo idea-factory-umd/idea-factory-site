@@ -13000,3 +13000,55 @@ that authorization carries over to this new, separate, independent site now that
 CLAUDE.md §2's site-landscape block updated in the same pass: the MPPM bullet converted from
 "PLACEHOLDER SLOT, not yet connected" to the real ID/shortName/domain-status above, and the section
 header's "9 confirmed + 1 placeholder" language changed to "10/10 confirmed."
+
+### §401 — MPPM spinoff site: write access authorized + "MPPM" referent flipped to the new site (2026-11-16)
+
+Immediately after §400 confirmed the MPPM spinoff site (`6afb5f248e7d4b4975da8c4e`, shortName
+`mppm-if`) was connected, the user granted write access and set a standing terminology rule:
+
+> "YES you are AUTHORIZED to work directly on the MPPM spinoff now. Also henceforth when we discuss
+> mppm at all we'll be exclusively referring to to the newly published site you just got access to
+> (NOT to the build on the "Claude..." site). So make a note of that so you don't indavertenty go back
+> there if I ask you to build somethign on the MPPM site (unless I explicty TELLL YOU it's on the
+> Claude/Master site at that time)."
+
+Two distinct things granted here, both now recorded as standing rules in CLAUDE.md:
+
+**1. Write access** — the MPPM spinoff site now has a full-site write exception, the same breadth as
+the Idea Factory exception (not narrowed to one page/component like most other HARD RULE #16
+entries). Added as a new bullet at the end of HARD RULE #16's exception list.
+
+**2. Terminology/referent default** — elevated to a new standing rule, **HARD RULE #29**, inserted
+right after HARD RULE #28 (before the "What this file is" section) so it's auto-injected every
+session going forward. The rule: an unqualified "MPPM" now means the independent spinoff site
+(`6afb5f248e7d4b4975da8c4e`) by default, never the master site's own `mppm-*`-prefixed pages (home,
+academic-policies, the 11 course pages, etc. — all still sitting on `6a316b1a0f02a4cda75a50e7`, per
+the extensive §0 STATUS build log). Those master-site pages are now explicitly a superseded,
+build-in-place historical artifact. The master's own `mppm-*` pages are only the target again if the
+user explicitly names "the Claude/Master site" for that specific request — never inferred from old
+habit, from a page/class/asset already existing over there, or from the master being the default
+writable site for everything else in this file.
+
+This was given HARD RULE status (not just a STATUS note) because the failure mode it guards against —
+writing to the wrong one of two now-concurrently-writable sites that share the same casual name — is
+exactly the class of mistake this file's HARD RULE list exists to prevent (same shape as HARD RULE
+#15's "when told make X match Y, never touch Y," and HARD RULE #16's write-access confinement
+generally).
+
+**CLAUDE.md changes made in this pass:**
+- HARD RULE #16: added a new "MPPM SPINOFF SITE — FULL WRITE ACCESS AUTHORIZED" bullet before its
+  closing banner (and caught/fixed a self-introduced error where that banner's own
+  "same standing as HARD RULES #1–#15" line had been accidentally changed to "#1–#16" mid-edit —
+  reverted back to #1–#15, matching the established self-exclusive numbering convention every other
+  HARD RULE's closing banner follows).
+- New HARD RULE #29 inserted after HARD RULE #28's closing banner, before "What this file is."
+- §2's MPPM site-landscape bullet updated: "Write access is NOT yet authorized" → confirmed
+  write-authorized, flagged as the project's third generally-writable site (master, Idea Factory,
+  now MPPM), with a pointer to HARD RULE #29.
+- §0 STATUS: added a prominent "MPPM HAS NOW ACTUALLY SPUN OFF" banner immediately before the
+  "NEW SPINOFF KICKED OFF (2026-10-27)" paragraph and its many sub-bullets, since that entire block
+  describes master-site pageIds/elementIds from the pre-spinoff build phase — flagged as historical
+  record only, not live ids to act on, per HARD RULE #29.
+
+No Webflow writes happened in this pass — purely a CLAUDE.md/CLAUDE-HISTORY.md documentation update,
+committed and pushed per the standing MAINTENANCE RULE.
