@@ -12349,3 +12349,53 @@ Report, per page: PASS, or the exact mismatch and that you fixed it. Do not repo
 **STATUS:** spec committed to memory in full. Execution not yet begun — awaiting the user's explicit
 authorization to begin, per their explicit instruction this time. Next entry (§388) will record progress/
 completion once authorized and underway.
+
+---
+
+## §388 — MPPM COURSE PAGES CONTENT-FILL (§387) — COMPLETED, VERIFIED, PUBLISHED (2026‑11‑16)
+
+**All 11 course pages in the MPPM "courses" subfolder now have their real content, per §387's spec.**
+Content-only changes throughout: hero fact line, Overview (red lead-in + serif continuation +
+description paragraph(s)), What You'll Learn, Who Will Benefit, Course Topics, Faculty, and
+Testimonials/Preview where the page has those sections. No style, class, section, or jump-bar changes
+anywhere; nothing above the hero, in the footer, or nav was touched.
+
+**Pages (pageId — array counts applied):**
+1. Fundamentals of Product Management (`6afb24dde87f1429b98bfdbe`) — What 5, Who 4, Topics 10, bio 2.
+2. Strategies for Managing Innovation (`6af89a4ee60d5ea5c4511c07`) — What 6, Who 4, Topics 12, bio 3, Preview.
+3. Business Modeling and Customer Validation (`6afb217d8981de4f1625dea5`) — What 4, Who 4, Topics 10, bio 3, Preview.
+4. Data Analysis and Decision Making (`6afb25787ffdee711c1662f2`) — What 3, Who 4, Topics 10, bio 1.
+5. Innovative Thinking (`6afb22a75ef97ed7da6ec162`) — What 4, Who 4, Topics 12, bio 3, Preview.
+6. Managing Product Development and Operations (`6afb26975bf84470befcf13d`) — What 6, Who 4, Topics 12 (all "no description" — every desc paragraph deleted), bio 3.
+7. Market Development and Commercialization (`6afb2338dfbeffc846e95a1f`) — What 3, Who 4, Topics 11, bio 4, Overview desc ×3, Preview.
+8. Negotiation and Problem-Solving (`6afb27d1529a522bc095d4a6`) — What 5, Who 4, Topics 12 (all "no description"), bio 3 (2 markdown links linkified: "Gayton Law"→gayton-law.com, "podcast"→soundcloud.com/artontheblockchain, both new-tab).
+9. Financing the Product Life Cycle (`6afb241134cd299ace7502e3`) — What 4, Who 4, Topics 10, bio 3, Preview (heading uses spec's own "Lifecycle" one-word spelling, matching the page's "Life Cycle" two-word title verbatim per the source text).
+10. Building and Leading Innovative Organizations (`6af814e15051b3f2e7ac15d7`) — What 5, Who 4, Topics reduced 10→3 (Part I/II/III), bio 1. **Judgment call, flagged here per HARD RULE #6:** this page's Topics boxes have no NUMBER/TITLE/DESCRIPTION shape in the spec — they're "Part I/II/III" + an ITALIC LEAD paragraph + a normal paragraph. Rule 4 only authorizes adjusting BOX COUNT for this array, not adding a second text element inside a box, so each box's existing single `mppm-course-topics-desc` paragraph holds the ITALIC LEAD sentence and the normal paragraph concatenated (no italic/non-italic visual split exists); the existing `mppm-course-topics-num` field (previously "01"/"02"/"03") was set to "I"/"II"/"III", derived directly from each box's own "Part I/II/III" title text. Flagged for the user to correct if a different treatment was intended.
+11. Innovative Ideas & Concept Development (`6af6231016b9c27c1a03b5b8`) — already matched the spec exactly before this task began (it was this session's own earlier build, and the other 10 pages were duplicated from it) — verified, not re-written: Hero, Overview, What (4), Who (4), Topics (10), Faculty (1 bio), Testimonials (1 card), and Preview all confirmed byte-matching the spec on direct re-query.
+
+**Two faculty photos could not be set — the asset files are not in this site's asset library (searched
+the full 533-asset library, all pages, by filename and by fuzzy name match):** Daniel Gordon
+(`mppm-faculty-gordon.jpg`, Business Modeling and Customer Validation) and Tushar Rathod
+(`mppm-faculty-rathod.jpg`, Building and Leading Innovative Organizations). Per HARD RULE #6, no
+substitute image was invented — both pages still show the inherited placeholder photo; everything else
+(name, altText, affiliation, bio) is correct. Upload these two files to the site's assets and re-run
+`set_image_asset` on each page's `fac-photo-img` element once they're available.
+
+**Verification performed (HARD RULE #3, full sweep, not a sample):** after publishing
+(`publishTaskId b8896529-7970-4f9f-8094-631538bf0448`), every one of the 11 pages' hero-fact/What/
+Who/Topics/bio-paragraph counts were re-queried fresh from live stored data (not inferred from write
+"success" responses) and matched the spec exactly, including the two reduced-count cases (Data
+Analysis's 3 What-cards, Building's 3 Topics-boxes) and the two all-"no-description" cases
+(Managing Product Development, Negotiation — re-confirmed 0 leftover desc paragraphs on Negotiation).
+Separately re-fetched the actual live published HTML (not the Designer's stored data) for three
+representative pages — Negotiation (most complex: 2 new-tab markdown links, all-no-description
+Topics), Building (Part I/II/III structure), Innovative Ideas (the no-op/already-correct case) — and
+confirmed names, links (with `target="_blank"`), Topics card counts, and the Preview heading all render
+correctly on the published page.
+
+**Known gap, tracked separately (not part of this task): the stray build-time "Lorem ipsum…" placeholder
+string that `data_element_builder` silently adds alongside explicit `children` on a Paragraph with no
+top-level `set_text`** — hit repeatedly this task (every new What-card and every new linked bio
+paragraph) and fixed every time by querying the new element immediately after creation and deleting the
+stray String child. Worth writing into a HARD RULE or at least a standing note if this tool behavior is
+hit again in a future build.
