@@ -12759,3 +12759,15 @@ confirms nothing adjacent changed. Screenshots sent to the user for direct visua
 
 **Status: DONE, except the 2 missing icon files noted above (cards 3 & 5), which are a genuine
 upload gap, not a build error.**
+
+### §394 — §393 icon flag resolved: no gap, nothing outstanding (2026-11-16)
+
+User clarified: cards 3 and 5's existing (unsuffixed) icon files were already the correct red
+artwork — the "-red" filenames in the §392 spec were a renaming-for-consistency exercise, not a
+content change, and the two "-red" files are exact copies of the originals. No upload was ever
+needed; `mppm-feature-flexibility.png` and `mppm-feature-real-world-projects.png` (already applied,
+unchanged) are the correct, final icons for those two cards. This matches what the live screenshot in
+§393 already showed (red line-art icons on both white cards) — the §393 "outstanding" flag was
+over-cautious, not a real gap.
+
+**Status: §393's Key Program Features restyle is fully complete. Nothing outstanding.**
