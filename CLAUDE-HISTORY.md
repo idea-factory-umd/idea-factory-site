@@ -11539,3 +11539,813 @@ nav class as a result of §385 — the MPPM Main Nav component (`293803d4-d6a3-d
 this file only as a record that it was proposed and then explicitly retracted — it is not a pending or
 outstanding task, and must not be treated as one, re-executed, or treated as a competing/contradictory
 style directive in any future session.
+
+---
+
+## §387 — MPPM COURSE PAGES CONTENT-FILL SPEC (11 pages) — committed verbatim BEFORE execution (2026‑11‑16)
+
+**Context:** user uploaded a 792‑line content spec (file `MPPM-course-pages-content-prompt.txt`, re‑uploaded a
+second time mid‑session after a context compaction, out of concern the task would be lost — confirmed
+byte‑identical to the first upload via `diff`). User's instruction: "All these pages are in the MPPM site's
+subfolder 'courses'." This section is a verbatim copy of the full spec, committed to durable project memory
+BEFORE any execution begins, per this project's standing MAINTENANCE RULE and this session's own established
+practice of committing a spec before acting on it. Execution has NOT started as of this commit — this is the
+commit-before-acting step only.
+
+**FULL SPEC, VERBATIM:**
+
+MPPM COURSE PAGES — FILL IN ALL CONTENT (11 pages)
+====================================================================
+WHAT THIS IS
+The 11 course pages already exist in the Webflow "courses" folder. Each page ALREADY has:
+  - the correct course title in the hero,
+  - the correct sections (and the correct jump-bar links) for that course,
+  - all styling.
+Your ONLY job: put each page's content (below) into the sections that are already on that page.
+
+RULES — FOLLOW EXACTLY
+1. Content only. Replace the existing placeholder/copied text, links, images and video with the
+   content given below for that page. Copy every word EXACTLY as written (spelling, punctuation,
+   capitalization, curly quotes and apostrophes — including any typos; they are on the live site).
+2. Do NOT change any style, class, layout, spacing, font, color or breakpoint. Do NOT create new
+   classes. Do NOT rebuild, replace or restructure any element. Do NOT add or remove sections.
+   Do NOT touch the jump bar.
+3. Do NOT touch anything above the hero, the footer, or the navigation.
+4. The ONLY structural change allowed: set the NUMBER OF BOXES inside these arrays to match the
+   page's content, by duplicating an existing box (same classes) or deleting extra boxes:
+     - What You'll Learn: one card per point
+     - Who Will Benefit: one card per entry
+     - Course Topics: one box per module/part
+     - Faculty bio: one paragraph per bio paragraph
+   Everything else keeps the exact structure it already has.
+5. Refer to each page by the Webflow page name shown in each heading below.
+6. Where the content says "(no description)", leave that module box with its title only — delete
+   the description text element from that box (do not leave placeholder text).
+
+FORMAT NOTES (applies to every page)
+- HERO FACT LINE: put the items in this order, as given per page. The last item has no square after it.
+- OVERVIEW (first section under the jump bar, left text column):
+    PARAGRAPH 1 = [RED LEAD-IN] + [SERIF TEXT]. The RED LEAD-IN text goes in the large red span;
+    the SERIF TEXT continues in the SAME paragraph directly after it (one space between).
+    Then each DESCRIPTION paragraph below goes in its own serif paragraph, in order.
+- WHAT YOU'LL LEARN: each point = [BOLD] + [REST]. The BOLD words go in the bold span at the start
+  of the card; REST follows in the same line of text, starting with the character shown.
+- WHO WILL BENEFIT: each entry = [LABEL] (bold) + [TEXT].
+- COURSE TOPICS: each box = MODULE NUMBER, TITLE, DESCRIPTION. The big red number is the module
+  number; the title is the text after "Module N: ". For the Building page, boxes are "Part I/II/III"
+  with an ITALIC LEAD paragraph followed by a normal paragraph.
+- FACULTY: photo (the faculty member's image already in the Assets panel, file name given), name,
+  affiliation lines (each on its own line in the black name plate), then the bio paragraphs.
+  Links inside bio text: the linked words are given as [words](url) — link only those words,
+  open in a new tab.
+- TESTIMONIALS and PREVIEW: only on the pages that already have those sections. Content given below.
+
+
+====================================================================
+PAGE: Fundamentals of Product Management
+====================================================================
+HERO FACT LINE: Online Course  ■  12 Weeks  ■  8-10 Hours / Week
+
+OVERVIEW
+  RED LEAD-IN: Learn today’s newest skills and tools
+  SERIF TEXT (same paragraph, after the lead-in): for delivering products that customers love and that work for the business, across the product and market life cycles, diving into the competencies needed at each stage.
+  DESCRIPTION paragraph 1: Today’s product managers are visionaries, leaders, collaborators, and coaches that work across teams and functional expertise to create competitive and loved products. This requires startup and corporate strategy, product strategy, vision setting and evangelism. Students will learn the basics of customer discovery, product discovery, product delivery, and the core-context model for managing products through maturity. This course will also cover how these change given the product adoption lifecycle and the market life cycle maturity, including how to detect which stage you are in and what types of strategies can be employed at each stage.
+
+WHAT YOU'LL LEARN (5 cards)
+  1. BOLD: Learn the roles and responsibilities
+     REST:  in product management, from team roles to leadership roles, and how those change throughout the product life cycle.
+  2. BOLD: Understand the product life cycle and market life cycle
+     REST: , and the innovation challenges and proposed solutions to move products through these life cycles.
+  3. BOLD: Develop foundational knowledge and skills
+     REST:  in customer discovery, product discovery, product delivery, product evangelism, vision-setting, and coaching through simulations.
+  4. BOLD: Develop the mindsets
+     REST:  and understanding of truly empowered teams and company cultures that enable growth despite macroeconomic factors and conditions.
+  5. BOLD: Prepare yourself fully
+     REST:  to learn the required knowledge and skills to be successful in a career in product management at every level of the organization.
+
+WHO WILL BENEFIT (4 cards)
+  1. LABEL: Aspiring product managers
+     TEXT: interested in learning the fundamentals framework and approaches, and how product management works across industries and companies.
+  2. LABEL: Active product managers
+     TEXT: who want to expand their toolsets, identify gaps, and explore how the best companies at product achieve rapid adoption and growth.
+  3. LABEL: Agile coaches
+     TEXT: interested in understanding how product managers enable agility through early pipeline discovery and design to enable products at scale.
+  4. LABEL: Educators, consultants, and organizational leads
+     TEXT: desiring to improve their capacity to teach, advise, or empower their constituencies to effectively lead innovation and drive growth across emerging and established markets.
+
+COURSE TOPICS (10 boxes)
+  Box 1 — NUMBER: 01 | TITLE: What is Product Management?
+     DESCRIPTION: Understand what is product management, project vs. product, how it relates to complex systems and volume operations, and the role of the product manager leading the product team. Also learn the essentials of the lean revolution, the agile revolution, how product management is enabling Business Agility.
+  Box 2 — NUMBER: 02 | TITLE: Product and Market Life Cycles
+     DESCRIPTION: Learn the key concepts of how markets are made with theories of utility, jobs-to-be-done theory, and the product and market lifecycle. Explore how products in technology development cross the Chasm using Bowling Alley Strategies and drive towards adoption with Product, Market, and Operational innovation methods.
+  Box 3 — NUMBER: 03 | TITLE: Portfolio Management
+     DESCRIPTION: Explore how product improvements are screened and selected using various portfolio analytics, visualizations, and strategies. Understand the key differences between Traditional and Agile portfolios, and how they align to strategies and drive changes in resource allocations.
+  Box 4 — NUMBER: 04 | TITLE: Project to Product
+     DESCRIPTION: Explore the key differences in various delivery approaches, including Traditional, Lean, and Agile and how they differ in use across industries, customer management, and engineering methods. Then go further with DevOps using Lean Analytics, and how Project methodologies have given way to Product organizational strategies.
+  Box 5 — NUMBER: 05 | TITLE: Product Vision and Strategy
+     DESCRIPTION: What are Strong Product teams? How does the Product Manager role change throughout their career? What are the teams like and the relationship to the Product Designer and Tech Leads? What are the various models of organization?
+  Box 6 — NUMBER: 06 | TITLE: Product Vision and Strategy
+     DESCRIPTION: Understand product vision principles and how they guide strategy development (go-to-market) and ultimately set objectives and key results (OKRs). Then explore evangelism and how we can create shared visions through joint design and continuous discovery.
+  Box 7 — NUMBER: 07 | TITLE: Customer and Product Discovery
+     DESCRIPTION: Learn the customer discovery method, including the Four Steps to the epiphany and Lean Startup, as well as the Business Model Canvas. Learn how to create various prototypes before your first Concierge Minimum Viable Product (MVP) to generate ideas and evaluate product solutions. Test across the key risks: value, usability, feasibility, and viability.
+  Box 8 — NUMBER: 08 | TITLE: Product Design
+     DESCRIPTION: What are the ways we can empathize with the customer? How can we gather validated requirements, manage uncertainty in technologies and user experiences, and solve complex design problems? How can we ensure designs are ready for fabrication, manufacturing, and delivery at scale?
+  Box 9 — NUMBER: 09 | TITLE: Product Delivery
+     DESCRIPTION: What are the Scaled Product Strategies? How can we enable autonomy at scale, and develop product plans that support large-scale product deliveries across many product teams? What are the various delivery models and their tradeoffs between discipline and innovation?
+  Box 10 — NUMBER: 10 | TITLE: Product Team Leadership
+     DESCRIPTION: How can we motivate and lead teams and develop great teams? What is needed to coach and sustain performance, and achieve people development of product leaders? How can we negotiate with stakeholders and address our toughest problems of ethics and sustainability?
+
+FACULTY
+  PHOTO: mppm-faculty-johnson.jpg
+  NAME: John Johnson
+  AFFILIATION line 1: Project Management Center of Excellence
+  AFFILIATION line 2: University of Maryland
+  BIO (2 paragraphs):
+    1. John Johnson serves as the Strategic Program Manager at the University of Maryland's Project Management Center for Excellence. He leads the initiatives that help grow the Project Management Center for Excellence across its three pillars: Academic Excellence, Outreach and Professional Development, and Research. He is primarily responsible for the Massive Open Online Course (MOOC) program, which currently is educating over 100,000 enrolled learners across the world. Mr. Johnson also teaches graduate courses on Agile and Predictive management at the University of Maryland’s Project Management Program. Mr. Johnson serves as the Strategic Advisor for Softek Enterprises LLC. Established in 2007, Softek specializes in evolving business systems using Agile, DevOps, and Cloud technologies to deliver working solutions faster for the government’s most critical IT challenges.
+    2. Previously, Mr. Johnson served as CTO of Sotek and worked closely with senior Agency influencers to explore and develop solutions. During his tenure he more than doubled Softek revenue annually, while leading multiple deliveries for clients and partners. Prior to Softek, Mr. Johnson served as Senior Agile Project Manager with IBM, where he led multiple development teams building applications for the National Archives Records Administration (NARA). These applications were built on Amazon’s Gov Cloud (AWS) with cutting-edge cloud technologies to process, store, and search the hundreds of petabytes of government records expected at NARA by 2020. This project won “Project of the Year” across all of IBM globally for its success in project management innovation in 2015. He also worked as a Management Consultant with Booz Allen Hamilton, where he led projects for the Marine Corps, Air Force, and Navy from optimizing site investments and posture for Reserve forces, to developing award-winning project analysis and portfolio management software to optimize billions in shore energy investments.
+
+====================================================================
+PAGE: Strategies for Managing Innovation
+====================================================================
+HERO FACT LINE: Online Course  ■  12 Weeks  ■  8-10 Hours / Week
+
+OVERVIEW
+  RED LEAD-IN: Learn how innovative leaders can use
+  SERIF TEXT (same paragraph, after the lead-in): strategic management to enhance the performance of startup companies and corporate ventures.
+  DESCRIPTION paragraph 1: This course focuses on understanding innovation and how to incorporate it as a strategy in technology ventures.  We examine the processes of technological change and how firms can creatively recognize, screen, and evaluate tools and techniques to practice innovation. You will learn how innovation operates in emerging ventures and how it plays a part in a company's overall competitive strategy.  This is a practical course that translates a series of frameworks to understand and manage the innovation process to develop and grow an entrepreneurial venture.
+
+WHAT YOU'LL LEARN (6 cards)
+  1. BOLD: Understand the innovation process
+     REST: , and how an innovation is adopted in the marketplace.
+  2. BOLD: Leverage employees' capabilities
+     REST:  and the firm’s innovative culture to support innovative thinking and action.
+  3. BOLD: Evaluate the feasibility
+     REST:  and marketplace acceptance of an innovative idea.
+  4. BOLD: Initiate and implement
+     REST:  an innovative product or service strategy.
+  5. BOLD: Recognize and navigate the barriers
+     REST:  and challenges to innovation within a firm.
+  6. BOLD: Design and implement approaches
+     REST:  that leverage technology as part of an innovation strategy.
+
+WHO WILL BENEFIT (4 cards)
+  1. LABEL: Aspiring product managers
+     TEXT: working to develop their skills for entry into a product management role.
+  2. LABEL: Active product managers
+     TEXT: seeking to enhance their capabilities to be world-class product managers.
+  3. LABEL: Product designers, developers, and collaborators
+     TEXT: interested in improving their understanding product management.
+  4. LABEL: Educators, consultants, and organizational leads
+     TEXT: desiring to improve their capacity to teach, advise, or empower their constituencies in the product management area.
+
+COURSE TOPICS (12 boxes)
+  Box 1 — NUMBER: 01 | TITLE: Defining Innovation as Creative Marketplace Destruction
+     DESCRIPTION: This module includes a welcome to the course, an orientation to our teaching approach and faculty, and an introduction to the fundamentals of strategies for managing innovation.
+  Box 2 — NUMBER: 02 | TITLE: How to Recognize Sources of Innovation Opportunity
+     DESCRIPTION: How can environmental scanning help find innovative opportunities? How do you define an innovation opportunity? How do innovation opportunities show up within and beyond a business? How does the marketplace generate innovation opportunities? How can you find potential innovations in the value chain?
+  Box 3 — NUMBER: 03 | TITLE: Framing Innovation in its Adoption Cycle
+     DESCRIPTION: How is innovation value classified within a firm? What's the path of a product's life cycle? How does an 'S' curve explain technology performance? Why should innovators understand innovation diffusion & adoption?
+  Box 4 — NUMBER: 04 | TITLE: Recognizing Ways Innovation Competencies Help Entrepreneurs
+     DESCRIPTION: What are some essential practices for a successful innovation? What competencies help you think like an innovator? How does design thinking help build an innovator's skills? How can you become your own trend spotter? What are key "associating" skills of innovators?
+  Box 5 — NUMBER: 05 | TITLE: Mapping Innovation Process Steps & New Product Development
+     DESCRIPTION: How can innovation be framed as a process? Is there a logical sequence of steps in the innovation process? How is a new product developed? How is the innovation process portrayed at the industrial level?
+  Box 6 — NUMBER: 06 | TITLE: Identifying Innovation Roles & Role Players
+     DESCRIPTION: Who are innovation's creative role players? Who are innovation's implementation role players? How do you become a product champion? How do you staff an innovation project? How do manager, entrepreneur, and innovator roles differ?
+  Box 7 — NUMBER: 07 | TITLE: Leveraging Your Creativity when developing an innovative Idea
+     DESCRIPTION: Is there a model for understanding creativity in innovators? How does corporate culture influence innovation and creativity? How can you recognize blocks to creativity in a business? How does creativity reinforce innovator competence?
+  Box 8 — NUMBER: 08 | TITLE: Growing Your Innovation Core Competencies
+     DESCRIPTION: How can a firm’s core competencies leverage innovation? How can knowledge management enable innovation? Do different organizational forms matter for innovation initiatives? What organizational forms do innovation venture units take? How does technology brokering help foster innovation?
+  Box 9 — NUMBER: 09 | TITLE: Evaluating the Feasibility of an Innovation Opportunity
+     DESCRIPTION: What factors influence the feasibility of an innovation? How does technology uncertainty influence an innovation in the marketplace? How can an innovation's potential risks be identified? How do you evaluate a winning innovation idea when you see one?
+  Box 10 — NUMBER: 10 | TITLE: Composing a Menu of Innovation Strategies
+     DESCRIPTION: How do disruptive innovations change the marketplace? How are innovations revealed in a blue ocean strategy? How can open innovation become an entrepreneurial strategy? How can lead users contribute to an innovation strategy? How does technology influence an innovation strategy? How does an innovation get across the first adoption chasm? Which innovation strategy: technology-push or market-pull?
+  Box 11 — NUMBER: 11 | TITLE: Building Innovation Portfolios
+     DESCRIPTION: What are the essential parts of an innovation portfolio? How does technology transfer fit in an innovation portfolio? Why would you need an innovation sponsor? How do innovation managers survive an innovation project?
+  Box 12 — NUMBER: 12 | TITLE: Applying Innovation Management Best Practices
+     DESCRIPTION: How can benchmarking become an innovation practice? How can an audit reveal innovation competence and weakness? How could an innovation tournament help launch an innovation initiative? How many ways can companies innovate?
+
+FACULTY
+  PHOTO: mppm-faculty-flank.jpg
+  NAME: Sharon Flank
+  AFFILIATION line 1: Maryland Technology Enterprise Institute
+  AFFILIATION line 2: University of Maryland
+  BIO (3 paragraphs):
+    1. Dr. Flank is an inventor and entrepreneur with experience in innovation leadership that encompasses artificial intelligence, anti-counterfeiting, drug delivery, sensor technology, and 3D printing.  As a co-inventor for a defense contractor’s first intellectual property (SRA, now General Dynamics), she created and then managed the patent process and helped create the spinout company (eMotion, funded by Chicago Tribune, Kodak, and GE; now part of OpenText and of Getty Images), which she later joined, eventually as CTO.
+    2. For her own venture-backed company, InfraTrac, she secured angel and venture investment, licensed university intellectual property, established a market niche in in-dose pharmaceutical anti-counterfeiting, and then pivoted to the more successful 3D printing security market after FDA mandated bar codes on packaging and disrupted the pharma market. InfraTrac has successfully delivered proof-of-concept 3D-printed security taggants as part of a military aerospace program. Dr. Flank continues to innovate, with 3D nanoprinting for precision controlled delivery, jointly developed with University of Maryland faculty.
+    3. Dr. Flank holds an A.B. from Cornell University and a Ph.D. from Harvard University.
+
+PREVIEW
+  HEADING: Take a Peek at Strategies for Managing Innovation
+  VIDEO: Vimeo — https://player.vimeo.com/video/675690124?h=2af3226ef1
+  (Replace the embed's src with this URL; keep the existing embed element and its 16:9 wrapper.)
+
+====================================================================
+PAGE: Business Modeling and Customer Validation
+====================================================================
+HERO FACT LINE: Online Course  ■  12 Weeks  ■  8-10 Hours / Week
+
+OVERVIEW
+  RED LEAD-IN: Learn how to create and deliver
+  SERIF TEXT (same paragraph, after the lead-in): value for customers and how to sustainably extract value for the startup, corporate venture, or established organization.
+  DESCRIPTION paragraph 1: This course will guides aspiring and active entrepreneurs and innovators through the process of creating successful business models and navigating the customer discovery process. Students learn how to conduct customer interviews and identify target customer segments. Students use the Business Model Canvas and test new ideas to create winning business models.
+
+WHAT YOU'LL LEARN (4 cards)
+  1. BOLD: Identify how to create and deliver value
+     REST:  for customers.
+  2. BOLD: Learn how to extract value
+     REST:  for the venture in a sustainable fashion.
+  3. BOLD: Conduct in-depth interviews
+     REST:  to guide the customer discovery process for your venture.
+  4. BOLD: Develop business models
+     REST:  that encompass the product or service, customers, and economic engine that deliver on venture objectives.
+
+WHO WILL BENEFIT (4 cards)
+  1. LABEL: Aspiring product managers
+     TEXT: working to develop their skills for entry into a product management role.
+  2. LABEL: Active product managers
+     TEXT: seeking to enhance their capabilities to be world-class product managers.
+  3. LABEL: Product designers, developers, and collaborators
+     TEXT: interested in improving their understanding product management.
+  4. LABEL: Educators, consultants, and organizational leads
+     TEXT: desiring to improve their capacity to teach, advise, or empower their constituencies in the product management area.
+
+COURSE TOPICS (10 boxes)
+  Box 1 — NUMBER: 01 | TITLE: What Does a Startup Business Model Look Like?
+     DESCRIPTION: This module includes a welcome to the course, an orientation to our teaching approach and faculty, and an introduction to business models and product-market fit.
+  Box 2 — NUMBER: 02 | TITLE: Talk to Customers to Build the Business Model
+     DESCRIPTION: Why talk to customers. How to get insight from customers. What to do before and after the customer interview. Building a pipeline of customer interviews.
+  Box 3 — NUMBER: 03 | TITLE: Customer Segments and Value Propositions
+     DESCRIPTION: Why have customer segments at all. Customer types. Customer segments. Customer archetypes. Minimum viable product (MVP).
+  Box 4 — NUMBER: 04 | TITLE: Market Types
+     DESCRIPTION: Sizing markets. Physical and virtual goods. B2B and B2C markets. Crossing the Chasm.
+  Box 5 — NUMBER: 05 | TITLE: Customer Discovery Interviews
+     DESCRIPTION: Fundamentals of customer discovery. Troubleshooting your customer discovery. The customer's wallet.
+  Box 6 — NUMBER: 06 | TITLE: Reaching Your Customer
+     DESCRIPTION: The funnel of customer engagement. What is a channel. Product-channel fit.
+  Box 7 — NUMBER: 07 | TITLE: How Will Customers Pay
+     DESCRIPTION: Revenue models versus pricing. Types of revenue streams. Determining the right revenue model. Metrics for a sustainable business model.
+  Box 8 — NUMBER: 08 | TITLE: The Rest of the Business Model Canvas
+     DESCRIPTION: Key activities. Key partnerships. Key resources. Cost structures.
+  Box 9 — NUMBER: 09 | TITLE: What Comes After Customer Discovery
+     DESCRIPTION: Four steps to the epiphany. Customer validation and scaling sales. Customer creation and scaling demand. Company building and scaling the organization. Raising financial capital.
+  Box 10 — NUMBER: 10 | TITLE: Telling Your Story
+     DESCRIPTION: What is storytelling. What do customer want to know. What do investors want to know. Storyboarding for the customer pitch and the investor pitch.
+
+FACULTY
+  PHOTO: mppm-faculty-gordon.jpg
+  NAME: Daniel Gordon
+  AFFILIATION line 1: Maryland Technology Enterprise Institute
+  AFFILIATION line 2: University of Maryland
+  BIO (3 paragraphs):
+    1. Dan Gordon has over 30 years of experience working with technology, as a computer scientist, software developer, manager, analyst, and entrepreneur. Dan is a member of the graduate faculty at the University of Maryland, teaching in the Master of Professional Studies in Technology Entrepreneurship and Corporate Innovation.
+    2. As a technology partner with Valhalla Partners, Dan brought together the most respected and successful venture investors in the region. Valhalla Partners' present and past investments have resulted in 27 M&As, 22 IPOs, and over $1 billion in investment proceeds. Prior to joining Valhalla Partners, Dan was a director and senior staff member at the PricewaterhouseCoopers Global Technology Centre, analyzing technology trends and consulting on technology-oriented strategies in the software, e-business, wireless, optical, networking, semiconductor, and life sciences arenas. He worked with clients from North America, Europe, the Middle East, and Australia. Dan was a Contributing Writer and Contributing Editor to the Technology Centre's annual Technology Forecast, and a frequent speaker at industry and general business meetings. Prior to joining PwC, Dan spent 20 years in Silicon Valley as a software technologist, manager, director, and entrepreneur, including senior technical roles at well-known Silicon Valley firms like Symantec, Intuit, and Oracle. Dan has also been involved in startup companies in the applied artificial intelligence and web applications fields.
+    3. Dan has a BA from Harvard University and an MS from New York University in Computer Science.
+
+PREVIEW
+  HEADING: Take a Peek at Business Modeling and Customer Validation
+  VIDEO: Vimeo — https://player.vimeo.com/video/115649729?h=b5afb1f8ad
+  (Replace the embed's src with this URL; keep the existing embed element and its 16:9 wrapper.)
+
+====================================================================
+PAGE: Data Analysis and Decision Making
+====================================================================
+HERO FACT LINE: Online Course  ■  12 Weeks  ■  8-10 Hours / Week
+
+OVERVIEW
+  RED LEAD-IN: Understand decision making under uncertainty for
+  SERIF TEXT (same paragraph, after the lead-in): products, portfolios, and programs across various industries and environments.
+  DESCRIPTION paragraph 1: Today’s product managers must have a comprehensive understanding of making decisions under uncertainty for products, portfolios, and programs across various industries and environments. This course focuses on the use of Bayesian methods for informing decisions on products and programs when directing experiments. Examines the testing of product ideas throughout the lifecycle, from customer discovery, to product discovery, to product design and optimization, to channel testing and marketing for growth.
+
+WHAT YOU'LL LEARN (3 cards)
+  1. BOLD: Develop survey methods and evaluation models
+     REST:  for better development of data in qualitative assessments and how to integrate with quantitative data sets for customer and product discovery.
+  2. BOLD: Develop demand forecasting and simulation models
+     REST:  that leverage both small and big data techniques to develop scenarios for product and program planning.
+  3. BOLD: Understand the best method choice
+     REST:  for evaluating user experience, customer experiences, marketing channel selection, and team operational health and analytics.
+
+WHO WILL BENEFIT (4 cards)
+  1. LABEL: Aspiring product managers
+     TEXT: interested in learning the key decision making frameworks, scenarios, and methods for product discovery and marketing.
+  2. LABEL: Active product managers
+     TEXT: who want to understand the best methods, how to improve surveys, product A/B testing, multivariate testing, and lean analytics.
+  3. LABEL: Agile coaches
+     TEXT: who want to instill an experimental mindset and culture of learning through leveraging expert judgment and decision making techniques.
+  4. LABEL: Educators, consultants, and organizational leads
+     TEXT: desiring to improve their capacity to teach, advise, or empower their constituencies to effectively lead innovation and drive growth across emerging and established markets.
+
+COURSE TOPICS (10 boxes)
+  Box 1 — NUMBER: 01 | TITLE: User Data
+     DESCRIPTION: Goals, KPIs and metrics, product management metrics, and improving the product.
+  Box 2 — NUMBER: 02 | TITLE: Qualitative Data
+     DESCRIPTION: Comment surveys, customer feedback, interviews, and forensics.
+  Box 3 — NUMBER: 03 | TITLE: Quantitative Data
+     DESCRIPTION: Developing a product hypothesis and user personas, demographics, behaviors, online reviews, and Net Promoter Scores (NPS).
+  Box 4 — NUMBER: 04 | TITLE: Sampling and Surveys
+     DESCRIPTION: User research, asking questions, and statistics of surveys.
+  Box 5 — NUMBER: 05 | TITLE: Experiments and Hypothesis Testing
+     DESCRIPTION: Lean analytics cycle, Bayes Factors, A/B testing, multifactor testing, classical significance tests and effect size, linear models and regression, and logistic regression.
+  Box 6 — NUMBER: 06 | TITLE: Product Data
+     DESCRIPTION: Types of product data, user flows, meta data, bounce rates, abandonment and adoption rates, and innovation accounting.
+  Box 7 — NUMBER: 07 | TITLE: Market Research
+     DESCRIPTION: Competitor analysis, brand positioning analysis, consumer insights, and User segmentation.
+  Box 8 — NUMBER: 08 | TITLE: Document Engineering
+     DESCRIPTION: Information and systems analysis, business process analysis, business informatics, and database theory and management.
+  Box 9 — NUMBER: 09 | TITLE: Team and Operational Analytics
+     DESCRIPTION: Flow metrics, team happiness, team velocity, burndown, cycle time, ROI, defect rates, resource capacity utilization, and queuing theory.
+  Box 10 — NUMBER: 10 | TITLE: Big Data Analytics
+     DESCRIPTION: Machine learning, natural language processing, nearest neighbor analysis, and proforecasting.
+
+FACULTY
+  PHOTO: mppm-faculty-baecher.jpg
+  NAME: Gregory B. Baecher
+  AFFILIATION line 1: Center for Risk and Reliability
+  AFFILIATION line 2: Civil and Environmental Engineering
+  AFFILIATION line 3: University of Maryland
+  BIO (1 paragraphs):
+    1. Gregory B. Baecher is Glenn L Martin Institute Professor of Engineering at the University of Maryland. He holds a BSCE from UC Berkeley and a PhD in civil engineering from MIT. He is the author of four books on risk, safety, and the protection of civil infrastructure, and 200+ technical publications. He is recipient of the USACE Commander's Award for Public Service, the Panamanian National Award for Science and Technology Innovation, and is a member of the US National Academy of Engineering. Dr. Baecher consults to government and industry on project risk management related to civil infrastructure.
+
+====================================================================
+PAGE: Innovative Thinking
+====================================================================
+HERO FACT LINE: Online Course  ■  12 Weeks  ■  8-10 Hours / Week
+
+OVERVIEW
+  RED LEAD-IN: Enhance your creative problem-solving skills by
+  SERIF TEXT (same paragraph, after the lead-in): discovering your personal thinking preferences, identifying and eliminating mental blocks, and elevating your communication and teaming skills.
+  DESCRIPTION paragraph 1: Truly innovative thinking allows us to create real value when we develop new products and services. In this course, we’ll build the creative confidence that enables us to be fearless innovators. You’ll drive your business concept further and more efficiently as you identify and eliminate mental blocks, and boost your creative problem solving skills.
+
+WHAT YOU'LL LEARN (4 cards)
+  1. BOLD: Learn how to employ
+     REST:  the powerful “design thinking” methodology to reduce waste in innovation.
+  2. BOLD: Cultivate creativity
+     REST:  in yourself and on your team with visual thinking.
+  3. BOLD: Champion human-centered entrepreneurship
+     REST:  with a focus on user testing.
+  4. BOLD: Improve your ability to advocate
+     REST:  for your new ideas and recruit support.
+
+WHO WILL BENEFIT (4 cards)
+  1. LABEL: Aspiring product managers
+     TEXT: working to develop their skills for entry into a product management role.
+  2. LABEL: Active product managers
+     TEXT: seeking to enhance their capabilities to be world-class product managers.
+  3. LABEL: Product designers, developers, and collaborators
+     TEXT: interested in improving their understanding product management.
+  4. LABEL: Educators, consultants, and organizational leads
+     TEXT: desiring to improve their capacity to teach, advise, or empower their constituencies in the product management area.
+
+COURSE TOPICS (12 boxes)
+  Box 1 — NUMBER: 01 | TITLE: Introduction to Innovative Thinking
+     DESCRIPTION: This module includes a welcome to the course, an orientation to our teaching approach and faculty, and an introduction to visual thinking.
+  Box 2 — NUMBER: 02 | TITLE: Design Thinking
+     DESCRIPTION: What is design thinking? Human centered. Experiment heavy. Framing your challenge. Design thinking models.
+  Box 3 — NUMBER: 03 | TITLE: Visual Thinking
+     DESCRIPTION: The power of visual thinking. How and when to get visual. Graphic facilitation. Why and how to prototype.
+  Box 4 — NUMBER: 04 | TITLE: Researching Your Business Concept with Real Users
+     DESCRIPTION: What you'll learn from user testing. Good interview technique. Avoiding bias in your research.
+  Box 5 — NUMBER: 05 | TITLE: Setting the Stage for Breakthrough Innovation
+     DESCRIPTION: Nurturing your own creativity. Seeing with the world around you. The power of mentorship and self-education. Exploring random subcultures.
+  Box 6 — NUMBER: 06 | TITLE: Making Collaboration Fundamental to Your Work
+     DESCRIPTION: Collaboration and diversity. Crowdsourcing innovation. Cross-pollination and team configuration. Refining your idea with customer co-creation. Benefits of collaboration.
+  Box 7 — NUMBER: 07 | TITLE: Brainstorming
+     DESCRIPTION: When should you use brainstorming? Rules for brainstorming. Stoking exercises. Valuing quantity over quality. Lenses and constraints.
+  Box 8 — NUMBER: 08 | TITLE: Bias Towards Actions
+     DESCRIPTION: Rapid prototyping and development. Lean startup MVPs. Inspiration to move you to action.
+  Box 9 — NUMBER: 09 | TITLE: Creating a Supportive Environment for Innovation
+     DESCRIPTION: The impact of physical space. Creating a supportive environment for innovation. Creating a soft landing for risk takers.
+  Box 10 — NUMBER: 10 | TITLE: Making Change Happen
+     DESCRIPTION: The emotional and logical components of behavioral change. Directing the rider. Motivating the elephant. Shaping the path.
+  Box 11 — NUMBER: 11 | TITLE: Communicating Your Ideas Effectively
+     DESCRIPTION: Recruiting people to your cause. The value of storytelling, The curse of knowledge. Good storytelling.
+  Box 12 — NUMBER: 12 | TITLE: Next Steps
+     DESCRIPTION: Design thinking. Visual thinking. Setting the stage. Making change happen.
+
+FACULTY
+  PHOTO: mppm-faculty-abralind.jpg
+  NAME: Frankie Abralind
+  AFFILIATION line 1: Maryland Technology Enterprise Institute
+  AFFILIATION line 2: University of Maryland
+  BIO (3 paragraphs):
+    1. Frankie Abralind is executive director of The Good Listening Project, a nonprofit that promotes good listening in hospitals. He is a member of the graduate faculty at the University of Maryland, teaching in the Master of Professional Studies in Technology Entrepreneurship and Corporate Innovation. Frankie's expertise is in design thinking, experience design, and user research.
+    2. Previously, Frankie served as the lead designer for the Innovation Hub at Sibley Memorial Hospital, where he worked on improving the healthcare experience for patients, staff, and visitors. Frankie is a champion of radical collaboration on methodologies, practices, and experiences to facilitate and deliver innovation in the world.
+    3. He earned his MBA at the University of Maryland's Smith School of Business and a BS in Design and Environmental Analysis at Cornell University.
+
+PREVIEW
+  HEADING: Take a Peek at Innovative Thinking
+  VIDEO: Vimeo — https://player.vimeo.com/video/167457104?h=099333d837
+  (Replace the embed's src with this URL; keep the existing embed element and its 16:9 wrapper.)
+
+====================================================================
+PAGE: Managing Product Development and Operations
+====================================================================
+HERO FACT LINE: Online Course  ■  12 Weeks  ■  8-10 Hours / Week
+
+OVERVIEW
+  RED LEAD-IN: Explore the evolution of modern management
+  SERIF TEXT (same paragraph, after the lead-in): methods for operations and product development, and learn how to effectively run large-scale product development with lean-agile engineering and operations.
+  DESCRIPTION paragraph 1: Modern management methods for operations and product development are rapidly changing, with each five years a new management breakthrough driving higher levels of product development and innovation. The need for exiting linear, taylorist-driven models of precision and entering approaches that optimize for learning and optionality to manage uncertainty in product discovery, design and development. These approaches to management are fundamentally different from traditional projects and more complex than simply running scrum teams. This course brings together learning from the source and explores cases that demonstrate how to effectively innovate at the speed and scale of the digital age.
+
+WHAT YOU'LL LEARN (6 cards)
+  1. BOLD: Understand the fundamentals
+     REST:  of lean operations, manufacturing, and process development.
+  2. BOLD: Use lean-agile techniques
+     REST:  to design and model for fast feedback and idea sharing.
+  3. BOLD: Apply system optimization
+     REST:  with open architectures, modular designs, and lean platform principles that take an economic view of development and production systems.
+  4. BOLD: Develop modern approaches
+     REST:  to validate functions and verify performance through development-operations pipeline evolution and cross-functional teams.
+  5. BOLD: Appreciate how real-world constraints
+     REST:  and agile techniques can simplify portfolio management and decision science methods.
+  6. BOLD: Practice enterprise alignment
+     REST:  through strategic planning, portfolio optimization, agile project management and value stream management.
+
+WHO WILL BENEFIT (4 cards)
+  1. LABEL: Aspiring product managers
+     TEXT: interested in learning how to facilitate and lead development across networked teams of development and operations.
+  2. LABEL: Active product managers
+     TEXT: who need to ramp up productivity and align their teams to reduce deadlocks, confusion, and to start releasing working products.
+  3. LABEL: Agile coaches
+     TEXT: interested in understanding how concepts of value streams originated, their core tenants, and immutable needs for optimizing agile trains.
+  4. LABEL: Educators, consultants, and organizational leads
+     TEXT: desiring to improve their capacity to teach, advise, or empower their constituencies to effectively lead innovation and drive growth across emerging and established markets.
+
+COURSE TOPICS (12 boxes)
+  Box 1 — NUMBER: 01 | TITLE: Taylorism and the System of Scientific Management
+     DESCRIPTION: (no description)
+  Box 2 — NUMBER: 02 | TITLE: Fordism and Mass Production
+     DESCRIPTION: (no description)
+  Box 3 — NUMBER: 03 | TITLE: Fundamentals of Operations Management
+     DESCRIPTION: (no description)
+  Box 4 — NUMBER: 04 | TITLE: Toyota Production System
+     DESCRIPTION: (no description)
+  Box 5 — NUMBER: 05 | TITLE: Theory of Constraints and the Goal
+     DESCRIPTION: (no description)
+  Box 6 — NUMBER: 06 | TITLE: Core-Context Deployment
+     DESCRIPTION: (no description)
+  Box 7 — NUMBER: 07 | TITLE: Value Stream Identification and Mapping
+     DESCRIPTION: (no description)
+  Box 8 — NUMBER: 08 | TITLE: Engineering Paradigms, MBSE, Coupling, and Open Set Innovation
+     DESCRIPTION: (no description)
+  Box 9 — NUMBER: 09 | TITLE: Leading Product Development with Modern Leadership
+     DESCRIPTION: (no description)
+  Box 10 — NUMBER: 10 | TITLE: Building, Motivating, and Managing Conflict with the Team
+     DESCRIPTION: (no description)
+  Box 11 — NUMBER: 11 | TITLE: Product Evangelism and Communicating with Data Across the Enterprise
+     DESCRIPTION: (no description)
+  Box 12 — NUMBER: 12 | TITLE: Disccovering and Delivering Products at Scale with Program Leadership, Vision, Strategy, and Roadmapping
+     DESCRIPTION: (no description)
+
+FACULTY
+  PHOTO: mppm-faculty-oconnor.jpg
+  NAME: Michael O'Conner
+  AFFILIATION line 1: Managing Product Development and Operations
+  BIO (3 paragraphs):
+    1. As the Senior Research Program Director in Program Management for Medtronic, the work that UMD alumni Michael O’Connor does on a daily basis makes positive impacts on the health and wellbeing of people all over the world. Medtronic is a global healthcare solutions company committed to improving the lives of people through medical technologies, services, and solutions. Michael works in their operational headquarters located in Minneapolis, Minnesota.
+    2. While O’Connor has worked at Medtronic for over 20 years, his academic background is unique. After first pursuing two years of engineering, O’Connor earned his bachelor’s degree in business, while at the same time also attending a vocational school which allowed him to acquire hands-on engineering experience. He went on to earn a Master of Science (M.S) in technology management from the University of St. Thomas engineering school, a second M.S. in project management from the University of Wisconsin-Platteville, an MBA from the University of Phoenix, and a Doctorate in Project Management from the University of Maryland’s Project Management Center of Excellence.
+    3. O'Connor is a member of the Project Management Institute (PMI) Global Executive Council.
+
+====================================================================
+PAGE: Market Development and Commercialization
+====================================================================
+HERO FACT LINE: Online Course  ■  12 Weeks  ■  8-10 Hours / Week
+
+OVERVIEW
+  RED LEAD-IN: Learn the essential marketing concepts and
+  SERIF TEXT (same paragraph, after the lead-in): practical commercialization strategies to bring your new venture to market.
+  DESCRIPTION paragraph 1: Marketing innovative products and services occurs in an ever-changing environment, and requires rapid decision making with incomplete information. These innovations are introduced at increasingly frequent intervals, and there are high mortality rates for products and services, and the businesses themselves.
+  DESCRIPTION paragraph 2: Our course provides a practical, how-to guide for navigating these marketing challenges to bring innovative new products and services to market. With learning modules on product strategy, go-to-market strategies, and growth strategies, you will build your skills in understanding and applying the latest marketing strategies and tactics. We’ll explore how to develop an informed marketing plan that aligns with customer needs based on real market research.
+  DESCRIPTION paragraph 3: Learn the latest strategies for customer discovery, interviews and focus groups, product design, product development, content marketing, social media marketing, and marketing campaign management. The course will provide a balance between conceptual discussions based on readings of concepts and practices, and applied, hands-on analysis with real projects.
+
+WHAT YOU'LL LEARN (3 cards)
+  1. BOLD: Learn the fundamentals of product strategy
+     REST:  with attention to product vision, user journey mapping, business modeling, SMART objectives, customer profiling, customers jobs, customer pains, customer gains, competition, and differentiators.
+  2. BOLD: Understand go to market strategies
+     REST:  with an exploration of buyer journey, pricing, channel strategy, positioning, branding, and product-market fit.
+  3. BOLD: Develop insights on growth strategies
+     REST:  as we explore inbound vs outbound marketing, types of media, pull marketing, push marketing, social media marketing, social media channels and content, budgeting, timing, content calendars, customer activation, landing pages, customer retention, email campaigns, and minimum viable products (MVPs).
+
+WHO WILL BENEFIT (4 cards)
+  1. LABEL: Aspiring product managers
+     TEXT: working to develop their skills for entry into a product management role.
+  2. LABEL: Active product managers
+     TEXT: seeking to enhance their capabilities to be world-class product managers.
+  3. LABEL: Product designers, developers, and collaborators
+     TEXT: interested in improving their understanding product management.
+  4. LABEL: Educators, consultants, and organizational leads
+     TEXT: desiring to improve their capacity to teach, advise, or empower their constituencies in the product management area.
+
+COURSE TOPICS (11 boxes)
+  Box 1 — NUMBER: 01 | TITLE: Introduction to Market Development and Commercialization
+     DESCRIPTION: This module includes a welcome to the course, an orientation to our teaching approach and faculty, and an introduction to the marketing challenges for new ventures.
+  Box 2 — NUMBER: 02 | TITLE: Customer Development and the Chasm
+     DESCRIPTION: Revisiting the Customer Development Process. Highlights from the Customer Development Manifesto. What Startup Market Do You Fit In? How Market Types Affect Marketing Strategy.
+  Box 3 — NUMBER: 03 | TITLE: Crossing the Chasm to Mainstream Customers
+     DESCRIPTION: The Basics of Crossing the Chasm. What Customer Problem Are You Solving? Segmenting the Market.
+  Box 4 — NUMBER: 04 | TITLE: Creating a Product Marketing Foundation
+     DESCRIPTION: Linking Products to Buyers. Defining the “Whole” Product. Customer Value: Tying Benefits to Features. Pricing Your Solution.
+  Box 5 — NUMBER: 05 | TITLE: Communicating Product Value to Customers
+     DESCRIPTION: What’s Your Brand? Positioning Your Startup and Product. Eight Rules to Build a Strong Market Position. Corporate Positioning.
+  Box 6 — NUMBER: 06 | TITLE: Promoting Your Product and Startup
+     DESCRIPTION: Influencing Customers with Market Messengers. Adopting Traditional PR Approaches. Developing a PR Plan. Bootstrapping Your PR Efforts.
+  Box 7 — NUMBER: 07 | TITLE: The Basics of Creating Customer Demand
+     DESCRIPTION: Understanding the Customer’s Buying Journey. Driving Customer Awareness and Interest. The Buyer Persona. Creating a Buyer Persona.
+  Box 8 — NUMBER: 08 | TITLE: Acquiring Customers with Content Marketing
+     DESCRIPTION: Connecting with Story Telling. Building a Credible Story. Content Marketing and Storytelling. Delivering Content.
+  Box 9 — NUMBER: 09 | TITLE: Creating Customer Demand with Inbound Marketing Tools
+     DESCRIPTION: Key Elements of Your Digital Marketing Strategy. The Basics of Lead Capture. The Basics of Search Engine Optimization. The Basics of Paid Search.
+  Box 10 — NUMBER: 10 | TITLE: Creating Customer Demand with Outbound Marketing Tools
+     DESCRIPTION: The Drivers of Marketing Automation. What is Marketing Automation. Email Campaigns. Nurturing Prospects to Become Customers with Lead Scoring.
+  Box 11 — NUMBER: 11 | TITLE: Extending Your Sales Reach
+     DESCRIPTION: Developing a Sales Strategy. Understanding How the Channel Food Chain Works. Building a Distribution Plan to Scale. Developing Distribution Pricing.
+
+FACULTY
+  PHOTO: mppm-faculty-bosley.jpg
+  NAME: David Bosley
+  AFFILIATION line 1: Market Development and Commercialization
+  BIO (4 paragraphs):
+    1. David Bosley is the co-founder and Chief Marketing Officer of PBJ Marketing, a full-service digital agency based in Washington, D.C. With an unwavering passion for driving client success, David spearheads the firm's digital strategy, SEO, and paid media efforts for domestic and international clients.
+    2. With over 16 years of digital marketing experience, David is a seasoned veteran who has successfully managed multi-million-dollar campaigns for companies worldwide. He is a strategic thinker who leverages the latest digital marketing techniques to help his clients achieve their business goals.
+    3. Before founding PBJ, David honed his skills at companies in the publishing and insurance industries, including AIG Insurance. His experience in different sectors has given him a unique perspective on how to create effective digital marketing strategies across a range of industries.
+    4. David earned his MBA from New York University’s Stern School of Business.
+
+PREVIEW
+  HEADING: Take a Peek at Market Development and Commercialization
+  VIDEO: Vimeo — https://player.vimeo.com/video/756187006?h=29a4a5f236
+  (Replace the embed's src with this URL; keep the existing embed element and its 16:9 wrapper.)
+
+====================================================================
+PAGE: Negotiation and Problem Solving
+====================================================================
+HERO FACT LINE: Online Course  ■  12 Weeks  ■  8-10 Hours / Week
+
+OVERVIEW
+  RED LEAD-IN: Learn how to develop relationships and
+  SERIF TEXT (same paragraph, after the lead-in): growth across suppliers, channel partners, and within the product enterprise by understanding deal-making, and how it creates a foundation for navigating agreements, contracts, and conflicts.
+  DESCRIPTION paragraph 1: Being a great product manager requires influence, negotiation, and problem solving skills across parties where each participant brings unique information, expertise and resources. When conflicts or opportunities arise, it’s essential to know negotiation techniques, and how to apply these techniques in the real world. This course establishes an understanding of deal-making and how it creates a foundation for navigating agreements, contracts and conflicts. It also examines reputation effects, customer lifetime value, the basics of civil and criminal law, digital rights, and how these have formed to manage our interactions in modern society.
+
+WHAT YOU'LL LEARN (5 cards)
+  1. BOLD: Understand basic legal issues
+     REST:  for product and program management, including intellectual property law, contracts, and regulatory considerations across civil and criminal law.
+  2. BOLD: Understand elements of an enforceable agreement
+     REST: , its limitations, and how agreements operate in supply chains and product development to formulate terms related to warranties and liability.
+  3. BOLD: Explore negotiation techniques
+     REST: , including fundamentals of conflicts, and the advanced techniques for competing, collaborating, and compromising or accommodating based on the situation and goals of the business.
+  4. BOLD: Learn the fundamentals of perception and bias
+     REST: , techniques to address how decision bias influences negotiations, and how to form new solutions across parties.
+  5. BOLD: Develop skills and insight
+     REST:  into the real-world scenarios and where to apply negotiation and problem-solving techniques to align and grow products and programs.
+
+WHO WILL BENEFIT (4 cards)
+  1. LABEL: Aspiring product managers
+     TEXT: who want to know the basics of negotiation to enable better interviewing, problem-solving, and how to think about legal product risks.
+  2. LABEL: Active product managers
+     TEXT: who are managing across stakeholder groups and need to effectively deal with various competing, accommodating, and collaborating relationships to drive product growth.
+  3. LABEL: Agile coaches
+     TEXT: interested in understanding coalition building and the potential risks that must be overcome in development while maintaining agility.
+  4. LABEL: Educators, consultants, and organizational leads
+     TEXT: desiring to improve their capacity to teach, advise, or empower their constituencies to effectively lead innovation and drive growth across emerging and established markets.
+
+COURSE TOPICS (12 boxes)
+  Box 1 — NUMBER: 01 | TITLE: Basics of Problem Solving and Negotiation
+     DESCRIPTION: (no description)
+  Box 2 — NUMBER: 02 | TITLE: Intellectual Property Law and Contracts
+     DESCRIPTION: (no description)
+  Box 3 — NUMBER: 03 | TITLE: Negotiating with Suppliers and Business Development
+     DESCRIPTION: (no description)
+  Box 4 — NUMBER: 04 | TITLE: Conflict Management, Styles, and Situations
+     DESCRIPTION: (no description)
+  Box 5 — NUMBER: 05 | TITLE: The Psychology of Negotiations
+     DESCRIPTION: (no description)
+  Box 6 — NUMBER: 06 | TITLE: Collaborative Negotiation Strategies
+     DESCRIPTION: (no description)
+  Box 7 — NUMBER: 07 | TITLE: Competing, Compromising, and Accommodating
+     DESCRIPTION: (no description)
+  Box 8 — NUMBER: 08 | TITLE: Intellectual Property Disputes
+     DESCRIPTION: (no description)
+  Box 9 — NUMBER: 09 | TITLE: Leveraging Platforms for Business Development
+     DESCRIPTION: (no description)
+  Box 10 — NUMBER: 10 | TITLE: Negotiating Suppliers and Channel Partner Contracts
+     DESCRIPTION: (no description)
+  Box 11 — NUMBER: 11 | TITLE: Evangelizing a Transformative Product Shift
+     DESCRIPTION: (no description)
+  Box 12 — NUMBER: 12 | TITLE: Solving Conflicts in Product Development and Production
+     DESCRIPTION: (no description)
+
+FACULTY
+  PHOTO: mppm-faculty-gayton.jpg
+  NAME: Cynthia Gayton
+  AFFILIATION line 1: Negotiation and Problem-Solving
+  BIO (3 paragraphs):
+    1. Cynthia M. Gayton, Esq. holds a Bachelor of Arts degree in International Affairs from The George Washington University and a Juris Doctor degree from George Mason University School of Law. Cynthia is a member of both the State Bar of Virginia and the District of Columbia Bar.
+    2. She is the owner of [Gayton Law](http://www.gayton-law.com/), in Arlington, Virginia which concentrates on small business formation, intellectual property, information technology, and business transactions/contracts.
+    3. In addition, she has worked for the federal government, in the private sector and for non-profit organizations. Ms. Gayton is the author of “Legal Aspects of Engineering, Design and Innovation” published by Kendall-Hunt in January 2017. She has written several articles on smart contracts, IP and blockchain. She is the co-host of the Art on the Blockchain [podcast](https://soundcloud.com/artontheblockchain/) with Jeff "DJ J Scrilla" Clarkin.
+
+====================================================================
+PAGE: Financing the Product Life Cycle
+====================================================================
+HERO FACT LINE: Online Course  ■  12 Weeks  ■  8-10 Hours / Week
+
+OVERVIEW
+  RED LEAD-IN: Provides the essential tools and skills
+  SERIF TEXT (same paragraph, after the lead-in): to build a strong financial foundation for designing, developing, and managing new products within startups or established companies and organizations.
+  DESCRIPTION paragraph 1: This course provides the essential tools and know-how to build a strong financial foundation for a new or improved product. This practical course guides you through important accounting principles as well as methods for keeping firm financial control of your enterprise. Insights are shared on navigating the multitude of financial barriers that may block your success, as well as how to raise the right amount of capital at the right time from the right source, with an emphasis on internal company financing.
+
+WHAT YOU'LL LEARN (4 cards)
+  1. BOLD: Create and understand financial statements
+     REST:  with an emphasis on the income statement and balance sheet.
+  2. BOLD: Understand, analyze, and explain
+     REST:  the financial performance of a company for managerial decision making.
+  3. BOLD: Examine variable costing
+     REST: , cost analysis, cost allocations, and the development of projections for new products.
+  4. BOLD: Develop the financial skills
+     REST:  for valuation, capital structuring, corporate governance, risk management, and financial modeling.
+
+WHO WILL BENEFIT (4 cards)
+  1. LABEL: Aspiring product managers
+     TEXT: working to develop their skills for entry into a product management role.
+  2. LABEL: Active product managers
+     TEXT: seeking to enhance their capabilities to be world-class product managers.
+  3. LABEL: Product designers, developers, and collaborators
+     TEXT: interested in improving their understanding product management.
+  4. LABEL: Educators, consultants, and organizational leads
+     TEXT: desiring to improve their capacity to teach, advise, or empower their constituencies in the product management area.
+
+COURSE TOPICS (10 boxes)
+  Box 1 — NUMBER: 01 | TITLE: The Finance Spectrum
+     DESCRIPTION: The investment landscape. The language of finance. The financial spectrum.
+  Box 2 — NUMBER: 02 | TITLE: Financial Statements
+     DESCRIPTION: What are financial statements? The balance sheet. The income statement. The statement of cash flows.
+  Box 3 — NUMBER: 03 | TITLE: Financial Statement Analysis
+     DESCRIPTION: Proactive financial statement analysis. Income statement analysis. Understanding financial ratios.
+  Box 4 — NUMBER: 04 | TITLE: Cash Flow Management
+     DESCRIPTION: Cash flow management. Cash flow forecasting. Managing accounts receivable. Managing accounts payable.
+  Box 5 — NUMBER: 05 | TITLE: Valuation Basics
+     DESCRIPTION: Valuation basics. What is your product worth? Key factors influencing valuation. Valuation methods.
+  Box 6 — NUMBER: 06 | TITLE: Capital Formation Strategies and Trends
+     DESCRIPTION: Sources of capital. Understanding private equity markets. Common mistakes in raising capital. Capital formation strategies.
+  Box 7 — NUMBER: 07 | TITLE: Costs
+     DESCRIPTION: Understand variable costing, cost analysis, cost allocations, and the development of projections for new products.
+  Box 8 — NUMBER: 08 | TITLE: Financial Modeling
+     DESCRIPTION: Financial modeling approaches. Monte Carlo methods.
+  Box 9 — NUMBER: 09 | TITLE: Anatomy of a Transaction
+     DESCRIPTION: How do you negotiate terms? Aligning terms with investor concerns. Legal documents.
+  Box 10 — NUMBER: 10 | TITLE: Pitching
+     DESCRIPTION: What do collaborator and investors want to see? How to create a pitch deck. How to tell your story. The do’s and don’ts of the pitch.
+
+FACULTY
+  PHOTO: mppm-faculty-pratt.jpg
+  NAME: Michael R. Pratt
+  AFFILIATION line 1: Maryland Technology Enterprise Institute
+  AFFILIATION line 2: University of Maryland
+  BIO (3 paragraphs):
+    1. Michael Pratt teaches and mentors students in the University of Maryland's entrepreneurship, innovation, and product management programs. His career spans 35 years in management and finance, in both domestic and international organizations, and almost two decades in startups and venture capital, having raised over $100 million for eleven different startup ventures. Michael is the co-founder and Managing Partner in Select Venture Partners LLC, an early stage, post-seed/pre-Series A investment management firm.
+    2. Prior to co-founding Select, he was co-founder and CEO of SpydrSafe Mobile Security, Inc., a mobile application security management platform that safeguarded enterprise data by controlling apps on smartphones and tablets (iOS and Android). SpydrSafe was acquired in February 2014. Prior to SpydrSafe, he was COO of CardStar, Inc., a mobile loyalty company sold to Constant Contact (NASDAQ: CTCT). From 2006 to 2010, Michael was the CFO/COO of Trust Digital, Inc., a venture-backed Mobile Device Management company sold to McAfee (NYSE: MFE). Prior to Trust, he was CFO of Galt Associates, Inc., a venture-backed software company sold to Cerner Corporation (NASDAQ: CERN) in July 2006. His earlier professional experience includes CEO of CrossMedia Networks Corp.; CEO of Point of Care Technologies (sold to Siemens Healthcare in 1999); various senior finance and operating roles with Mobil Corporation, including President and General Manager of three Mobil subsidiaries. Michael began his professional career with Arthur Andersen & Co.
+    3. He holds a BS in Finance from East Carolina University, an MBA from Massey University in New Zealand, and an MS in Marketing from Johns Hopkins University.
+
+PREVIEW
+  HEADING: Take a Peek at Financing the Product Lifecycle
+  VIDEO: Vimeo — https://player.vimeo.com/video/177289982?h=cd08190dba
+  (Replace the embed's src with this URL; keep the existing embed element and its 16:9 wrapper.)
+
+====================================================================
+PAGE: Building and Leading Innovative Organizations
+====================================================================
+HERO FACT LINE: Online Course  ■  12 Weeks  ■  8-10 Hours / Week
+
+OVERVIEW
+  RED LEAD-IN: Learn how to build a scaled
+  SERIF TEXT (same paragraph, after the lead-in): product enterprise. Align organizational support functions with a product framework. Build a pathway for a sustainable, value maximizing enterprise.
+  DESCRIPTION paragraph 1: As product suites mature and products grow into platforms, the product manager must organize and lead Lean Product Portfolios. This course helps current and aspiring product enterprise leaders understand the conceptual framework that enables achieving the vision of a customer-centric business model built on lean principles. It explains the details of building a scaled product enterprise and explores alignment of organizational support functions with a product framework for a sustainable value maximizing enterprise at scale.
+
+WHAT YOU'LL LEARN (5 cards)
+  1. BOLD: Build on core product management principles
+     REST:  and practices to envision and create a product portfolio.
+  2. BOLD: Learn skills to dynamically manage
+     REST:  the interdependencies of related products and value streams from funding, build, prioritization, resource management, customer perception, competitive placement, and brand management perspectives.
+  3. BOLD: Create a set of foundational principles
+     REST:  to build out a product-centric enterprise with well-defined core functions that support the product portfolio and support functions that enhance the value creation velocity of the lean enterprise.
+  4. BOLD: Build a broad, executive-level skill set
+     REST:  to deal with highly complex scenarios using foundational principles that drive and align the enterprise to maximize value creation.
+  5. BOLD: Develop critical knowledge and skills
+     REST:  to shape the vision and strategy to scale your own product enterprise.
+
+WHO WILL BENEFIT (4 cards)
+  1. LABEL: Aspiring product managers
+     TEXT: who want to know how products scale effectively and create value through networked delivery of capabilities across a platform.
+  2. LABEL: Active product managers
+     TEXT: who are ready to begin managing portfolios of products and/or directing product managers to align value across product teams to the customer.
+  3. LABEL: Agile coaches
+     TEXT: interested in delivering at-scale with networks of leveraged and autonomous teams, and need to navigate complex enterprise models while maintaining agility.
+  4. LABEL: Educators, consultants, and organizational leads
+     TEXT: working to improve their capacity to teach, advise, or empower their constituencies to effectively lead innovation and drive growth across emerging and established markets.
+
+COURSE TOPICS (3 boxes)
+  Box 1 — TITLE: Part I: Lean Product Portfolios - Beyond Value Stream Mapping
+     ITALIC LEAD: Focuses on building and managing individual products and scaling to a portfolio of products to maximize value creation.
+     PARAGRAPH: Key concepts explored include developing a customer-centric approach, value stream mapping across related products, product design using lean principles for product lines and product suites, building scalable enterprise architecture, user research and human-centered design, day-to-day product management, portfolio roadmap, strategies for product life cycle management, and creating and managing a complex product portfolio using lean principles.
+  Box 2 — TITLE: Part II: Lean Enterprise Framework - Transform the Business Model
+     ITALIC LEAD: Provides a foundational understanding of what a Product Enterprise can be, why it makes sense to build one, identifies key roles and provides an approach to shape the transformation journey.
+     PARAGRAPH: Build critical expertise in product driven business capabilities that power multiple value streams, the creation of a portfolio strategy that enables creation and use of scalable and reusable technical capabilities, a framework for prioritization that maximizes long-term business value alongside customer centricity, business model design that aligns product value streams to business capabilities to technical platforms and solutions, and an operational model to accelerate modernization of complex outdated systems into state of the art, modern apps.
+  Box 3 — TITLE: Part III: Customer-Centric Enterprise - Scale Product Lifecycle Management
+     ITALIC LEAD: Provides a flexible and customizable playbook to build out a Product Enterprise and evolve an organization’s Business Model. It explores the build out of a robust thought framework, creation and alignment of multiple building blocks to evolve a fully operational model of a scaled product enterprise.
+     PARAGRAPH: Explore key concepts in understanding a product enterprise and how it works, achieving strategic and operational enterprise alignment using the OKR framework across the product portfolio, building and implementing a product platform strategy, organizational governance and risk framework in a product enterprise, aligning organizational functions to transform to a product-first approach, and maximizing organizational value creation through a scaled product framework.
+
+FACULTY
+  PHOTO: mppm-faculty-rathod.jpg
+  NAME: Tushar Rathod
+  AFFILIATION line 1: Building and Leading Innovative Organizations
+  BIO (1 paragraphs):
+    1. Mr. Rathod currently works with various corporate and government clients. He leads a team of seasoned product management mentors at Northrop Grumman as a Senior Consultant. At the Social Security Administration, he is advising the CIO’s Office, Executive Management, Office of Enterprise Architecture and the office of the Chief Business Officer on scaling Product Management to the enterprise level. He works on defining and aligning Business Architecture, Value Stream Mapping, Product Portfolio Management, Strategy Execution Framework using OKRs & KPIs and alignment of funding models with value driven prioritization. In other assignments, he has been involved with rolling out Cloud Architecture, Infrastructure Automation, Tooling & Security across AWS & Azure. A passion for academics led him to teach Project Management at Towson University (400-series undergraduate level) from 2011 to 2016. He continues to teach the PMP Prep Course at Towson University’s Center for Professional Studies. Mr. Rathod also teaches Agile Project Management & PMP Prep at UMBC Training Centers. In the past, he has taught at Baltimore County Community College, Howard Community College and University of Maryland Global Campus. Mr. Rathod is currently teaching a flipped classroom style full-stack Product Management Certification course at The Product School in Silicon Valley, California. He evaluates start-ups for investor groups such as USM Maryland Momentum Fund, provides organizational transformation consulting to non-profits such as The American Chemical Society in Washington D.C. He conducts corporate trainings in Product Management, Agility, Change Management, etc. for private organizations such as T. Rowe Price & Northrop Grumman, mentors Executive Leadership, and advises large businesses on rolling out and scaling Product Management practices in alignment with their Project Delivery and Operations frameworks to maximize value creation.
+
+====================================================================
+PAGE: Innovative Ideas & Concept Development
+====================================================================
+HERO FACT LINE: Online Course  ■  12 Weeks  ■  8-10 Hours / Week  ■  Instructor Rating 3.8 / 4
+
+OVERVIEW
+  RED LEAD-IN: Learn today’s newest skills and tools
+  SERIF TEXT (same paragraph, after the lead-in): for identifying and acting on entrepreneurial opportunities for startup companies and corporate innovations and innovators.
+  DESCRIPTION paragraph 1: This course explores how anyone can be a successful startup entrepreneur or corporate innovator by thoughtfully examining themselves and the business opportunity. By harnessing these insights and cultivating an entrepreneurial spirit, you can create and transform an entrepreneurial idea into a new startup company or corporate venture. The course distills vast amounts of research in psychology, sociology, and business into a practical how-to guide for aspiring and active entrepreneurs and innovators.
+
+WHAT YOU'LL LEARN (4 cards)
+  1. BOLD: Develop the skills
+     REST:  for identifying and analyzing entrepreneurial ideas
+  2. BOLD: Foster thinking entrepreneurially
+     REST:  with an awareness of entrepreneurial mindset, entrepreneurial motivation, and entrepreneurial behavior
+  3. BOLD: Cultivate seeing entrepreneurially
+     REST:  with attention to industry conditions, industry status, macroeconomic change, and competition
+  4. BOLD: Champion acting entrepreneurially
+     REST:  with an understanding of value innovation and opportunity identification
+
+WHO WILL BENEFIT (4 cards)
+  1. LABEL: Aspiring entrepreneurs
+     TEXT: working to identify a viable new business idea from which to develop their own company.
+  2. LABEL: Active entrepreneurs
+     TEXT: seeing to validate and enhance their existing business idea and accelerate their company’s success.
+  3. LABEL: Corporate professionals
+     TEXT: interested in understanding how business and technology shape the creation of new products and services by established companies.
+  4. LABEL: Educators, consultants, and organizational leads
+     TEXT: desiring to improve their capacity to teach, advise, or empower their constituencies to succeed in startup entrepreneurship or corporate innovation.
+
+COURSE TOPICS (10 boxes)
+  Box 1 — NUMBER: 01 | TITLE: Introduction to Startup Entrepreneurship and Corporate Innovation
+     DESCRIPTION: This module includes a welcome to the course, an orientation to our teaching approach and faculty, and an introduction to the fundamentals of entrepreneurship and innovation.
+  Box 2 — NUMBER: 02 | TITLE: Entrepreneurial Mindset
+     DESCRIPTION: What role does need for achievement play in your decisions? What level of influence do friends and family have in your decision making? Do you have an internal or external locus of control? What techniques can you use to focus your time and resources? How can you improve your level of optimism?
+  Box 3 — NUMBER: 03 | TITLE: Entrepreneurial Motivation
+     DESCRIPTION: Do you believe that you have the capabilities to be successful as an entrepreneur? Do you enjoy collecting information and doing analysis before making decisions? How can you increase your comfort level with making strategic decisions quickly, with limited information and high consequences?
+  Box 4 — NUMBER: 04 | TITLE: Entrepreneurial Behavior
+     DESCRIPTION: How can you improve your confidence level and risk tolerance? What resources can you use to enhance your interpersonal relationship skills? How can you grow your social capital?
+  Box 5 — NUMBER: 05 | TITLE: Industry Condition
+     DESCRIPTION: What knowledge do you possess that can contribute to serving a market need? What are the demand conditions in the market?
+  Box 6 — NUMBER: 06 | TITLE: Industry Status
+     DESCRIPTION: What is the lifecycle stage of the industry that you are interested in entering? What is the capital intensity within your chosen industry? What is the advertising intensity within your chosen industry? What is the company concentration within your chosen industry? What is the average company size within your chosen industry?
+  Box 7 — NUMBER: 07 | TITLE: Macroeconomic Change
+     DESCRIPTION: What demographic changes are creating business opportunities for new ventures? What psychographic changes are creating business opportunities for new ventures? How can you stay current on technical advancements that are emerging? How can you stay current on societal changes that are emerging? How can you stay current on political and regulatory changes that are emerging?
+  Box 8 — NUMBER: 08 | TITLE: Competition
+     DESCRIPTION: What is the learning curve in your industry and market of interest? What complementary assets are most critical in your industry and market of interest? How does the reputation of competitors influence your success?
+  Box 9 — NUMBER: 09 | TITLE: Value Innovation
+     DESCRIPTION: Using the principles of value innovation, what existing factors can you eliminate? Where can you reduce factors and not reduce value? Which factors can you raise to exceed customer expectations? What new factors can you create that will bring new values in new ways to customers?
+  Box 10 — NUMBER: 10 | TITLE: Opportunity Identification
+     DESCRIPTION: What evidence can you provide that your proposed problem is significant? What key customer values does your solution offer? How will you make your advantages superior and sustainable? What steps will you take to build the right team at the right time?
+
+LEARNER TESTIMONIALS (1 card)
+  QUOTE: The instruction and startup coaching that I received from Dr. Green were invaluable to the launch and growth of [Squarespace](https://www.squarespace.com/). The skills taught in this course are a fantastic introduction to many of the fundamentals one needs when starting a business.
+  NAME: Anthony Casalena
+  TITLE: Founder and CEO, Squarespace
+
+FACULTY
+  PHOTO: mppm-faculty-green.jpg
+  NAME: James V. Green
+  AFFILIATION line 1: Managing Director of Learning and Development
+  AFFILIATION line 2: Maryland Technology Enterprise Institute
+  AFFILIATION line 3: University of Maryland
+  BIO (1 paragraphs):
+    1. Dr. Green is a globally-recognized leader in educating entrepreneurs and innovators, and an award-winning faculty in online learning. He’s advised over 100 startups who’ve raised over $1B in venture capital and reached valuations of over $10B. As a consultant for Google, Infosys, the World Bank, and the U.S. Small Business Administration, he’s helped shape how corporate innovation and startup entrepreneurship is taught and practiced throughout the world. At the University of Maryland since 2004, Dr. Green has created and launched a number of new online master’s program and initiatives to serve startup entrepreneurs and corporate innovators.
+
+PREVIEW
+  HEADING: Take a Peek at Innovative Ideas & Concept Development
+  VIDEO: Vimeo — https://player.vimeo.com/video/101980396?h=fd4b80d28f
+  (Replace the embed's src with this URL; keep the existing embed element and its 16:9 wrapper.)
+
+====================================================================
+FINAL CHECK — REQUIRED BEFORE YOU REPORT "DONE"
+====================================================================
+Publish, then open EACH of the 11 published pages and check it against this prompt:
+  a) Hero fact line matches.
+  b) Overview: red lead-in = exactly the RED LEAD-IN words; the serif text continues in the same
+     paragraph; every description paragraph present and in order.
+  c) What You'll Learn: card count matches; bold words and text match for every card.
+  d) Who Will Benefit: card count matches; every label and text matches.
+  e) Course Topics: box count matches; every number, title and description matches; boxes marked
+     "(no description)" show the title only; no leftover placeholder text anywhere.
+  f) Faculty: correct photo, name, affiliation lines, every bio paragraph, links on the right words.
+  g) Testimonials / Preview (only where the page has those sections): text and video match.
+  h) No style, class, section or jump-bar change anywhere; nothing above the hero or in the footer changed.
+Report, per page: PASS, or the exact mismatch and that you fixed it. Do not report "done" until all
+11 pages PASS.
+
+**STATUS:** spec committed to memory in full. Execution not yet begun — awaiting the user's explicit
+authorization to begin, per their explicit instruction this time. Next entry (§388) will record progress/
+completion once authorized and underway.
