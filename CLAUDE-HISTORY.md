@@ -12468,3 +12468,64 @@ CHECK — publish, then on ONE course page at 1440, 991, 767 and 390px wide:
 
 **STATUS:** spec committed to memory in full. Execution not yet begun — Webflow MCP tools are
 mid-reconnect as of this commit; will proceed once available.
+
+### §390 — MPPM Learning Experience box-colors (§389 spec) — COMPLETE, verified, live (2026-11-16)
+
+Applied the §389 spec to all 11 MPPM course pages. Summary:
+
+**Classes created** (base breakpoint only, via `create_style` with `parent_style_names`, so each
+compiles as a combo under the existing shared base class — never touching the base class itself):
+- `exp-gold` on `mppm-course-experience-tile` → `background-color:#FFD200`
+- `exp-black` on `mppm-course-experience-tile` → `background-color:#000000`
+- `exp-white` on `mppm-course-experience-tile` → `background-color:#FFFFFF`
+- `exp-label-black` on `mppm-course-experience-label` → `color:#000000`
+- `exp-label-white` on `mppm-course-experience-label` → `color:#FFFFFF`
+
+These are created once, site-wide (Webflow classes are not per-page), and applied per-element on
+each page. No new layout classes; no size/padding/gap/margin/breakpoint property was ever touched.
+
+**Upload check (spec step 1):** all 6 required SVGs confirmed present before starting — the 2
+unchanged ones (`mppm-course-exp-live-office-hours.svg`, `mppm-course-exp-project-based-learning.svg`)
+plus all 4 new suffixed ones (`-asynchronous-lectures-black.svg`, `-coaching-mentoring-white.svg`,
+`-peer-networking-white.svg`, `-real-world-assignments-black.svg`).
+
+**Per-page application:** confirmed (via a fresh `query_elements` spot-check on a second page) that
+the Learning Experience row's 6 box/label/icon local element IDs are identical across all 11 course
+pages (same cross-page architecture already established for Hero/Overview/Faculty/etc. earlier in
+this project) — Innovative Ideas' element-ID map was reused verbatim across all 11, swapping only the
+page (`component`) field. Applied per spec table: box1 gold/label-black, box2 black/label-white, box3
+white/label unchanged (grey), box4 black/label-white, box5 white/label unchanged (grey), box6
+gold/label-black; new icon set on boxes 1/2/4/6, boxes 3/5 left untouched.
+
+**Verification (full sweep, not a sample):** every one of the 11 pages' Learning Experience rows was
+re-queried fresh after the writes (not inferred from "success" responses) — all 6 `styleNames` and all
+6 `assetId`s confirmed correct on every single page. Site published (`publish_site`,
+`publishToWebflowSubdomain:true` — this master site has no custom domains, so no `customDomains` list
+was needed). Live HTML re-fetched and grepped: correct combo-class counts (2 gold/2 black/2 white
+tiles, 2 label-black/2 label-white) and all 6 icon filenames (including the 4 new suffixed ones)
+confirmed present on the published page.
+
+**CHECK section (spec's own a–e), done via real-browser Playwright against the live published URL:**
+confirmed at 1440/991/767/390px on Innovative Ideas, plus a full spot-check of Fundamentals of Product
+Management at the same 4 widths — (a) desktop/tablet rows = [gold,black,white]/[black,white,gold], (b)
+phones 2-per-row in the same color sequence with no two same-colored boxes side by side, (c) every
+icon's drawn color matches its box (black icon on gold, white icon on black, red icon on white) and
+every label is readable at its specified color, (d) box size/spacing/layout unchanged at every width
+(guaranteed by construction — only `background-color`/`color` properties were ever added — and
+confirmed visually/positionally consistent, no overflow, uniform grid at each width), (e) second page
+matches the first exactly.
+
+**One false alarm, correctly chased down rather than assumed either way (HARD RULE #22 discipline):**
+an early screenshot (viewport capped at 1400px tall, no scroll) appeared to show 3 of the 6 icons
+missing. Checked `img.naturalWidth`/`.complete` directly — images 4–6 genuinely hadn't finished loading
+at that moment. Rather than conclude "broken" or "fine" from that one data point, re-ran with the
+Learning Experience section actually scrolled into view and an explicit wait for every image's
+`complete && naturalWidth>0` before screenshotting — all 6 loaded correctly every time thereafter, on
+both pages, at all 4 widths. Root cause: native image lazy-loading + my first test script measuring
+before scrolling that section into view, not any defect in the actual change — a real visitor
+scrolling the page loads and sees every icon correctly, as the final screenshots confirm.
+
+**Status: DONE.** All 11 MPPM course pages' Learning Experience sections now show the correct box
+background color, label color, and icon per the spec table; published live; fully verified both at
+the stored-data level (fresh re-query, all 11 pages) and visually (real-browser screenshots at every
+required breakpoint, two pages). No outstanding items on this task.
