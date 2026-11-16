@@ -12529,3 +12529,74 @@ scrolling the page loads and sees every icon correctly, as the final screenshots
 background color, label color, and icon per the spec table; published live; fully verified both at
 the stored-data level (fresh re-query, all 11 pages) and visually (real-browser screenshots at every
 required breakpoint, two pages). No outstanding items on this task.
+
+### §391 — Building and Leading: Course Topics boxes fixed to proper number/title/lead/body shape (2026-11-16)
+
+Addressed the outstanding flagged item from §388 (the Building & Leading Course Topics boxes didn't
+fit the Number/Title/Description shape — "I"/"II"/"III" had been put in the number field and the lead
++ body text concatenated into the single available description slot, since the original content-fill
+spec only authorized box-COUNT changes, not new text-slot additions). The user supplied an explicit
+follow-up spec authorizing exactly this fix; applied verbatim, scoped to this ONE page only.
+
+**1. Number field:** cleared to empty text on all 3 boxes (`set_text` with `""` on the existing
+`mppm-course-topics-num` Paragraph) — the Paragraph element itself was left in place, un-removed, so
+the title column keeps the same alignment as every other course page (`min-width:1.3em` from the
+unmodified base class still applies to the now-empty element).
+
+**2. Titles:** already verbatim-correct from the original fill ("Part I: Lean Product Portfolios -
+Beyond Value Stream Mapping", "Part II: Lean Enterprise Framework - Transform the Business Model",
+"Part III: Customer-Centric Enterprise - Scale Product Lifecycle Management") — no edit needed.
+
+**3. Split into two paragraphs, each box's existing combined description text split verbatim at the
+sentence boundary, no rewording:**
+- Box 1 lead: "Focuses on building and managing individual products and scaling to a portfolio of
+  products to maximize value creation." / body: "Key concepts explored include developing a
+  customer-centric approach, value stream mapping across related products, product design using lean
+  principles for product lines and product suites, building scalable enterprise architecture, user
+  research and human-centered design, day-to-day product management, portfolio roadmap, strategies for
+  product life cycle management, and creating and managing a complex product portfolio using lean
+  principles."
+- Box 2 lead: "Provides a foundational understanding of what a Product Enterprise can be, why it makes
+  sense to build one, identifies key roles and provides an approach to shape the transformation
+  journey." / body: "Build critical expertise in product driven business capabilities that power
+  multiple value streams, the creation of a portfolio strategy that enables creation and use of
+  scalable and reusable technical capabilities, a framework for prioritization that maximizes
+  long-term business value alongside customer centricity, business model design that aligns product
+  value streams to business capabilities to technical platforms and solutions, and an operational
+  model to accelerate modernization of complex outdated systems into state of the art, modern apps."
+- Box 3 lead: "Provides a flexible and customizable playbook to build out a Product Enterprise and
+  evolve an organization's Business Model. It explores the build out of a robust thought framework,
+  creation and alignment of multiple building blocks to evolve a fully operational model of a scaled
+  product enterprise." / body: "Explore key concepts in understanding a product enterprise and how it
+  works, achieving strategic and operational enterprise alignment using the OKR framework across the
+  product portfolio, building and implementing a product platform strategy, organizational governance
+  and risk framework in a product enterprise, aligning organizational functions to transform to a
+  product-first approach, and maximizing organizational value creation through a scaled product
+  framework." (Box 3's lead keeps TWO sentences, not one — both are the part's overview/scope
+  statement, with "Explore key concepts..." marking the same body-start pattern the other two boxes
+  use, so this is the correct split point, not an arbitrary one.)
+
+**Mechanism:** created ONE new combo class, `is-lead`, under the existing `mppm-course-topics-desc`
+base class (`font-style:italic; margin-top:0px; margin-right:0px; margin-bottom:10px; margin-left:0px`
+— all longhand per HARD RULE #4) — the base class itself was never touched, so every other course page
+using it is unaffected. The EXISTING desc paragraph in each box had its text replaced with the LEAD
+sentence(s) and got `[mppm-course-topics-desc, is-lead]` applied; a NEW Paragraph was appended as a
+sibling (via `data_element_builder`, `creation_position:"append"` into the box's body block) carrying
+just the LEAD body text and the base `mppm-course-topics-desc` class alone — no combo needed there,
+since the base class's own margin is already `0` on all sides and not italic by default (confirmed via
+`query_styles` before deciding this, rather than assuming).
+
+**Verification:** re-queried the full Topics list fresh after the writes — confirmed exact
+`styleNames`/text on all 3 number paragraphs (empty), both paragraphs per box, and no stray
+placeholder text from the `data_element_builder` default-text gotcha (didn't occur here, since
+`set_text` was used directly rather than leaving a `children`-only element without top-level text).
+Published, then re-checked the live page with Playwright: all 3 boxes' lead paragraph computed
+`font-style:italic; margin-bottom:10px`, body paragraph computed `font-style:normal; margin-bottom:0`,
+number column width unchanged (73px) confirming alignment held. Screenshot of the live page sent to
+the user for direct visual confirmation.
+
+**Scope confirmed:** only Building and Leading's own elements were touched (explicit page+element IDs
+throughout); the `is-lead` combo and the new paragraphs exist only on this page's own elements. No
+other MPPM course page was touched by this fix.
+
+**Status: DONE.**
