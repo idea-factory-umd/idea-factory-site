@@ -12771,3 +12771,27 @@ unchanged) are the correct, final icons for those two cards. This matches what t
 over-cautious, not a real gap.
 
 **Status: §393's Key Program Features restyle is fully complete. Nothing outstanding.**
+
+### §395 — MPPM Home facts bar: fixed illusory empty 6th cell (2026-11-16)
+
+User flagged an apparently-empty narrow box at the right end of the "Starts On / Format / Duration /
+Eligibility / Tuition" facts bar (`mppm-hero-info-row`, under the hero on MPPM Home). Investigated
+rather than assuming: a fresh Designer-data query confirmed only 5 `mppm-hero-info-item` children
+exist — no 6th element, stray or otherwise. Measured the live published page at a wide range of
+widths (600–1920px) via Playwright; found a consistent ~41px gap on BOTH the left (before "Starts
+On") and right (after "Tuition") — this is simply the row's own symmetric 40px side padding
+(`mppm-hero-info-row`'s `padding-left`/`padding-right`), present correctly on both sides, not a bug.
+
+**Root cause:** the shared `mppm-hero-info-item` class puts a `border-right` divider (1px solid
+`#e0e0e0`) on every item to separate it from the next one — but nothing removed that divider from the
+LAST item (Tuition), since no `:last-child` override existed. That stray trailing border, sitting
+immediately before the row's own right-side padding, visually reads as a divider enclosing an empty
+6th cell — even though the padding itself is identical to the left side, which has no divider and so
+reads correctly as plain margin.
+
+**Fix:** one `update_style` call adding a `last-child` pseudo-state override on `mppm-hero-info-item`
+(main breakpoint): `border-right-style: none`. This is a pure CSS pseudo-class fix — no elements
+added, removed, or restructured. Published and re-verified live via a fresh screenshot: the trailing
+divider is gone; the right side of the bar now matches the left exactly.
+
+**Status: DONE.**
