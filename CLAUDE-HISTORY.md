@@ -12822,3 +12822,51 @@ wrap pattern (which item is visually last on each row, at each breakpoint), not 
 absolute last child — likely via breakpoint-specific `nth-child`/structural rules matched to the
 actual wrap behavior at each width, or a different mechanism (e.g., dividers as separate elements
 BETWEEN items rather than borders ON items), to be worked out when the user authorizes resuming this.
+
+### §397 — MPPM Home facts bar: proper fix, gap-based dividers (2026-11-16, supersedes the reverted §395/§396 attempt)
+
+User supplied the correct, complete fix for the empty-strip-at-row-end bug (§395/§396): replace
+per-cell borders with a flex `gap`, so dividers come from the space BETWEEN cells rather than a
+border ON each cell — which by construction can never leave a stray line/strip after whichever cell
+happens to be last in a row, at any breakpoint, including every wrap pattern.
+
+**`mppm-hero-info-row` (the bar):**
+- `main`: `padding-left`/`padding-right` 40px→0px; `background-color` `#ffffff`→`rgba(0,0,0,0.14)`
+  (shows through the gaps as the divider color); added `overflow:hidden`; added
+  `grid-row-gap`/`grid-column-gap` 1px (the longhand for `gap`, per HARD RULE #4). Border (0.5px solid
+  rgba(0,0,0,0.18)), box-shadow, max-width (1240px), and centering margins all left untouched.
+- `tiny`: `padding-left`/`padding-right` 20px→0px (a second, previously-undocumented padding override
+  at this breakpoint — found by fetching ALL breakpoints before writing the fix, not just `main`).
+
+**`mppm-hero-info-item` (each cell):**
+- `main`: added `background-color:#FFFFFF` (covers the row's own grey so the gap reads as a thin
+  line); `border-right-style` solid→**none**; added explicit `margin` 0 all sides; `min-width`
+  160px→**0px** (critical — a nonzero min-width would override the calc()-based widths below);
+  `flex-basis` 20%→**0%** (with `flex-grow:1`, this is the "flex:1 1 0" idiom — five items with no
+  intrinsic basis simply split 100% evenly, immune to the percentage-rounding slop the old 20%
+  approach had). Padding (24/20/24/20) and text-align left untouched.
+- `medium` (tablet, ≤991) and `small` (phone landscape, ≤767 — confirmed by the user as Webflow's name
+  for this tier): `flex-basis` → `calc((100% - 1px) / 2)`, set explicitly on BOTH breakpoints (medium
+  previously held `33.33%`, the old 3-per-row mechanism this replaces; small had no prior override and
+  would have inherited medium's new value either way, but the user asked for it set explicitly on
+  both). Two cells per row at exactly half-width-minus-half-the-gap; the fifth/odd cell (Tuition),
+  alone on its own row, grows via `flex-grow:1` to the row's full width.
+- `tiny` (phone portrait, ≤479): `flex-basis:100%` (unchanged — already correct); REMOVED
+  `border-right-width` (vestigial once `main` sets `border-right-style:none`) and REMOVED
+  `border-bottom-style`/`border-bottom-width`/`border-bottom-color` — this breakpoint had its own
+  separate horizontal-divider-via-border mechanism (border-bottom instead of border-right, for the
+  single-column stack) that suffered the identical last-child problem in the vertical direction;
+  gap-based dividers now cover this case too, so the dedicated border was deleted outright rather than
+  patched.
+
+**Verification:** published, then checked the live page with Playwright across 15 widths spanning
+320–1920px (every breakpoint boundary and several widths within each tier) — measured each visual
+row's left/right edges against the bar's own edges; zero stray gaps at any width, with the expected
+row-count progression (1 row ≥992px, 3 rows 480–991px, 5 rows ≤479px). Screenshots taken at all four
+named tiers (1440/991/767/479, plus 800/390 from the user's own CHECK list) confirm visually: equal
+cells with thin lines only between them, the 2+2+1 tablet/phone-landscape pattern with Tuition
+stretching full-width and no trailing strip, and the one-per-row phone-portrait stack with horizontal
+lines only between cells — matching every item in the user's CHECK list (a)-(d).
+
+**Status: DONE.** This supersedes §395/§396 — the earlier `last-child`-pseudo attempt is gone,
+replaced entirely by this gap-based mechanism.
