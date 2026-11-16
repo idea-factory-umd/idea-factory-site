@@ -13052,3 +13052,52 @@ generally).
 
 No Webflow writes happened in this pass — purely a CLAUDE.md/CLAUDE-HISTORY.md documentation update,
 committed and pushed per the standing MAINTENANCE RULE.
+
+### §402 — MPPM spinoff: de-prefix 9 page slugs/names, then sweep internal links (2026-11-16, PLAN COMMITTED, execution beginning)
+
+**Site:** MPPM spinoff (`6afb5f248e7d4b4975da8c4e`, shortName `mppm-if`) — per HARD RULE #29, this
+IS "MPPM" now, not the master's old `mppm-*` pages.
+
+**Why:** while MPPM was built inside the master site pre-spinoff, every page got an `mppm-` prefix on
+its slug/name to avoid colliding with the master's own flagship pages of the same bare name (per §0
+STATUS's documented convention, set 2026-10-27). Now that MPPM is its own independent site, that
+prefix is pure clutter — it makes every URL on the site longer than it needs to be for no reason,
+since the whole site is already "MPPM."
+
+**User's exact instruction, two fields per page, prefix stripped only — nothing else changed:**
+- **Slug** (URL path segment): e.g. `mppm-application-requirements` → `application-requirements`.
+- **Page name** (the internal Designer/Pages-panel label, NOT the SEO/meta `<title>` shown in the
+  browser tab — that field is already correct and must not be touched): e.g.
+  `MPPM-Application-Requirements` → `Application-Requirements`.
+
+**The nine pages in scope** (confirmed from the user's own screenshot of the mppm-if Pages panel):
+1. MPPM-Application-Requirements
+2. MPPM-Calendars-Deadlines
+3. MPPM-Academic-Policies
+4. MPPM-Online-Learning
+5. MPPM-Tuition-Financial-Aid
+6. MPPM-Graduation-Commencement
+7. MPPM-Academics
+8. MPPM-Student-Experience
+9. **MPPM-Blog** — user explicitly confirmed (2026-11-16, this message) this is a genuine STATIC
+   page, gets the same treatment as the other eight. **Do NOT confuse this with "MPPM-Blogs-Template"**
+   — a separate CMS collection template page the user does NOT think needs renaming right now
+   ("I don't think it needs to change. At any rate we can do that after if you think that should
+   change as well.") — `MPPM-Blogs-Template` is explicitly OUT OF SCOPE for this pass; only revisit
+   it if asked later.
+
+**Explicitly OUT of scope, not touched:** Home (no prefix to begin with), the 11 pages inside the
+`courses` subfolder (none carry the prefix either), and `MPPM-Blogs-Template` per the clarification
+above.
+
+**Phase 2, to run immediately after the 9 renames land:** sweep every page + component (top nav,
+bottom nav, any other internal cross-links) for hrefs still pointing at any of the 9 OLD slugs, and
+repoint them. Key technical nuance going into this: a native Webflow "Page"-type link auto-tracks a
+slug rename on its own at publish time; only a hardcoded URL-string link (typed path, not picked via
+Webflow's native page picker) needs a manual fix. Verification plan: rename all 9 → publish → fetch
+every page's live compiled HTML fresh → grep for all 9 old slug strings in every `href` → fix any
+survivors → re-publish → re-fetch → re-grep → confirm zero stray references, then click through nav
+as a real sequence (HARD RULE #21) to confirm no 404s.
+
+No Webflow writes made yet as of this entry — plan committed per explicit user instruction
+("commit this task to memory, then go") before any execution began. Completion entry to follow.
