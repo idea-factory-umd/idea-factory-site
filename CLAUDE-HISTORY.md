@@ -12954,3 +12954,49 @@ future task — that task never materialized, and the user has now explicitly cl
 I-Corps CMS-migration project ever resumes):** the real UMD I-Corps CMS-migration source
 (`64401cac3a3988f9b7f84022`) and its stale duplicate (`5dc5b8613bccd9e7228b5dd5`) — both already
 absent from the connection per §398, neither part of this roster.
+
+### §400 — MPPM spinoff site CONNECTED, confirmed live (2026-11-16)
+
+Immediately after §399 recorded MPPM as a placeholder pending connection, the user connected it and
+asked "OK check now... can you see the new one?" A fresh `list_sites` call (detail:"full", per HARD
+RULE #19 — never act on a remembered value) returned **10 sites total** (`pagination.total:10`),
+confirming the 10-site target roster from §399 is now fully real, not partially placeholder.
+
+**The new entry, exactly as returned:**
+- **displayName:** "Master of Professional Studies in Product Management"
+- **id:** `6afb5f248e7d4b4975da8c4e`
+- **shortName:** `mppm-if`
+- **workspaceId:** `633213b73e84c50140de11fa` (same workspace as every other site in this roster)
+- **parentFolderId:** `68792d9cfb58ff38555c6129` (same folder most other sites sit in)
+- **createdOn:** 2026-11-16T19:53:23.216Z
+- **lastPublished:** 2026-11-16T20:37:34.029Z (already published at least once)
+- **customDomains:** `[]` — none connected yet, webflow.io subdomain only for now.
+
+All 9 previously-confirmed sites were still present in this same fresh fetch, unchanged in substance:
+Claude-Accessed Migration Interface Site (master), UMD Startup Showcase, ASPIRE Program, MIPS, Mtech
+Ventures (shortName `mtech-ventures-if` re-confirmed, matching §398/§399's correction), Idea Factory,
+UMD I-Corps, Chesapeake Bay Seed Capital Fund, IF Component Library. The dropped Mtech site
+(`63cfff029dfb530bf53dc0f7`) and the two UMD I-Corps CMS-migration-related sites remained absent, as
+expected — nothing came back that shouldn't have.
+
+**One incidental observation worth recording:** Idea Factory's own `customDomains` in this same fetch
+now show 4 entries, not 2 — `ideafactory.umd.edu`/`www.ideafactory.umd.edu` (already on record) plus
+`mtech.umd.edu`/`www.mtech.umd.edu`, all 4 with an identical `lastPublished`/`fullSiteCompiledAt`
+timestamp of 2026-11-16T20:08:39.852Z, i.e. published minutes before this check. This lines up exactly
+with the Mtech decision just made in §399 — the `mtech.umd.edu` domain now appears to route to the
+Idea Factory site itself rather than to the old, now-dropped Maryland Technology Enterprise Institute
+site. Nothing to act on; noted here only because it's a live, user-facing domain change that happened
+during this same session and should be legible later if anyone asks "why does mtech.umd.edu show Idea
+Factory content."
+
+**Write access status, stated explicitly per HARD RULE #16:** connecting (read access) is NOT the same
+as write authorization. No write exception has been granted for the new MPPM site (`6afb5f248e7d4b4975da8c4e`)
+itself — it stays read-only until the user explicitly names it for a write exception, exactly the same
+pattern already followed for every other site in this roster. The MPPM *build* work already done and
+documented throughout §0 STATUS (course pages, Home restyle, facts bar fix, etc.) all happened on the
+**master site's own `mppm-*`-prefixed pages** (`6a316b1a0f02a4cda75a50e7`, always-writable) — none of
+that authorization carries over to this new, separate, independent site now that it exists.
+
+CLAUDE.md §2's site-landscape block updated in the same pass: the MPPM bullet converted from
+"PLACEHOLDER SLOT, not yet connected" to the real ID/shortName/domain-status above, and the section
+header's "9 confirmed + 1 placeholder" language changed to "10/10 confirmed."
