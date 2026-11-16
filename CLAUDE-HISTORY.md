@@ -12399,3 +12399,12 @@ top-level `set_text`** — hit repeatedly this task (every new What-card and eve
 paragraph) and fixed every time by querying the new element immediately after creation and deleting the
 stray String child. Worth writing into a HARD RULE or at least a standing note if this tool behavior is
 hit again in a future build.
+
+**Follow-up, same day:** the two missing faculty photos flagged in §388 (Daniel Gordon, Tushar Rathod)
+were uploaded by the user and are now set — `mppm-faculty-gordon.jpg` (asset `6afb4342a3f7d4596bd71acd`)
+on Business Modeling and Customer Validation, `mppm-faculty-rathod.jpg` (asset
+`6afb4342fdabc0ab1f97b72e`) on Building and Leading Innovative Organizations. Published; both verified
+live on the actually-served published HTML (a first fetch right after publish still showed the old
+photo — publish-propagation lag, the same class of false alarm as §370 — a cache-busted re-fetch
+seconds later showed the correct asset on both pages). All 11 MPPM course pages are now fully complete,
+with no outstanding items.
