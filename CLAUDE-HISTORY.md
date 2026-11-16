@@ -12922,3 +12922,35 @@ both this entry and CLAUDE.md's §2 summary with its real ID/shortName/domains.
 A copy of this table was also written to a standalone file and sent to the user as a downloadable
 deliverable (not committed to the repo — it's a point-in-time convenience export; this history entry
 and the CLAUDE.md §2 summary are the durable, maintained record going forward).
+
+### §399 — Site roster finalized: Mtech dropped, MPPM added as the replacement slot (2026-11-16)
+
+Following up on §398's fresh connection snapshot, the user reviewed the list and made a deliberate
+decision: drop "Maryland Technology Enterprise Institute (Mtech) - Pre-102026" (`63cfff029dfb530bf53dc0f7`)
+from the maintained roster entirely, and add the new MPPM spinoff as its replacement. User's own
+words: "I don't see why we need any of those, Or the old MPPM... give THOSE in the list with the
+precise proper name you see there, the site url and site ID." Confirmed the Mtech site's one known
+purpose (CMS-migration source for the original Mtech→Idea-Factory collection copy) is fully done:
+"Yes EVERY Cms collection there WAS migrated over and we have everything working now that needs to
+be retained." This supersedes HARD RULE #16's 2026-09-23 note to keep it connected for an unspecified
+future task — that task never materialized, and the user has now explicitly closed the question.
+
+**Final 10-site target roster, proper name / URL / site ID, exactly as given to the user:**
+1. Claude-Accessed Migration Interface Site (the master) — https://claude-accessed-migration-interface-sit.webflow.io — `6a316b1a0f02a4cda75a50e7`
+2. Idea Factory — https://ideafactory.umd.edu (also www.ideafactory.umd.edu, mtech.umd.edu, www.mtech.umd.edu) — `6ab68d5e2db5d054067d314b`
+3. UMD I-Corps — https://icorps.umd.edu (also www.icorps.umd.edu) — `6ab6a3b0a622500df2d51d3f`
+4. Maryland Industrial Partnerships (MIPS) — https://mips.umd.edu (also www.mips.umd.edu) — `6aa3a8e3bee6d38a120264a1`
+5. ASPIRE Program — https://aspire.umd.edu (also www.aspire.umd.edu) — `6aa3a09a3ce07e483fc435d2`
+6. Mtech Ventures — https://mtechventures.umd.edu (also www.mtechventures.umd.edu) — `6aa3abe32bdfac7470fa7ea6`
+7. Chesapeake Bay Seed Capital Fund — https://cbscf.umd.edu (also www.cbscf.umd.edu) — `6ab6a9f5fb68d4cb08726d8e`
+8. IF Component Library — https://if-component-library.webflow.io (no custom domain) — `6ad7957c2cee4b6c725bf76e`
+9. UMD Startup Showcase — https://startupshowcase.umd.edu (also www.startupshowcase.umd.edu) — `6a712c9b6aeb63d8c2ae58b2`
+10. MPPM — PLACEHOLDER, not yet connected; user is connecting it now. Fill in real ID/URL once done.
+
+**Dropped, not to be re-added absent explicit request:** Maryland Technology Enterprise Institute
+(Mtech) - Pre-102026, `63cfff029dfb530bf53dc0f7`.
+
+**Still separately on record as dormant (not part of the 10-site roster, but worth remembering if the
+I-Corps CMS-migration project ever resumes):** the real UMD I-Corps CMS-migration source
+(`64401cac3a3988f9b7f84022`) and its stale duplicate (`5dc5b8613bccd9e7228b5dd5`) — both already
+absent from the connection per §398, neither part of this roster.
