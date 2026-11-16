@@ -12408,3 +12408,63 @@ live on the actually-served published HTML (a first fetch right after publish st
 photo — publish-propagation lag, the same class of false alarm as §370 — a cache-busted re-fetch
 seconds later showed the correct asset on both pages). All 11 MPPM course pages are now fully complete,
 with no outstanding items.
+
+---
+
+## §389 — MPPM COURSE PAGES — LEARNING EXPERIENCE: BOX COLORS (all 11 pages) — spec committed verbatim BEFORE execution (2026‑11‑16)
+
+**Context:** user-provided spec for a color/image-only change to the Learning Experience section's 6
+boxes, applied identically across all 11 MPPM course pages (the section is explicitly the same look-
+family content everywhere — no page-specific data — so per HARD RULE #10's own exception, the shared
+box/label classes stay shared; only new combo classes are added, not a per-page fork). Committed before
+execution per this project's standing practice.
+
+**FULL SPEC, VERBATIM:**
+
+MPPM COURSE PAGES — LEARNING EXPERIENCE: BOX COLORS (all 11 course pages)
+Pages: every page in the Webflow "courses" folder (the Learning Experience section is the same on all).
+This is a COLOR and IMAGE change only.
+
+DO NOT CHANGE: any size, padding, gap, margin, min-height, font size, font weight, letter-spacing,
+line-height, layout, breakpoint, the number of boxes, the box order, the labels' text, or the red
+section background. Responsive behavior must stay exactly as it is now at every breakpoint.
+Do not create new layout classes; only add the color classes below.
+
+THE SIX BOXES — in their current order (row 1 = boxes 1–3, row 2 = boxes 4–6):
+  Box 1  Asynchronous Lectures              background GOLD   icon mppm-course-exp-asynchronous-lectures-black.svg   label BLACK
+  Box 2  Coaching and Mentoring             background BLACK  icon mppm-course-exp-coaching-mentoring-white.svg      label WHITE
+  Box 3  Live Office Hours                  background WHITE  icon mppm-course-exp-live-office-hours.svg             label GREY
+  Box 4  Peer Interactions and Networking   background BLACK  icon mppm-course-exp-peer-networking-white.svg         label WHITE
+  Box 5  Project-Based Learning             background WHITE  icon mppm-course-exp-project-based-learning.svg        label GREY
+  Box 6  Real-World Assignments             background GOLD   icon mppm-course-exp-real-world-assignments-black.svg  label BLACK
+
+COLOR VALUES
+  GOLD  #FFD200      BLACK #000000      WHITE #FFFFFF      GREY (label only) #4A4A4A
+  Label BLACK = #000000; label WHITE = #FFFFFF.
+
+HOW
+1. Upload check: the 6 SVG files above must be in the Assets panel. If any is missing, stop and
+   say which.
+2. Add three combo classes to the existing box class (do not change the base class):
+     exp-gold   → background-color #FFD200
+     exp-black  → background-color #000000
+     exp-white  → background-color #FFFFFF
+   And to the existing label class, two combo classes:
+     exp-label-black → color #000000
+     exp-label-white → color #FFFFFF
+   (Boxes 3 and 5 keep the current label color #4A4A4A — no combo class.)
+3. Apply per the table: box combo class, label combo class, and set each box's Image to its file.
+   Keep each Image's existing size and alt="" (decorative). Do not add filters.
+4. Set these on the BASE breakpoint only; they inherit to tablet and phones. Do not add or change
+   anything on the tablet / phone landscape / phone portrait breakpoints.
+
+CHECK — publish, then on ONE course page at 1440, 991, 767 and 390px wide:
+  a) Desktop/tablet rows: [gold, black, white] / [black, white, gold].
+  b) Phones (2 per row): the same six boxes in the same order — gold, black / white, black /
+     white, gold. No two same-colored boxes side by side.
+  c) Each icon matches its box: black on gold, white on black, red on white; labels readable.
+  d) Box sizes, spacing and layout identical to before the change at every width.
+  e) Spot-check one more course page: identical.
+
+**STATUS:** spec committed to memory in full. Execution not yet begun — Webflow MCP tools are
+mid-reconnect as of this commit; will proceed once available.
