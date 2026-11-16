@@ -12870,3 +12870,55 @@ lines only between cells — matching every item in the user's CHECK list (a)-(d
 
 **Status: DONE.** This supersedes §395/§396 — the earlier `last-child`-pseudo attempt is gone,
 replaced entirely by this gap-based mechanism.
+
+### §398 — Full raw site-connection snapshot, per user's standing request (2026-11-16)
+
+User asked for an explicit, maintained record of every Webflow site this MCP connection can
+currently see (regardless of write permission), specifically so that if a future reconnect "resets"
+the connection and a site gets accidentally left off, this record tells them what WAS there so they
+can find and re-add it. Fetched fresh via `list_sites` (detail:"full") immediately before the user
+connected the newly-created MPPM spinoff. 10 sites, confirmed complete
+(`pagination.total:10, hasMore:false`). Full raw data, verbatim:
+
+1. **Claude-Accessed Migration Interface Site** (this master project) — id `6a316b1a0f02a4cda75a50e7`,
+   shortName `claude-accessed-migration-interface-sit`, workspaceId `633213b73e84c50140de11fa`, no
+   custom domains, created 2026-06-16, last published 2026-11-16T19:43:52Z.
+2. **Idea Factory** — id `6ab68d5e2db5d054067d314b`, shortName `idea-factory-site`, domains
+   `ideafactory.umd.edu`/`www.ideafactory.umd.edu` + `mtech.umd.edu`/`www.mtech.umd.edu`, created
+   2026-09-25, last published 2026-11-16T20:08:39Z.
+3. **UMD I-Corps** — id `6ab6a3b0a622500df2d51d3f`, shortName `umd-i-corps-site`, domains
+   `icorps.umd.edu`/`www.icorps.umd.edu`, created 2026-09-25, last published 2026-10-23T20:59:53Z.
+4. **Maryland Industrial Partnerships (MIPS)** — id `6aa3a8e3bee6d38a120264a1`, shortName
+   `mips-2026-demo`, domains `mips.umd.edu`/`www.mips.umd.edu`, created 2026-09-11, last published
+   2026-10-23T21:25:20Z.
+5. **ASPIRE Program** — id `6aa3a09a3ce07e483fc435d2`, shortName `aspire-2026-demo`, domains
+   `aspire.umd.edu`/`www.aspire.umd.edu`, created 2026-09-11, last published 2026-10-23T21:27:34Z.
+6. **Mtech Ventures** — id `6aa3abe32bdfac7470fa7ea6`, shortName **`mtech-ventures-if`** (CLAUDE.md
+   had this recorded as `ventures-2026-demo` — corrected in this pass), domains
+   `mtechventures.umd.edu`/`www.mtechventures.umd.edu`, created 2026-09-11, last published
+   2026-10-23T15:25:57Z.
+7. **Chesapeake Bay Seed Capital Fund** — id `6ab6a9f5fb68d4cb08726d8e`, shortName `cbscf-site`,
+   domains `cbscf.umd.edu`/`www.cbscf.umd.edu`, created 2026-09-25, last published
+   2026-10-23T15:23:46Z.
+8. **IF Component Library** — id `6ad7957c2cee4b6c725bf76e`, shortName `if-component-library`, no
+   custom domains, created 2026-10-20, last published 2026-10-22T19:38:57Z.
+9. **UMD Startup Showcase** — id `6a712c9b6aeb63d8c2ae58b2`, shortName `umd-startup-showcase-demo`,
+   domains `startupshowcase.umd.edu`/`www.startupshowcase.umd.edu`, created 2026-08-04, last
+   published 2026-11-10T15:38:22Z.
+10. **Maryland Technology Enterprise Institute (Mtech) - Pre-102026** — id
+    `63cfff029dfb530bf53dc0f7`, shortName `mtech-umd`, domains
+    `mtechpartnerships.umd.edu`/`www.mtechpartnerships.umd.edu`, created 2023-01-24, last published
+    2026-10-20T17:04:02Z.
+
+**Confirmed gone from the live connection (previously on record in HARD RULE #16 / §2, not present
+in this fresh fetch):** the UMD I-Corps CMS-migration source (`64401cac3a3988f9b7f84022`) and its
+stale duplicate (`5dc5b8613bccd9e7228b5dd5`) — neither appeared at all. The already-flagged MIPS
+archive (`57f501f82833419a7800f816`) remains absent too, consistent with its 2026-10-20 drop-out note.
+
+**MPPM spinoff** (just created by the user) is not in this list — it was fetched immediately before
+the user began connecting it. Once connected, re-verify with a fresh `list_sites` call and update
+both this entry and CLAUDE.md's §2 summary with its real ID/shortName/domains.
+
+A copy of this table was also written to a standalone file and sent to the user as a downloadable
+deliverable (not committed to the repo — it's a point-in-time convenience export; this history entry
+and the CLAUDE.md §2 summary are the durable, maintained record going forward).
