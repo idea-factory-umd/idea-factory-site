@@ -12600,3 +12600,162 @@ throughout); the `is-lead` combo and the new paragraphs exist only on this page'
 other MPPM course page was touched by this fix.
 
 **Status: DONE.**
+
+### §392 — MPPM Home "Key Program Features" section restyle spec (received, not yet executed) (2026-11-16)
+
+Verbatim spec, committed before execution per standing project discipline:
+
+```
+MPPM HOME (/mppm) — "KEY PROGRAM FEATURES" SECTION: RESTYLE ONLY
+Edit the existing section in place.
+
+SCOPE — READ FIRST
+- This is a STYLING change only: colors, borders, one font, one weight, one spacing value, and
+  icon image swaps. Nothing else.
+- Do NOT change the layout, structure, column counts, gaps, breakpoints, responsive behavior,
+  element order, copy, or classes used elsewhere. Do NOT open or adjust any tablet/phone styles.
+  If something looks off at another breakpoint, REPORT it — do not fix it.
+- Do NOT touch any other section of the page.
+- Use COMBO CLASSES for the per-card colors (e.g. feature-card is-gold / is-black / is-white).
+  Do not change the base card class's other properties.
+
+=====================================================================
+1. SECTION HEADING ROW
+=====================================================================
+"Key Program Features" heading text color: #FFFFFF (was gold).
+The rule after it and the "What sets it apart" label: unchanged.
+
+=====================================================================
+2. THE SIX CARDS — new colors (same size, padding, gap, order)
+=====================================================================
+On ALL six cards: REMOVE the 0.5px grey border and the 4px red top bar (border: none).
+No shadow, no radius (unchanged).
+
+Card colors, in order (left to right, top row then bottom row):
+  1. AI-Ready Product Leaders      background #FFD200 (gold)
+  2. Power Your Career             background #000000 (black)
+  3. Flexibility Fits Your Life    background #FFFFFF (white)
+  4. Small-Class Experience        background #000000 (black)
+  5. Real-World Projects           background #FFFFFF (white)
+  6. Building with AI              background #FFD200 (gold)
+
+Card text, by card color:
+  GOLD cards:   heading #000000; description #000000
+  BLACK cards:  heading #FFFFFF; description rgba(255,255,255,0.86)
+  WHITE cards:  heading #000000; description #222222
+Heading size, weight, centering: unchanged.
+
+Description text on ALL six: change the font from Georgia to Interstate (sans-serif),
+weight 400. Size 16px, line-height 1.55, margin 0 — unchanged.
+(Sans-serif is required on colored backgrounds; applying it to all six keeps them consistent.)
+
+=====================================================================
+3. ICONS — swap the image files (same size and position: 80 × 80, centered)
+=====================================================================
+Upload these from the zip "MPPM-Key-Program-Features-icons" and replace each card's icon:
+  1. AI-Ready Product Leaders      mppm-feature-ai-ready-black.png
+  2. Power Your Career             mppm-feature-power-career-white.png
+  3. Flexibility Fits Your Life    mppm-feature-flexibility-red.png
+  4. Small-Class Experience        mppm-feature-small-class-white.png
+  5. Real-World Projects           mppm-feature-real-world-projects-red.png
+  6. Building with AI              mppm-feature-building-with-ai-black.png
+Do not recolor with CSS filters — use these files as they are.
+
+=====================================================================
+4. FORMAT / TIME COMMITMENT ROW (under the cards)
+=====================================================================
+- Row background: REMOVE the dark red (#C0142B) → transparent (the section's red shows).
+- Add a top border to the row: 2px solid rgba(255,255,255,0.45).
+- Left item padding: 20px 22px 0 0.  Right item padding: 20px 0 0 22px.
+  (Text now starts flush with the cards' edges; no padding on the outer sides or bottom.)
+- Divider between the two items: 1px solid rgba(255,255,255,0.3) (was 0.2).
+- Value text ("Asynchronous online…", "Two 12-week courses…"): weight 500 (was 700).
+- Gold labels, white text color, sizes and the space above the row: unchanged.
+
+=====================================================================
+5. SECTION BOTTOM SPACING
+=====================================================================
+Section bottom padding: clamp(40px, 4.6vw, 64px) (was the same as the top).
+Top and side padding: unchanged.
+
+=====================================================================
+CHECK — at 1440px desktop only
+=====================================================================
+a) White "KEY PROGRAM FEATURES" heading.
+b) Cards: gold, black, white / black, white, gold — no borders, no red top bars.
+c) Each icon matches its card (black on gold, white on black, red on white).
+d) All descriptions in sans-serif; legible on every card color.
+e) Format / Time Commitment: no dark panel; thin white line above; text flush with the cards.
+f) About 64px of red below the Format / Time Commitment row.
+g) Nothing else on the page changed.
+```
+
+STATUS: Webflow MCP tools disconnected/reconnecting at the moment this was received; will proceed
+once available.
+
+### §393 — MPPM Home "Key Program Features" section restyled (2026-11-16)
+
+Executed the §392 spec on MPPM Home (`6ae12919b1185f38e861155f`, live interim slug `/mppm-home` —
+the spec said `/mppm`, which is the final post-spinoff slug; resolved to the actual current page per
+the project's standing MPPM-interim-slug convention, same as every other MPPM cross-link).
+
+**Upload check:** 4 of the 6 new icon PNGs were found in the asset library
+(`mppm-feature-ai-ready-black.png`, `mppm-feature-power-career-white.png`,
+`mppm-feature-small-class-white.png`, `mppm-feature-building-with-ai-black.png`) — applied to cards
+1/2/4/6. **`mppm-feature-flexibility-red.png` and `mppm-feature-real-world-projects-red.png` (cards 3
+and 5) were NOT found anywhere in the asset library** (checked the full library, not just newest
+uploads). Rather than block the whole task, proceeded with every other part of the spec and left
+cards 3 & 5's icons on their current (old, unsuffixed) files — not a CSS-filter recolor, just not yet
+swapped. **Outstanding: once those two files are uploaded, swap card 3's icon
+(`89e71bd0-e13a-af4e-9b68-4891f053a737`) and card 5's icon
+(`98ea0b7b-589e-03a3-910f-b026399ceb0a`) to the new `-red` assets.**
+
+**1. Heading:** `mppm-feat-label` (the "Key Program Features" text) color `#ffd200`→`#FFFFFF`. Rule
+(`mppm-feat-rule`) and "What Sets It Apart" tag (`mppm-feat-tag`) left untouched.
+
+**2. Cards:** confirmed the base `mppm-feat-card` class's border/shadow/radius were already
+`none`/`0px` at the base breakpoint — the "remove the grey border and red top bar" instruction was
+already satisfied, nothing to change there (noted rather than silently skipped). Created 9 new combo
+classes (3 per base — `mppm-feat-card`, `mppm-feat-title`, `mppm-feat-desc` — each gets `is-gold`/
+`is-black`/`is-white`), none of which touch the base classes' other properties:
+- `mppm-feat-card.is-gold/-black/-white` → `background-color` #FFD200/#000000/#FFFFFF
+- `mppm-feat-title.is-gold/-black/-white` → `color` #000000/#FFFFFF/#000000
+- `mppm-feat-desc.is-gold/-black/-white` → `color` #000000/rgba(255,255,255,0.86)/#222222
+Applied per the spec's 1–6 order (gold, black, white / black, white, gold) to all 6 cards' own card +
+title + desc elements. Title size/weight/centering untouched (no properties touched on the base
+`mppm-feat-title` class). Updated the base `mppm-feat-desc` class directly (uniform, all 6 cards):
+`font-family` Georgia→Interstate, `line-height` 1.5→1.55 (weight 400/size 16px/margin 0 already
+correct, left alone).
+
+**3. Icons:** swapped assetIds on cards 1/2/4/6 (see upload-check note above for 3/5). Icon size/
+position (`mppm-feat-icon`: 80×80, centered) untouched — already matched spec, no edit needed.
+
+**4. Format/Time Commitment row:** `mppm-feat-infobar` `background-color` #c0142b→`transparent`;
+added `border-top` 2px solid rgba(255,255,255,0.45) (was `none`). `mppm-feat-infobox` (left/Format)
+padding 20/24/20/24 → 20/22/0/0 (top unchanged). `mppm-feat-infobox-white` (right/Time Commitment)
+padding 20/24/20/24 → 20/0/0/22 (top unchanged), AND its own separate `background-color:#c0142b`
+override removed (set to `transparent`) — this box had its own dark-red background independent of the
+infobar's, so the infobar-level change alone would not have let the section's red show through on the
+right side; caught this before executing by reading both boxes' stored properties first, not assumed.
+Divider (`mppm-feat-infobox`'s `border-right`, 1px solid rgba(255,255,255,0.3)): the live value was
+already 0.3, not 0.2 as the spec's "(was 0.2)" note stated — left untouched since the target value was
+already correct, this discrepancy is just a stale assumption in the spec text, not an error to fix.
+`mppm-feat-infotext` (both value lines share this one class) `font-weight` 700→500. Gold labels,
+white text color, sizes, and space-above (`margin-top`) all confirmed untouched.
+
+**5. Section bottom spacing:** `mppm-feat-sec` `padding-bottom` `clamp(56px,7vw,100px)` →
+`clamp(40px,4.6vw,64px)`. `padding-top` and side padding left untouched.
+
+**Verification:** every write re-queried fresh (all 6 cards' `styleNames`/`assetId`s, infobar/infobox
+properties) before publishing — all correct. Published, then checked the live page with Playwright at
+1440px against the CHECK section: (a) heading computed color #FFFFFF; (b) all 6 cards' computed
+background colors match gold/black/white/black/white/gold, computed border/shadow/radius all
+none/0px; (c) screenshot confirms each icon's drawn color matches its card (black on gold, white on
+black, red on white, including the two untouched cards); (d) all 6 descriptions compute
+`font-family: Interstate, sans-serif`; (e) infobar computed background transparent, border-top solid
+2px rgba(255,255,255,0.45), both info-box paddings exactly as specified; (f) section
+`padding-bottom` computed 64px at 1440px; (g) screenshot of the section above (the Curriculum grid)
+confirms nothing adjacent changed. Screenshots sent to the user for direct visual confirmation.
+
+**Status: DONE, except the 2 missing icon files noted above (cards 3 & 5), which are a genuine
+upload gap, not a build error.**
