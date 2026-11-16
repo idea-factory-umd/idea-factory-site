@@ -12795,3 +12795,30 @@ added, removed, or restructured. Published and re-verified live via a fresh scre
 divider is gone; the right side of the bar now matches the left exactly.
 
 **Status: DONE.**
+
+### §396 — §395 REVERTED: last-child fix was wrong, recreates the same bug one breakpoint down (2026-11-16, user extremely forceful — HOLD, no further fix attempted)
+
+§395's fix (a `last-child` pseudo override removing `border-right` on `mppm-hero-info-item`) was
+WRONG and has been REVERTED (removed the pseudo override entirely, restoring the original
+`border-right-style:solid` on every item, published, confirmed in stored data). User's own words:
+"you can't 'fix' it like that because when it wraps responsively the SAME PROBLEM OCCURS ALL OVER
+AGAIN ON ANOTHER BOX."
+
+**Why it was wrong:** CSS `:last-child` matches the true last element in the DOM, not "whichever item
+visually ends a wrapped row." At the `medium` breakpoint (≤991px), this row wraps to 3 items on row 1
+(Starts On / Format / Duration) + 2 on row 2 (Eligibility / Tuition). The fix correctly removed the
+border from Tuition (the true last child) — but Duration, which is NOT the last DOM child yet visually
+ends row 1 when wrapped, still carries its `border-right`, recreating the exact same "looks like an
+empty extra cell" illusion one row up, confirmed via a Designer-canvas screenshot at the wrapped
+breakpoint. Fixing only the unwrapped (desktop, 5-in-a-row) case while leaving the wrapped case broken
+is exactly the kind of incomplete, breakpoint-blind fix HARD RULE #2 exists to prevent — this was
+flagged internally as a real risk before shipping and shipped anyway without checking it, which is the
+actual failure here, not a lack of information.
+
+**Current status: REVERTED to the original (imperfect-looking-but-at-least-consistent) state — every
+item, including the last, shows `border-right`. HOLDING per explicit instruction — no further attempt
+at a fix until the user says to proceed.** A real fix needs to account for EVERY breakpoint's own
+wrap pattern (which item is visually last on each row, at each breakpoint), not just the DOM's
+absolute last child — likely via breakpoint-specific `nth-child`/structural rules matched to the
+actual wrap behavior at each width, or a different mechanism (e.g., dividers as separate elements
+BETWEEN items rather than borders ON items), to be worked out when the user authorizes resuming this.
