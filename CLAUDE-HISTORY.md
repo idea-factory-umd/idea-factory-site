@@ -14355,3 +14355,37 @@ phone field present" message is `display:none`, with no visible gap where it wou
 (screenshot-confirmed). Zero `pageerror` events.
 
 **DONE.**
+
+### 2026-11-17 — §421: Same dev-only AC message hidden on the "MPPM Applications Open Panel" COMPONENT — one edit, 17 pages
+
+User reported the same "Forms must have an email field or a phone field present" message on a second,
+light-themed "Request more information below." form and said "I believe this is a component." Correct
+— confirmed via `data_component_tool`: **"MPPM Applications Open Panel"** (componentId
+`7a4c0c9b-9ff0-5b76-f3cf-0c222cd6fe9e`, group `MPPM`, **instanceCount 17**). A plain page-level
+`query_elements` for `type:"HtmlEmbed"` on any of its host pages finds nothing related — a component
+instance's own fixed internal elements are invisible to an unscoped page query; they only surface with
+`scope_component_id` set to the component's id (confirmed empirically after the plain query came back
+empty — the right lesson from HARD RULE #9's own discipline, applied to a query tool this time instead
+of a write tool). A sitewide grep of the live HTML (fastest way to find every host page before digging
+into the Designer tree) found this exact form (`_form_38`, "Request more information below.") on all
+11 course pages plus Student Experience, Calendars & Deadlines, Academic Policies, Online Learning,
+Tuition & Financial Aid, and Graduation & Commencement — 17 pages, matching the component's own
+instance count exactly. Not present on Academics or Application Requirements.
+
+**Fix, scoped correctly per HARD RULE #10's own Component exception (never fork a genuine Component —
+editing inside its definition is the CORRECT way to change every instance at once, not a violation):**
+found the component's own `id="learn-more-form"` HtmlEmbed (element `9d76e61e-033b-2633-964a-34f7ab1c19e7`,
+inside the component definition, `scope_component_id` required to reach it) — a near-twin of the Home
+hero's `__hfFormHelpers` script (same `window.__hfFormHelpers` guard name, but this copy never sets
+the dark reCAPTCHA theme, matching its light-background use). Added the identical `hideDevError()`
+function and `run()` call used on Home (§420), leaving every other line — placeholders, the reveal/
+hide `hf-engaged`/`hf-quiet` toggling, the click-outside re-hide logic — byte-identical; re-verified via
+a fresh `get_settings` read (with `scope_component_id` set, required for a component-internal element).
+
+**Verified live, two different host pages** (Calendars & Deadlines and the Fundamentals of Product
+Management course page — proving the component-level edit genuinely propagated, not just one page):
+submitted both forms empty; both show the 3 real "This field is required." messages
+(`display:block`) and both hide the dev-only message (`display:none`), with zero leftover gap
+(screenshot-confirmed) and zero `pageerror` events on either page.
+
+**DONE.**
