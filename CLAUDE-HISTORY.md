@@ -13489,3 +13489,84 @@ i) No horizontal scrolling at any width; no CSS grid used.
 No Webflow writes made yet as of this entry — plan committed per explicit user instruction before
 execution begins. Investigation (current section structure, real course-page slugs, existing
 accordion/header-height patterns to reuse) and build to follow; completion entry to follow.
+
+### §406 — MPPM Academics page: Courses section rebuild (2026‑11‑17, COMPLETE)
+
+**Investigation findings (all confirmed before any write):**
+- Real course-page slugs: **zero deviations** from the spec's assumed `/courses/course-...` paths —
+  all 10 matched exactly.
+- The existing `mppm-acad-behavior` embed already had a working accordion (click-to-open,
+  closes-others, aria-expanded/aria-hidden tracking) and a basic hash handler, both keyed to the OLD
+  classes/ids — reused the MECHANISM (ported to new class names), dropped the "Expand All" parts
+  (spec says delete that button), and added the scroll+pause+open+flash sequencing from scratch (the
+  old handler had no scroll/flash logic at all). The faculty-card accordion in the same embed was
+  left **completely untouched** (Featured Faculty is out of scope).
+
+**Removal (HARD RULE #13 — separate verified steps, never batched):** removed `courses-left` and
+`courses-right` as two independent subtrees, verified each gone, verified the `courses-inner` wrapper
+then had 0 children, removed it, then removed 30 now-orphaned old style objects. 4 old classes
+(`mppm-acad-label-h2/-row/-rule/-stamp`) refused deletion — confirmed via `query_elements` that these
+are genuinely page‑level‑shared with the Featured Faculty section's own heading (same "section label"
+look), left untouched per CLASS‑NAMING‑GUIDE.md §2. Cleared the section's own `background-color`
+(spec: "no background of its own"); its `scroll-margin-top:90px` was already correct.
+
+**New classes:** 36 standalone `mppm-acad-courses-*` classes (site=mppm, page=acad, section=courses
+per CLASS‑NAMING‑GUIDE.md), zero Designer combo-classes (HARD RULE #11 — e.g. the spec's
+`.acad-tile.tile-credits` pattern became 3 fully independent standalone classes). Every property
+written as separate longhand fields (HARD RULE #4). `clamp()` used throughout exactly as the spec's
+own literal values specify — the spec's explicit CSS-shaped numbers override HARD RULE's general
+"no clamp() outside hero-scale elements" default, same precedent as §312's Grid‑vs‑Flexbox call.
+Flexbox used for 100% of layout **except one deliberate, flagged exception**: `mppm-acad-courses-
+rowpanel` uses `display:grid;grid-template-rows:0fr→1fr` to reuse the already‑proven accordion
+height‑animation trick, per the spec's own "if the existing build already animates these rows
+open/closed, KEEP that animation" instruction — verified via the live compiled CSS that this is the
+ONLY `display:grid` anywhere in the entire `mppm-acad-courses-*` rule set (every `grid-row-gap`/
+`grid-column-gap` elsewhere is Webflow's own internal naming for flex `gap`, not grid layout).
+Also kept the old build's `transform:translateY(-8px→0)` detail on the panel-content transition
+(460ms cubic-bezier, 60ms delay) ADDITIONALLY alongside the new spec's explicit opacity numbers
+(360ms ease, 120ms open-delay / 180ms close-delay) — a deliberate "keep the WHOLE existing animation"
+reading, flagged here since the new spec's own fallback text only mentions opacity.
+
+**Elements:** built via `data_element_builder` nested trees. Two gotchas hit and fixed:
+(1) `type:"TextBlock"` silently created a plain `Block` that refused `set_text` entirely (left
+Webflow's own default placeholder) — switched to `type:"Paragraph"` for row titles, which worked
+correctly both in the builder and stand-alone. (2) a reserved-word rejection on `id` inside
+`set_attributes` (the same `"id" is a reserved attribute name` gotcha from §320) — fixed by using
+`settings:[{key:"domId",...}]` instead. Row buttons built as native `Block` (div) with
+`role="button" tabindex="0" aria-expanded`, matching the OLD build's own already-proven ARIA-button
+pattern (HARD RULE #23 — no DOM/custom-tag needed). The "More >>" link is a `TextLink` appended as a
+second child of the description `Paragraph` after its `set_text`, confirmed to coexist correctly as
+siblings (tested on row 1 before scaling to all 10). **Found and removed one stray, fully-empty
+`mppm-acad-courses-row` div** left behind from the first (failed) row-1 build attempt before the
+`domId` fix — caught by a row-count check (11 instead of 10) during verification, confirmed 0
+children before removal, re-published after removing it.
+
+**Behavior embed:** new course-row accordion (open/close, closes-others, aria tracking) bound to the
+new classes; new `IntersectionObserver` tile fade-in (threshold 0.3, 0/180/360ms stagger, one-shot
+disconnect, `prefers-reduced-motion`/no-IO fallbacks — exempt from HARD RULE #28's scroll-engine
+requirement since it's one-shot, not a continuous scroll listener); new deep-link handler (120ms
+wait → close all → smooth-scroll to real header height + 24px → `scrollend` or 1400ms fallback →
+400ms wait → open the row → create and fade a flash bar). Faculty-card accordion left byte-identical.
+
+**Verification (Playwright against the live published page, all 5 widths: 1440/991/767/478/375):**
+- Zero horizontal overflow at every width.
+- Tile deconstruction at ≤767: identical width, height, number size (43→36px), and label
+  letter-spacing (0.04em) across all 3 tiles — confirmed by direct measurement.
+- Number font-size steps smoothly 86.4→64→52→43→36px across the 5 widths (clamp + breakpoint
+  overrides working together correctly).
+- Accordion: closed→open flips `rowbtn` bg white→black and title white, toggle square stays
+  `#E21833` in BOTH states, the vertical bar scales to 0 (minus sign), `aria-expanded` toggles,
+  opening a second row correctly closes the first.
+- All 10 "More >>" hrefs confirmed correct against the real course pages, zero deviations.
+- Deep link `/academics#negotiation`: row's top landed at 203.125px from viewport top against a
+  measured real header height of 179px — i.e. exactly header + 24px, confirmed opening and a flash
+  bar (6px, `#E21833`, correct height) appearing then being removed after its fade.
+- Mobile (700px) stacking: gap between the last left-column row and first right-column row measured
+  6px — identical to the gap between ordinary rows, per spec item (g).
+- Zero console/page errors across every test.
+- Visual screenshots at 1440/767/375 and mid-flash all confirmed by direct inspection — white band
+  layout, tile colors/sizes, gold band two-column list, open-row styling, and the flash bar all match
+  the spec.
+
+Published (full site, webflow.io subdomain — no custom domain yet on this spinoff) after the cleanup
+removal, confirmed live.
