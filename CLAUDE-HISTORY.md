@@ -14008,3 +14008,40 @@ spec's explicit "at 1440" scope for that requirement; confirmed clean/readable, 
 confirmed right-aligned via its own `margin-left:auto`). The same pre-existing, out-of-scope 47px
 `.mppm-why-tag`/`.mppm-feat-tag` overflow already flagged in §409/§412 persists unchanged at 375px —
 confirmed via the identical culprit scan, not caused by or related to this fix.
+
+### §414 — MPPM Academics: Courses-section tile-number fade — corrected timing (2026‑11‑17, COMPLETE)
+
+User spec gave exact OLD/NEW CSS text to find-and-replace (`.acad-tiles-seq .acad-tile-txt`/`.seq-2`/
+`.seq-3`, delays 450/900ms → a corrected 500ms-duration, 0/180/360ms-delay sequence). **Those class
+names don't exist anywhere on this page — per HARD RULE #19/#22, re-derived the real current state
+before touching anything**, the same lesson as §410's stale-spec-text incident. The actual, currently
+shipped feature is the "30 Credits / 10 Courses / 2 Per Term" stat-tile fade in the Courses section's
+gold band, built in §405/§406: wrapper `.mppm-acad-courses-tiles`, three item classes
+`.mppm-acad-courses-txt1/2/3` (red/black/gold tiles respectively) — structurally and functionally the
+exact same feature the spec describes, just under its real shipped names, with the SAME 450/900ms delay
+values the user wants corrected.
+
+**Two separate places needed the same fix, confirmed by inspecting the real embed before editing:**
+the base `opacity:0; transition:opacity 450ms ease-out` + per-tile delay lives as a **native Designer
+style** on each of `.mppm-acad-courses-txt1/2/3` (not in the embed, unlike the hypothetical OLD snippet
+the spec described) — fixed via `update_style`: `transition-duration` 450ms→500ms on all three;
+`transition-delay` unchanged at 0ms on txt1, 450ms→180ms on txt2, 900ms→360ms on txt3. Separately, the
+`mppm-acad-behavior` HtmlEmbed's `<style>` block carries **higher-specificity `!important` overrides**
+of the same three delays (`.mppm-acad-courses-tiles .mppm-acad-courses-txt2{transition-delay:450ms
+!important}` etc.) — these win over the native style regardless of what the native style says, so both
+had to change for the new timing to actually take effect; updated only those two delay lines (180ms,
+360ms) and left every other line — the accordion CSS, the faculty-card CSS, the reduced-motion block,
+and the entire `<script>` (IntersectionObserver trigger, deep-link handling, accordion/bio toggle
+logic) — byte-for-byte untouched, confirmed via a fresh re-read of the full embed after the edit.
+
+**Verification (live published site, Playwright, real scroll-triggered IntersectionObserver, not a
+simulated class toggle):** used a short viewport so the tiles start below the fold, confirmed `is-in`
+is absent pre-scroll, triggered via `scrollIntoView`, and sampled all 3 tiles' computed `opacity` every
+animation frame from the moment `is-in` was actually added (via `MutationObserver`, not an assumed
+timestamp). Measured fade-start times relative to the real trigger: tile1 (red, 30 Credits) ~0ms, tile2
+(black, 10 Courses) ~216ms (expected 180ms, within one rAF sampling interval), tile3 (gold, 2 Per Term)
+~399ms (expected 360ms, same granularity) — each one clearly starting before the previous finishes,
+confirming the overlap. Fully-visible times: 499/683/866ms (expected 500/680/860ms) — matches the
+spec's "Total ≈ 860ms" to the millisecond. Separately confirmed `prefers-reduced-motion: reduce` still
+shows all 3 tiles at `opacity:1` with `transition-duration:0s` (no fade), exactly as before — untouched,
+per the spec's "stays as it is."
