@@ -13834,3 +13834,31 @@ final pass re-confirms):**
 
 Published (webflow.io subdomain) after every fix; final verification pass run fresh against the live
 site after the last publish, not from stored data or an earlier in-session result.
+
+### §410 — MPPM Home: Online Program links re-pointed to each course's own page (2026‑11‑17, COMPLETE)
+
+Immediately after §409, the user clarified that the Online Program section's 10 course title links were
+never supposed to point at `/academics#<row-id>` at all — they should go directly to each course's own
+dedicated page. §409's "already correct, no changes needed" verdict for Section 1 was judged against the
+wrong target (the literal spec text, which itself turned out to be stale) rather than what the user
+actually wanted, which is exactly why "the links are fine" read as a false claim from the user's side —
+clicking one landed on an Academics-page row, not the expected course page, and that mismatch was the
+whole complaint. Lesson: the spec text being internally consistent is not the same thing as it being
+what the user wants — when a user disputes a "this is already correct" verdict, the next step is to ask
+what they expected, not to re-prove the original reading.
+
+**Fix:** re-pointed all 10 course links (plus the "30 Credits · 10 Courses ››" stamp, for consistency)
+using genuine Webflow **page-reference links** (`set_link` with `linkType:"page"` + the page ID), never
+a typed URL string — exactly what the user's follow-up spec explicitly required ("Use Webflow page links
+(select the page), not typed URLs"), so a future page rename updates these automatically. No style,
+layout, or text changes — link targets only, per the spec.
+
+**Verification:** live, published site, each of the 11 links hovered + clicked individually (not just
+`href`-attribute inspection) and the resulting URL path compared against the exact path the user listed.
+All 11 matched exactly:
+`01→course-fundamentals-of-product-management · 02→course-strategies-for-managing-innovation ·
+03→course-business-modeling-and-customer-validation · 04→course-data-analysis-and-decision-making ·
+05→course-innovative-thinking · 06→course-managing-product-development-and-operations ·
+07→course-market-development-and-commercialization · 08→course-negotiation-and-problem-solving ·
+09→course-building-and-leading-innovative-organizations · 10→course-financing-the-product-life-cycle ·
+stamp→/academics`. Zero console/page errors. Published and re-verified fresh after publish.
