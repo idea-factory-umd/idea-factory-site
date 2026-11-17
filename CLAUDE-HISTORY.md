@@ -14081,3 +14081,16 @@ genuine new browser tab/page (original tab stays on the homepage) at
 `https://event.webinarjam.com/register/116/k3mpqiv8` (the destination's own server then redirects to
 its canonical registration URL — outside our control, not a link error); confirmed `target="_blank"`
 and `rel="noopener"` both present in the final published HTML.
+
+### §416 — MPPM Home: Tuition section bursts — lowered vertical centering (2026‑11‑17, COMPLETE)
+
+One-property fix on `mppm-tui-burst` (§413): `transform` changed from `translate(-50%, -50%)` to
+`translate(-50%, -47%)`, base breakpoint only — fresh `query_styles` confirmed no per-breakpoint
+override existed to remove, so this was a single `update_style` call.
+
+**Verification (live published site, Playwright, all 4 widths × all 3 columns = 12 checks):** every
+single one measured the burst's center exactly 7.92px below the icon's center (264px × 3% = 7.92px,
+matching the spec's "~8px lower" to the decimal), identical across 1440/991/767/375 and across all 3
+columns at each width — confirming the single base-level value cascades uniformly with no breakpoint
+drift. Burst/icon sizes (264×264 / 112×112) and horizontal centering (burst X = icon X in every case)
+both unchanged, confirming nothing else moved. Zero console errors at any width.
