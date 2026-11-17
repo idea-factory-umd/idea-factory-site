@@ -13570,3 +13570,78 @@ wait → close all → smooth-scroll to real header height + 24px → `scrollend
 
 Published (full site, webflow.io subdomain — no custom domain yet on this spinoff) after the cleanup
 removal, confirmed live.
+
+### §407 — MPPM Academics Courses section: two follow-up fixes (2026‑11‑17, COMPLETE)
+
+User reported two bugs in §406's build: (1) every closed course row showed an empty ~100px white
+strip under its title bar — the `display:grid;grid-template-rows:0fr` accordion trick wasn't
+collapsing the panel to 0, and the title text wasn't vertically centered in the bar; (2) the three
+fact-tile numbers were meant to fade in one-after-another (never two at once) but the original
+build's 0/180/360ms delays with a 500ms duration actually overlap (red finishes at 500ms while black,
+delayed 180ms, is still running until 680ms) — a genuine spec error in §406's own implementation, not
+something the new instructions changed.
+
+**Fix 1 — panel collapse, rebuilt as JS-measured height (not CSS grid):**
+- `mppm-acad-courses-rowpanel` (outer): removed `display:grid`/`grid-template-rows` and all border/
+  background properties; now `height:0px` with `transition:height 460ms cubic-bezier(0.22,1,0.36,1)`.
+  Border + background + padding moved to `rowpanelinner` per the spec's explicit "all padding and
+  borders live on the inner wrapper, never the outer" instruction. Dropped the `transform:translateY`
+  detail entirely (opacity-only now, matching the new spec literally) and split transition-delay into
+  180ms (closed/default) vs. 120ms (open, via the `.is-open` embed CSS override) to match "120ms on
+  open; 180ms on close."
+- Rewrote the embed's `openCourseRow`/`closeCourseRow`: on open, measure `rowpanelinner.offsetHeight`,
+  set the outer panel's height to that px value (triggers the transition), then switch to `height:auto`
+  on `transitionend` (560ms fallback timer in case it never fires) so later reflows (e.g. text wrap on
+  resize) aren't clipped. On close, if currently open (height may be `'auto'`), first pin it to its
+  current measured px, force a reflow, then set `height:0px` so the collapse actually animates instead
+  of snapping. Deep-link and faculty-card logic untouched — both just call the same open/close
+  functions, which now use height instead of a CSS class toggle.
+- Title centering: changed `mppm-acad-courses-rowbtn`'s `align-items` from `stretch` to `center` (toggle
+  square keeps its own `align-self:stretch` override, so it still fills the bar's full height). Root
+  cause of the FIRST centering attempt still being off by 10px: `mppm-acad-courses-rowtitle` (a native
+  `<p>`) had never had its margin explicitly zeroed, so Webflow's own default paragraph
+  `margin-bottom:10px` pushed the centered box 10px high — fixed by setting all four margins to 0.
+  Added explicit `display:block`/margin:0/padding:0 to `mppm-acad-courses-row` (the li) defensively, per
+  the spec's own audit instruction (none were actually set, but confirmed explicitly rather than assumed).
+
+**Fix 2 — sequential (non-overlapping) tile-number fade, per the user's own corrected spec:**
+A second message arrived mid-task with a MORE PRECISE version of this fix (0/450/900ms delays with a
+450ms duration — each tile's fade fully completes before the next starts, total ≈1.35s) superseding
+the original 0/180/360ms/500ms numbers. Implemented per that corrected spec: wrapped each tile's
+number+label pair in one new wrapper div per tile (`mppm-acad-courses-txt1`/`-txt2`/`-txt3` — standalone
+classes, not a `acad-tile-txt`+`seq-N` combo, per HARD RULE #11), moved the existing 6 paragraph elements
+into them (preserving text/classes untouched), moved each tile's number→label gap from the tile
+container onto the new wrapper, and removed opacity/transition entirely from the 6 original text
+classes. Reused the existing `mppm-acad-courses-tiles` element as the IntersectionObserver target and
+`.is-in` toggle host instead of adding a redundant second "acad-tiles-seq" class — zero functional
+difference, avoids an unneeded class.
+
+**⚠️ Real Webflow compiler bug found and worked around:** after creating txt1/txt2/txt3 with identical
+properties except `transition-delay` (0/450/900ms), the LIVE behavior showed all three fading in
+perfect lockstep — confirmed via the actual compiled CSS that Webflow's own optimizer had silently
+MERGED `.txt2` and `.txt3` into one combined selector (`.txt2, .txt3 { ... }`) because their properties
+were "identical enough," and in doing so **dropped the differing transition-delay value entirely**
+(both compiled down to the bare `transition: opacity .45s ease-out`, no delay specified, defaulting to
+0s for all three). This is a genuine Designer-compiler defect, not an authoring mistake — the STORED
+style data correctly held 0/450/900ms throughout. Worked around by adding the three delay overrides as
+raw CSS in the page's own `mppm-acad-behavior` embed (`.mppm-acad-courses-tiles .mppm-acad-courses-txt1{transition-delay:0ms!important}` etc.) — embedded `<style>` blocks are served verbatim and never pass
+through Webflow's optimizer, so this is immune to the same merge. Confirmed fixed via `getComputedStyle`
+(0s/0.45s/0.9s correctly distinct) and, more importantly, via full behavioral timing sweeps against the
+live page showing the real non-overlapping sequence (red 0→~600ms, black stays at 0 until red finishes
+then runs to ~1050ms, gold stays at 0 until black finishes then runs to ~1400ms) — re-confirmed twice
+independently after accounting for one CDN-propagation-delay false negative immediately after publish.
+
+**Verification (Playwright, live published page):**
+- Closed rows at 1440px and 700px: panel height = 0 for all 10 rows at both widths (confirmed the
+  white-gap bug is gone); row height exactly equals button height; title vertically centered
+  (0px/0px top/bottom gap, confirmed only after the margin fix); gaps between consecutive rows = 6px.
+- Open → close cycle on `fundamentals`: opens to measured height with `height:auto` once settled;
+  closing returns cleanly to `height:0px`.
+- Tile fade timing swept across the full ~0–1500ms window at fine granularity: strictly sequential,
+  zero overlap, each tile fully opaque before the next begins moving; confirmed again on a fresh reload
+  with tiles already in view.
+- Zero console/page errors throughout.
+- Visual screenshots at 1440 and 700px confirm clean single-bar closed rows with no trailing white
+  space and correct 6px gold gaps.
+
+Published (webflow.io subdomain) after each change; final state re-verified fresh after publish.
