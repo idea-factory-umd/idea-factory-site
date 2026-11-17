@@ -14255,3 +14255,67 @@ persistent per-scroll-frame handler — the same category HARD RULE #28 itself n
 `cross-page-anchor-scroll`/`#goto:` one-shot mechanism). No `ifScrollEngine`/`ifResizeEngine`
 registration is needed. Execution (ID verification/placement, embed installation, publish, and the
 full breakpoint/entry-point CHECK matrix) follows as the next entry.
+
+### 2026-11-17 — §419: MPPM Academics page — Courses/Faculty anchor fix EXECUTED, verified, live
+
+**Item 1 (IDs + scroll-margin), confirmed by direct query against the live element tree before any
+edit:**
+- `id="courses"` was ALREADY on the Courses SECTION element itself (outer `<section>`, element
+  `865f2717-a0d3-1767-40a8-b8e7e84193b0`, class `mppm-acad-courses-sec`) — not an inner wrapper. No
+  move needed.
+- `id="faculty"` was ALREADY on the Featured Faculty SECTION element itself (outer `<section>`,
+  element `c4d28e72-57d2-16fa-e181-4781dffde4ca`, class `mppm-acad-fac-sec`) — not an inner wrapper.
+  No move needed.
+- Nav menu links, confirmed by inspecting the "Main Nav — MPPM" component's ACADEMICS dropdown
+  directly (componentId `293803d4-d6a3-d8ce-d12b-dbb3cb50da64`): the "Courses" sublink is
+  `linkType:"url", href:"/academics#courses"` and the "Faculty" sublink is
+  `linkType:"url", href:"/academics#faculty"` — exactly as the spec expected. **Left untouched, per
+  the spec's explicit instruction.**
+- `scroll-margin-top:90px` WAS present on both section classes (base/main level only, no
+  medium/small/tiny overrides — so it applied at every width). Removed from both
+  (`mppm-acad-courses-sec`, `mppm-acad-fac-sec`) via `update_style.remove_properties`, re-verified via
+  a fresh `query_styles` across main/medium/small/tiny: zero `scroll-margin-top` remains on either
+  class at any breakpoint.
+
+**Item 2 (script), implementation note:** this MCP connection cannot write true Page-Settings
+"before `</body>`" custom code (only embed elements, Designer styles, and pages are MCP-editable —
+see §0 STATUS). The established native-equivalent on this exact page is a dedicated `HtmlEmbed`
+element placed as the last child of `Body` — which is exactly where the page's existing
+`mppm-acad-behavior` embed (the tile-fade/accordion JS from §414) already sits. Added a NEW, separate
+`HtmlEmbed` (element `74573420-451d-acdb-a89e-7558af52afc6`, attribute `data-embed="mppm-acad-anchor-
+scroll"`) immediately after it — keeping this unrelated feature isolated from the already-verified
+tile-fade/accordion code rather than risking an edit to that embed's working `<style>`/`<script>`
+blob. Holds the user's script byte-for-byte (re-verified via a fresh `get_settings` read after
+creation: double quotes inside `[class*="nav"]`, the em dashes in the two comments, and every line
+matched exactly).
+
+**HARD RULE #28 applicability:** checked before building, not after — the click handler is one-shot
+per click and the `settle()` poll is a bounded, self-terminating, input-cancellable loop tied to
+page-load/hashchange, the same exempt category as the existing `cross-page-anchor-scroll` mechanism.
+No scroll/resize-engine registration needed; confirmed no raw `addEventListener('scroll'|'resize', …)`
+was introduced.
+
+**Verification — full CHECK matrix, live published site, real clicks (not just URL navigation) so the
+capture-phase click handler was genuinely exercised every time.** Measured, independently of the
+script's own internals, each target section's `getBoundingClientRect().top` against a freshly
+recomputed "sticky/fixed header bottom" value (the same `cover()` algorithm, re-implemented separately
+in the test rather than trusting the shipped script's own closure) at 1440/991/767/375px:
+- (a) On `/academics`: click Courses, then (same page, no reload) Faculty, then (same page, no
+  reload) Courses again — a 3-click same-page sequence added specifically per HARD RULE #21 (never
+  verify a stateful interaction from a single fresh click alone). **36/36 checks across all 4
+  breakpoints: gap ≤ 0.4px, PASS.**
+- (b) From Home and from Calendars & Deadlines, fresh page load each, click Courses / click Faculty
+  (4 combinations × 4 breakpoints = 16 checks). **All PASS, gap ≤ 0.4px.**
+- (c) `/academics#courses` and `/academics#faculty` opened directly (fresh load with hash already in
+  the URL, exercising the `settle()` polling path) at all 4 breakpoints (8 checks). **All PASS, gap ≤
+  0.4px.**
+- Zero `pageerror` events captured at any breakpoint across all 36 checks.
+- Visual spot-check (screenshots, both extremes — 1440 and 375px, both ids): the red "COURSES" /
+  "FEATURED FACULTY" label sits fully visible immediately below the header's bottom edge in every
+  shot, matching the `REQUIRED RESULT` exactly and the opposite of the pre-fix symptom in the user's
+  own reference screenshot (the label's top half cut off behind the red bar).
+
+Published (`publishToWebflowSubdomain:true` — this site has no custom domain yet) before running the
+verification matrix, with the established ~15s propagation wait before the first live check.
+
+**DONE** — all CHECK items pass at all 4 breakpoints, zero regressions, nav menu untouched.
