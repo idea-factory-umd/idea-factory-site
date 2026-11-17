@@ -13892,3 +13892,42 @@ one confirmed the image's rendered box exactly equals the photo-box's rendered b
 Baecher and Abralind; confirmed all 10 photo boxes render at the identical size within each breakpoint
 (184px/148px/148px/148px). Screenshot of Baecher + Abralind side by side with O'Connor confirms visually
 — all three fill edge to edge, no grey margin, identical treatment.
+
+### §412 — MPPM Home: Testimonials caption row — photo size + name/employer overflow fix (2026‑11‑17, COMPLETE)
+
+User spec: fix the photo size and text overflow in the caption row (photo + name/employer) at the bottom
+of each of the 3 Testimonials cards. Fresh `query_styles`/`query_elements` calls (never assumed from an
+earlier session's notes, per HARD RULE #19) turned up a second instance of the exact same bug class as
+§411: `mppm-test-photo` had **no `width`/`height` at all at the base/desktop breakpoint** — only
+`medium` carried an explicit `clamp(112px, 17vw, 150px)`. At desktop widths the photo was falling back to
+its own natural image size instead of the intended 104–124px clamp. Separately, the name+employer text
+sat in an **unstyled, class-less wrapper `<div>`** inside `.mppm-test-person` — a real gap, not a stray
+leftover, since the element tree showed it holding exactly the Link+Paragraph pair the spec calls the
+"text block," just never given the `flex 1 1 0; min-width:0` it needed to shrink instead of overflow.
+
+**Fix, exactly per spec:**
+- **`mppm-test-person`** (the caption row): added `min-width:0` and `grid-row-gap:18px` (the row-gap half
+  of the spec's shorthand `gap:18px`; `grid-column-gap:18px` was already present). Margin-top/padding-top/
+  border-top were already correct, untouched.
+- **`mppm-test-photo`**: added `flex-grow:0; flex-basis:auto` (flex-shrink:0 already present → full
+  `flex:0 0 auto`), the missing desktop `width:clamp(104px, 9vw, 124px); height:clamp(104px, 9vw, 124px)`,
+  `display:block`, all 4 corner radii `0px`, `max-width:none`, and explicit `margin:0` on all 4 sides.
+  `object-fit:cover; object-position:center 25%` were already correct. No width:100%/percentage value was
+  present to remove — the live bug was a missing value, not a wrong one.
+- **New class `mppm-test-info`** (created, applied to the 3 previously class-less text wrappers):
+  `flex-grow:1; flex-shrink:1; flex-basis:0; min-width:0` — the "TEXT BLOCK… flex 1 1 0; min-width 0" the
+  spec calls for, letting the name/employer column shrink instead of pushing past the card edge.
+- **`mppm-test-name` / `mppm-test-org`**: added `overflow-wrap:anywhere; word-break:normal;
+  hyphens:manual` to both. Font/size/color left untouched, per spec.
+
+**Verification (live published site, Playwright):** at 1440/991/767/375px — photo renders 124×124 /
+150×150 / 130.4×130.4 / 112×112 respectively, identical across all 3 cards at every width (matches the
+clamp formulas exactly; the `small`/`tiny` breakpoints correctly inherit the `medium` clamp via normal
+Webflow cascade, needing no separate override). Zero name/employer overflow past the card's right edge
+at any width, for any of the 3 cards, confirmed down to 320px as an extra margin beyond the spec's own
+4 widths. No wrapping was actually triggered at any tested width (the cards are wide enough even at
+320px) — the mechanism is in place and correct; "wraps if needed" was never needed in practice, which is
+a pass, not a gap. A genuine, pre-existing, out-of-scope 47px page overflow was found at 375px during
+this check — traced via an ancestor-overflow-aware culprit scan to `.mppm-why-tag`/`.mppm-feat-tag`
+(right edge 422.1px, matching `scrollWidth` exactly) in the unrelated Why/Features section flagged once
+already in §409 and still untouched; confirmed not caused by, or related to, this fix.
