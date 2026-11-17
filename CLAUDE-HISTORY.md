@@ -13862,3 +13862,33 @@ All 11 matched exactly:
 07→course-market-development-and-commercialization · 08→course-negotiation-and-problem-solving ·
 09→course-building-and-leading-innovative-organizations · 10→course-financing-the-product-life-cycle ·
 stamp→/academics`. Zero console/page errors. Published and re-verified fresh after publish.
+
+### §411 — MPPM Home: Faculty carousel photo box — found and fixed a real self-inflicted bug (2026‑11‑17, COMPLETE)
+
+User reported Faculty photos (specifically naming Gregory Baecher and Frankie Abralind) not filling their
+square boxes — grey background showing. **Root cause, confirmed via live measurement before touching
+anything:** `mppm-fac-photo`'s original build call (§409) had listed `width`/`height` in BOTH
+`remove_properties` (clearing the old fixed 96px values) AND `properties` (setting new `100%` values) in
+the SAME `update_style` call — the two canceled out, leaving the image with **no explicit width/height
+at all**. For the 8 photos whose source file happens to be larger than the 184px box, the browser's
+absolute-position inset-solving (`top:0;right:0;bottom:0;left:0` with width/height auto) coincidentally
+still resolved to fill the box; for Baecher (171×171 source) and Abralind (125×125 source) — both smaller
+than the box — the image rendered at its own natural size instead, confirmed reproducible across two
+independent measurements (including one that force-scrolled the whole carousel and waited for every
+`img.complete`, ruling out a lazy-load timing artifact — which did explain a separate, unrelated 0×0
+reading for 3 other photos in the first test, since `loading="lazy"` is present on all 10 and those 3
+simply hadn't scrolled into trigger range yet).
+
+**Fix, exactly per the user's spec:** `mppm-fac-photobox` gained explicit `padding:0`/`margin:0`/
+`line-height:0` (all previously unset, relying on div defaults — harmless on their own, but added for
+completeness per the literal spec). `mppm-fac-photo` rewritten to the exact minimal property set the
+user gave: `position:absolute; top:0; left:0` (not all 4 insets — avoids the over-constrained
+top+right+bottom+left+width+height combination the original build had), `width:100%; height:100%;
+object-fit:cover; object-position:center 25%; display:block; max-width:none; min-width:0; margin:0`
+(all 4 sides) — `right`/`bottom`/`flex-shrink` (irrelevant leftovers) removed.
+
+**Verification:** live published site, all 10 cards × 4 breakpoints (1440/991/767/375) = 40 checks, every
+one confirmed the image's rendered box exactly equals the photo-box's rendered box (±1px), including
+Baecher and Abralind; confirmed all 10 photo boxes render at the identical size within each breakpoint
+(184px/148px/148px/148px). Screenshot of Baecher + Abralind side by side with O'Connor confirms visually
+— all three fill edge to edge, no grey margin, identical treatment.
