@@ -14153,3 +14153,105 @@ published href to its real destination page):**
   moved to `exst.umd.edu` (confirmed via the sibling "Program specific payment information" link on
   the same page, which already correctly redirects there); the exact right new path under
   `exst.umd.edu` for this specific calendar page hasn't been confirmed yet.
+
+### 2026-11-17 — §418: MPPM Academics page — "Courses"/"Faculty" nav-menu anchor links must clear the sticky header
+
+**Site:** MPPM spinoff (`6afb5f248e7d4b4975da8c4e`, `mppm-if.webflow.io`) — per HARD RULE #29 the
+unqualified "MPPM" target. **Page:** Academics, `/academics`, pageId `6afb5f248e7d4b4975da8d04`.
+
+**Verbatim literal spec, saved per the project's literal-build-spec convention (user provided code to
+implement exactly, plus an explicit "commit this to memory first and confirm that's done, then execute
+this" sequencing instruction — this entry is that memory-commit step):**
+
+```
+MPPM — ACADEMICS (/academics): "COURSES" AND "FACULTY" MENU LINKS MUST LAND CORRECTLY
+Fix on the ACADEMICS PAGE ONLY. Do NOT change the nav menu, its links, classes or styles.
+(The menu links are /academics#courses and /academics#faculty. If they are anything else,
+report it — do not change them.)
+
+REQUIRED RESULT (every breakpoint, from any page, and when already on /academics):
+  #courses → the top edge of the white Courses section sits exactly at the bottom of the header
+             that stays at the top of the screen. The red "COURSES" label is fully visible below it.
+  #faculty → the top edge of the grey Featured Faculty section sits exactly at the bottom of that
+             header. The "FEATURED FACULTY" label is fully visible below it.
+Nothing is hidden under the header; no extra gap above the section.
+
+1. IDS — confirm and report:
+   id="courses" is on the Courses SECTION element itself (the white section, outer element).
+   id="faculty" is on the Featured Faculty SECTION element itself (the grey section, outer element).
+   Not on an inner wrapper or heading. Move them if needed. Remove any scroll-margin-top on them.
+
+2. SCRIPT — add once, in the /academics page's before-</body> custom code:
+<script>
+(function () {
+  var IDS = ['courses', 'faculty'];
+  // Height of whatever stays fixed at the top, measured live (changes per breakpoint).
+  function cover() {
+    var m = 0;
+    document.querySelectorAll('header, header *, .w-nav, [class*="nav"]').forEach(function (e) {
+      var cs = getComputedStyle(e);
+      if (cs.position === 'sticky' || cs.position === 'fixed') {
+        var r = e.getBoundingClientRect();
+        if (r.top <= 1 && r.height < window.innerHeight / 2) m = Math.max(m, (parseFloat(cs.top) || 0) + e.offsetHeight);
+      }
+    });
+    return m;
+  }
+  function go(id, smooth) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var y = el.getBoundingClientRect().top + window.scrollY - cover();
+    window.scrollTo({ top: Math.max(0, y), behavior: smooth ? 'smooth' : 'auto' });
+  }
+  // A) Clicks on this page (menu or any link) to #courses / #faculty — runs before Webflow's own handler.
+  window.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a) return;
+    var url = new URL(a.getAttribute('href'), location.href);
+    var id = url.hash.slice(1);
+    if (IDS.indexOf(id) < 0 || url.pathname.replace(/\/$/, '') !== location.pathname.replace(/\/$/, '')) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    history.pushState(null, '', '#' + id);
+    go(id, true);
+  }, true);
+  // B) Arriving from another page with #courses / #faculty: re-position until the layout has settled.
+  function settle() {
+    var id = location.hash.slice(1);
+    if (IDS.indexOf(id) < 0) return;
+    var stop = false;
+    ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function (t) {
+      window.addEventListener(t, function () { stop = true; }, { once: true, passive: true });
+    });
+    var last = -1, same = 0, n = 0;
+    (function tick() {
+      if (stop) return;
+      var el = document.getElementById(id); if (!el) return;
+      go(id, false);
+      var h = cover() + '|' + Math.round(el.getBoundingClientRect().top);
+      same = (h === last) ? same + 1 : 0; last = h;
+      if (same < 3 && ++n < 40) setTimeout(tick, 100);
+    })();
+  }
+  if (document.readyState === 'complete') settle(); else window.addEventListener('load', settle);
+  window.addEventListener('hashchange', function () { go(location.hash.slice(1), true); });
+})();
+</script>
+
+3. DO NOT: add scroll-margin/scroll-padding, change the header, change the menu, or add a fixed px offset.
+
+CHECK — at 1440, 991, 767 and 375px; report each:
+ a) On /academics: click Academics ▸ Courses, then Academics ▸ Faculty (open the menu as usual).
+ b) From the homepage and from /calendars-deadlines: click Courses, then (separately) Faculty.
+ c) Open /academics#faculty directly in a new tab.
+ In every case: the section's top edge is flush with the bottom of the header; the red section
+ label (COURSES / FEATURED FACULTY) is fully visible; nothing hidden under the header.
+```
+
+**Note on HARD RULE #28 applicability (checked before executing, not after):** the script's click
+handler is one-shot per click (`preventDefault`+`scrollTo`, never repeats during a scroll gesture) and
+its `settle()` loop is a bounded, self-terminating poll (stops after 3 consecutive stable reads or 40
+ticks/~4s, and cancels immediately on any real user input) tied to page-load/hashchange, not a
+persistent per-scroll-frame handler — the same category HARD RULE #28 itself names as exempt (the
+`cross-page-anchor-scroll`/`#goto:` one-shot mechanism). No `ifScrollEngine`/`ifResizeEngine`
+registration is needed. Execution (ID verification/placement, embed installation, publish, and the
+full breakpoint/entry-point CHECK matrix) follows as the next entry.
