@@ -13931,3 +13931,80 @@ a pass, not a gap. A genuine, pre-existing, out-of-scope 47px page overflow was 
 this check — traced via an ancestor-overflow-aware culprit scan to `.mppm-why-tag`/`.mppm-feat-tag`
 (right edge 422.1px, matching `scrollWidth` exactly) in the unrelated Why/Features section flagged once
 already in §409 and still untouched; confirmed not caused by, or related to, this fix.
+
+### §413 — MPPM Home: "A World-Class Education, Delivered Affordably" — columns, dividers, bursts fix (2026‑11‑17, COMPLETE)
+
+User spec: make the Tuition section's 3-column row span the full content width with exactly 2 single
+divider lines, guarantee the 264px burst graphics can never be clipped/scaled, and keep the kicker row
+(heading · rule · stamp) from wrapping the stamp below the rule at 1440px. Fresh `query_elements`/
+`query_styles` calls (per HARD RULE #19) found the real starting state before touching anything.
+
+**Columns (`mppm-tui-grid`/`mppm-tui-card`):** grid gained `width:100%; max-width:none; margin:0 (4
+sides); justify-content:stretch; align-items:flex-start; overflow:visible` — `display:flex;
+flex-direction:row; grid-column-gap/row-gap:0` were already correct. **Critical catch:** setting
+`align-items:flex-start` on the base/main breakpoint would otherwise cascade down to the `medium`
+breakpoint and break the already-working "stacked full width" layout there (which relies on the
+default stretch behavior for cross-axis sizing in a column-direction flex container) — added an
+explicit `align-items:stretch` override at `medium` to block that cascade before it caused a regression.
+Cards gained `min-width:0; width:auto; max-width:none; overflow:visible` (flex/padding/alignment were
+already correct). `mppm-tui-intro`'s `max-width:900px` was removed so it now spans the same 1160px
+content width as the grid, as required.
+
+**Dividers (`mppm-tui-card-divider`):** found a genuine leftover `::before` pseudo-element
+(`position:absolute; left:-12px; background-color:#d3d3d3; content:''`) still live alongside the
+correct `border-left:1px solid rgba(0,0,0,0.14)` — a second, fainter line sitting 12px to the left of
+the real one on every divider. Removed the pseudo entirely (all 7 properties) plus the now-purposeless
+`position:relative` that existed only to support it; re-queried fresh to confirm zero pseudo properties
+remain. The border-left itself (cards 2–3 only, none at `medium`) was already exactly correct — no
+change needed there.
+
+**Bursts (`mppm-tui-iconwrap`/`mppm-tui-burst`):** iconwrap gained `flex:0 0 auto` (was missing
+flex-grow/basis, leaving flex-shrink:0 as the only guard), explicit `margin:0 0 -10px 0`, and
+`overflow:visible`; burst gained `min-width:264px; max-width:none` — the same defensive pattern as the
+Faculty/Testimonials photo fixes (§411/§412), guarding the fixed-size graphic against being squeezed by
+`min-width:auto` or capped by an inherited `max-width:100%`. `overflow:visible` was also added to
+`mppm-tui-card` and `mppm-tui-sec` (the section's own `<section>` tag) per the spec's explicit list of 4
+containers. The icon image and heading (`mppm-tui-icon`/`mppm-tui-title`) already had every requested
+property — no change needed.
+
+**Kicker row — the one place the literal spec text alone did not satisfy its own CHECK, found live:**
+`mppm-tui-head` got `align-items:center` (was `baseline`) and `grid-row-gap:22px`; `mppm-tui-tag` got
+`white-space:nowrap` (was `normal`) plus explicit `flex-grow:0; flex-basis:auto`. Doing only this
+surfaced a real CSS mechanic the spec's bullet list didn't anticipate: **`mppm-tui-label`'s
+`flex-basis:auto` makes the browser's flex-wrap LINE-BREAKING decision use the heading's full
+un-wrapped text width (804.5px at 1440) — not its shrunk size — even though the heading can shrink.**
+With label(804.5) + rule(60 fixed) + stamp(283, now nowrap) + 2×22px gaps = 1191.5px needed against a
+1160px row, the row wrapped the STAMP onto its own second line every time, regardless of `flex-shrink`.
+Fixed by giving `mppm-tui-label` `flex-shrink:1; flex-basis:0; min-width:0` (removes it from the
+content-based wrap calculation) plus `flex-grow:1000` (claims effectively all free space ahead of
+`rule`'s `flex-grow:1`, so the heading renders as close to its natural width as the 1160px budget
+allows — 772px, 2 lines instead of 3 — while the rule stays near its 60px floor instead of ballooning
+to ~447px under an even 1:1 split, which was tried first and looked visually wrong — screenshotted and
+rejected before settling on the 1000:1 ratio). This is a necessary, reasoned addition beyond the spec's
+own literal property list, made because the literal list alone provably failed the spec's own explicit
+CHECK ("the stamp must not wrap below the rule") — same discipline as the Testimonials-kicker gap fix
+in §409.
+**Lesson on verifying this kind of fix: `publish_site` returning success and `get_site`'s
+`fullSiteCompiledAt` advancing do NOT mean the change is visible yet** — Webflow's compiled CSS/JS
+filenames are content-hashed (e.g. `mppm-if.webflow.shared.fe9106205.css`), and republishing produces a
+**new hash** at a **new URL**; the OLD hashed URL keeps serving its original, now-stale content forever
+(it's treated as immutable). Polling the old URL after a second publish looks exactly like "still
+propagating" and can waste significant time — the fix is to re-fetch the page's OWN HTML fresh each
+time to read whatever CSS href it currently references, never reuse a captured filename across a
+republish. Playwright's own `page.goto` was never affected by this (it always reads the live HTML), only
+a `curl`-and-cache-the-filename polling shortcut was.
+
+**Verification (live published site, Playwright, all screenshotted):** **1440px** — 3 columns measured
+386/387/387px (⁓1160px content width ÷ 3), same left/right edges as the intro paragraph; exactly 2
+divider lines (col 1 none, cols 2–3 one each, zero right borders anywhere); all 3 bursts 264×264px,
+each perfectly centered on its own 112px icon (burst and icon centers match to the pixel); kicker's rule
+and stamp share one line (stamp never drops below the rule — the heading's own text wrapping to 2 lines
+is a separate, spec-permitted outcome of genuinely long heading text, not a stamp-wrap violation); zero
+page-level horizontal overflow. **991px** — columns stack to full width (911px), zero dividers, bursts
+still full 264×264 (not scaled down), kicker on one line (font shrinks enough at this width), zero
+overflow. **375px** — columns stack to full width (335px), zero dividers, bursts still full 264×264,
+kicker heading wraps across 4 lines with the stamp dropping to its own line below the rule (outside the
+spec's explicit "at 1440" scope for that requirement; confirmed clean/readable, not broken, and
+confirmed right-aligned via its own `margin-left:auto`). The same pre-existing, out-of-scope 47px
+`.mppm-why-tag`/`.mppm-feat-tag` overflow already flagged in §409/§412 persists unchanged at 375px —
+confirmed via the identical culprit scan, not caused by or related to this fix.
