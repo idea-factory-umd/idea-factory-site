@@ -13645,3 +13645,65 @@ independently after accounting for one CDN-propagation-delay false negative imme
   space and correct 6px gold gaps.
 
 Published (webflow.io subdomain) after each change; final state re-verified fresh after publish.
+
+### §408 — MPPM course pages: "All Courses" back button added to all 11 hero sections (2026‑11‑17, COMPLETE)
+
+User spec: add a back-link button to the bottom of each of the 11 MPPM course pages' hero text column
+— `«  All Courses` linking to `/academics#courses` — as the last element, directly below the fact line
+(Online Course · 12 Weeks · 8-10 Hours/Week), left-aligned with the course title, with an exact
+`clamp(26px, 3vw, 36px)` margin-top and zero contribution to the space below (hero's own existing
+bottom padding stays the only thing determining that gap).
+
+**Link target resolved per HARD RULE #19:** the spec's literal `/mppm-academics#courses` is the page's
+pre-rename slug — confirmed via a fresh `list_pages` call that the real current slug is `/academics`
+(§87–106's renaming pass already moved it there), so every button links to `/academics#courses`.
+
+**New classes (all standalone, full longhand property sets per HARD RULE #4, zero `border-radius`):**
+- `mppm-course-back-wrap` — the only element carrying spacing: `margin-top:clamp(26px, 3vw, 36px)`,
+  margin-right/bottom/left and all 4 padding sides `0`. Confirmed `mppm-acad-hero-inner` (the hero text
+  column every course page already shares) is a plain block container with no flex/gap, so no
+  gap-subtraction was needed — the clamp value alone is the full gap.
+- `mppm-course-back-btn` (the `<a>`) — `display:inline-flex;align-items:center;gap:10px` (written as
+  `grid-column-gap` per Webflow's own internal naming, still a flex container); transparent background;
+  `color:#FFD200`; `border:2px solid #FFD200` (all 4 sides' width/style/color written separately);
+  `border-radius:0` on all 4 corners; `padding:17px 30px`; Interstate 700, 17px, `line-height:1`,
+  `letter-spacing:0.01em`, uppercase, no underline, `white-space:nowrap`, `width:auto`; transition on
+  `background-color, color, transform` at 140ms ease. Hover pseudo: `background-color:#FFD200;
+  color:#000000`. Active pseudo: `transform:translateY(1px)`. Tiny breakpoint (≤478px) override:
+  `padding:15px 24px` — the one spec'd exception, every other breakpoint identical.
+- `mppm-course-back-span` — shared `margin:0` reset for both inner Paragraphs (the arrow glyph and the
+  "All Courses" text), added proactively to avoid Webflow's default paragraph `margin-bottom:10px`
+  (the exact bug root-caused and fixed in §407's title-centering issue) — never let it reappear here.
+
+**Element structure, built identically on all 11 pages via `data_element_builder`, appended to each
+page's own `mppm-acad-hero-inner`:** `Block.mppm-course-back-wrap` → `Link.mppm-course-back-btn`
+(href `/academics#courses`) → `[Paragraph.mppm-course-back-span` (text "«", `aria-hidden="true"`),
+`Paragraph.mppm-course-back-span` (text "All Courses")`]`. All 11 pages share the literal hero-inner
+element id `548b7361-e619-921c-05af-84534bb39f12`, scoped to each page's own distinct pageId —
+confirmed by querying all 11 fresh before building, then building all 11 (1 first, verified, then the
+remaining 10 in one parallel batch) and re-verifying every single one's resulting tree structurally
+(`styleNames`, href, text content, `aria-hidden`) before publishing — full sweep per HARD RULE #3, not
+a sample.
+
+**Verification (Playwright, live published site, 2 pages × 4 breakpoints — Fundamentals +
+Strategies for Managing Innovation, 1440/991/767/375px):**
+- `margin-top`: 36px / 29.73px (~30px) / 26px / 26px — matches the spec's expected values exactly
+  (the `clamp(26px, 3vw, 36px)` formula hits its ceiling at 1440, floor at both 767 and 375, and sits
+  mid-range only at 991).
+- Button never full-width (206.6px/194.6px wide inside a 1240–375px-wide hero column), `white-space:
+  nowrap` confirmed (never wraps), identical `leftOffset` from the hero column's edge at every width
+  on both pages (left-aligned, consistent with the course title's own alignment).
+- Space below the button to the hero's bottom edge: 72px/49.5px/40px/40px — consistent per breakpoint
+  across both pages, confirming the wrap's own zero margin/padding correctly leaves this untouched
+  (still purely the hero's pre-existing bottom padding, never modified).
+- Hover: `background-color` → `rgb(255,210,0)` (#FFD200), `color` → `rgb(0,0,0)` (#000000); normal
+  state transparent bg / gold text / gold 2px border — all as spec'd.
+- `href="/academics#courses"` confirmed on both pages at every width.
+- Padding steps from `17px 30px` (main/medium/small) to `15px 24px` only at the 375px (tiny) sample —
+  the one spec'd breakpoint exception, confirmed correctly scoped.
+- Zero console/page errors at any sample. Screenshots at 1440 and 375px visually confirm the gold
+  outlined "« ALL COURSES" button sitting correctly below the fact line, left-aligned with the title,
+  never disturbing the C-Rail or any other hero element.
+
+Published (webflow.io subdomain) after building all 11; re-verified fresh against the live site after
+publish, not from stored data.
