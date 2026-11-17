@@ -13707,3 +13707,130 @@ Strategies for Managing Innovation, 1440/991/767/375px):**
 
 Published (webflow.io subdomain) after building all 11; re-verified fresh against the live site after
 publish, not from stored data.
+
+### §409 — MPPM Home: Online Program links, Faculty carousel rebuild, Testimonials restyle, Tuition icon-burst columns (2026‑11‑17, COMPLETE)
+
+User spec updated 4 sections on the MPPM Home page in place (Flexbox only, new classes only, exact
+values, "anything not listed = 0"): Online Program (black section, links only), Faculty (full content
+rebuild into a horizontal-scroll carousel), Student Testimonials (gold section, card restyle), and the
+Tuition grey section (icon-wrap/burst column restyle). **Link targets in the spec itself (`/mppm-academics`,
+all 11 `#row-id` anchors, `/mppm-tuition-financial-aid`) were pre-rename paths from the old master-site
+build — resolved to the current live slugs (`/academics`, `/academics#<row-id>`, `/tuition-financial-aid`)
+throughout, never copied literally** — directly following on from the 404 investigation earlier this
+session (a stale `/mppm-academics#fundamentals` link whose actual source was never found on the live
+site; the user confirmed its origin "will be changing anyway").
+
+**Section 1 — Online Program:** all 10 course links + the "30 Credits · 10 Courses ››" stamp already
+had correct resolved hrefs and correct hover/transition/decoration (verified via `query_styles` before
+touching anything — nothing to fix there). Only gap: the space before "››" was a plain breakable space
+on all 11 links, risking the marker splitting onto its own line at narrow widths — replaced with a
+literal U+00A0 non-breaking space via 11 `set_text` calls.
+
+**Section 2 — Faculty carousel (full rebuild):** deleted the old `mppm-fac-tag` kicker text, the old
+10-card vertical grid (`mppm-fac-grid`, with `mppm-fac-bio`/`-more`/`-cardtop`/`-nametext`), and the old
+bottom CTA button (`mppm-fac-ctabtn`) — all 6 orphaned style objects removed after confirming zero
+remaining references. Built: kicker stamp as a genuine `Link` ("Meet All 10 Faculty" + a nested
+`Paragraph.mppm-fac-stamparrow` styled `display:inline-block` acting as the `››` span, since Link text +
+nested inline element needs two children, not `set_text` + append); a `mppm-fac-track` horizontal
+scroller (`overflow-x:auto`, `scroll-snap-type:x mandatory`, `scrollbar-width:none`); 10
+`mppm-fac-card`s (photo box `aspect-ratio:1/1` + absolutely-positioned `object-fit:cover` image, text box
+with a 4px gold `border-left`, name as a genuine `<h3>` via `set_heading_level`, course in red) — same
+10 faculty in the same order already present in the old grid (Michael O'Connor × 2, Green, Flank,
+Baecher, Abralind, Gayton, Pratt, Johnson, Bosley), same photo asset IDs reused; arrow row with 2 native
+`Button` elements, active/disabled styled via a `.mppm-fac-arrowbtn.is-disabled` JS-toggled combo (the
+established `is-visible`/`is-in` state-class pattern, not a HARD RULE #11 violation — that rule is about
+combining with *shared* `if-` classes, not JS-toggled state on a page's own class).
+
+**Section 3 — Student Testimonials:** card retagged `div`→`figure` (`figcaption` rejected by the tool's
+allowed-tag list — left `mppm-test-person` as `div`); removed `mppm-test-divider` (a separate line div)
+and moved its job directly onto `mppm-test-person` as `border-top` + `margin-top` + `padding-top`, per
+the spec's literal "figcaption: margin-top 24px; padding-top 18px; border-top…" wording. Quote text
+closing `”` appended to all 3 quotes; quote-mark glyphs marked `aria-hidden`; photo changed from a
+gold-ringed circle to a plain square; name link given `open_in_new_tab:true` via
+`data_element_settings_tool` (the element-builder's `set_link` schema has no new-tab field) and its
+underline removed. **Kicker row (3A) was initially skipped entirely** — caught only during the CHECK
+pass (see bugs below).
+
+**Section 4 — Tuition:** added the missing kicker `mppm-tui-rule` div (label/tag existed but no rule
+between them — never built in an earlier pass). Confirmed all 4 spec'd SVG assets (`mppm-burst-white`,
+`mppm-tuition-financing-red`, `mppm-tuition-employer-red`, `mppm-tuition-self-funding-red`) were already
+uploaded by the user; only the employer icon's asset id actually differs (re-exported, per the spec's
+own note that it needed resizing to match the other two) — financing/self-funding kept their existing
+asset ids unchanged. Built a `mppm-tui-iconwrap` (168×168, flex-centered) per column containing a new
+absolutely-positioned 264×264 `mppm-tui-burst` image behind the existing icon (`move_element`'d into the
+new wrapper, not rebuilt) — icon resized 104→112px to match spec and to make all three genuinely the
+same size (confirmed via live measurement: 112×112 on all 3, 264×264 burst on all 3). Moved the
+`mppm-tui-card-divider` combo's `border-left` off the base class (which had it unconditionally on ALL
+3 columns, a pre-existing bug — column 1 should never have had a left border) onto the divider combo
+only (columns 2–3), with a `medium`-breakpoint override removing it when stacked. Fixed the
+`mppm-tui-ctabtn-center` link, which had **no href set at all**, to `/tuition-financial-aid`.
+
+**⚠️ Two real bugs found and fixed during the CHECK pass, not before — exactly the class of mistake
+HARD RULE #3 exists to catch:**
+1. **`mppm-fac-card` kept its pre-existing `flex-shrink:1`** because the rewrite's `update_style` call
+   only listed the *new* properties (min-width, flex-direction, align-items, overflow, height, etc.) —
+   `update_style` adds/overwrites what's given, it does not clear anything unlisted. With 10 cards'
+   combined `flex-basis` (~330% of the container) all allowed to shrink, the browser's flexbox algorithm
+   silently squeezed all 10 into the visible width with zero overflow — defeating the entire carousel:
+   `track.scrollLeft` never left 0 on arrow clicks, and every card read as "visible" regardless of width.
+   Fixed with one `flex-shrink:0` property add. **Lesson restated from HARD RULE #4's own origin story:
+   rewriting a class's properties via `update_style` is not the same as resetting it — any old property
+   not in the new list survives, and for flex short-hand-adjacent fields (`flex-shrink`/`flex-grow`)
+   specifically, a stale value can silently invert the entire intended layout behavior.**
+2. **Retagging `mppm-test-card` from `div` to `figure` (via `set_tag`) without also explicitly zeroing
+   its margin** — browsers default `<figure>` to `margin: 1em 40px`, which the Designer-authored style
+   object never had to override before because it was a plain `div`. This showed up as a Playwright
+   `page.hover()` timeout ("figure intercepts pointer events") — the retagged figure's real rendered
+   box, with the browser's default margin added on top of the Designer's own padding/border, had shifted
+   enough to overlap a sibling card. Fixed by adding `margin:0` (all 4 sides) to `mppm-test-card`. The
+   same risk was proactively checked and also found on `mppm-fac-stamparrow` (a `Paragraph` forced to
+   `display:inline-block` — paragraphs default to `margin:1em 0` in the browser UA stylesheet) and fixed
+   there too, before it caused a visible bug. **Lesson: any element either (a) retagged to a tag with a
+   nonzero browser UA-stylesheet default margin (figure, p, headings, etc.), or (b) a Paragraph/Heading
+   whose `display` is overridden away from `block` for layout purposes, needs its margin explicitly
+   zeroed (or set) as part of the SAME edit — never assume "I didn't ask for a margin" means "there isn't
+   one," since the UA stylesheet supplies one whether asked for or not.**
+
+**Testimonials kicker (3A) gap, found the same way:** the CHECK pass's horizontal-overflow test at
+375px flagged `mppm-test-tag` extending 58px past the viewport. Investigation found `mppm-test-label`/
+`-rule`/`-tag` already had the *colors* 3A asked for (presumably already correct from an earlier,
+undocumented pass) but were missing the shared kicker ground-rule baseline every other section's kicker
+already carried: label `font-size` as a fixed `26px` instead of `clamp(19px,2vw,26px)` (+ `line-height:1`
++ `font-family`), rule `height:1px`/`flex-basis:0%` instead of `2px`/`60px`, tag missing
+`text-align:right`/`margin-left:auto`/`font-family` — and critically, `mppm-test-head` was missing the
+`tiny`-breakpoint `flex-wrap:wrap` override that `mppm-fac-head` already had from an earlier build. Added
+all of it; the 375px overflow in *this* section's own elements resolved immediately.
+
+**Known, confirmed pre-existing, OUT-OF-SCOPE finding — not fixed, per the spec's own "do not touch any
+other section" instruction:** the same 375px horizontal-overflow symptom traces to `mppm-why-tag` (Why
+section) and `mppm-feat-tag` (Features section) — two sections never touched by this task, carrying the
+identical missing-tiny-breakpoint-wrap gap `mppm-fac-head` already had fixed and `mppm-test-head` just
+got fixed here. Confirmed via a clean, pre-interaction overflow check (`document.documentElement.scrollWidth`
+= 422px at a 375px viewport, with `mppm-why-tag`'s own right edge landing at exactly 422px) that this is
+real and currently live, entirely independent of anything built in this task. Flagged to the user as a
+follow-up candidate, not silently fixed and not silently ignored.
+
+**Verification (Playwright, live published site, all 4 widths — 1440/991/767/375 — after every fix,
+final pass re-confirms):**
+- S1: all 10 course links + credit-link resolve to the correct `/academics`/`/academics#<row>` paths;
+  hover color `rgb(255,210,0)` confirmed (an earlier same-script read without a post-hover wait had
+  caught the transition mid-flight and misreported a blended color — a test-script timing bug, not a
+  site bug, fixed by adding `waitForTimeout` before reading `getComputedStyle`).
+- S2: 10 cards confirmed in spec order; **visible-card count now correctly 3/2/2/1 at 1440/991/767/375**
+  (was wrongly "10 at every width" before the flex-shrink fix); arrow click moves `scrollLeft` by one
+  card+gap at every width; `‹` disabled at start, `›` disabled at end (confirmed by scrolling to the end
+  via repeated clicks); stamp-link hover turns text black while the `››` span's own explicit color stays
+  red and visibly translates via `matrix(1,0,0,1,5,0)`; photo square, 4px gold text-box border, black
+  name / red course colors all confirmed; zero card-content overflow after the flex-shrink fix.
+- S3: 3 equal-height (760px) cards side by side at 1440, single column at 991/767/375; name links open
+  `target=_blank`, no underline, hover `rgb(194,20,43)`.
+- S4: row layout + column-1-no-border/columns-2-3-bordered at 1440; column stack with exactly 64px
+  gap at 991/767/375 and borders correctly absent when stacked; all 3 bursts 264×264, all 3 icons
+  112×112 (confirmed genuinely matching size, per the spec's own explicit ask).
+- Zero console/page errors at any width throughout. Visual screenshots of the Faculty carousel (showing
+  the correct disabled/active arrow look) and the Tuition icon-burst columns (showing the red heading
+  correctly overlapping the burst's bottom edge, readable) confirm the live render matches the spec, not
+  just computed-style assertions.
+
+Published (webflow.io subdomain) after every fix; final verification pass run fresh against the live
+site after the last publish, not from stored data or an earlier in-session result.
