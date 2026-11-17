@@ -13252,3 +13252,240 @@ past the write before testing):**
 No further action pending. Both embeds now show ActiveCampaign's validation messages as a single
 line under the field with a small red square, hidden whenever the visitor is outside the form,
 reappearing on refocus, with Submit re-validating normally throughout.
+
+### §405 — MPPM Academics page: Courses section rebuild (2026-11-17, PLAN COMMITTED, execution beginning)
+
+**Site:** MPPM spinoff (`6afb5f248e7d4b4975da8c4e`) — per HARD RULE #29. **Page:** "Academics"
+(pageId `6afb5f248e7d4b4975da8d04`, current slug `academics` — the spec's own "/mppm-academics"
+references are the page's PRE-rename slug, per §403; resolve every such reference in the spec below
+to the current `/academics` path, including the Part 4 example `/mppm-academics#negotiation` →
+`/academics#negotiation`).
+
+**Scope:** ONLY the Courses section between the hero and Featured Faculty. Header/nav, hero,
+Featured Faculty, footer are explicitly untouched.
+
+**Full verbatim spec, committed before any execution:**
+
+```
+MPPM — ACADEMICS PAGE (/mppm-academics): REBUILD THE COURSES SECTION
+Scope: ONLY the section between the hero and the Featured Faculty section.
+Do NOT touch: the site header/nav, the hero, the Featured Faculty section, the footer.
+
+READ FIRST
+- Replace the current Courses section completely with the structure below. Delete every element
+  in that section that is not described here (e.g. an "Expand all" button, numbered course rows,
+  a grey section background, old fact tiles in a row, any "On this page" text).
+- Use FLEXBOX only. No CSS grid anywhere in this section.
+- Every value below is exact. Do not add margins, padding or gaps that are not listed; anything
+  not listed is 0. Do not reuse a class that is shared with other sections -- create new classes.
+- Breakpoints: Desktop (base), Tablet (<=991px), Phone landscape (<=767px), Phone portrait (<=478px).
+  Where a breakpoint is not mentioned, the value carries down from the one above.
+- Container used below = max-width 1240px; centered; side padding 24px.
+
+=====================================================================
+OVERALL STRUCTURE
+=====================================================================
+section#courses  (scroll-margin-top 90px; no background of its own)
+  div.acad-top        <- WHITE band: section label + intro paragraph + fact tiles
+  div.acad-list       <- GOLD band: "An Innovative Online Curriculum" + the 10 course rows
+
+=====================================================================
+PART 1 -- WHITE BAND (div.acad-top)
+=====================================================================
+div.acad-top: background #FFFFFF.
+  div.container: padding-top AND padding-bottom clamp(52px, 6vw, 84px).
+    div.acad-intro-row: display flex; flex-direction row; align-items STRETCH;
+                        column gap clamp(24px, 3vw, 44px).
+      div.acad-intro-text  (LEFT): flex 1 1 0; min-width 0.
+      div.acad-tiles       (RIGHT): flex 0 0 clamp(260px, 28%, 340px).
+
+1A. LEFT -- div.acad-intro-text, contains in order:
+  (1) Label row: display flex; flex-wrap wrap; align-items center; gap 14px (row) 22px (column);
+      margin-bottom clamp(32px, 4vw, 48px).
+        h2 "Courses": Interstate 800; clamp(19px, 2vw, 26px); line-height 1; letter-spacing 0.05em;
+                      text-transform uppercase; color #E21833; margin 0.
+        rule: div; flex 1 1 60px; height 2px; background #E6E6E6. (Nothing to the right of it.)
+  (2) Paragraph (verbatim):
+      "The Master's in Product Management features a 30-credit, 10-course curriculum with students
+      enrolling in two 3-credit courses per semester. This program integrates artificial intelligence
+      into the core product lifecycle to equip students for the growing field of AI product
+      management. Rather than focusing on coding, our innovative online courses train you to
+      practically leverage AI tools across every stage of development, from driving AI product
+      strategy and customer validation to managing end-to-end planning and cross-functional team
+      execution. By mastering these cutting-edge frameworks alongside industry-expert faculty, you
+      will graduate ready to build, launch, and scale next-generation technologies as a highly
+      sought-after AI-first product manager."
+      Georgia; clamp(17px, 1.45vw, 19px); line-height 1.7; color #222222; margin 0; no max-width.
+
+1B. RIGHT -- div.acad-tiles (a Mondrian-style block: big red tile on top, black + gold below)
+  div.acad-tiles: display flex; flex-direction COLUMN; gap 6px.
+    Its height = the height of the left text column (it stretches; do not set a height).
+    Children, in this order:
+      div.acad-tile.tile-credits      (RED)
+      div.acad-tiles-pair             (wraps the next two)
+        div.acad-tile.tile-courses    (BLACK)
+        div.acad-tile.tile-perterm    (GOLD)
+  .tile-credits:     flex 1.35 1 0.
+  .acad-tiles-pair:  flex 1 1 0; display flex; flex-direction row; gap 6px; min-height 0.
+  .tile-courses, .tile-perterm: flex 1 1 0; min-width 0.
+
+  Every .acad-tile: display flex; flex-direction column; align-items center; justify-content center;
+    text-align center; square corners; no border; no shadow.
+    Contains exactly two text elements: the NUMBER, then the LABEL.
+    .tile-credits: background #E21833; text #FFFFFF; padding 22px 18px; gap 10px (number->label).
+    .tile-courses: background #000000; text #FFFFFF; padding 18px 10px; gap 8px.
+    .tile-perterm: background #FFD200; text #000000; padding 18px 10px; gap 8px.
+  NUMBER: Interstate 800; line-height 0.85; letter-spacing -0.04em;
+          font-size clamp(64px, 6vw, 88px) on .tile-credits; clamp(44px, 4vw, 58px) on the other two.
+          Text: "30" . "10" . "2".
+  LABEL:  Interstate 700; 16px; line-height 1.15; letter-spacing 0.06em; text-transform uppercase.
+          Text: "Credits" . "Courses" . "Per Term".
+
+1C. TILE NUMBER FADE-IN (the blocks never move; only the text fades)
+  - On page load, set the NUMBER and LABEL in all three tiles to opacity 0.
+  - When div.acad-tiles is 30% visible in the viewport (IntersectionObserver, threshold 0.3), run
+    ONCE (then disconnect): fade each tile's number + label to opacity 1.
+    transition: opacity 500ms ease-out. NO transform, NO movement, NO scale.
+    Delays: red tile 0ms, black tile 180ms, gold tile 360ms.
+  - If the browser has no IntersectionObserver: show them immediately.
+  - prefers-reduced-motion: reduce -> opacity 1 always, no transition.
+
+1D. RESPONSIVE -- WHITE BAND
+  Tablet (<=991): no layout change (text left, tiles right). Values above apply.
+  Phone landscape (<=767) -- the block "deconstructs" into three IDENTICAL tiles under the text:
+    .acad-intro-row: flex-direction COLUMN; gap 28px (text above, tiles below).
+    .acad-tiles: flex none; width 100%; flex-direction ROW; gap 6px.
+    .tile-credits: flex 0 0 calc((100% - 12px) / 3).
+    .acad-tiles-pair: flex 1 1 0; gap 6px.  (.tile-courses / .tile-perterm stay flex 1 1 0)
+      -> all three tiles are exactly the same width.
+    ALL three tiles: the same padding 18px 8px; the same gap 8px; heights equal (align-items stretch).
+    ALL three NUMBERS: the same size clamp(36px, 9vw, 52px) (overrides the larger red size).
+    ALL three LABELS: 16px; letter-spacing 0.04em.
+  Phone portrait (<=478): same as phone landscape; gap between text and tiles 24px.
+  Check: at <=767px the three tiles have identical width, height, number size and label size.
+
+=====================================================================
+PART 2 -- GOLD BAND (div.acad-list)
+=====================================================================
+div.acad-list: background #FFD200.
+  div.container: padding-top clamp(52px, 6vw, 84px); padding-bottom clamp(56px, 7vw, 100px).
+  (1) h3 "An Innovative Online Curriculum": Interstate 800; clamp(26px, 2.8vw, 38px);
+      line-height 1.02; letter-spacing -0.02em; color #000000; margin 0 0 clamp(26px, 3vw, 38px).
+      (Nothing to the right of it -- no button, no label.)
+  (2) div.acad-cols: display flex; flex-direction row; align-items flex-start;
+      column gap clamp(16px, 2vw, 28px).
+      Two lists (ul), each: flex 1 1 0; min-width 0; list-style none; margin 0; padding 0;
+      display flex; flex-direction column; gap 6px.
+      LEFT list (top->bottom):
+        li#fundamentals          Fundamentals of Product Management
+        li#managing-innovation   Strategies for Managing Innovation
+        li#business-modeling     Business Modeling and Customer Validation
+        li#data-analysis         Data Analysis and Decision Making
+        li#innovative-thinking   Innovative Thinking
+      RIGHT list (top->bottom):
+        li#product-dev-ops       Managing Product Development and Operations
+        li#market-development    Market Development and Commercialization
+        li#negotiation           Negotiation and Problem Solving
+        li#leading-organizations Building and Leading Innovative Organizations
+        li#financing             Financing the Product Life Cycle
+      Each li: position relative; scroll-margin-top 110px. No numbers on the rows.
+  Phone landscape (<=767): .acad-cols flex-direction COLUMN; gap 6px (the same 6px as between rows);
+    each ul width 100%, flex none. Order: the left list, then the right list.
+
+=====================================================================
+PART 3 -- ONE COURSE ROW (identical for all 10)
+=====================================================================
+li
+  button.acad-row-btn  (aria-expanded true/false): width 100%; display flex; align-items stretch;
+      border 0; padding 0; text-align left; cursor pointer;
+      background #FFFFFF closed -> #000000 open; transition background 160ms ease.
+    span.acad-row-title (the course title): flex 1 1 auto;
+      padding clamp(16px, 1.8vw, 22px) clamp(18px, 2vw, 26px);
+      Interstate 700; clamp(17px, 1.55vw, 20px); line-height 1.25;
+      color #000000 closed -> #FFFFFF open.
+    span.acad-row-toggle: flex 0 0 auto; width clamp(52px, 4.4vw, 64px); full row height;
+      display flex; align-items center; justify-content center;
+      background #E21833 ALWAYS (closed AND open -- it never changes color).
+      Inside: an 18x18px plus sign (position relative), two bars, both #FFFFFF ALWAYS:
+        horizontal: position absolute; left 0; top 8px; width 18px; height 2.5px.
+        vertical:   position absolute; left 7.75px; top 0; width 2.5px; height 18px;
+                    open -> transform scaleY(0) (leaves a white minus); transition transform 160ms ease.
+  div.acad-row-panel (the description, below the button):
+    background #FFFFFF; border 0.5px solid rgba(0,0,0,0.14) on LEFT, RIGHT and BOTTOM (no top border);
+    padding clamp(18px, 2vw, 26px) clamp(18px, 2vw, 26px) clamp(22px, 2.4vw, 30px).
+    p: Georgia; clamp(16px, 1.3vw, 17.5px); line-height 1.7; color #222222; margin 0; no max-width.
+       Text = the course description (list below), then a non-breaking space AND a normal space
+       (two spaces), then the link "More >>" (non-breaking space between "More" and ">>").
+    "More >>" link: display inline; Interstate 700; font-size inherit (same as the paragraph);
+       letter-spacing -0.025em; color #E21833; text-decoration none (also on hover);
+       hover color #C20920; white-space nowrap. Same tab.
+       href = that course's page in the "courses" folder (see list).
+  Open/close:
+    - Closed on page load. Clicking a closed row opens it and closes every other open row (in both
+      lists). Clicking an open row closes it.
+    - If the existing build already animates these rows open/closed, KEEP that animation. Otherwise:
+      panel height 0 <-> content height, 460ms cubic-bezier(0.22, 1, 0.36, 1), overflow hidden;
+      panel text opacity 0 -> 1, 360ms ease, 120ms delay on open; 180ms on close.
+
+Course descriptions (verbatim) and "More >>" targets (courses folder pages):
+  Fundamentals of Product Management -> /courses/course-fundamentals-of-product-management
+    "This course introduces the core functions of a product manager, including customer discovery, product strategy, and lifecycle management. Students explore how product managers lead at every stage of development, transitioning from project to product thinking while building vision, alignment, and delivery capabilities."
+  Strategies for Managing Innovation -> /courses/course-strategies-for-managing-innovation
+    "Students examine how organizations manage change, drive innovation, and evaluate emerging technologies. The course introduces innovation frameworks and teaches students how to implement new solutions that align with evolving business needs."
+  Business Modeling and Customer Validation -> /courses/course-business-modeling-and-customer-validation
+    "Students design and test business models, segment target customers, and validate value propositions. Emphasis is placed on conducting interviews, iterating with feedback, and translating insights into compelling product narratives."
+  Data Analysis and Decision Making -> /courses/course-data-analysis-and-decision-making
+    "This course focuses on experimental thinking and the use of Bayesian methods to guide product decisions. Students build skills in designing surveys, interpreting data, and making confident, data-informed choices throughout the discovery and delivery process."
+  Innovative Thinking -> /courses/course-innovative-thinking
+    "Students apply design thinking and agile principles to build meaningful, scalable products. Through structured experimentation and customer-centric design, they learn how to de-risk innovation and lead through ambiguity."
+  Managing Product Development and Operations -> /courses/course-managing-product-development-and-operations
+    "This course explores lean operations and system optimization. Students study engineering paradigms like Agile, DevOps, and value stream mapping to align teams and processes for faster, more effective product delivery."
+  Market Development and Commercialization -> /courses/course-market-development-and-commercialization
+    "Students learn to develop and execute go-to-market strategies, manage customer acquisition, and drive growth. Key topics include product positioning, customer segmentation, and promotion planning."
+  Negotiation and Problem Solving -> /courses/course-negotiation-and-problem-solving
+    "Product managers must align diverse stakeholders. This course teaches negotiation strategies, conflict resolution, IP and contract basics, and how to advocate for strategic product decisions under pressure."
+  Building and Leading Innovative Organizations -> /courses/course-building-and-leading-innovative-organizations
+    "Students explore leadership strategies for building innovation-ready organizations. Topics include OKRs, product portfolio governance, lean budgeting, and culture-shaping techniques to lead cross-functional teams."
+  Financing the Product Life Cycle -> /courses/course-financing-the-product-life-cycle
+    "This course prepares students to make sound financial decisions across the product lifecycle. Students learn how to build product budgets, evaluate opportunity costs, and align financial strategy with product growth."
+  IMPORTANT: use each course page's ACTUAL slug from the Webflow "courses" folder. If any slug differs
+  from the paths above, use the real one and list the differences in your report. Do not guess.
+
+=====================================================================
+PART 4 -- DEEP LINKS FROM THE HOMEPAGE (e.g. /mppm-academics#negotiation)
+=====================================================================
+On load and on hash change, if the hash equals one of the 10 row ids:
+  1. Wait 120ms. Close all rows.
+  2. Smooth-scroll so the CLOSED row's top sits 24px below the bottom of the sticky header
+     (measure the header's real height at that moment; do not hard-code it).
+  3. When scrolling ends ("scrollend" event; fallback 1400ms), wait 400ms, then open that row.
+  4. As it opens: a red bar marks the description panel -- position absolute; left 0; top = the
+     height of the row's button (so it covers only the white description panel, not the black
+     title bar); bottom 0; width 6px; background #E21833; z-index 2; pointer-events none.
+     It appears at full opacity instantly, holds 900ms, then fades out (opacity 1 -> 0, 500ms
+     ease-out) and is removed.
+If the existing build already does this, keep it as is.
+
+=====================================================================
+CHECK -- publish, then report each (screenshots at 1440, 991, 767, 478 and 375px)
+=====================================================================
+a) White band: "COURSES" red label + grey rule, paragraph on the left; tile block on the right,
+   exactly as tall as the text column: red "30 CREDITS" on top, black "10 COURSES" and gold
+   "2 PER TERM" side by side below, 6px gaps.
+b) Reload with the tiles in view: the numbers/labels fade in red -> black -> gold, no movement.
+c) <=767: three identical tiles in one row under the paragraph (same width, height, number size,
+   label size).
+d) Gold band: heading, then two columns of five white rows with 6px gaps; red toggle squares.
+e) Open a row: title bar turns black with white title; toggle stays red with a white minus; white
+   description panel with "More >>" two spaces after the text; another open row closes.
+f) "More >>" on every row opens the matching course page (report each URL).
+g) <=767: the lists stack into one column; the gap between the last left row and the first right
+   row is 6px, the same as between rows.
+h) Open /mppm-academics#negotiation: scrolls with the closed row just under the header, pauses,
+   opens, red bar flashes on the panel and fades.
+i) No horizontal scrolling at any width; no CSS grid used.
+```
+
+No Webflow writes made yet as of this entry — plan committed per explicit user instruction before
+execution begins. Investigation (current section structure, real course-page slugs, existing
+accordion/header-height patterns to reuse) and build to follow; completion entry to follow.
