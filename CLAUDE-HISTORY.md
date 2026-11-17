@@ -14045,3 +14045,39 @@ confirming the overlap. Fully-visible times: 499/683/866ms (expected 500/680/860
 spec's "Total ≈ 860ms" to the millisecond. Separately confirmed `prefers-reduced-motion: reduce` still
 shows all 3 tiles at `opacity:1` with `transition-duration:0s` (no fade), exactly as before — untouched,
 per the spec's "stays as it is."
+
+### §415 — MPPM Home: "Ready to Launch?" cards — set the three links (2026‑11‑17, COMPLETE)
+
+Set the 3 `mppm-launch-link` card links. Found via `element_filter.text` + `return_parent:"ancestor"`
+(a direct `element_id` lookup bypasses `return_parent` — confirmed empirically, noted for future
+reference). "Review Requirements" and "See Deadlines" were both still placeholder `mode:"url", to:"#"`;
+"View an Info Session" already had the correct external URL + `openInNewTab:true` from an earlier pass.
+
+Set the two internal links via `data_element_tool.set_link` with `linkType:"page"` (native Webflow page
+references, not typed paths, per the spec). **The first attempt at the "See Deadlines" link reported
+`"status":"success"` but did NOT actually land** — confirmed by an immediate independent re-query still
+showing the old placeholder value. Retried the identical call and it landed correctly the second time,
+confirmed via a separate `get_settings` call. Exactly the "success response ≠ it landed" failure HARD
+RULE #3 exists to catch — logging it here since it happened on an ordinary `set_link` call, not just the
+usual style-write cases this rule was written for.
+
+**The external link needed `rel="noopener"` added, which the spec explicitly required and which was
+missing from the live published HTML despite `target="_blank"` already being set.** First tried setting
+it through the link setting's own `rel` sub-field (`static_link:{mode:"url", to, open_in_new_tab:true,
+rel:"noopener"}`) — the API echoed it back correctly on every re-query, but the published HTML never
+contained a `rel` attribute at all, even after a fresh republish. Switched to setting `rel="noopener"`
+as a plain custom attribute directly on the element (`set_attributes`) instead — this DID render, but
+only after a ~10–15s publish-propagation delay (confirmed by re-fetching the raw published HTML with a
+cache-busting param after waiting; an immediate re-check right after publishing still showed it missing).
+Net effect either way is the same attribute in the final HTML, so no functional loss — but the lesson:
+**the link setting's `rel` field is not reliable for getting `rel` into the compiled output on this
+site** (confirmed twice, including after a full republish) — a plain custom attribute is the dependable
+path for this one case, going forward.
+
+**Verification (live published site, Playwright, real clicks, not attribute-matching alone):** "Review
+Requirements" and "See Deadlines" both click through in the same tab and land on
+`/application-requirements` and `/calendars-deadlines` respectively. "View an Info Session" opens a
+genuine new browser tab/page (original tab stays on the homepage) at
+`https://event.webinarjam.com/register/116/k3mpqiv8` (the destination's own server then redirects to
+its canonical registration URL — outside our control, not a link error); confirmed `target="_blank"`
+and `rel="noopener"` both present in the final published HTML.
