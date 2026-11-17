@@ -14094,3 +14094,62 @@ matching the spec's "~8px lower" to the decimal), identical across 1440/991/767/
 columns at each width — confirming the single base-level value cascades uniformly with no breakpoint
 drift. Burst/icon sizes (264×264 / 112×112) and horizontal centering (burst X = icon X in every case)
 both unchanged, confirming nothing else moved. Zero console errors at any width.
+
+### §417 — MPPM-wide dead-link audit — the real findings, plus a HARD RULE #3 lesson paid for live (2026‑11‑17, COMPLETE)
+
+User asked for a sitewide audit of unset/dead links. **First pass was wrong and the user caught it
+immediately and correctly.** Scraping the compiled HTML with a regex and flagging every
+`<a href="#">` reported ~101 "unset" links (36 on Academic Policies alone) — this conflated two
+completely different things: (a) genuine native `Link` elements never given a destination, and (b)
+plain body-text sentences that happen to be built as native `Link` elements with no link setting at
+all (classes `mppm-acpol-body`/`mppm-acpol-doc-text`/`mppm-flat-body` — same style as the surrounding
+paragraph, zero visual difference, zero user-facing effect), which Webflow's renderer defaults to
+`href="#"` in the compiled output purely because the element type is Link and nothing else was ever
+set. **The fix, and the lesson: query the actual Designer elements (`element_filter:{type:"Link"}`)
+and read each one's real `settings.link`, never classify "broken" from compiled-HTML regex alone** —
+the ground truth is the stored element data, not what Webflow's compiler happens to emit for an
+unconfigured element. Re-running this way against all 24 pages found Academic Policies has exactly 9
+real links, all correctly set (user's own count, confirmed) — the other 36 "findings" were retracted
+outright.
+
+**A second false positive, caught by the user with a screenshot:** Application Requirements' "APPLY
+NOW ››" button (→ `terpengage.umd.edu/community/CustomLoginPage?GradApp=True`) was reported as a dead
+502 after being checked 3 separate times with headless Chromium through the proxy — every check
+agreed with itself, and every check was wrong. The user clicked it in a real browser and got a normal,
+working UMD Graduate School Application Portal login page. Retracted. **This is the same failure
+category as the LinkedIn/Instagram 403/429/999 false positives already caught earlier in the same
+audit (those sites block bot traffic, which isn't the same as a dead link) — just with a different,
+more convincing-looking error code (502 reads as "their server is down," not "something is blocking
+this specific request"), which is exactly why it fooled this session for 3 rounds. Lesson: an automated
+checker that is itself consistent across repeated tries is not the same as a checker that is correct —
+the only way to fully rule out this failure mode is an independent, real-browser, human click.**
+
+**Real findings, confirmed and fixed (4 of them, all a one-property `linkType:"url"` fix — `http://` →
+`https://`, verified both by re-querying the stored element AND by actually navigating the live
+published href to its real destination page):**
+- Graduation & Commencement, "Master's Instructions" section — "Apply for Graduation via Testudo" →
+  `http://www.testudo.umd.edu/` → `https://www.testudo.umd.edu/`
+- Graduation & Commencement, "Master's Instructions" section — "u.achieve-help" →
+  `http://registrar.umd.edu/uachieve/uastudenthelp.html` → `https://registrar.umd.edu/uachieve/uastudenthelp.html`
+  (server-side redirects to `/uachieve-support`)
+- Graduation & Commencement, "Commencement Information" section — "Testudo" →
+  `http://testudo.umd.edu/` → `https://testudo.umd.edu/`
+- Tuition & Financial Aid, "Financial Aid & Alternative Payment" section — "Office of Veteran's
+  Benefits" → `http://www.registrar.umd.edu/veteran-benefits.html` →
+  `https://www.registrar.umd.edu/veteran-benefits.html` (server-side redirects to `/veterans-benefits`)
+
+**Real findings, confirmed but NOT yet fixed (deferred — need the user's input, not a guess):**
+- Graduation & Commencement — the Apply Now sidebar CTA button (the shared "MPPM Apply Now Box"
+  component instance) has no link set at all.
+- Online Learning — the same Apply Now sidebar CTA button, same issue, no link set.
+- Online Learning, "Online Library Usage" section — "www.lib.umd.edu/UMCP" → dead LibGuides URL
+  (`lib.guides.umd.edu/c.php?g=1010320&p=7319325`, confirmed 404 with a real LibGuides error page,
+  title "(1007)"). Candidate replacement identified but not yet applied pending the user's own
+  click-confirmation: `https://www.lib.umd.edu/find/online/off-campus` ("Access Online Resources Off
+  Campus") — matches the sentence's actual subject (remote access to library resources) far better
+  than the generic `lib.guides.umd.edu/` homepage.
+- Tuition & Financial Aid, "When to Pay" section — "term-based calendar" →
+  `oes.umd.edu/.../payment-due-dates-term-calendar`, confirmed 404 — that department's domain has
+  moved to `exst.umd.edu` (confirmed via the sibling "Program specific payment information" link on
+  the same page, which already correctly redirects there); the exact right new path under
+  `exst.umd.edu` for this specific calendar page hasn't been confirmed yet.
