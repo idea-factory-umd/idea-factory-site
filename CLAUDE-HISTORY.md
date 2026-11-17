@@ -14319,3 +14319,39 @@ Published (`publishToWebflowSubdomain:true` — this site has no custom domain y
 verification matrix, with the established ~15s propagation wait before the first live check.
 
 **DONE** — all CHECK items pass at all 4 breakpoints, zero regressions, nav menu untouched.
+
+### 2026-11-17 — §420: MPPM Home "Get Connected" form — hide one developer-facing ActiveCampaign message, leave the real ones alone
+
+User asked to hide only "Forms must have an email field or a phone field present" from the hero
+form's validation errors, explicitly leaving the three "This field is required." messages untouched.
+That message is ActiveCampaign's own generic validator output (confirmed: it shares the exact same
+`._error`/`._error-inner` classes as the real per-field messages, so plain CSS can't distinguish them
+— no way to select by text content) — it fires even though the email field is clearly present; almost
+certainly a stale/incorrect field-mapping flag on AC's own dashboard side for this form, not anything
+wrong with the page. Hiding it is cosmetic masking, not a fix to whatever's wrong on AC's side; said so
+to the user before building.
+
+**Where it lives:** Home page (`6afb5f248e7d4b4975da8d03`), HtmlEmbed `ef4a1087-8bca-2b39-b238-a91b8c085ef2`
+(class `hf-embed`) — holds the raw AC embed (`<div class="_form_38">` + `embed.php?id=38` script) PLUS
+an existing `__hfFormHelpers` IIFE (dark reCAPTCHA theme, placeholder text, hf-engaged/hf-quiet class
+toggling for both `#get-connected` and a second form `#learn-more-form`) that already runs a
+`MutationObserver` on `document.documentElement` — exactly the right hook to catch AC injecting this
+error asynchronously. Added one new function, `hideDevError(root)`, called from the existing `run()`
+dispatcher alongside `darken()`/`placeholders()` — queries `#get-connected ._error, #learn-more-form
+._error`, checks each one's `._error-inner` text for the substring `"email field or a phone field"`,
+and sets `display:none !important` on the OUTER `._error` wrapper (not just the inner text span) so no
+empty-margin gap is left behind. Scoped to both form ids using the exact same existing selector pattern
+already in this script — not a new coupling, just extending what's already there. Every other line
+(the reCAPTCHA darken/reveal logic, placeholders, the click-based engage/quiet toggling) is byte-
+identical to before — re-verified via a fresh `get_settings` read immediately after the write. The
+sibling `mppm-hero-cssembed` (pure CSS, no JS) was left untouched — CSS has no way to match by text
+content, so this had to be JS, and the right JS infrastructure already existed in this one embed.
+
+**Verified live** (published, Playwright against the real form): clicked Submit on the empty hero form
+(client-side validation only — never reaches AC's server, so no real submission side-effect) and read
+every `._error` element's actual computed `display`. Result: all three "This field is required."
+messages render exactly as before (`display:block`, visible); the "Forms must have an email field or a
+phone field present" message is `display:none`, with no visible gap where it would have sat
+(screenshot-confirmed). Zero `pageerror` events.
+
+**DONE.**
