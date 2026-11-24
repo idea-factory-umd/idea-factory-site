@@ -14446,3 +14446,24 @@ Published **staging only** (`customDomains` empty, per HARD RULE #30) and confir
 screenshot of the open dropdown on `umd-i-corps-site.webflow.io`.
 
 Still awaiting approval before Stage 2 (deleting the Schedule dropdown).
+
+### 2026-11-24 — §424: UMD I-Corps nav Stage 2 (final) — Schedule dropdown deleted, consolidation complete
+
+User confirmed Stage 1's result and authorized Stage 2. Re-checked the Schedule dropdown's contents
+fresh immediately before deleting (not from memory) — confirmed its 2 items were still byte-identical
+to what Program now already carries, then deleted the whole "Schedule" `DropdownWrapper`
+(`e544268c-669b-f094-c3be-ce906ef46895`, componentId `e544268c-669b-f094-c3be-ce906ef4684c`) in one
+`remove_element` call — a single atomic removal of a self-contained subtree, not the
+move-then-remove-empty-parent pattern HARD RULE #13 warns about, since nothing needed to be emptied
+out first.
+
+**Verified:** re-queried the old element id — 0 matches, confirmed gone. Re-queried the nav's
+top-level item list — Schedule's old slot (between Program and Impact) is simply absent, every other
+item shifted up one with no gap, no orphan. Published **staging only** (`customDomains` empty).
+Live staging check (DOM text + screenshot): top-level nav reads Home, Program▾, Impact, Mentors,
+National I-Corps, MD Innovation Extension, Team, Start I-Corps Prep — no Schedule. Program's dropdown
+re-confirmed live, still exactly Program Details / Upcoming Cohorts / Info Sessions / News / Resources.
+Zero `pageerror` events.
+
+**This completes the nav consolidation task — DONE**, still staging-only per the standing rule; no
+production publish has occurred at any point in this task.
