@@ -14467,3 +14467,34 @@ Zero `pageerror` events.
 
 **This completes the nav consolidation task — DONE**, still staging-only per the standing rule; no
 production publish has occurred at any point in this task.
+
+### 2026-11-24 — §425: UMD I-Corps Schedule page — "See Cohort Dates ↓" jump button added to the hero
+
+**Target anchor, confirmed real (HARD RULE #14) before building anything:** the Schedule page already
+had a correctly-placed `id="regional-cohorts"` on the actual `<section>` for "Regional I-Corps
+Cohorts" (element `ae7230fe-a99f-7249-8850-11c1a1b1ee84`) — the exact same anchor the nav's own
+"Upcoming Cohorts" sublink already uses (§422-424). Reused it as-is rather than inventing a new one.
+
+**Button:** new standalone class `icorps-schedule-btn-jumpdown` (style id
+`1c178baf-d313-c403-e4e1-4dc7e4788be5`), copied from this same page's existing
+`icorps-schedule-btn-gold2` button family (gold `#ffd200` bg, `#1a1a1a` text, 14/28px padding,
+Interstate 800 14px uppercase, 220ms background-color+transform transition, hover → `#e6c200` +
+`scale(1.03)`) rather than inventing new styling — the hero's own background is `#000` (confirmed via
+`if-hero-sec`), so gold reads with strong contrast, and gold is this site's established
+primary-action color. Added `margin-top:28px` (same value as the button's own horizontal padding,
+chosen for proportionality — the lead paragraph above it has `margin-bottom:0`, so the button needed
+its own top spacing). Built as a native `TextLink` (compiles to `Link`, same element type as every
+other button on this page — never DOM/custom-tag, per HARD RULE #23), text **"SEE COHORT DATES ↓"**
+(real Unicode down-arrow, matching the page's own established trailing-glyph convention — its two
+sibling buttons already end in a plain "»" character, not an Icon widget), `href="#regional-cohorts"`,
+`data-smooth-scroll="1"` (the same sitewide same-page-scroll attribute every other anchor link on this
+site already uses). Appended as the last child of `icorps-schedule-hero-wrap`, directly under the
+hero's lead paragraph.
+
+**Verified live on staging:** screenshot confirms the button renders correctly in the hero (gold on
+black, correct text/arrow, properly spaced below the lead paragraph). Clicked it twice in one
+continuous session (fresh load, then again after scrolling back to top — the HARD RULE #21 sequence
+check, not just a single fresh-load click) — both times landed with the "Regional I-Corps Cohorts"
+heading and the January cohort dates fully visible, ~24px clear below the sticky header (using the
+site's own existing smooth-scroll mechanism, not a new one). Zero `pageerror` events either time.
+Published **staging only** (`customDomains` empty, per HARD RULE #30).
