@@ -14592,3 +14592,68 @@ now holds exactly 2, in order: Impact, then News. Published **staging only** (`c
 per HARD RULE #30). Live staging check (Playwright): both dropdown lists' live `<a>` text/href pairs
 match exactly; zero `pageerror` events. Screenshots confirm both open states — Program's dropdown
 correctly down to 4 items, Impact's showing Impact directly above News.
+
+### 2026-11-24 — §428: UMD I-Corps Schedule hero button — two separate bugs found and fixed (wrong landing target, plus an intermittent shared-JS scroll race)
+
+User reported the §425 "SEE COHORT DATES ↓" hero button "isn't taking one down to the proper place,"
+with a screenshot at ~1200px showing it landing on the "Regional I-Corps Cohorts" heading + eligibility
+note, with the actual "UMD January Cohort" dates card only barely peeking into view at the very bottom
+of the screen.
+
+**Investigation (full width sweep, 1440 down to 375, repeated and with real `Locator.click()`, not
+just a single fresh-load test — HARD RULE #21):** every width consistently landed the scroll ~24px
+below the sticky header relative to the `#regional-cohorts` SECTION's own top edge — the shared
+`data-smooth-scroll` mechanism (`idea-factory.js`'s `dest()`/`animate()`) was working exactly as
+designed, matching the sitewide default gap used everywhere else. **The actual problem was the
+anchor target, not the scroll math:** `#regional-cohorts` sits on the section's outer boundary, ~72px
+above the section's own heading and well above the actual cohort-dates card the button's own label
+promises ("SEE COHORT DATES"). A screenshot taken at 1200px reproduced the user's image exactly
+(confirmed side-by-side), proving this was the real, reproducible issue, not a one-off fluke.
+
+**Fix (bug 1 — wrong target):** the shared JS already supports a `data-scroll-target` attribute on
+any `data-smooth-scroll` link, to scroll to a specific descendant of the `#id` target instead of its
+outer edge — an existing, unused-until-now hook, so no new script was needed. Found the first cohort
+card's class (`icorps-schedule-cohortcard`, element `e6bfe43c-...-56c93`, inside `#regional-cohorts`)
+and set `data-scroll-target=".icorps-schedule-cohortcard"` on the hero button
+(`6c085ec7-0aa7-da70-9884-4787c6b69727`) via `set_attributes`. Published staging, re-verified: landed
+correctly (~24px gap above the card, dates immediately visible) at every width **except 1440**, which
+overshot by ~275px.
+
+**Investigation (bug 2 — intermittent, width-dependent overshoot):** re-tested 1440 alone, fresh —
+landed correctly. Re-ran the full sweep — 1440 failed again. Confirmed non-deterministic: the shared
+click handler computes its scroll destination **once**, at click time (`dest(a)` → fixed `toY` →
+animate to it over ~430-820ms) — if the page's layout shifts *after* that calculation but before the
+animation finishes (Adobe Typekit webfont swap being the standard real-world cause — confirmed no
+`<img>` exists in the cohort card, ruling out image-load as the culprit; a late font swap reflows
+paragraph line-wrapping, and how much a given paragraph reflows depends on its own wrap width, which is
+why only some viewport widths actually tipped over a line-count threshold large enough to matter), the
+already-committed `toY` goes stale and the animation completes at the wrong spot. This is a sitewide
+mechanism, not specific to this one button, so any `data-smooth-scroll` link anywhere could hit it.
+
+**Fix (bug 2 — self-correcting resync), applied to the shared `idea-factory.{js}`:** `animate()` now
+takes the triggering link element alongside `toY`; once the eased animation settles (and also for the
+`prefers-reduced-motion` instant-jump path), it re-runs the *same* existing `dest(a)` calculation
+against the live DOM and, if the result has drifted more than 4px from where the page actually landed,
+snaps to the corrected position — once immediately, once more 250ms later to catch a slower late
+reflow. Pure internal-logic change: every existing selector/attribute the shared file and every
+spun-off site's markup depend on (`data-smooth-scroll`, `data-scroll-target`, `data-scroll-gap`,
+`if-smooth-scroll`, `if-header`) is untouched, satisfying HARD RULE #18.
+
+**⚠️ Promotion note, since `main` and this dev branch (`claude/keen-johnson-f9w833`) remain the
+long-diverged histories HARD RULE #5 already documents:** per that rule, no merge/rebase of the two
+branches was attempted. Confirmed first (`curl` + `diff` against the live GitHub Pages file and
+`main`'s own raw file) that `main`'s *current* `idea-factory.js` already contained the exact same
+pre-fix smooth-scroll code verbatim (the two branches' copies of this one function still matched
+byte-for-byte, even though their histories don't share an ancestor) — so the identical narrow edit
+was applied directly to a temporary `git worktree` of `origin/main` (per HARD RULE #24's established
+"isolated, additive, never a wholesale merge" promotion pattern) and pushed as its own commit, same as
+the dev-branch commit, without touching anything else on `main`.
+
+**Verified live, post-promotion:** polled the live GitHub Pages JS until it contained the new `resync`
+code (~30s after push, consistent with the documented 1-2 min propagation window). Re-ran the full
+width sweep **3 times** (18 total checks: 6 widths × 3 runs, including 1440, with a *shorter*
+pre-click wait than the original failing test to stress the exact race) — **18/18 landed within
+10-60px of the header**, zero `pageerror` events throughout. Screenshot at 1200px (same width as the
+user's original report) now shows the "UMD January Cohort" card with all three dates immediately
+visible, directly below the header — directly comparable to, and resolving, the user's original
+screenshot. Published **staging only** throughout (`customDomains` empty, per HARD RULE #30).
