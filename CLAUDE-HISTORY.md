@@ -14389,3 +14389,39 @@ submitted both forms empty; both show the 3 real "This field is required." messa
 (screenshot-confirmed) and zero `pageerror` events on either page.
 
 **DONE.**
+
+### 2026-11-24 — §422: UMD I-Corps Main Nav — STAGE 1 of 2: copy Schedule's 2 items into Program dropdown (Schedule left untouched, staging-only publish)
+
+User-directed, staged nav consolidation: fold the "Schedule" dropdown's two items into "Program,"
+then (separately, pending explicit approval of this stage) delete the Schedule dropdown entirely.
+Stage 1 only: append copies, touch nothing else.
+
+**Component:** "Main Nav — UMD I-Corps" (`e544268c-669b-f094-c3be-ce906ef4684c`, instanceCount 12 at
+time of edit) — already covered by this project's standing write exception for this one component.
+
+**Before:** Program dropdown (`if-dd-list` id `e544268c-669b-f094-c3be-ce906ef4688c`) held 3 items —
+Program Details, News, Resources (each `https://www.icorps.umd.edu/umd-i-corps-<slug>`). Schedule
+dropdown (`if-dd-list` id `e544268c-669b-f094-c3be-ce906ef4689a`) held 2 — Upcoming Cohorts
+(`…/umd-i-corps-schedule#regional-cohorts`) and Info Sessions (`…/umd-i-corps-schedule#info-sessions`).
+
+**Change:** created 2 new `TextLink` elements (compiled as native `Link`, styled `if-nav-sublink` —
+identical class to every existing sublink), appended as the last two children of the Program
+dropdown's list, same text and exact same absolute href strings as Schedule's own two items
+(copied verbatim, not relativized — matches the existing pattern where every other sublink here is
+also an absolute `https://www.icorps.umd.edu/...` URL, not a root-relative path). Schedule's own
+dropdown list was not touched at all — same 2 children, same element IDs, before and after.
+
+**Verified:** re-queried both dropdown lists immediately after the write — Program now has exactly 5
+children in order (Program Details, News, Resources, Upcoming Cohorts, Info Sessions); Schedule still
+has exactly its original 2, same element IDs. Published **staging only**
+(`publishToWebflowSubdomain:true`, `customDomains` omitted — confirmed empty in the response, per
+HARD RULE #30) and re-verified against the live staging DOM (`umd-i-corps-site.webflow.io`): both
+dropdowns' actual rendered `<a>` text/href match the Designer data exactly (the extra
+`__hstc`/`__hssc`/`__hsfp` query-string params on every link are a pre-existing sitewide HubSpot
+tracking behavior, not something this edit introduced — present identically on the untouched Schedule
+links too). Zero `pageerror` events. Screenshots of both dropdowns open (forced via DOM for the
+screenshot, not a functional test — the functional proof is the DOM query above) sent to the user for
+review before Stage 2 (deleting the Schedule dropdown) is authorized.
+
+**Stage 2 (delete the Schedule dropdown) is explicitly NOT done yet — awaiting the user's review and
+approval of this stage first**, per their own staged-rollout instruction.
