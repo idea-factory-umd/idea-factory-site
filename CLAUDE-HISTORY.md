@@ -14498,3 +14498,76 @@ check, not just a single fresh-load click) — both times landed with the "Regio
 heading and the January cohort dates fully visible, ~24px clear below the sticky header (using the
 site's own existing smooth-scroll mechanism, not a new one). Zero `pageerror` events either time.
 Published **staging only** (`customDomains` empty, per HARD RULE #30).
+
+### 2026-11-24 — §426: UMD I-Corps nav — top-level "Impact" converted to an "Impact" dropdown (first item: the original link)
+
+User asked for the top-level "Impact" nav link to become a dropdown named "Impact," with the current
+linked item as its first entry — explicitly because more items will be added to it later. Built on the
+"Main Nav — UMD I-Corps" component (`e544268c-669b-f094-c3be-ce906ef4684c`), replacing Impact's
+top-level slot in place (same position: between Program and Mentors).
+
+**First build pass (corrected, see below):** per NAV-MENU-GUIDE.md's mandatory read before any nav
+work, built a native `DropdownWrapper`/`DropdownToggle`/`DropdownList` (`data-hover="true"`,
+`data-delay="200"` set via `set_attributes`, since the API never sets these automatically), moved the
+original Impact `Link` into the `DropdownList` as its sole item (restyled `if-nav-link` →
+`if-nav-sublink`), and — mistakenly — invented a brand-new label+caret structure for the toggle: a
+`icorps-ddtoggle-labelwrap` div wrapping the label link plus a `icorps-ddtoggle-caret-txt` Paragraph
+holding a literal Unicode "▼" character, reasoning from the guide's general caret-reliability warning
+("native `Icon` via API doesn't register headlessly, use Unicode instead") without first checking what
+the already-existing Program dropdown actually does.
+
+**User caught this immediately from a screenshot:** Program's caret is Webflow's small native chevron;
+the new Impact caret was a different, larger, solid "▼" glyph — visibly mismatched. User's correction:
+*"the ARROW for the 'impact' dropdown has to be IDENTICAL to the ARROW for the other menu dropdowns,"*
+then, after seeing the fix attempt reach for yet another bespoke structure: *"You don't need to make
+'special case dropdowns' and create them uniquely every time: USE THE ONE ALREADY THERE and DUPLICATE
+the styling."*
+
+**Root cause, and the reusable lesson:** Program's caret live HTML is
+`<div class="program-page-icorps-toggle-caret w-icon-dropdown-toggle" aria-hidden="true"></div>` — a
+native Webflow **Icon** element. `w-icon-dropdown-toggle` is one of Webflow's own reserved
+framework classes (it carries the icon-font glyph via a `:before` rule in Webflow's always-loaded
+shared CSS) and is **not** a real Designer Style object — confirmed empirically:
+`data_style_tool.query_styles` found `program-page-icorps-toggle-caret` as a genuine style, but
+`data_element_builder`'s `set_style` rejected a `DivBlock` carrying `["program-page-icorps-toggle-caret",
+"w-icon-dropdown-toggle"]` together with "One or more styles not found" — a plain `Block`/div can never
+be made to carry this class through the API; it only exists on an element of genuine native **type
+`Icon`**, and `Icon` is not one of `data_element_builder`'s creatable `type` values. The working
+technique (same one already noted as a live trick earlier this session for harvesting an auto-generated
+`Dropdown` scaffold): build a disposable native `type:"Dropdown"` element anywhere, which Webflow's own
+backend auto-scaffolds complete with a genuine `Icon` child on its toggle; move that one `Icon` element
+into the real target toggle (prepend), `set_style` it to `["program-page-icorps-toggle-caret"]` alone
+(the reserved `w-icon-dropdown-toggle` class comes for free from the element's own `Icon` type — it does
+not need to be, and cannot be, requested via `style_names`), `set_attributes` it `aria-hidden="true"` to
+match, then delete the now-empty throwaway `Dropdown` wrapper. Removed the abandoned
+`icorps-ddtoggle-labelwrap`/`icorps-ddtoggle-caret-txt` structure and both of their now-orphaned styles
+(verified 0 elements referenced either before deleting).
+
+**Final structure (verified via `query_elements`, byte-identical in its compiled form to Program's own
+toggle):** `DropdownToggle` (`if-nav-link if-ddtoggle`) → `[Icon (program-page-icorps-toggle-caret,
+aria-hidden="true"), Link (if-navlink-text, href `/umd-i-corps-impact`, text "Impact")]`;
+`DropdownList` (`if-dd-list`) → one `Link` (`if-nav-sublink`, href `/umd-i-corps-impact`, text
+"Impact") — confirmed via `get_settings` (`all_resolved_settings`) that this moved/restyled sublink's
+own `link`/`text` settings survived the move untouched, not merely assumed from the move call's
+"success" status, per HARD RULE #3.
+
+**Verified live on staging (Playwright, 3 pages — Home/Schedule/Mentors sharing the same nav component
+instance):** Program's and Impact's caret `<div>`s now compile to **identical** markup
+(`program-page-icorps-toggle-caret w-icon-dropdown-toggle`, `aria-hidden="true"`), identical computed
+style (`font-size:11px`, `opacity:0.85`, `color:#fff`, `font-family:"webflow-icons"`), identical
+11×11px bounding box — confirmed both by direct DOM comparison and a side-by-side screenshot. Sub-item
+href/text correct (`/umd-i-corps-impact`, "Impact") on all 3 pages. Click-navigate confirmed: clicking
+the live "Impact" toggle label changes the URL to `/umd-i-corps-impact`. Forced-open screenshot (the
+same `w--open` class + inline `display:block` technique used earlier this session, since Playwright's
+synthetic `.hover()` does not reliably trigger Webflow's native `data-hover` interaction in this
+proxied/headless setup — confirmed a pre-existing harness limitation, not a regression, since Program's
+own long-working dropdown shows the identical "hover didn't register" reading under the same synthetic
+test) shows the dropdown opening correctly with "Impact" as its one item, caret matching Program's
+exactly. Zero `pageerror` events on any of the 3 pages, before or after the fix. Published **staging
+only** both times (`customDomains` empty, per HARD RULE #30).
+
+**Standing lesson for all future nav work:** when a new dropdown/toggle must visually match an
+existing one on the same nav, don't re-derive its caret/icon mechanism from general guide text —
+query the existing one's live compiled HTML/CSS first and reuse its *exact* class names and element
+type. A custom Unicode-character substitute is a fallback for when no working native example exists
+on the page to copy from, not a first resort when one already does.
