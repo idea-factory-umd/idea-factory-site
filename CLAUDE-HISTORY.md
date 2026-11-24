@@ -14571,3 +14571,24 @@ existing one on the same nav, don't re-derive its caret/icon mechanism from gene
 query the existing one's live compiled HTML/CSS first and reuse its *exact* class names and element
 type. A custom Unicode-character substitute is a fallback for when no working native example exists
 on the page to copy from, not a first resort when one already does.
+
+### 2026-11-24 — §427: UMD I-Corps nav — "News" moved from the Program dropdown to the Impact dropdown
+
+User asked to move the "News" sublink out of the Program dropdown and into the new Impact dropdown
+(§426), directly under the "Impact" item. Fresh-queried (HARD RULE #19) both dropdown lists
+immediately before acting rather than trusting IDs from earlier in the session: Program's
+`DropdownList` (`e544268c-669b-f094-c3be-ce906ef4688c`) held, in order, Program Details / Upcoming
+Cohorts / Info Sessions / **News** (`e544268c-669b-f094-c3be-ce906ef4688f`) / Resources; Impact's
+`DropdownList` (`ca26f1d3-769b-521d-6cb7-be52c77dad7b`) held only Impact
+(`e544268c-669b-f094-c3be-ce906ef46893`).
+
+Single `move_element` call: News, anchored `after` the Impact sublink, scoped to the nav component —
+no restyling needed (News already carried `if-nav-sublink`, the same class every other sub-item in
+either dropdown uses).
+
+**Verified:** re-queried both lists immediately after — Program now holds exactly 4 items (Program
+Details / Upcoming Cohorts / Info Sessions / Resources, same IDs, same relative order, no gap); Impact
+now holds exactly 2, in order: Impact, then News. Published **staging only** (`customDomains` empty,
+per HARD RULE #30). Live staging check (Playwright): both dropdown lists' live `<a>` text/href pairs
+match exactly; zero `pageerror` events. Screenshots confirm both open states — Program's dropdown
+correctly down to 4 items, Impact's showing Impact directly above News.
