@@ -860,6 +860,80 @@
 >   banner intact and pass it on, **and treat it as still actively in force for UMD I‑Corps work
 >   unless a future session's transcript shows the user explicitly lifting it.**
 
+> ## 🚫 #31 HARD RULE — HOW TO BUILD ANY "JUMP TO THIS SPOT ON THE PAGE" ANCHOR LINK, ALWAYS, NO OTHER WAY — ON THIS MASTER SITE *AND* EVERY SPINOFF IN THIS SYSTEM, NO EXCEPTIONS (2026‑11‑24 — cost the user HOURS and a genuine crisis on the UMD I‑Corps Schedule page before a user‑supplied spec finally got it right in one pass; every one of this session's own attempts failed for a DIFFERENT, avoidable reason)
+> **⚠️ SCOPE, user‑stated explicitly and forcefully: this rule is NOT a UMD‑I‑Corps‑specific fix. It
+> governs ANY same‑page "jump to a spot on the page" anchor/button, on THIS master site, the Idea
+> Factory flagship, and every spinoff — ASPIRE, MIPS, CBSCF, Mtech Ventures, UMD I‑Corps, MPPM, and
+> any future one — because every one of them is built on the same Webflow mechanics (the same native
+> Designer link types, the same class of compiled runtime behavior) that caused this crisis here.
+> "This was a UMD I‑Corps bug" would be exactly the wrong lesson to take from this — the next session
+> that builds an anchor link on ANY of these sites without reading this rule first will reproduce the
+> identical multi‑hour failure chain, on a different domain, for the identical reasons.**
+> **Building a button/link that scrolls to a spot on the same page is NOT "just set an href and maybe
+> add some scroll JS." It failed FIVE different ways in one session — wrong landing target, a
+> JS‑timing race, Webflow's own native Designer link types silently snapping to the wrong element,
+> Webflow's own compiled runtime hijacking the click entirely, and a follow‑up "correction" that
+> produced a visible pop of its own — before a user‑supplied spec finally nailed it in one pass. The
+> difference was never effort; this session tried hard, repeatedly, and kept rediscovering the SAME
+> few facts the hard way, one at a time, instead of knowing them going in. These are those facts,
+> crystallized so they never have to be rediscovered again, on ANY site in this project. Follow ALL
+> of them, every time, with NO exceptions — reusing a half version of this (e.g. only the
+> measurement, or only the interception) is exactly how this failed before:**
+> 1. **Measure what's ACTUALLY pinned to the top of the viewport at runtime — never hardcode a
+>    header class/selector.** Scan for any element whose COMPUTED `position` is `fixed` or `sticky`,
+>    is visible, spans most of the viewport width, and sits at/near `top:0` — take the tallest such
+>    match's bottom edge as the live header offset. A hardcoded selector (`.if-header`, whatever this
+>    one site currently calls it) is exactly the kind of assumption that breaks the moment it's
+>    reused anywhere the header is built differently, or the moment this one site's header changes.
+> 2. **Intercept the click yourself, unconditionally, for every same‑page hash link — never rely on a
+>    special opt‑in attribute, and never rely on Webflow's own native link handling.** Confirmed
+>    directly, via a `preventDefault` stack‑trace capture: Webflow's own compiled runtime
+>    (`webflow.schunk….js`, via jQuery) intercepts same‑page anchor clicks ITSELF and does its own
+>    scroll — one that does **not** honor CSS `scroll-margin-top`, snaps a native "page section" link
+>    to the nearest ANCESTOR Section if the real target is a nested element, and otherwise lands
+>    somewhere approximate. This is why `Upcoming Cohorts`/`Info Sessions` on this project's own nav
+>    only ever looked "precise" — their links are absolute URLs carrying a HubSpot tracking query
+>    string that differs from the current page's URL, so clicking them ALWAYS forces a full page
+>    RELOAD even when already on that exact page, and only a genuine fresh page load lets the
+>    browser's own native hash‑landing (which DOES honor `scroll-margin-top`) run at all. A same‑page
+>    button click gets no such reload, so it must be intercepted in the CAPTURE phase
+>    (`document.addEventListener('click', fn, true)`, matching same‑origin+same‑pathname
+>    `a[href*="#"]` links generically) and handled entirely in your own code, every time —
+>    `e.preventDefault(); e.stopImmediatePropagation();` before Webflow's own handler ever runs.
+> 3. **Handle all three ways a person actually arrives at the anchor with the SAME landing function** —
+>    (a) clicking a same‑page link right now, (b) loading the page with the hash already in the URL
+>    (direct link, or arriving from another page), and (c) browser back/forward (`popstate`). Treating
+>    only "click" as the problem is why the direct‑load and back‑button cases kept surfacing as
+>    separate, later surprises.
+> 4. **Scroll exactly ONCE. Never schedule a follow‑up "correction" scrollTo after the primary
+>    animation.** This was the single most counter‑intuitive lesson: a corrective snap — even one
+>    written as `behavior:'smooth'`, even timed to fire only after the first scroll should have
+>    settled — renders as a visible pop/jerk the instant it fires, because a very short distance
+>    "smooth" scroll has no real easing curve to hide inside. Confirmed by direct measurement, twice:
+>    removing the follow‑up entirely (not retiming it, not softening it — REMOVING it) is what made
+>    the frame‑by‑frame deceleration perfectly continuous with zero discontinuity. If the header and
+>    target are both genuinely static (no late‑loading image/font changing their position — verify
+>    this explicitly, don't assume it), one scroll is correct and sufficient; do not add a safety-net
+>    recheck "just in case" — it is not a harmless extra, it is the bug.
+> 5. **Never claim an anchor link is "done" without an actual before/after pixel measurement — a
+>    frame‑by‑frame one if a "pop"/"jerk" is specifically in question.** `header bottom edge` vs.
+>    `target top edge`, within ±2px, measured via a real headless‑browser click (never a synthetic
+>    `.click()` call alone — confirmed those can be treated differently by a page's own native runtime
+>    than a genuine Playwright `locator.click()`), at every breakpoint in practical use. A claim of
+>    "fixed" that turns out wrong, repeatedly, is what turned one afternoon's bug into a crisis.
+> - **A working, user‑verified reference implementation of all five points already exists, on THIS
+>   project's UMD I‑Corps site — copy its actual code onto WHICHEVER site/page needs it next, don't
+>   re‑derive from these bullet points from scratch, and don't treat it as site‑locked:** the UMD
+>   I‑Corps Schedule page's own page‑scoped HTML Embed (siteId `6ab6a3b0a622500df2d51d3f`, pageId
+>   `6ab6a3b0a622500df2d51d9e`, element `ba9b10d7-2376-dd71-f8c6-5344f7c44844`, attribute
+>   `data-note="Schedule-page-only anchor-landing fix, DO NOT DELETE"`). Per HARD RULE #17, place a
+>   COPY of this exact pattern as its own page‑scoped (or, if genuinely needed on every page of ONE
+>   site, component‑scoped) embed for each new page that needs this, **on whichever site that page
+>   lives on** — the master, the Idea Factory flagship, or any spinoff — never a shared cross‑site
+>   file, and never a hand‑rewritten reinvention that "seems equivalent."
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#30 — keep this
+>   banner intact and pass it on.
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is

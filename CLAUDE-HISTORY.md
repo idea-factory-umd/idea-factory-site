@@ -14657,3 +14657,81 @@ pre-click wait than the original failing test to stress the exact race) — **18
 user's original report) now shows the "UMD January Cohort" card with all three dates immediately
 visible, directly below the header — directly comparable to, and resolving, the user's original
 screenshot. Published **staging only** throughout (`customDomains` empty, per HARD RULE #30).
+
+### 2026-11-24 — §429: UMD I-Corps Schedule anchor — the real fix, after §428's own fix also failed; new HARD RULE #31
+
+§428's shared-file `resync` fix held up under repeated stress-testing at the time, but the user
+reported it was still wrong in real use, and was — reasonably, given the string of prior
+over-claimed fixes — extremely skeptical that it could ever actually be fixed. What followed was a
+multi-stage debugging chain, each stage disproving the previous one's diagnosis, until a
+user-supplied spec resolved it in one pass:
+
+1. **Re-targeting attempt:** moved the button's `data-scroll-target` from the section to the
+   specific `.icorps-schedule-cohortcard`, gave the card its own `id="umd-january-cohort"` (HARD
+   RULE #14), and tried Webflow's native `pageSection` link type (`data_element_settings_tool`
+   `set_settings` with `mode:"pageSection"`) instead of a generic JS-driven scroll. **Failed:**
+   confirmed via direct measurement that Webflow's native page-section link silently snaps to the
+   nearest ANCESTOR Section when the real target isn't itself a true Section-type element —
+   changing the card's own HTML tag to `section` via `set_tag` made no difference (the detection is
+   based on Designer-side element type, not rendered tag name).
+2. **Plain-anchor attempt:** reverted to a bare `<a href="#regional-cohorts">` with zero JS
+   attributes, assuming native browser behavior (matching the nav's own `Upcoming
+   Cohorts`/`Info Sessions` links) would just work. **Failed, and root-caused properly this time:**
+   monkey-patched `Event.prototype.preventDefault` to capture a stack trace during a real click —
+   traced the interception to Webflow's own compiled runtime (`webflow.schunk….js`, via jQuery),
+   which intercepts EVERY same-page anchor click and does its own (non-`scroll-margin-top`-aware)
+   scroll handling. Confirmed separately that `Upcoming Cohorts`/`Info Sessions` only ever looked
+   precise because their hrefs are absolute URLs carrying a HubSpot tracking query string that
+   differs from the current page's URL — clicking them, even already on that exact page, always
+   forces a full RELOAD (confirmed via an actual "execution context destroyed by navigation" crash
+   in a test), and only a genuine fresh page load lets the browser's own native hash-landing +
+   `scroll-margin-top` run at all. A same-page button click never gets that reload, so it can never
+   borrow that mechanism.
+3. **User-supplied spec, executed verbatim where possible:** the user, after escalating heavily
+   (documented plainly here, not softened, because the next entry explains why it mattered:
+   repeated "it's fixed" claims that turned out wrong had already cost real trust) pasted a complete
+   prompt+script for this exact problem. Two adaptations were necessary and explained to the user
+   before executing: (a) its instruction to add the script to Webflow's **Project Settings → site-
+   wide Custom Code** is not possible via this MCP connection at all (documented, pre-existing tool
+   limitation — only Designer-editable surfaces are reachable); (b) the user then corrected a first
+   attempt to work around this by placing it in the shared "Main Nav" component (which would have
+   made it run site-wide) — explicitly wanted it scoped to the ONE page that uses it. Final
+   placement: a page-scoped `HtmlEmbed` on the Schedule page only (siteId
+   `6ab6a3b0a622500df2d51d3f`, pageId `6ab6a3b0a622500df2d51d9e`, element
+   `ba9b10d7-2376-dd71-f8c6-5344f7c44844`), code written byte-for-byte as given, verified via
+   `get_settings` before publishing. **This worked, verified with the user's own requested 8-point
+   measurement table (4 widths × click-test + direct-hash-load test), all 8 within 0.4px of the
+   ±2px tolerance, zero console errors beyond a pre-existing unrelated third-party mixed-content
+   warning.**
+4. **A second, distinct bug surfaced immediately after: a visible "pop" a few px, right after the
+   scroll's natural easing appeared to finish.** First hypothesis (a fixed 700ms re-check timer
+   firing mid-animation) was investigated with a high-frequency `requestAnimationFrame` scroll
+   sampler, which DID show a sharp discontinuity (a 60px single-frame jump) — but replacing the
+   fixed timer with a real "wait for the native `scrollend` event" check did **not** change the
+   measured symptom at all, disproving that theory. Direct instrumentation (wrapping `window.
+   scrollTo` to log every call + timestamp) then showed something decisive: in that run, only ONE
+   `scrollTo` call ever happened, and the native `scrollend` event itself reported the correct final
+   position — meaning the correction logic wasn't the cause in that trace, and the earlier
+   high-frequency sampler's own continuous per-frame overhead was suspected of being the real
+   confound. The user then corrected the investigation directly: the pop was happening *immediately
+   after the primary animation's own easing completed*, not seconds later. That pinpointed it: the
+   follow-up "guaranteed recheck", even rewritten to use `behavior:'smooth'` instead of an instant
+   snap, still produced a visible nudge, because a correction over only a few leftover pixels has no
+   real distance to ease across and renders almost like a snap regardless of the `behavior` value.
+   **Fix: removed the follow-up correction entirely.** Header height and the target section's
+   position are both static on this page (confirmed directly — no late image/font reflow moves
+   them), so a single scroll call was always sufficient; the "safety net" was the only thing
+   capable of producing the pop. Re-ran the exact same high-frequency sampler that had originally
+   caught the discontinuity: the new trace shows a perfectly smooth, monotonically decreasing
+   deceleration the entire way (22→21→19→17→16→14→13→11→10→10→8→7→6→5→4→4→2→2→2→0 px/frame) with
+   zero jump, settling naturally. **User confirmed: "YES. IT WORKS CORRECTLY NOW."**
+
+**Standing correction, written up as HARD RULE #31** (see that entry in CLAUDE.md) at the user's
+explicit, forceful request — crystallizing the five concrete, non-obvious design decisions in the
+user's own spec (generic runtime-measured pinned-offset instead of a hardcoded header selector;
+unconditional same-page-hash interception instead of a per-element opt-in attribute; deliberate
+capture-phase bypass of Webflow's own native click handling, known going in rather than rediscovered
+through failure; one landing function covering click/direct-load/popstate as a single problem; and
+never scheduling a follow-up correction scroll at all) into a permanent, always-apply standing rule
+for any future anchor-link work on this project, pointing at this page's embed as the literal
+reference implementation to copy rather than re-derive.
