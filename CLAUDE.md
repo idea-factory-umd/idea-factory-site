@@ -831,6 +831,35 @@
 > - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#28 — keep this
 >   banner intact and pass it on.
 
+> ## 🚫 #30 HARD RULE — UMD I‑CORPS ACTIVE EDIT SESSION (2026‑11‑24): PUBLISH TO STAGING ONLY — NEVER THE PRODUCTION CUSTOM DOMAIN — UNTIL THE USER EXPLICITLY LIFTS THIS
+> **User's own words, twice, forceful, and screenshot‑confirmed directly against the Designer's own
+> "Choose publish destination" dialog: "After each I want you to save and p[u]blish ONLY TO THE
+> 'Staging Site'. NEVER to the 'public' site" ... "You will be publishing to the one 'checked' here
+> ONLY" — with Staging (`umd‑i‑corps‑site.webflow.io`) checked and Production (`icorps.umd.edu`)
+> explicitly UNCHECKED in that screenshot.** This governs the current, ongoing round of edits to
+> **UMD I‑Corps** (`6ab6a3b0a622500df2d51d3f`) and stays in force for every `publish_site` call on
+> this site **until the user explicitly says otherwise** — never assume it has lapsed just because a
+> session boundary or a compaction occurred; that is the exact failure this entry exists to prevent.
+> - **THE EXACT MECHANISM, every single time, no exceptions:** call `publish_site` with
+>   `publishToWebflowSubdomain:true` and **`customDomains` OMITTED (or an explicit empty array
+>   `[]`)** — never populated. Populating `customDomains` with either of I‑Corps's two live domain
+>   IDs — `6467cf91f89d8c8ef0c89d1d` (`www.icorps.umd.edu`) or `6467cec701faed7c16c2b7ba`
+>   (`icorps.umd.edu`) — is exactly what would push a change to the PUBLIC site, which is forbidden
+>   here. Omitting `customDomains` is already the safe default per this same tool's own general
+>   gotcha (documented under "Webflow MCP notes" below) — here it is elevated from a
+>   default‑to‑be‑careful‑about into an explicit, deliberate, user‑mandated constraint specific to
+>   this site, right now.
+> - **Before every single `publish_site` call on this site, re‑confirm:
+>   `publishToWebflowSubdomain:true`, `customDomains` absent/empty.** Never add `customDomains` to a
+>   UMD I‑Corps publish call for any reason unless the user explicitly, in that moment, asks for a
+>   production publish.
+> - **This does NOT change or loosen HARD RULE #16's separate write‑access scoping** (which
+>   pages/components on this site may be edited at all) — it is an ADDITIONAL constraint on top of
+>   that, governing which destination an already‑authorized edit is allowed to publish to.
+> - This is a PERMANENT correction across sessions, same standing as HARD RULES #1–#29 — keep this
+>   banner intact and pass it on, **and treat it as still actively in force for UMD I‑Corps work
+>   unless a future session's transcript shows the user explicitly lifting it.**
+
 > **What this file is:** the durable, running record of every structural decision, convention,
 > ID, and piece of work for the UMD **Idea Factory** Webflow build. It exists so that a brand‑new
 > session can resume with **zero loss of context**. The scratchpad (`/tmp/...`) is ephemeral and is
