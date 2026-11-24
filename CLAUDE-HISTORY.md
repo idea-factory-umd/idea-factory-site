@@ -14425,3 +14425,24 @@ review before Stage 2 (deleting the Schedule dropdown) is authorized.
 
 **Stage 2 (delete the Schedule dropdown) is explicitly NOT done yet — awaiting the user's review and
 approval of this stage first**, per their own staged-rollout instruction.
+
+### 2026-11-24 — §423: UMD I-Corps nav Stage 1 reorder — Upcoming Cohorts/Info Sessions moved right after Program Details
+
+User reviewed §422's result and asked for one change, then explicitly corrected a misreading of their
+own reference screenshot mid-turn: the final order is **Program Details, Upcoming Cohorts, Info
+Sessions, News, Resources** — the two newly-added items move up to sit directly after Program
+Details, but News still comes before Resources (the screenshot's own News/Resources order was NOT
+what was meant; the user's literal words governed, not the image).
+
+**Change:** two `move_element` calls on the Program dropdown's list
+(`e544268c-669b-f094-c3be-ce906ef4684c` / `e544268c-669b-f094-c3be-ce906ef4688c`) — moved "Upcoming
+Cohorts" to `after` Program Details, then "Info Sessions" to `after` Upcoming Cohorts. News and
+Resources were never touched directly; they simply kept their relative order while the pair moved up
+past them.
+
+**Verified:** re-queried the dropdown list immediately after — order is exactly Program Details /
+Upcoming Cohorts / Info Sessions / News / Resources, same 5 element IDs as before (nothing recreated).
+Published **staging only** (`customDomains` empty, per HARD RULE #30) and confirmed via a live
+screenshot of the open dropdown on `umd-i-corps-site.webflow.io`.
+
+Still awaiting approval before Stage 2 (deleting the Schedule dropdown).
